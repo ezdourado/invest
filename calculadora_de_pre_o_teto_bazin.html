@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora Preço-Teto Bazin · Rigor 6%</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg:       #0d0f14;
+    --surface:  #13161e;
+    --border:   #1e2330;
+    --muted:    #2a2f3d;
+    --text:     #c8cdd8;
+    --dim:      #5a6175;
+    --accent:   #4f8ef7;
+    --green:    #3ddc97;
+    --yellow:   #f7c948;
+    --red:      #f76f6f;
+    --mono:     'IBM Plex Mono', monospace;
+    --sans:     'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 32px 24px 64px;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .header {
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .header-titles {
+    flex: 1;
+    min-width: 280px;
+  }
+  .header-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #e8ecf5;
+    letter-spacing: -0.02em;
+  }
+  .header-meta {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--dim);
+    font-family: var(--mono);
+  }
+  .header-meta span { color: var(--accent); }
+
+  /* ── Info Box: K Fixo ── */
+  .info-k-fixed {
+    background: rgba(79, 142, 247, 0.05);
+    border: 1px dashed rgba(79, 142, 247, 0.25);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: #a3b2cc;
+  }
+  .info-k-badge {
+    background: var(--accent);
+    color: #0d0f14;
+    font-family: var(--mono);
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Interactive Workspace Grid ── */
+  .workspace-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  @media (min-width: 850px) {
+    .workspace-grid {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+  }
+
+  /* ── Input Panel ── */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .panel-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dim);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .form-row-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  label {
+    font-size: 11px;
+    color: var(--dim);
+    text-transform: uppercase;
+    font-family: var(--mono);
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+  }
+  label span.optional-label {
+    text-transform: none;
+    color: var(--dim);
+    font-style: italic;
+  }
+  .input-with-symbol {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .input-symbol {
+    position: absolute;
+    left: 12px;
+    font-family: var(--mono);
+    color: var(--dim);
+    font-size: 13px;
+  }
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: #e8ecf5;
+    font-family: var(--mono);
+    font-size: 15px;
+    padding: 10px 12px 10px 36px;
+    outline: none;
+    transition: all 0.2s;
+  }
+  input[type="text"] {
+    padding-left: 12px;
+  }
+  input[type="number"]:focus, input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(79, 142, 247, 0.2);
+  }
+
+  /* ── Custom Checkbox (Setor Bancário) ── */
+  .checkbox-group {
+    flex-direction: row !important;
+    align-items: center;
+    gap: 10px;
+    background: rgba(79, 142, 247, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .checkbox-group:hover {
+    background: rgba(79, 142, 247, 0.06);
+    border-color: rgba(79, 142, 247, 0.3);
+  }
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text);
+    text-transform: none;
+    letter-spacing: 0;
+    width: 100%;
+    user-select: none;
+  }
+  .checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  /* Slider Styling */
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .slider-val-badge {
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .slider-wrap {
+    position: relative;
+    padding: 8px 0;
+  }
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    background: var(--muted);
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--accent);
+    transition: transform 0.1s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .slider-ticks {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+  }
+
+  /* Disabled Visual State for Slider */
+  .disabled-panel {
+    opacity: 0.3;
+    pointer-events: none;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  /* ── Output / Traffic Light Panel ── */
+  .result-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: sticky;
+    top: 20px;
+  }
+
+  /* Traffic Light / Farol Status Banner */
+  .farol-banner {
+    border-radius: 4px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-left: 4px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  .farol-banner.status-compra {
+    background: rgba(61, 220, 151, 0.08);
+    border-color: var(--green);
+  }
+  .farol-banner.status-neutro {
+    background: rgba(247, 201, 72, 0.08);
+    border-color: var(--yellow);
+  }
+  .farol-banner.status-reprovado {
+    background: rgba(247, 111, 111, 0.08);
+    border-color: var(--red);
+  }
+
+  .farol-indicator {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+    position: relative;
+  }
+  .farol-indicator::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    animation: pulse-ring 2s infinite;
+    opacity: 0.4;
+  }
+
+  .status-compra .farol-indicator { background: var(--green); }
+  .status-neutro .farol-indicator { background: var(--yellow); }
+  .status-reprovado .farol-indicator { background: var(--red); }
+
+  @keyframes pulse-ring {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 currentColor; }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(0, 0, 0, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+  }
+
+  .farol-content {
+    display: flex;
+    flex-direction: column;
+  }
+  .farol-title-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+  }
+  .farol-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e8ecf5;
+    letter-spacing: -0.01em;
+  }
+
+  /* Calculated Metrics Grid */
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .calc-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+  }
+  .calc-label {
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--mono);
+    margin-bottom: 4px;
+  }
+  .calc-value {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: #e8ecf5;
+  }
+
+  /* Progress slider simulation */
+  .bazin-progress-section {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 14px;
+  }
+  .bazin-progress-top {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  .b-label { color: var(--dim); }
+  .b-prices { display: flex; gap: 12px; }
+  .b-teto { font-weight: 600; }
+  .progress-track {
+    height: 6px;
+    background: var(--muted);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+    transition: width 0.35s ease, background-color 0.25s ease;
+  }
+  .progress-footer {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    margin-top: 6px;
+  }
+
+  /* Analysis & Next steps block */
+  .analysis-card {
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .analysis-section-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+  .analysis-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .next-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 14px;
+  }
+  .next-steps-list li {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .next-steps-list li strong {
+    color: #e8ecf5;
+  }
+
+  /* ── Info Footer (Theoretical context) ── */
+  .info-footer {
+    margin-top: 36px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--dim);
+    line-height: 1.7;
+  }
+  .info-footer h3 {
+    font-family: var(--mono);
+    color: var(--text);
+    font-size: 13px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .info-footer p {
+    margin-bottom: 8px;
+  }
+  .info-footer p:last-child {
+    margin-bottom: 0;
+  }
+  .info-footer strong {
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ── Header ── -->
+  <div class="header">
+    <div class="header-titles">
+      <div class="header-label">Ferramenta Satélite de Avaliação</div>
+      <h1>Modelo Bazin · Inteligência de Entrada</h1>
+      <div class="header-meta">
+        Calculadora Integrada: <span>Preço-Teto & Alavancagem</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Info Box: K Fixo ── -->
+  <div class="info-k-fixed">
+    <div class="info-k-badge">K = 6.0% de Bazin</div>
+    <div>
+      Esta ferramenta utiliza a taxa de desconto imutável de <strong>6,0% ao ano</strong> estabelecida pelo método clássico de Décio Bazin para garantir a margem de retorno em dividendos.
+    </div>
+  </div>
+
+  <!-- ── Workspace Grid ── -->
+  <div class="workspace-grid">
+    
+    <!-- LEFT: Inputs panel -->
+    <div class="panel">
+      <div class="panel-title">Parâmetros do Ativo</div>
+      
+      <!-- Ticker Input -->
+      <div class="form-group">
+        <label for="input-ticker">Código do Ativo (Ticker)</label>
+        <input type="text" id="input-ticker" value="BBAS3" placeholder="Ex: BBAS3" oninput="calculate()">
+      </div>
+
+      <!-- Sector Selector (Setor Bancário Checkbox) -->
+      <div class="form-group checkbox-group">
+        <label class="checkbox-label" for="input-is-bank">
+          <input type="checkbox" id="input-is-bank" onchange="toggleBankMode(this.checked)" checked>
+          <span><strong>Setor Bancário / Financeiro</strong> (Invalida Dívida Líquida/EBITDA)</span>
+        </label>
+      </div>
+
+      <div class="form-row-2col">
+        <!-- Dividends Input (DPA) -->
+        <div class="form-group">
+          <label for="input-dpa">DPA 12m (Média R$) <span class="optional-label">(Opcional se DY preenchido)</span></label>
+          <div class="input-with-symbol">
+            <span class="input-symbol">R$</span>
+            <input type="number" id="input-dpa" value="4.50" step="0.01" min="0" oninput="calculate()">
+          </div>
+        </div>
+
+        <!-- Current Price Input -->
+        <div class="form-group">
+          <label for="input-price">Cotação Atual</label>
+          <div class="input-with-symbol">
+            <span class="input-symbol">R$</span>
+            <input type="number" id="input-price" value="27.50" step="0.01" min="0.01" oninput="calculate()">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row-2col">
+        <!-- DY Médio Histórico Input (5 anos) -->
+        <div class="form-group">
+          <label for="input-dy-medio">DY Médio 5 Anos (%) <span class="optional-label">(Opcional se DPA preenchido)</span></label>
+          <div class="input-with-symbol">
+            <span class="input-symbol">%</span>
+            <input type="number" id="input-dy-medio" value="9.4" step="0.1" min="0" max="100" oninput="calculate()">
+          </div>
+        </div>
+
+        <!-- Info block -->
+        <div class="form-group" style="justify-content: flex-end;">
+          <div style="font-family: var(--mono); font-size: 11px; color: var(--dim); padding-bottom: 12px; line-height: 1.3;">
+            Preço-Teto Clássico:<br>
+            <span style="color: var(--accent);">Teto = DPA ÷ 0,06</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Net Debt / EBITDA slider -->
+      <div id="debt-slider-container" class="form-group">
+        <div class="slider-header">
+          <label id="lbl-debt-title" for="slider-debt">Dívida Líquida / EBITDA</label>
+          <span class="slider-val-badge" id="lbl-debt" style="color: var(--accent);">1.20x</span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="slider-debt" min="-1.0" max="6.0" step="0.01" value="1.20" oninput="onDebtChange(this.value)">
+          <div class="slider-ticks">
+            <span>-1.0x (Caixa)</span>
+            <span>0.0x</span>
+            <span>1.5x</span>
+            <span>2.5x (Alerta)</span>
+            <span>3.5x</span>
+            <span>5.0x (Crítico)</span>
+            <span>6.0x</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Results & Farol panel -->
+    <div class="result-panel">
+      <div class="panel-title">Resultado da Análise</div>
+
+      <!-- Farol Banner (Dynamic colors) -->
+      <div class="farol-banner" id="farol-banner">
+        <div class="farol-indicator" id="farol-indicator"></div>
+        <div class="farol-content">
+          <span class="farol-title-sub" id="farol-status-label">Farol de Entrada</span>
+          <span class="farol-title" id="farol-status-title">Processando...</span>
+        </div>
+      </div>
+
+      <!-- Metric results grid -->
+      <div class="calc-grid">
+        <div class="calc-card">
+          <span class="calc-label">Preço-Teto Bazin (6%)</span>
+          <span class="calc-value" id="res-teto">R$ 0,00</span>
+        </div>
+        <div class="calc-card">
+          <span class="calc-label">Margem de Segurança</span>
+          <span class="calc-value" id="res-margem">0,0%</span>
+        </div>
+      </div>
+
+      <!-- Visual progress representation -->
+      <div class="bazin-progress-section">
+        <div class="bazin-progress-top">
+          <span class="b-label">Status da Cotação</span>
+          <div class="b-prices">
+            <span class="b-current" id="pb-current-lbl">Cotação: R$ 0,00</span>
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="pb-fill"></div>
+        </div>
+        <div class="progress-footer">
+          <span>R$ 0,00</span>
+          <span id="pb-margin-lbl" style="font-weight: 600;">Margem: 0,0%</span>
+          <span id="pb-teto-lbl">Teto: R$ 0,00</span>
+        </div>
+      </div>
+
+      <!-- Analysis Explanations -->
+      <div class="analysis-card">
+        <div class="analysis-section-title">Diagnóstico do Ativo (<span id="analysis-ticker">ATIVO3</span>)</div>
+        <p class="analysis-text" id="analysis-explanation">
+          Carregando análise...
+        </p>
+
+        <div class="analysis-section-title">Sugestão de Próximos Passos</div>
+        <ul class="next-steps-list" id="analysis-steps">
+          <!-- Populated by JavaScript -->
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ── Info Footer (Theoretical context) ── -->
+  <div class="info-footer">
+    <h3>Estrutura Decisória dos Pilares de Bazin Atualizados</h3>
+    <p>Com a taxa de desconto imutável estabelecida no padrão de <strong>K = 6,0%</strong>, os critérios decisórios deste painel avaliam três dimensões simultâneas:</p>
+    <ul>
+      <li><strong>Pilar 1: Preço Descontado (Margem de Segurança):</strong> A cotação atual precisa estar abaixo do preço-teto calculado ($Preço\ Teto = DPA / 0,06$) para garantir que o yield projetado seja no mínimo 6%.</li>
+      <li><strong>Pilar 2: Consistência Histórica (DY Médio de 5 Anos):</strong> O Dividend Yield histórico do ativo (média consolidada dos últimos 5 anos) deve ser idealmente superior a <strong>6,0%</strong>. Se informado, valores abaixo disso acendem o farol amarelo pela perda de constância histórica de retorno.</li>
+      <li><strong>Pilar 3: Alavancagem Controlada (Dívida Líquida / EBITDA ou Basileia):</strong> 
+        <br>• <strong>Para empresas comuns:</strong> Dívida Líquida abaixo de <strong>2,5x</strong> o EBITDA é sinal verde; acima de <strong>3,5x</strong> reprova o ativo de imediato.
+        <br>• <strong>Para Bancos/Financeiras:</strong> A métrica de Dívida Líquida/EBITDA é desativada por incompatibilidade de balanço. O modelo orienta a verificação de solvência bancária qualitativa de forma manual (Índice de Basileia &gt; 11% e ROE &gt; 15%).
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  // ── ESTADO GLOBAL ──
+  let state = {
+    ticker: 'BBAS3',
+    dpa: 4.50,
+    price: 27.50,
+    dyMedio: 9.4,
+    k: 6.0, // FIXO EM 6%
+    debtEbitda: 1.20,
+    isBank: true
+  };
+
+  // ── UTILITÁRIOS ──
+  function fmtReal(val) {
+    if (isNaN(val) || !isFinite(val)) return 'R$ 0,00';
+    return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  function fmtPct(val) {
+    if (isNaN(val) || !isFinite(val)) return '0,0%';
+    const prefix = val > 0 ? '+' : '';
+    return prefix + val.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+  }
+
+  // ── CONTROLE DO MODO BANCO ──
+  function toggleBankMode(checked) {
+    state.isBank = checked;
+    const container = document.getElementById('debt-slider-container');
+    const badge = document.getElementById('lbl-debt');
+    const title = document.getElementById('lbl-debt-title');
+    
+    if (checked) {
+      container.classList.add('disabled-panel');
+      badge.textContent = 'N/A (Banco)';
+      badge.style.color = 'var(--dim)';
+      title.innerHTML = 'Dívida Líquida / EBITDA <span style="font-size:9px;color:var(--yellow);text-transform:none;">(Incompatível com Bancos)</span>';
+    } else {
+      container.classList.remove('disabled-panel');
+      title.textContent = 'Dívida Líquida / EBITDA';
+      onDebtChange(document.getElementById('slider-debt').value);
+    }
+    
+    calculate();
+  }
+
+  // ── EVENTOS DE INPUTS ──
+  function onDebtChange(val) {
+    state.debtEbitda = parseFloat(val);
+    
+    if (state.isBank) {
+      document.getElementById('lbl-debt').textContent = 'N/A (Banco)';
+      document.getElementById('lbl-debt').style.color = 'var(--dim)';
+      return;
+    }
+    
+    document.getElementById('lbl-debt').textContent = state.debtEbitda.toFixed(2) + 'x';
+    
+    // Muda a cor do texto do indicador de dívida no slider para dar feedback visual
+    const badge = document.getElementById('lbl-debt');
+    if (state.debtEbitda <= 2.5) {
+      badge.style.color = 'var(--green)';
+    } else if (state.debtEbitda <= 3.5) {
+      badge.style.color = 'var(--yellow)';
+    } else {
+      badge.style.color = 'var(--red)';
+    }
+
+    calculate();
+  }
+
+  // ── CORE LOGIC DE CÁLCULO E DIAGNÓSTICO ──
+  function calculate() {
+    // Coleta dos inputs do usuário em tempo real
+    state.ticker = document.getElementById('input-ticker').value.trim().toUpperCase() || 'ATIVO3';
+    
+    const rawDpa = document.getElementById('input-dpa').value;
+    const rawPrice = document.getElementById('input-price').value;
+    const rawDyMedio = document.getElementById('input-dy-medio').value;
+
+    const hasDpa = rawDpa !== '' && !isNaN(parseFloat(rawDpa)) && parseFloat(rawDpa) >= 0;
+    const hasDyMedio = rawDyMedio !== '' && !isNaN(parseFloat(rawDyMedio)) && parseFloat(rawDyMedio) >= 0;
+    const hasPrice = rawPrice !== '' && !isNaN(parseFloat(rawPrice)) && parseFloat(rawPrice) > 0;
+
+    const price = hasPrice ? parseFloat(rawPrice) : 0.01;
+
+    // Atualiza ticker na área de diagnóstico
+    document.getElementById('analysis-ticker').textContent = state.ticker;
+
+    // VALIDAR CO-OPCIONALIDADE: Exige no mínimo DPA ou DY Médio preenchidos
+    if (!hasDpa && !hasDyMedio) {
+      const banner = document.getElementById('farol-banner');
+      banner.className = 'farol-banner status-neutro';
+      document.getElementById('farol-status-title').textContent = 'AGUARDANDO DADOS';
+      
+      document.getElementById('res-teto').textContent = '---';
+      document.getElementById('res-margem').textContent = '---';
+      document.getElementById('res-margem').style.color = 'var(--dim)';
+      
+      document.getElementById('pb-current-lbl').textContent = `Cotação: ${fmtReal(hasPrice ? price : 0)}`;
+      document.getElementById('pb-teto-lbl').textContent = `Teto: ---`;
+      document.getElementById('pb-margin-lbl').textContent = 'Margem: ---';
+      document.getElementById('pb-margin-lbl').style.color = 'var(--dim)';
+      document.getElementById('pb-fill').style.width = '0%';
+      document.getElementById('pb-fill').style.backgroundColor = 'var(--muted)';
+      
+      document.getElementById('analysis-explanation').innerHTML = 
+        `Por favor, insira ao menos o <strong>DPA 12m (Média R$)</strong> ou o <strong>DY Médio 5 Anos (%)</strong> para que o modelo do ativo <strong>${state.ticker}</strong> seja calculado.`;
+      
+      const listElement = document.getElementById('analysis-steps');
+      listElement.innerHTML = `
+        <li><strong>Fornecer DPA:</strong> Insira o dividendo pago por ação acumulado nos últimos 12 meses.</li>
+        <li><strong>OU Fornecer DY 5 Anos:</strong> Insira o rendimento histórico percentual médio de 5 anos da ação.</li>
+      `;
+      return;
+    }
+
+    // Definir as variáveis de cálculo baseadas nos campos preenchidos
+    let dpa = 0;
+    let dyMedio = 0;
+
+    if (hasDpa) {
+      dpa = parseFloat(rawDpa);
+    }
+    if (hasDyMedio) {
+      dyMedio = parseFloat(rawDyMedio);
+    }
+
+    // Lógica inteligente de fallbacks:
+    // 1. Se NÃO tem DPA, mas TEM DY médio: estimamos o DPA com base na cotação para rodar a fórmula clássica
+    if (!hasDpa && hasDyMedio) {
+      dpa = price * (dyMedio / 100);
+    }
+
+    // 2. Se TEM DPA, mas NÃO tem DY médio: assumimos o DY atual aproximado para não penalizar o histórico por falta de dados
+    if (hasDpa && !hasDyMedio) {
+      dyMedio = (dpa / price) * 100;
+    }
+
+    // Preço Teto Bazin Fixo em K = 6.0% (0.06)
+    const kDecimal = 0.06;
+    const precoTeto = dpa / kDecimal;
+
+    // Calcular Margem de Segurança
+    const margemSeguranca = precoTeto > 0 ? (((precoTeto - price) / precoTeto) * 100) : -100;
+
+    // Exibir métricas nos displays principais
+    document.getElementById('res-teto').textContent = fmtReal(precoTeto);
+    document.getElementById('res-margem').textContent = fmtPct(margemSeguranca);
+
+    // Ajustar cor da margem de segurança
+    const resMargemElement = document.getElementById('res-margem');
+    if (margemSeguranca >= 0) {
+      resMargemElement.style.color = 'var(--green)';
+    } else if (margemSeguranca >= -10) {
+      resMargemElement.style.color = 'var(--yellow)';
+    } else {
+      resMargemElement.style.color = 'var(--red)';
+    }
+
+    // Atualizar Barra de Progresso Visual
+    document.getElementById('pb-current-lbl').textContent = `Cotação: ${fmtReal(price)}`;
+    document.getElementById('pb-teto-lbl').textContent = `Teto: ${fmtReal(precoTeto)}`;
+    
+    const marginText = margemSeguranca >= 0 ? `Margem: ${fmtPct(margemSeguranca)}` : `Ágio: ${fmtPct(Math.abs(margemSeguranca))}`;
+    document.getElementById('pb-margin-lbl').textContent = marginText;
+
+    const pbFill = document.getElementById('pb-fill');
+    let ratio = 0;
+    if (precoTeto > 0) {
+      ratio = (price / precoTeto) * 100;
+    } else if (price > 0) {
+      ratio = 100;
+    }
+    const percentFill = Math.min(100, Math.max(0, ratio));
+    pbFill.style.width = percentFill + '%';
+
+    // Cores do progresso
+    if (price <= precoTeto) {
+      pbFill.style.backgroundColor = 'var(--green)';
+      document.getElementById('pb-margin-lbl').style.color = 'var(--green)';
+    } else if (price <= precoTeto * 1.1) {
+      pbFill.style.backgroundColor = 'var(--yellow)';
+      document.getElementById('pb-margin-lbl').style.color = 'var(--yellow)';
+    } else {
+      pbFill.style.backgroundColor = 'var(--red)';
+      document.getElementById('pb-margin-lbl').style.color = 'var(--red)';
+    }
+
+    // Configurar blocos explicativos de acordo com o que foi fornecido pelo usuário
+    let baseExplanation = "";
+    if (hasDpa && hasDyMedio) {
+      baseExplanation = `A análise cruza a cotação atual de <strong>${fmtReal(price)}</strong> com o DPA de <strong>${fmtReal(dpa)}</strong> (Preço-Teto clássico de <strong>${fmtReal(precoTeto)}</strong>, gerando margem de <strong>${fmtPct(margemSeguranca)}</strong>) e o histórico consolidado de DY de 5 anos em <strong>${dyMedio.toFixed(1)}%</strong>.`;
+    } else if (hasDpa && !hasDyMedio) {
+      baseExplanation = `A análise foca puramente no DPA informado de <strong>${fmtReal(dpa)}</strong> (Preço-Teto clássico de <strong>${fmtReal(precoTeto)}</strong>, gerando margem de <strong>${fmtPct(margemSeguranca)}</strong>) frente à cotação atual de <strong>${fmtReal(price)}</strong>. O rendimento histórico de 5 anos não foi fornecido e foi desconsiderado nesta avaliação.`;
+    } else {
+      baseExplanation = `O histórico de DY de 5 anos de <strong>${dyMedio.toFixed(1)}%</strong> foi utilizado para estimar um DPA implícito de <strong>${fmtReal(dpa)}</strong> baseado na cotação de <strong>${fmtReal(price)}</strong>, gerando um Preço-Teto de segurança de <strong>${fmtReal(precoTeto)}</strong> com margem de <strong>${fmtPct(margemSeguranca)}</strong>.`;
+    }
+
+    // Lógica de Decisão e Farol (Preço + Alavancagem + Histórico de Dividendos)
+    let status = ''; // 'compra', 'neutro', 'reprovado'
+    let statusTitle = '';
+    let explanationText = '';
+    let stepsList = [];
+
+    // Estados de alavancagem
+    const levOk = state.isBank || state.debtEbitda <= 2.5;
+    const levAlerta = !state.isBank && state.debtEbitda > 2.5 && state.debtEbitda <= 3.5;
+    const levCritica = !state.isBank && state.debtEbitda > 3.5;
+
+    // Estados de preço/teto
+    const precoSobTeto = price <= precoTeto;
+    const precoEsticado = price > precoTeto && price <= (precoTeto * 1.1);
+    const precoCaro = price > (precoTeto * 1.1);
+
+    // Estados de consistência de DY Histórico (Exigência rígida de 6%)
+    const dyHistOk = !hasDyMedio || dyMedio >= 6.0;
+    const dyHistAlerta = hasDyMedio && dyMedio >= 5.0 && dyMedio < 6.0;
+    const dyHistRuim = hasDyMedio && dyMedio < 5.0;
+
+    if (dpa <= 0) {
+      status = 'reprovado';
+      statusTitle = 'REPROVADO · RENDIMENTO ZERADO';
+      explanationText = `${baseExplanation}<br><br>O ativo <strong>${state.ticker}</strong> apresenta distribuição nula de dividendos. Sem proveitos recorrentes declarados, o modelo original de Bazin é inviabilizado de imediato pela falta de fluxo de caixa gerador de renda passiva.`;
+      stepsList = [
+        `<strong>Aguardar Dividendos:</strong> Aguarde a divulgação de novos resultados operacionais da companhia para verificar se há previsão de distribuição de proventos futuros.`,
+        `<strong>Identificar Alinhamento:</strong> Certifique-se de que a companhia é focada em dividendos e não uma empresa de crescimento em estágio inicial, que retém 100% de seus lucros.`
+      ];
+    }
+    else if (levCritica) {
+      status = 'reprovado';
+      statusTitle = 'REPROVADO · ENDIVIDAMENTO CRÍTICO';
+      explanationText = `${baseExplanation}<br><br>A alavancagem operacional atual está em patamar crítico de <strong>${state.debtEbitda.toFixed(2)}x</strong> Dívida Líquida/EBITDA. Uma estrutura altamente endividada eleva as despesas de juros da empresa, asfixia o lucro líquido distribuível e aumenta drasticamente a probabilidade de corte de proventos nos próximos trimestres.`;
+      stepsList = [
+        `<strong>Não Efetuar Aportes:</strong> Recomenda-se cautela absoluta. Evite se expor ao ativo até que o nível de endividamento retorne para patamares saudáveis (abaixo de 2.5x ou pelo menos 3.5x).`,
+        `<strong>Investigar Cronograma de Amortização:</strong> Verifique os canais de Relações com Investidores para identificar se a empresa está passando por um pico planejado de Capex ou se está em crise estrutural de crédito.`
+      ];
+    }
+    else if (dyHistRuim) {
+      status = 'reprovado';
+      statusTitle = 'REPROVADO · HISTÓRICO 5 ANOS FRÁGIL';
+      explanationText = `${baseExplanation}<br><br>Embora a cotação momentânea ou o DPA pontual possam apresentar uma oportunidade nominal, o histórico consolidado de DY de 5 anos de <strong>${dyMedio.toFixed(1)}%</strong> mostra-se cronicamente fraco ou irregular (abaixo de 5,0%). Bazin defendia que o histórico consolidado é a melhor prova de solidez operacional.`;
+      stepsList = [
+        `<strong>Priorizar Ativos Consistentes:</strong> Busque empresas com histórico consolidado e ininterrupto de distribuição de renda superior a 6,0% ao longo dos anos.`,
+        `<strong>Avaliar se o Dividend Yield é Não-Recorrente:</strong> Se o DPA atual está excelente mas o histórico de 5 anos é fraco, verifique se a distribuição recente não é fruto de ganhos não-recorrentes isolados.`
+      ];
+    }
+    // Cenário de Compra: Preço abaixo do teto, dívida OK (ou modo banco ativo) e histórico OK
+    else if (precoSobTeto && levOk && dyHistOk) {
+      status = 'compra';
+      statusTitle = 'COMPRA · PARÂMETROS SAUDÁVEIS';
+      
+      let isBankNote = state.isBank ? " Como se trata de uma instituição bancária, a relação Dívida/EBITDA foi desativada por não ser compatível com seu balanço de captações." : "";
+      
+      explanationText = `Excelente oportunidade estrutural baseada nos pilares de geração de renda.<br><br>${baseExplanation}<br><br>O ativo <strong>${state.ticker}</strong> cumpre de forma excepcional as diretrizes de Bazin e Barsi.${isBankNote} A saúde de margem está em patamar confortável frente ao preço de segurança de <strong>${fmtReal(precoTeto)}</strong>.`;
+      
+      if (state.isBank) {
+        stepsList = [
+          `<strong>Verificar Índice de Basileia:</strong> Confirme qualitativamente se o índice de solvência do banco está confortavelmente acima do limite exigido de 11% (idealmente acima de 14% para garantir resiliência Barsi-style).`,
+          `<strong>Avaliar ROE e Inadimplência:</strong> Verifique se o banco apresenta ROE sustentado acima de 15% e se o índice de inadimplência (NPL > 90 dias) está controlado abaixo de 4%.`,
+          `<strong>Aportar Recorrentemente:</strong> Preço de mercado abaixo de <strong>${fmtReal(precoTeto)}</strong> indica ótima janela de acúmulo de cotas para otimização da carteira satélite.`
+        ];
+      } else {
+        stepsList = [
+          `<strong>Executar Aportes Regulares:</strong> O preço de mercado está abaixo da zona de teto de segurança de <strong>${fmtReal(precoTeto)}</strong>, conferindo excelente margem de segurança.`,
+          `<strong>Programar Reinvestimento:</strong> Maximize os retornos de longo prazo utilizando os dividendos recebidos para comprar novas cotas do mesmo ativo enquanto ele se mantiver abaixo do teto.`,
+          `<strong>Verificar Atualizações Trimestrais:</strong> Monitore periodicamente se o EBITDA ou a receita sofreram flutuações severas nos balanços trimestrais.`
+        ];
+      }
+    }
+    // Neutralidade por critérios limitantes ou preço marginalmente esticado
+    else if ((precoSobTeto && levAlerta) || (precoSobTeto && dyHistAlerta) || (precoEsticado && !levCritica)) {
+      status = 'neutro';
+      statusTitle = 'NEUTRALIDADE · CRITÉRIO EM VIGILÂNCIA';
+      
+      let context = '';
+      if (precoEsticado) {
+        context = `a cotação de <strong>${fmtReal(price)}</strong> ultrapassou de forma leve o preço-teto recomendado (margem de segurança negativa de <strong>${fmtPct(margemSeguranca)}</strong>).`;
+      } else if (levAlerta) {
+        context = `a alavancagem atual está em zona de alerta moderado (<strong>${state.debtEbitda.toFixed(2)}x</strong>), sugerindo cautela no fluxo de proventos projetados.`;
+      } else {
+        context = `o histórico médio de DY de 5 anos (<strong>${dyMedio.toFixed(1)}%</strong>) está ligeiramente aquém dos 6,0% de segurança de Bazin.`;
+      }
+
+      explanationText = `${baseExplanation}<br><br>A tese de renda recorrente em <strong>${state.ticker}</strong> permanece viva, mas o momento não é propício para alocações agressivas porque ${context} O farol de atenção indica prudência para evitar a perda de rendimento real.`;
+      
+      if (state.isBank) {
+        stepsList = [
+          `<strong>Pausar Aportes Agressivos:</strong> Monitore se os dividendos futuros tendem a aumentar. Deixe ordens de compra pré-configuradas no preço-teto correto de <strong>${fmtReal(precoTeto)}</strong>.`,
+          `<strong>Rastrear Qualidade do Crédito:</strong> Bancos com margem esticada podem estar enfrentando aumento sazonal de provisões (PDD) devido à inadimplência. Verifique este ponto no release trimestral de resultados.`,
+          `<strong>Manter a Posição:</strong> Continue carregando a posição para coletar os dividendos normais, mas evite alocar novos fluxos de capital neste ponto.`
+        ];
+      } else {
+        stepsList = [
+          `<strong>Deixar Ordens Próximas ao Teto:</strong> Evite comprar ativos esticados. Configure ordens de compra limitadas ao preço real de segurança (<strong>${fmtReal(precoTeto)}</strong>).`,
+          `<strong>Vigiar Redução de Endividamento:</strong> Caso a alavancagem seja o limitador atual, acompanhe se os novos investimentos operacionais em andamento vão desalavancar a empresa nos próximos meses.`,
+          `<strong>Manter Posições Antigas:</strong> Se você já possui as cotas, continue carregando-as na carteira de renda passiva, mantendo foco na coleta dos dividendos normais.`
+        ];
+      }
+    }
+    // Reprovado por preço caro (mais de 10% de ágio)
+    else if (precoCaro && !levCritica) {
+      status = 'reprovado';
+      statusTitle = 'REPROVADO · PREÇO MUITO ELEVADO';
+      explanationText = `${baseExplanation}<br><br>A ação <strong>${state.ticker}</strong> é negociada com ágio expressivo acima de seu Preço-Teto de segurança de <strong>${fmtReal(precoTeto)}</strong>. Ao pagar o valor de mercado de <strong>${fmtReal(price)}</strong>, o seu rendimento projetado cairá consideravelmente abaixo dos 6% mínimos exigidos pelo modelo Bazin, contrariando o princípio de compra de margem de segurança de Barsi.`;
+      
+      if (state.isBank) {
+        stepsList = [
+          `<strong>Suspender Novos Aportes:</strong> Não compre ações de bancos em momentos de rali ou otimismo esticado. O setor financeiro costuma apresentar flutuações e excelentes momentos de estresse de mercado que reduzem o preço dos papéis.`,
+          `<strong>Manutenção em Custódia (Hold):</strong> Mantenha as ações antigas de custo médio saudável na carteira para usufruir do pagamento recorrente de dividendos, mas não gaste novas reservas nela.`,
+          `<strong>Direcionar Caixa de Oportunidade:</strong> Guarde as sobras financeiras em caixa de oportunidade (renda fixa de alta liquidez) para acumular caixa ou investir em outras vacas leiteiras que estejam baratas no momento.`
+        ];
+      } else {
+        stepsList = [
+          `<strong>Suspender Compras Imediatas:</strong> Não compre novas cotas neste patamar inflado. Direcione seu aporte estruturado do mês para outros papéis que apresentem margens de desconto reais.`,
+          `<strong>Vigiar Grandes Correções:</strong> Deixe o ativo no seu radar de monitoramento. Eventuais correções amplas ou pânicos gerais de mercado podem reposicionar esta companhia de volta à zona de compra no futuro.`
+        ];
+      }
+    }
+
+    // 5. Aplicar classes de estilização dinâmicas ao Farol
+    const banner = document.getElementById('farol-banner');
+    banner.className = 'farol-banner'; // Reset
+    banner.classList.add(`status-${status}`);
+    
+    document.getElementById('farol-status-title').textContent = statusTitle;
+    document.getElementById('analysis-explanation').innerHTML = explanationText;
+
+    // Preencher lista de passos dinamicamente
+    const listElement = document.getElementById('analysis-steps');
+    listElement.innerHTML = '';
+    stepsList.forEach(step => {
+      const li = document.createElement('li');
+      li.innerHTML = step;
+      listElement.appendChild(li);
+    });
+  }
+
+  // Inicializar modo banco e rodar cálculo inicial na montagem da tela
+  window.onload = function() {
+    toggleBankMode(document.getElementById('input-is-bank').checked);
+  };
+</script>
+
+</body>
+</html>
