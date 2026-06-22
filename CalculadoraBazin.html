@@ -12,7 +12,8 @@
     --bg:       #0d0f14;
     --surface:  #13161e;
     --border:   #1e2330;
-    --muted:    #2a2f3d;
+    --muted:    --bg;
+    --muted-btn:#2a2f3d;
     --text:     #c8cdd8;
     --dim:      #5a6175;
     --accent:   #4f8ef7;
@@ -189,6 +190,88 @@
   input[type="number"]:focus, input[type="text"]:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 1px rgba(79, 142, 247, 0.2);
+  }
+
+  /* ── Segmented Tab Group (DPA Selector) ── */
+  .dpa-toggle-group {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px;
+    margin-top: 2px;
+  }
+  .dpa-toggle-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+  }
+  .dpa-toggle-btn:hover {
+    color: var(--text);
+  }
+  .dpa-toggle-btn.active {
+    background: var(--muted-btn);
+    color: var(--accent);
+  }
+
+  /* Grid dos 5 anos de DPA */
+  .dpa-years-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .year-input-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+  }
+  .year-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .input-year-val {
+    width: 100% !important;
+    padding: 8px 6px !important;
+    font-size: 13px !important;
+    text-align: center;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: #e8ecf5;
+    font-family: var(--mono);
+    outline: none;
+  }
+  .input-year-val:focus {
+    border-color: var(--accent);
+  }
+  .calc-avg-badge {
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+    background: rgba(61, 220, 151, 0.05);
+    border: 1px dashed rgba(61, 220, 151, 0.15);
+    padding: 6px 10px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .calc-avg-badge span {
+    color: var(--green);
+    font-weight: 600;
   }
 
   /* ── Custom Checkbox (Setor Bancário) ── */
@@ -525,57 +608,101 @@
     
     <!-- LEFT: Inputs panel -->
     <div class="panel">
-      <div class="panel-title">Parâmetros do Ativo</div>
-      
-      <!-- Ticker Input -->
-      <div class="form-group">
-        <label for="input-ticker">Código do Ativo (Ticker)</label>
-        <input type="text" id="input-ticker" value="BBAS3" placeholder="Ex: BBAS3" oninput="calculate()">
-      </div>
+      <div class="panel-title">Parâmetros de Avaliação</div>
 
       <!-- Sector Selector (Setor Bancário Checkbox) -->
       <div class="form-group checkbox-group">
         <label class="checkbox-label" for="input-is-bank">
-          <input type="checkbox" id="input-is-bank" onchange="toggleBankMode(this.checked)" checked>
+          <input type="checkbox" id="input-is-bank" onchange="toggleBankMode(this.checked)">
           <span><strong>Setor Bancário / Financeiro</strong> (Invalida Dívida Líquida/EBITDA)</span>
         </label>
       </div>
 
+      <!-- DPA Selection Tab Switch -->
+      <div class="form-group">
+        <label>Forma de Entrada de Proventos (DPA)</label>
+        <div class="dpa-toggle-group">
+          <button type="button" class="dpa-toggle-btn active" id="toggle-dpa-direct" onclick="setDpaMode('direct')">DPA Consolidado Único</button>
+          <button type="button" class="dpa-toggle-btn" id="toggle-dpa-years" onclick="setDpaMode('years')">Média de 5 Anos de DPA</button>
+        </div>
+      </div>
+
+      <!-- Main Input Grid -->
       <div class="form-row-2col">
-        <!-- Dividends Input (DPA) -->
-        <div class="form-group">
-          <label for="input-dpa">DPA 12m (Média R$) <span class="optional-label">(Opcional se DY preenchido)</span></label>
-          <div class="input-with-symbol">
-            <span class="input-symbol">R$</span>
-            <input type="number" id="input-dpa" value="4.50" step="0.01" min="0" oninput="calculate()">
+        <!-- Dynamic DPA Container (Left Column) -->
+        <div class="form-group" id="dpa-input-container">
+          
+          <!-- Mode A: Single Input -->
+          <div id="dpa-direct-wrapper">
+            <label for="input-dpa">DPA 12m (Média R$) <span class="optional-label">(Opcional se DY preenchido)</span></label>
+            <div class="input-with-symbol">
+              <span class="input-symbol">R$</span>
+              <input type="number" id="input-dpa" value="5.20" step="0.01" min="0" oninput="calculate()">
+            </div>
           </div>
+
+          <!-- Mode B: 5 Years Fields -->
+          <div id="dpa-years-wrapper" style="display: none;">
+            <label>Valores Anuais de DPA (R$) <span class="optional-label">(Histórico atemporal)</span></label>
+            <div class="dpa-years-grid">
+              <div class="year-input-box">
+                <span class="year-label">Ano 1</span>
+                <input type="number" class="input-year-val" id="dpa-y1" value="4.20" step="0.01" min="0" oninput="calculate()">
+              </div>
+              <div class="year-input-box">
+                <span class="year-label">Ano 2</span>
+                <input type="number" class="input-year-val" id="dpa-y2" value="4.80" step="0.01" min="0" oninput="calculate()">
+              </div>
+              <div class="year-input-box">
+                <span class="year-label">Ano 3</span>
+                <input type="number" class="input-year-val" id="dpa-y3" value="5.00" step="0.01" min="0" oninput="calculate()">
+              </div>
+              <div class="year-input-box">
+                <span class="year-label">Ano 4</span>
+                <input type="number" class="input-year-val" id="dpa-y4" value="5.50" step="0.01" min="0" oninput="calculate()">
+              </div>
+              <div class="year-input-box">
+                <span class="year-label">Ano 5</span>
+                <input type="number" class="input-year-val" id="dpa-y5" value="6.50" step="0.01" min="0" oninput="calculate()">
+              </div>
+            </div>
+            <div class="calc-avg-badge">
+              Média Calculada: <span id="avg-computed-dpa">R$ 5,20</span>
+            </div>
+          </div>
+
         </div>
 
-        <!-- Current Price Input -->
-        <div class="form-group">
+        <!-- Current Price Input (Right Column) -->
+        <div class="form-group" style="justify-content: flex-start;">
           <label for="input-price">Cotação Atual</label>
-          <div class="input-with-symbol">
+          <div class="input-with-symbol" style="margin-bottom: 12px;">
             <span class="input-symbol">R$</span>
-            <input type="number" id="input-price" value="27.50" step="0.01" min="0.01" oninput="calculate()">
+            <input type="number" id="input-price" value="62.50" step="0.01" min="0.01" oninput="calculate()">
+          </div>
+          <div style="font-family: var(--mono); font-size: 11px; color: var(--dim); line-height: 1.3;">
+            Preço-Teto de Bazin:<br>
+            <span style="color: var(--accent);">Teto = DPA ÷ 0,06</span>
           </div>
         </div>
       </div>
 
+      <!-- DY e Margem de Segurança Row -->
       <div class="form-row-2col">
         <!-- DY Médio Histórico Input (5 anos) -->
         <div class="form-group">
           <label for="input-dy-medio">DY Médio 5 Anos (%) <span class="optional-label">(Opcional se DPA preenchido)</span></label>
           <div class="input-with-symbol">
             <span class="input-symbol">%</span>
-            <input type="number" id="input-dy-medio" value="9.4" step="0.1" min="0" max="100" oninput="calculate()">
+            <input type="number" id="input-dy-medio" value="7.50" step="0.1" min="0" max="100" oninput="calculate()">
           </div>
         </div>
 
-        <!-- Info block -->
-        <div class="form-group" style="justify-content: flex-end;">
-          <div style="font-family: var(--mono); font-size: 11px; color: var(--dim); padding-bottom: 12px; line-height: 1.3;">
-            Preço-Teto Clássico:<br>
-            <span style="color: var(--accent);">Teto = DPA ÷ 0,06</span>
+        <!-- Informativo Rápido -->
+        <div class="form-group" style="justify-content: center;">
+          <div style="font-size: 11px; color: var(--dim); line-height: 1.4; border-left: 2px solid var(--border); padding-left: 12px;">
+            <strong>Modo Média 5 Anos:</strong><br>
+            O preenchimento incompleto computará a média proporcional dos anos válidos informados.
           </div>
         </div>
       </div>
@@ -647,7 +774,7 @@
 
       <!-- Analysis Explanations -->
       <div class="analysis-card">
-        <div class="analysis-section-title">Diagnóstico do Ativo (<span id="analysis-ticker">ATIVO3</span>)</div>
+        <div class="analysis-section-title">Diagnóstico Detalhado da Ação</div>
         <p class="analysis-text" id="analysis-explanation">
           Carregando análise...
         </p>
@@ -681,13 +808,13 @@
 <script>
   // ── ESTADO GLOBAL ──
   let state = {
-    ticker: 'BBAS3',
-    dpa: 4.50,
-    price: 27.50,
-    dyMedio: 9.4,
+    dpaMode: 'direct', // 'direct' ou 'years'
+    dpa: 5.20,
+    price: 62.50,
+    dyMedio: 7.50,
     k: 6.0, // FIXO EM 6%
     debtEbitda: 1.20,
-    isBank: true
+    isBank: false
   };
 
   // ── UTILITÁRIOS ──
@@ -700,6 +827,18 @@
     if (isNaN(val) || !isFinite(val)) return '0,0%';
     const prefix = val > 0 ? '+' : '';
     return prefix + val.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+  }
+
+  // ── ALTERNAR ENTRE ENTRADAS DE DPA ──
+  function setDpaMode(mode) {
+    state.dpaMode = mode;
+    document.getElementById('toggle-dpa-direct').classList.toggle('active', mode === 'direct');
+    document.getElementById('toggle-dpa-years').classList.toggle('active', mode === 'years');
+    
+    document.getElementById('dpa-direct-wrapper').style.display = mode === 'direct' ? 'block' : 'none';
+    document.getElementById('dpa-years-wrapper').style.display = mode === 'years' ? 'block' : 'none';
+    
+    calculate();
   }
 
   // ── CONTROLE DO MODO BANCO ──
@@ -750,21 +889,44 @@
 
   // ── CORE LOGIC DE CÁLCULO E DIAGNÓSTICO ──
   function calculate() {
-    // Coleta dos inputs do usuário em tempo real
-    state.ticker = document.getElementById('input-ticker').value.trim().toUpperCase() || 'ATIVO3';
-    
-    const rawDpa = document.getElementById('input-dpa').value;
+    // Coleta dos inputs comuns
     const rawPrice = document.getElementById('input-price').value;
     const rawDyMedio = document.getElementById('input-dy-medio').value;
 
-    const hasDpa = rawDpa !== '' && !isNaN(parseFloat(rawDpa)) && parseFloat(rawDpa) >= 0;
-    const hasDyMedio = rawDyMedio !== '' && !isNaN(parseFloat(rawDyMedio)) && parseFloat(rawDyMedio) >= 0;
     const hasPrice = rawPrice !== '' && !isNaN(parseFloat(rawPrice)) && parseFloat(rawPrice) > 0;
-
     const price = hasPrice ? parseFloat(rawPrice) : 0.01;
 
-    // Atualiza ticker na área de diagnóstico
-    document.getElementById('analysis-ticker').textContent = state.ticker;
+    const hasDyMedio = rawDyMedio !== '' && !isNaN(parseFloat(rawDyMedio)) && parseFloat(rawDyMedio) >= 0;
+    const dyMedioInput = hasDyMedio ? parseFloat(rawDyMedio) : 0;
+
+    let dpa = 0;
+    let hasDpa = false;
+
+    // Lógica de leitura de acordo com o modo ativo
+    if (state.dpaMode === 'direct') {
+      const rawDpa = document.getElementById('input-dpa').value;
+      hasDpa = rawDpa !== '' && !isNaN(parseFloat(rawDpa)) && parseFloat(rawDpa) >= 0;
+      if (hasDpa) {
+        dpa = parseFloat(rawDpa);
+      }
+    } else {
+      // Calcular a média móvel dos últimos 5 anos individuais preenchidos
+      const y1 = parseFloat(document.getElementById('dpa-y1').value);
+      const y2 = parseFloat(document.getElementById('dpa-y2').value);
+      const y3 = parseFloat(document.getElementById('dpa-y3').value);
+      const y4 = parseFloat(document.getElementById('dpa-y4').value);
+      const y5 = parseFloat(document.getElementById('dpa-y5').value);
+
+      const yearsVals = [y1, y2, y3, y4, y5].filter(v => !isNaN(v) && v >= 0);
+      hasDpa = yearsVals.length > 0;
+      
+      if (hasDpa) {
+        dpa = yearsVals.reduce((a, b) => a + b, 0) / yearsVals.length;
+        document.getElementById('avg-computed-dpa').textContent = fmtReal(dpa);
+      } else {
+        document.getElementById('avg-computed-dpa').textContent = '---';
+      }
+    }
 
     // VALIDAR CO-OPCIONALIDADE: Exige no mínimo DPA ou DY Médio preenchidos
     if (!hasDpa && !hasDyMedio) {
@@ -784,36 +946,25 @@
       document.getElementById('pb-fill').style.backgroundColor = 'var(--muted)';
       
       document.getElementById('analysis-explanation').innerHTML = 
-        `Por favor, insira ao menos o <strong>DPA 12m (Média R$)</strong> ou o <strong>DY Médio 5 Anos (%)</strong> para que o modelo do ativo <strong>${state.ticker}</strong> seja calculado.`;
+        `Por favor, insira ao menos o <strong>DPA (Média de Dividendos)</strong> ou o <strong>DY Médio 5 Anos (%)</strong> para que o modelo de análise seja processado de forma satisfatória.`;
       
       const listElement = document.getElementById('analysis-steps');
       listElement.innerHTML = `
-        <li><strong>Fornecer DPA:</strong> Insira o dividendo pago por ação acumulado nos últimos 12 meses.</li>
-        <li><strong>OU Fornecer DY 5 Anos:</strong> Insira o rendimento histórico percentual médio de 5 anos da ação.</li>
+        <li><strong>Informar DPA Consolidado ou Histórico:</strong> Insira o dividendo direto ou preencha as caixas atemporais de 5 anos para obter a média.</li>
+        <li><strong>OU Informar DY Médio de 5 Anos:</strong> Digite a média de rendimento percentual dos últimos exercícios fiscais.</li>
       `;
       return;
     }
 
-    // Definir as variáveis de cálculo baseadas nos campos preenchidos
-    let dpa = 0;
+    // Engenharia reversa inteligente em caso de dados complementares ausentes:
     let dyMedio = 0;
-
-    if (hasDpa) {
-      dpa = parseFloat(rawDpa);
-    }
-    if (hasDyMedio) {
-      dyMedio = parseFloat(rawDyMedio);
-    }
-
-    // Lógica inteligente de fallbacks:
-    // 1. Se NÃO tem DPA, mas TEM DY médio: estimamos o DPA com base na cotação para rodar a fórmula clássica
-    if (!hasDpa && hasDyMedio) {
-      dpa = price * (dyMedio / 100);
-    }
-
-    // 2. Se TEM DPA, mas NÃO tem DY médio: assumimos o DY atual aproximado para não penalizar o histórico por falta de dados
-    if (hasDpa && !hasDyMedio) {
+    if (hasDpa && hasDyMedio) {
+      dyMedio = dyMedioInput;
+    } else if (hasDpa && !hasDyMedio) {
       dyMedio = (dpa / price) * 100;
+    } else if (!hasDpa && hasDyMedio) {
+      dyMedio = dyMedioInput;
+      dpa = price * (dyMedio / 100);
     }
 
     // Preço Teto Bazin Fixo em K = 6.0% (0.06)
@@ -871,7 +1022,7 @@
     if (hasDpa && hasDyMedio) {
       baseExplanation = `A análise cruza a cotação atual de <strong>${fmtReal(price)}</strong> com o DPA de <strong>${fmtReal(dpa)}</strong> (Preço-Teto clássico de <strong>${fmtReal(precoTeto)}</strong>, gerando margem de <strong>${fmtPct(margemSeguranca)}</strong>) e o histórico consolidado de DY de 5 anos em <strong>${dyMedio.toFixed(1)}%</strong>.`;
     } else if (hasDpa && !hasDyMedio) {
-      baseExplanation = `A análise foca puramente no DPA informado de <strong>${fmtReal(dpa)}</strong> (Preço-Teto clássico de <strong>${fmtReal(precoTeto)}</strong>, gerando margem de <strong>${fmtPct(margemSeguranca)}</strong>) frente à cotação atual de <strong>${fmtReal(price)}</strong>. O rendimento histórico de 5 anos não foi fornecido e foi desconsiderado nesta avaliação.`;
+      baseExplanation = `A análise foca puramente no DPA de <strong>${fmtReal(dpa)}</strong> (Preço-Teto clássico de <strong>${fmtReal(precoTeto)}</strong>, gerando margem de <strong>${fmtPct(margemSeguranca)}</strong>) frente à cotação atual de <strong>${fmtReal(price)}</strong>. O rendimento histórico percentual (DY) de 5 anos não foi fornecido e foi desconsiderado nesta avaliação.`;
     } else {
       baseExplanation = `O histórico de DY de 5 anos de <strong>${dyMedio.toFixed(1)}%</strong> foi utilizado para estimar um DPA implícito de <strong>${fmtReal(dpa)}</strong> baseado na cotação de <strong>${fmtReal(price)}</strong>, gerando um Preço-Teto de segurança de <strong>${fmtReal(precoTeto)}</strong> com margem de <strong>${fmtPct(margemSeguranca)}</strong>.`;
     }
@@ -900,10 +1051,10 @@
     if (dpa <= 0) {
       status = 'reprovado';
       statusTitle = 'REPROVADO · RENDIMENTO ZERADO';
-      explanationText = `${baseExplanation}<br><br>O ativo <strong>${state.ticker}</strong> apresenta distribuição nula de dividendos. Sem proveitos recorrentes declarados, o modelo original de Bazin é inviabilizado de imediato pela falta de fluxo de caixa gerador de renda passiva.`;
+      explanationText = `${baseExplanation}<br><br>A empresa sob análise apresenta distribuição nula de dividendos. Sem proveitos recorrentes declarados, o modelo original de Bazin é inviabilizado de imediato pela falta de fluxo de caixa gerador de renda passiva.`;
       stepsList = [
         `<strong>Aguardar Dividendos:</strong> Aguarde a divulgação de novos resultados operacionais da companhia para verificar se há previsão de distribuição de proventos futuros.`,
-        `<strong>Identificar Alinhamento:</strong> Certifique-se de que a companhia é focada em dividendos e não uma empresa de crescimento em estágio inicial, que retém 100% de seus lucros.`
+        `<strong>Identificar Alinhamento:</strong> Certifique-se de que a companhia analisada é focada em dividendos e não uma empresa de crescimento em estágio inicial, que retém 100% de seus lucros.`
       ];
     }
     else if (levCritica) {
@@ -931,7 +1082,7 @@
       
       let isBankNote = state.isBank ? " Como se trata de uma instituição bancária, a relação Dívida/EBITDA foi desativada por não ser compatível com seu balanço de captações." : "";
       
-      explanationText = `Excelente oportunidade estrutural baseada nos pilares de geração de renda.<br><br>${baseExplanation}<br><br>O ativo <strong>${state.ticker}</strong> cumpre de forma excepcional as diretrizes de Bazin e Barsi.${isBankNote} A saúde de margem está em patamar confortável frente ao preço de segurança de <strong>${fmtReal(precoTeto)}</strong>.`;
+      explanationText = `Excelente oportunidade estrutural baseada nos pilares de geração de renda passiva.<br><br>${baseExplanation}<br><br>A ação avaliada cumpre de forma excepcional as diretrizes tradicionais de Bazin e Barsi.${isBankNote} A saúde de margem está em patamar confortável frente ao preço de segurança de <strong>${fmtReal(precoTeto)}</strong>.`;
       
       if (state.isBank) {
         stepsList = [
@@ -961,7 +1112,7 @@
         context = `o histórico médio de DY de 5 anos (<strong>${dyMedio.toFixed(1)}%</strong>) está ligeiramente aquém dos 6,0% de segurança de Bazin.`;
       }
 
-      explanationText = `${baseExplanation}<br><br>A tese de renda recorrente em <strong>${state.ticker}</strong> permanece viva, mas o momento não é propício para alocações agressivas porque ${context} O farol de atenção indica prudência para evitar a perda de rendimento real.`;
+      explanationText = `${baseExplanation}<br><br>A tese de renda recorrente na empresa analisada permanece viva, mas o momento não é propício para alocações agressivas porque ${context} O farol de atenção indica prudência para evitar a perda de rendimento real.`;
       
       if (state.isBank) {
         stepsList = [
@@ -981,13 +1132,13 @@
     else if (precoCaro && !levCritica) {
       status = 'reprovado';
       statusTitle = 'REPROVADO · PREÇO MUITO ELEVADO';
-      explanationText = `${baseExplanation}<br><br>A ação <strong>${state.ticker}</strong> é negociada com ágio expressivo acima de seu Preço-Teto de segurança de <strong>${fmtReal(precoTeto)}</strong>. Ao pagar o valor de mercado de <strong>${fmtReal(price)}</strong>, o seu rendimento projetado cairá consideravelmente abaixo dos 6% mínimos exigidos pelo modelo Bazin, contrariando o princípio de compra de margem de segurança de Barsi.`;
+      explanationText = `${baseExplanation}<br><br>A ação avaliada é negociada com ágio expressivo acima de seu Preço-Teto de segurança de <strong>${fmtReal(precoTeto)}</strong>. Ao pagar o valor de mercado de <strong>${fmtReal(price)}</strong>, o seu rendimento projetado cairá consideravelmente abaixo dos 6% mínimos exigidos pelo modelo Bazin, contrariando o princípio de compra de margem de segurança de Barsi.`;
       
       if (state.isBank) {
         stepsList = [
           `<strong>Suspender Novos Aportes:</strong> Não compre ações de bancos em momentos de rali ou otimismo esticado. O setor financeiro costuma apresentar flutuações e excelentes momentos de estresse de mercado que reduzem o preço dos papéis.`,
           `<strong>Manutenção em Custódia (Hold):</strong> Mantenha as ações antigas de custo médio saudável na carteira para usufruir do pagamento recorrente de dividendos, mas não gaste novas reservas nela.`,
-          `<strong>Direcionar Caixa de Oportunidade:</strong> Guarde as sobras financeiras em caixa de oportunidade (renda fixa de alta liquidez) para acumular caixa ou investir em outras vacas leiteiras que estejam baratas no momento.`
+          `<strong>Direcionar Caixa de Oportunidade:</strong> Guarde as sobras financeiras em caixa de oportunidade (renda fixa de alta liquidez) para investir em outras empresas que estejam baratas no momento.`
         ];
       } else {
         stepsList = [
@@ -1015,9 +1166,11 @@
     });
   }
 
-  // Inicializar modo banco e rodar cálculo inicial na montagem da tela
+  // Inicializar interface e rodar cálculo na montagem da tela
   window.onload = function() {
-    toggleBankMode(document.getElementById('input-is-bank').checked);
+    state.isBank = document.getElementById('input-is-bank').checked;
+    state.dpaMode = 'direct';
+    toggleBankMode(state.isBank);
   };
 </script>
 
