@@ -12,7 +12,7 @@
     --bg:       #0d0f14;
     --surface:  #13161e;
     --border:   #1e2330;
-    --muted:    --bg;
+    --muted:    var(--bg);
     --muted-btn:#2a2f3d;
     --text:     #c8cdd8;
     --dim:      #5a6175;
@@ -223,17 +223,18 @@
     color: var(--accent);
   }
 
-  /* Grid dos 5 anos de DPA */
+  /* Grid dos 5 anos de DPA ampliado */
   .dpa-years-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
+    gap: 10px;
     margin-top: 4px;
+    width: 100%;
   }
   .year-input-box {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     align-items: center;
   }
   .year-label {
@@ -245,8 +246,8 @@
   }
   .input-year-val {
     width: 100% !important;
-    padding: 8px 6px !important;
-    font-size: 13px !important;
+    padding: 10px 8px !important;
+    font-size: 14px !important;
     text-align: center;
     background: var(--bg);
     border: 1px solid var(--border);
@@ -259,7 +260,7 @@
     border-color: var(--accent);
   }
   .calc-avg-badge {
-    margin-top: 8px;
+    margin-top: 10px;
     font-family: var(--mono);
     font-size: 11px;
     color: var(--dim);
@@ -627,82 +628,67 @@
         </div>
       </div>
 
-      <!-- Main Input Grid -->
-      <div class="form-row-2col">
-        <!-- Dynamic DPA Container (Left Column) -->
-        <div class="form-group" id="dpa-input-container">
-          
-          <!-- Mode A: Single Input -->
-          <div id="dpa-direct-wrapper">
-            <label for="input-dpa">DPA 12m (Média R$) <span class="optional-label">(Opcional se DY preenchido)</span></label>
-            <div class="input-with-symbol">
-              <span class="input-symbol">R$</span>
-              <input type="number" id="input-dpa" value="5.20" step="0.01" min="0" oninput="calculate()">
-            </div>
+      <!-- Full-Width Dynamic DPA Container -->
+      <div class="form-group" id="dpa-input-container">
+        
+        <!-- Mode A: Single Input -->
+        <div id="dpa-direct-wrapper">
+          <label for="input-dpa">DPA 12m (Média R$) <span class="optional-label">(Opcional se DY preenchido)</span></label>
+          <div class="input-with-symbol">
+            <span class="input-symbol">R$</span>
+            <input type="number" id="input-dpa" value="5.20" step="0.01" min="0" oninput="calculate()">
           </div>
-
-          <!-- Mode B: 5 Years Fields -->
-          <div id="dpa-years-wrapper" style="display: none;">
-            <label>Valores Anuais de DPA (R$) <span class="optional-label">(Histórico atemporal)</span></label>
-            <div class="dpa-years-grid">
-              <div class="year-input-box">
-                <span class="year-label">Ano 1</span>
-                <input type="number" class="input-year-val" id="dpa-y1" value="4.20" step="0.01" min="0" oninput="calculate()">
-              </div>
-              <div class="year-input-box">
-                <span class="year-label">Ano 2</span>
-                <input type="number" class="input-year-val" id="dpa-y2" value="4.80" step="0.01" min="0" oninput="calculate()">
-              </div>
-              <div class="year-input-box">
-                <span class="year-label">Ano 3</span>
-                <input type="number" class="input-year-val" id="dpa-y3" value="5.00" step="0.01" min="0" oninput="calculate()">
-              </div>
-              <div class="year-input-box">
-                <span class="year-label">Ano 4</span>
-                <input type="number" class="input-year-val" id="dpa-y4" value="5.50" step="0.01" min="0" oninput="calculate()">
-              </div>
-              <div class="year-input-box">
-                <span class="year-label">Ano 5</span>
-                <input type="number" class="input-year-val" id="dpa-y5" value="6.50" step="0.01" min="0" oninput="calculate()">
-              </div>
-            </div>
-            <div class="calc-avg-badge">
-              Média Calculada: <span id="avg-computed-dpa">R$ 5,20</span>
-            </div>
-          </div>
-
         </div>
 
-        <!-- Current Price Input (Right Column) -->
-        <div class="form-group" style="justify-content: flex-start;">
+        <!-- Mode B: 5 Years Fields (Larger and Full-Width) -->
+        <div id="dpa-years-wrapper" style="display: none;">
+          <label>Valores Anuais de DPA (R$) <span class="optional-label">(Histórico atemporal)</span></label>
+          <div class="dpa-years-grid">
+            <div class="year-input-box">
+              <span class="year-label">Ano 1</span>
+              <input type="number" class="input-year-val" id="dpa-y1" value="4.20" step="0.01" min="0" oninput="calculate()">
+            </div>
+            <div class="year-input-box">
+              <span class="year-label">Ano 2</span>
+              <input type="number" class="input-year-val" id="dpa-y2" value="4.80" step="0.01" min="0" oninput="calculate()">
+            </div>
+            <div class="year-input-box">
+              <span class="year-label">Ano 3</span>
+              <input type="number" class="input-year-val" id="dpa-y3" value="5.00" step="0.01" min="0" oninput="calculate()">
+            </div>
+            <div class="year-input-box">
+              <span class="year-label">Ano 4</span>
+              <input type="number" class="input-year-val" id="dpa-y4" value="5.50" step="0.01" min="0" oninput="calculate()">
+            </div>
+            <div class="year-input-box">
+              <span class="year-label">Ano 5</span>
+              <input type="number" class="input-year-val" id="dpa-y5" value="6.50" step="0.01" min="0" oninput="calculate()">
+            </div>
+          </div>
+          <div class="calc-avg-badge">
+            Média Calculada: <span id="avg-computed-dpa">R$ 5,20</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Grid for Cotação and DY Médio -->
+      <div class="form-row-2col">
+        <!-- Current Price Input -->
+        <div class="form-group">
           <label for="input-price">Cotação Atual</label>
-          <div class="input-with-symbol" style="margin-bottom: 12px;">
+          <div class="input-with-symbol">
             <span class="input-symbol">R$</span>
             <input type="number" id="input-price" value="62.50" step="0.01" min="0.01" oninput="calculate()">
           </div>
-          <div style="font-family: var(--mono); font-size: 11px; color: var(--dim); line-height: 1.3;">
-            Preço-Teto de Bazin:<br>
-            <span style="color: var(--accent);">Teto = DPA ÷ 0,06</span>
-          </div>
         </div>
-      </div>
 
-      <!-- DY e Margem de Segurança Row -->
-      <div class="form-row-2col">
         <!-- DY Médio Histórico Input (5 anos) -->
         <div class="form-group">
           <label for="input-dy-medio">DY Médio 5 Anos (%) <span class="optional-label">(Opcional se DPA preenchido)</span></label>
           <div class="input-with-symbol">
             <span class="input-symbol">%</span>
             <input type="number" id="input-dy-medio" value="7.50" step="0.1" min="0" max="100" oninput="calculate()">
-          </div>
-        </div>
-
-        <!-- Informativo Rápido -->
-        <div class="form-group" style="justify-content: center;">
-          <div style="font-size: 11px; color: var(--dim); line-height: 1.4; border-left: 2px solid var(--border); padding-left: 12px;">
-            <strong>Modo Média 5 Anos:</strong><br>
-            O preenchimento incompleto computará a média proporcional dos anos válidos informados.
           </div>
         </div>
       </div>
@@ -805,7 +791,7 @@
 
 </div>
 
-<script>
+<script {is_runnable="true"}>
   // ── ESTADO GLOBAL ──
   let state = {
     dpaMode: 'direct', // 'direct' ou 'years'
@@ -823,6 +809,7 @@
     return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
+  // format percentage with safe handling
   function fmtPct(val) {
     if (isNaN(val) || !isFinite(val)) return '0,0%';
     const prefix = val > 0 ? '+' : '';
@@ -1072,7 +1059,7 @@
       explanationText = `${baseExplanation}<br><br>Embora a cotação momentânea ou o DPA pontual possam apresentar uma oportunidade nominal, o histórico consolidado de DY de 5 anos de <strong>${dyMedio.toFixed(1)}%</strong> mostra-se cronicamente fraco ou irregular (abaixo de 5,0%). Bazin defendia que o histórico consolidado é a melhor prova de solidez operacional.`;
       stepsList = [
         `<strong>Priorizar Ativos Consistentes:</strong> Busque empresas com histórico consolidado e ininterrupto de distribuição de renda superior a 6,0% ao longo dos anos.`,
-        `<strong>Avaliar se o Dividend Yield é Não-Recorrente:</strong> Se o DPA atual está excelente mas o histórico de 5 anos é fraco, verifique se a distribuição recente não é fruto de ganhos não-recorrentes isolados.`
+        `<strong>Avaliar se o Dividend Yield é Non-Recorrente:</strong> Se o DPA atual está excelente mas o histórico de 5 anos é fraco, verifique se a distribuição recente não é fruto de ganhos não-recorrentes isolados.`
       ];
     }
     // Cenário de Compra: Preço abaixo do teto, dívida OK (ou modo banco ativo) e histórico OK
