@@ -17,6 +17,7 @@
     --text:     #c8cdd8;
     --dim:      #5a6175;
     --accent:   #4f8ef7;
+    --accent-rgb: 79, 142, 247;
     --green:    #3ddc97;
     --yellow:   #f7c948;
     --red:      #f76f6f;
@@ -40,9 +41,23 @@
     margin: 0 auto;
   }
 
+  /* Transição suave de cores para transicionar entre os temas Azul e Roxo */
+  .main-tab-btn, 
+  .info-k-badge, 
+  .info-k-fixed, 
+  input, 
+  button, 
+  span, 
+  label, 
+  .slider-val-badge, 
+  .analysis-section-title, 
+  .header-meta span {
+    transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
   /* ── Header ── */
   .header {
-    margin-bottom: 28px;
+    margin-bottom: 24px;
     border-bottom: 1px solid var(--border);
     padding-bottom: 20px;
     display: flex;
@@ -77,10 +92,49 @@
   }
   .header-meta span { color: var(--accent); }
 
+  /* ── Main Tab Navigation ── */
+  .main-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+    gap: 8px;
+  }
+  .main-tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--dim);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 12px 16px;
+    cursor: pointer;
+    position: relative;
+    border-radius: 4px 4px 0 0;
+  }
+  .main-tab-btn:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .main-tab-btn.active {
+    color: var(--accent);
+    background: var(--surface);
+  }
+  .main-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent);
+  }
+
   /* ── Info Box: K Fixo ── */
   .info-k-fixed {
-    background: rgba(79, 142, 247, 0.05);
-    border: 1px dashed rgba(79, 142, 247, 0.25);
+    background: rgba(var(--accent-rgb), 0.05);
+    border: 1px dashed rgba(var(--accent-rgb), 0.25);
     border-radius: 4px;
     padding: 12px 16px;
     margin-bottom: 24px;
@@ -189,7 +243,7 @@
   }
   input[type="number"]:focus, input[type="text"]:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 1px rgba(79, 142, 247, 0.2);
+    box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.2);
   }
 
   /* ── Segmented Tab Group (DPA Selector) ── */
@@ -280,7 +334,7 @@
     flex-direction: row !important;
     align-items: center;
     gap: 10px;
-    background: rgba(79, 142, 247, 0.03);
+    background: rgba(var(--accent-rgb), 0.03);
     border: 1px solid var(--border);
     border-radius: 3px;
     padding: 12px;
@@ -288,8 +342,8 @@
     transition: background 0.2s, border-color 0.2s;
   }
   .checkbox-group:hover {
-    background: rgba(79, 142, 247, 0.06);
-    border-color: rgba(79, 142, 247, 0.3);
+    background: rgba(var(--accent-rgb), 0.06);
+    border-color: rgba(var(--accent-rgb), 0.3);
   }
   .checkbox-label {
     display: flex;
@@ -591,9 +645,15 @@
       <div class="header-label">Ferramenta Satélite de Avaliação</div>
       <h1>Modelo Bazin · Inteligência de Entrada</h1>
       <div class="header-meta">
-        Calculadora Integrada: <span>Preço-Teto & Alavancagem</span>
+        Calculadora Integrada: <span>Preço-Teto, Graham & Alavancagem</span>
       </div>
     </div>
+  </div>
+
+  <!-- ── Main Tab Navigation ── -->
+  <div class="main-tabs">
+    <button type="button" class="main-tab-btn active" id="tab-bazin" onclick="switchMainTab('bazin')">Método Bazin Clássico</button>
+    <button type="button" class="main-tab-btn" id="tab-graham" onclick="switchMainTab('graham')">Integração Graham + Bazin</button>
   </div>
 
   <!-- ── Info Box: K Fixo ── -->
@@ -609,107 +669,159 @@
     
     <!-- LEFT: Inputs panel -->
     <div class="panel">
-      <div class="panel-title">Parâmetros de Avaliação</div>
+      
+      <!-- TAB 1: BAZIN CLASSIC INPUTS -->
+      <div id="inputs-tab-bazin" style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="panel-title">Parâmetros de Avaliação (Bazin)</div>
 
-      <!-- Sector Selector (Setor Bancário Checkbox) -->
-      <div class="form-group checkbox-group">
-        <label class="checkbox-label" for="input-is-bank">
-          <input type="checkbox" id="input-is-bank" onchange="toggleBankMode(this.checked)">
-          <span><strong>Setor Bancário / Financeiro</strong> (Invalida Dívida Líquida/EBITDA)</span>
-        </label>
-      </div>
-
-      <!-- DPA Selection Tab Switch -->
-      <div class="form-group">
-        <label>Forma de Entrada de Proventos (DPA)</label>
-        <div class="dpa-toggle-group">
-          <button type="button" class="dpa-toggle-btn active" id="toggle-dpa-direct" onclick="setDpaMode('direct')">DPA Consolidado Único</button>
-          <button type="button" class="dpa-toggle-btn" id="toggle-dpa-years" onclick="setDpaMode('years')">Média de 5 Anos de DPA</button>
-        </div>
-      </div>
-
-      <!-- Full-Width Dynamic DPA Container -->
-      <div class="form-group" id="dpa-input-container">
-        
-        <!-- Mode A: Single Input -->
-        <div id="dpa-direct-wrapper">
-          <label for="input-dpa">DPA 12m (Média R$) <span class="optional-label">(Opcional se DY preenchido)</span></label>
-          <div class="input-with-symbol">
-            <span class="input-symbol">R$</span>
-            <input type="number" id="input-dpa" value="5.20" step="0.01" min="0" oninput="calculate()">
-          </div>
+        <!-- Sector Selector (Setor Bancário Checkbox) -->
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label" for="input-is-bank">
+            <input type="checkbox" id="input-is-bank" onchange="toggleBankMode(this.checked)">
+            <span><strong>Setor Bancário / Financeiro</strong> (Invalida Dívida Líquida/EBITDA)</span>
+          </label>
         </div>
 
-        <!-- Mode B: 5 Years Fields (Larger and Full-Width) -->
-        <div id="dpa-years-wrapper" style="display: none;">
-          <label>Valores Anuais de DPA (R$) <span class="optional-label">(Histórico atemporal)</span></label>
-          <div class="dpa-years-grid">
-            <div class="year-input-box">
-              <span class="year-label">Ano 1</span>
-              <input type="number" class="input-year-val" id="dpa-y1" value="4.20" step="0.01" min="0" oninput="calculate()">
-            </div>
-            <div class="year-input-box">
-              <span class="year-label">Ano 2</span>
-              <input type="number" class="input-year-val" id="dpa-y2" value="4.80" step="0.01" min="0" oninput="calculate()">
-            </div>
-            <div class="year-input-box">
-              <span class="year-label">Ano 3</span>
-              <input type="number" class="input-year-val" id="dpa-y3" value="5.00" step="0.01" min="0" oninput="calculate()">
-            </div>
-            <div class="year-input-box">
-              <span class="year-label">Ano 4</span>
-              <input type="number" class="input-year-val" id="dpa-y4" value="5.50" step="0.01" min="0" oninput="calculate()">
-            </div>
-            <div class="year-input-box">
-              <span class="year-label">Ano 5</span>
-              <input type="number" class="input-year-val" id="dpa-y5" value="6.50" step="0.01" min="0" oninput="calculate()">
-            </div>
-          </div>
-          <div class="calc-avg-badge">
-            Média Calculada: <span id="avg-computed-dpa">R$ 5,20</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Grid for Cotação and DY Médio -->
-      <div class="form-row-2col">
-        <!-- Current Price Input -->
+        <!-- DPA Selection Tab Switch -->
         <div class="form-group">
-          <label for="input-price">Cotação Atual</label>
-          <div class="input-with-symbol">
-            <span class="input-symbol">R$</span>
-            <input type="number" id="input-price" value="62.50" step="0.01" min="0.01" oninput="calculate()">
+          <label>Forma de Entrada de Proventos (DPA)</label>
+          <div class="dpa-toggle-group">
+            <button type="button" class="dpa-toggle-btn active" id="toggle-dpa-direct" onclick="setDpaMode('direct')">DPA Consolidado Único</button>
+            <button type="button" class="dpa-toggle-btn" id="toggle-dpa-years" onclick="setDpaMode('years')">Média de 5 Anos de DPA</button>
           </div>
         </div>
 
-        <!-- DY Médio Histórico Input (5 anos) -->
-        <div class="form-group">
-          <label for="input-dy-medio">DY Médio 5 Anos (%) <span class="optional-label">(Opcional se DPA preenchido)</span></label>
-          <div class="input-with-symbol">
-            <span class="input-symbol">%</span>
-            <input type="number" id="input-dy-medio" value="7.50" step="0.1" min="0" max="100" oninput="calculate()">
+        <!-- Full-Width Dynamic DPA Container -->
+        <div class="form-group" id="dpa-input-container">
+          
+          <!-- Mode A: Single Input -->
+          <div id="dpa-direct-wrapper">
+            <label for="input-dpa">DPA 12m (Média R$) <span class="optional-label">(Opcional se DY preenchido)</span></label>
+            <div class="input-with-symbol">
+              <span class="input-symbol">R$</span>
+              <input type="number" id="input-dpa" value="5.20" step="0.01" min="0" oninput="calculate()">
+            </div>
+          </div>
+
+          <!-- Mode B: 5 Years Fields (Larger and Full-Width) -->
+          <div id="dpa-years-wrapper" style="display: none;">
+            <label>Valores Anuais de DPA (R$) <span class="optional-label">(Histórico atemporal)</span></label>
+            <div class="dpa-years-grid">
+              <div class="year-input-box">
+                <span class="year-label">Ano 1</span>
+                <input type="number" class="input-year-val" id="dpa-y1" value="4.20" step="0.01" min="0" oninput="calculate()">
+              </div>
+              <div class="year-input-box">
+                <span class="year-label">Ano 2</span>
+                <input type="number" class="input-year-val" id="dpa-y2" value="4.80" step="0.01" min="0" oninput="calculate()">
+              </div>
+              <div class="year-input-box">
+                <span class="year-label">Ano 3</span>
+                <input type="number" class="input-year-val" id="dpa-y3" value="5.00" step="0.01" min="0" oninput="calculate()">
+              </div>
+              <div class="year-input-box">
+                <span class="year-label">Ano 4</span>
+                <input type="number" class="input-year-val" id="dpa-y4" value="5.50" step="0.01" min="0" oninput="calculate()">
+              </div>
+              <div class="year-input-box">
+                <span class="year-label">Ano 5</span>
+                <input type="number" class="input-year-val" id="dpa-y5" value="6.50" step="0.01" min="0" oninput="calculate()">
+              </div>
+            </div>
+            <div class="calc-avg-badge">
+              Média Calculada: <span id="avg-computed-dpa">R$ 5,20</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Grid for Cotação and DY Médio -->
+        <div class="form-row-2col">
+          <!-- Current Price Input -->
+          <div class="form-group">
+            <label for="input-price">Cotação Atual</label>
+            <div class="input-with-symbol">
+              <span class="input-symbol">R$</span>
+              <input type="number" id="input-price" value="62.50" step="0.01" min="0.01" oninput="calculate()">
+            </div>
+          </div>
+
+          <!-- DY Médio Histórico Input (5 anos) -->
+          <div class="form-group">
+            <label for="input-dy-medio">DY Médio 5 Anos (%) <span class="optional-label">(Opcional se DPA preenchido)</span></label>
+            <div class="input-with-symbol">
+              <span class="input-symbol">%</span>
+              <input type="number" id="input-dy-medio" value="7.50" step="0.1" min="0" max="100" oninput="calculate()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Net Debt / EBITDA slider -->
+        <div id="debt-slider-container" class="form-group">
+          <div class="slider-header">
+            <label id="lbl-debt-title" for="slider-debt">Dívida Líquida / EBITDA</label>
+            <span class="slider-val-badge" id="lbl-debt" style="color: var(--accent);">1.20x</span>
+          </div>
+          <div class="slider-wrap">
+            <input type="range" id="slider-debt" min="-1.0" max="6.0" step="0.01" value="1.20" oninput="onDebtChange(this.value)">
+            <div class="slider-ticks">
+              <span>-1.0x (Caixa)</span>
+              <span>0.0x</span>
+              <span>1.5x</span>
+              <span>2.5x (Alerta)</span>
+              <span>3.5x</span>
+              <span>5.0x (Crítico)</span>
+              <span>6.0x</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Net Debt / EBITDA slider -->
-      <div id="debt-slider-container" class="form-group">
-        <div class="slider-header">
-          <label id="lbl-debt-title" for="slider-debt">Dívida Líquida / EBITDA</label>
-          <span class="slider-val-badge" id="lbl-debt" style="color: var(--accent);">1.20x</span>
-        </div>
-        <div class="slider-wrap">
-          <input type="range" id="slider-debt" min="-1.0" max="6.0" step="0.01" value="1.20" oninput="onDebtChange(this.value)">
-          <div class="slider-ticks">
-            <span>-1.0x (Caixa)</span>
-            <span>0.0x</span>
-            <span>1.5x</span>
-            <span>2.5x (Alerta)</span>
-            <span>3.5x</span>
-            <span>5.0x (Crítico)</span>
-            <span>6.0x</span>
+      <!-- TAB 2: GRAHAM + BAZIN INTEGRATION INPUTS -->
+      <div id="inputs-tab-graham" style="display: none; flex-direction: column; gap: 20px;">
+        <div class="panel-title">Parâmetros de Avaliação (Graham + Bazin)</div>
+
+        <!-- VPA and LPA inputs -->
+        <div class="form-row-2col">
+          <div class="form-group">
+            <label for="input-vpa">VPA <span class="optional-label">(Valor Patrimonial p/ Ação)</span></label>
+            <div class="input-with-symbol">
+              <span class="input-symbol">R$</span>
+              <input type="number" id="input-vpa" value="40.00" step="0.01" min="0.01" oninput="calculate()">
+            </div>
           </div>
+
+          <div class="form-group">
+            <label for="input-lpa">LPA <span class="optional-label">(Lucro Líquido por Ação)</span></label>
+            <div class="input-with-symbol">
+              <span class="input-symbol">R$</span>
+              <input type="number" id="input-lpa" value="4.50" step="0.01" oninput="calculate()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Payout and Cotação Atual inputs -->
+        <div class="form-row-2col">
+          <div class="form-group">
+            <label for="input-payout">Payout Estimado (%)</label>
+            <div class="input-with-symbol">
+              <span class="input-symbol">%</span>
+              <input type="number" id="input-payout" value="60.0" step="0.5" min="0" max="100" oninput="calculate()">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="input-graham-price">Cotação Atual</label>
+            <div class="input-with-symbol">
+              <span class="input-symbol">R$</span>
+              <input type="number" id="input-graham-price" value="45.00" step="0.01" min="0.01" oninput="calculate()">
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size: 11px; color: var(--dim); line-height: 1.4; border-left: 2px solid var(--border); padding-left: 12px; margin-top: 4px;">
+          <strong>Modelo Integrado de Alocação:</strong><br>
+          Com base nas teorias de Benjamin Graham, determinamos o Valor Intrínseco estático. Através do Payout projetado e do lucro ($LPA \times Payout\%$), construímos o fluxo de rendimento sob o crivo rígido de dividendos de Bazin ($DPA / 0,06$).
         </div>
       </div>
 
@@ -728,8 +840,8 @@
         </div>
       </div>
 
-      <!-- Metric results grid -->
-      <div class="calc-grid">
+      <!-- METRICS GRID TAB 1: BAZIN -->
+      <div id="grid-metrics-bazin" class="calc-grid">
         <div class="calc-card">
           <span class="calc-label">Preço-Teto Bazin (6%)</span>
           <span class="calc-value" id="res-teto">R$ 0,00</span>
@@ -740,10 +852,30 @@
         </div>
       </div>
 
+      <!-- METRICS GRID TAB 2: GRAHAM -->
+      <div id="grid-metrics-graham" class="calc-grid" style="display: none; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="calc-card">
+          <span class="calc-label">V. Intrínseco (Graham)</span>
+          <span class="calc-value" id="res-graham-vi">R$ 0,00</span>
+        </div>
+        <div class="calc-card">
+          <span class="calc-label">Preço-Teto Bazin (6%)</span>
+          <span class="calc-value" id="res-graham-teto">R$ 0,00</span>
+        </div>
+        <div class="calc-card">
+          <span class="calc-label">Margem Graham (VI)</span>
+          <span class="calc-value" id="res-graham-margem">0,0%</span>
+        </div>
+        <div class="calc-card">
+          <span class="calc-label">Retorno Convergência</span>
+          <span class="calc-value" id="res-graham-conv">0,0%</span>
+        </div>
+      </div>
+
       <!-- Visual progress representation -->
       <div class="bazin-progress-section">
         <div class="bazin-progress-top">
-          <span class="b-label">Status da Cotação</span>
+          <span class="b-label" id="pb-current-title">Status da Cotação</span>
           <div class="b-prices">
             <span class="b-current" id="pb-current-lbl">Cotação: R$ 0,00</span>
           </div>
@@ -760,7 +892,7 @@
 
       <!-- Analysis Explanations -->
       <div class="analysis-card">
-        <div class="analysis-section-title">Diagnóstico Detalhado da Ação</div>
+        <div class="analysis-section-title" id="analysis-section-hdr">Diagnóstico Detalhado da Ação</div>
         <p class="analysis-text" id="analysis-explanation">
           Carregando análise...
         </p>
@@ -777,7 +909,7 @@
 
   <!-- ── Info Footer (Theoretical context) ── -->
   <div class="info-footer">
-    <h3>Estrutura Decisória dos Pilares de Bazin Atualizados</h3>
+    <h3>Estrutura Decisória dos Pilares de Bazin & Graham</h3>
     <p>Com a taxa de desconto imutável estabelecida no padrão de <strong>K = 6,0%</strong>, os critérios decisórios deste painel avaliam três dimensões simultâneas:</p>
     <ul>
       <li><strong>Pilar 1: Preço Descontado (Margem de Segurança):</strong> A cotação atual precisa estar abaixo do preço-teto calculado ($Preço\ Teto = DPA / 0,06$) para garantir que o yield projetado seja no mínimo 6%.</li>
@@ -786,6 +918,7 @@
         <br>• <strong>Para empresas comuns:</strong> Dívida Líquida abaixo de <strong>2,5x</strong> o EBITDA é sinal verde; acima de <strong>3,5x</strong> reprova o ativo de imediato.
         <br>• <strong>Para Bancos/Financeiras:</strong> A métrica de Dívida Líquida/EBITDA é desativada por incompatibilidade de balanço. O modelo orienta a verificação de solvência bancária qualitativa de forma manual (Índice de Basileia &gt; 11% e ROE &gt; 15%).
       </li>
+      <li><strong>Pilar Graham (Opcional Integrado):</strong> O cálculo de Graham de Valor Intrínseco ($VI = \sqrt{22.5 \times LPA \times VPA}$) confere uma margem estática baseada em múltiplos tangíveis. Idealmente, a Margem de Segurança do ativo deve superar <strong>30%</strong> para acender o gatilho verde de assimetria favorável para investidores de valor.</li>
     </ul>
   </div>
 
@@ -794,6 +927,7 @@
 <script {is_runnable="true"}>
   // ── ESTADO GLOBAL ──
   let state = {
+    activeTab: 'bazin', // 'bazin' ou 'graham'
     dpaMode: 'direct', // 'direct' ou 'years'
     dpa: 5.20,
     price: 62.50,
@@ -805,18 +939,48 @@
 
   // ── UTILITÁRIOS ──
   function fmtReal(val) {
-    if (isNaN(val) || !isFinite(val)) return 'R$ 0,00';
+    if (isNaN(val) || !isFinite(val) || val < 0) return 'R$ 0,00';
     return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  // format percentage with safe handling
   function fmtPct(val) {
     if (isNaN(val) || !isFinite(val)) return '0,0%';
     const prefix = val > 0 ? '+' : '';
     return prefix + val.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
   }
 
-  // ── ALTERNAR ENTRE ENTRADAS DE DPA ──
+  // ── SWITCH MAIN TABS & THEME COLORS (AZUL <-> ROXO) ──
+  function switchMainTab(tab) {
+    state.activeTab = tab;
+    document.getElementById('tab-bazin').classList.toggle('active', tab === 'bazin');
+    document.getElementById('tab-graham').classList.toggle('active', tab === 'graham');
+    
+    document.getElementById('inputs-tab-bazin').style.display = tab === 'bazin' ? 'flex' : 'none';
+    document.getElementById('inputs-tab-graham').style.display = tab === 'graham' ? 'flex' : 'none';
+    
+    document.getElementById('grid-metrics-bazin').style.display = tab === 'bazin' ? 'grid' : 'none';
+    document.getElementById('grid-metrics-graham').style.display = tab === 'graham' ? 'grid' : 'none';
+    
+    // Atualização dinâmica do tema através das variáveis de estilo do elemento raiz (:root)
+    const root = document.documentElement;
+    if (tab === 'bazin') {
+      root.style.setProperty('--accent', '#4f8ef7'); // Azul clássico Bazin
+      root.style.setProperty('--accent-rgb', '79, 142, 247');
+      
+      document.querySelector('.info-k-badge').textContent = 'K = 6.0% de Bazin';
+      document.querySelector('.info-k-fixed div').innerHTML = 'Esta ferramenta utiliza a taxa de desconto imutável de <strong>6,0% ao ano</strong> estabelecida pelo método clássico de Décio Bazin para garantir a margem de retorno em dividendos.';
+    } else {
+      root.style.setProperty('--accent', '#a78bfa'); // Roxo Graham Premium
+      root.style.setProperty('--accent-rgb', '167, 139, 250');
+      
+      document.querySelector('.info-k-badge').textContent = 'Fórmula de Graham + Bazin';
+      document.querySelector('.info-k-fixed div').innerHTML = 'Esta aba integra o modelo estático de valor intrínseco de ativos de <strong>Benjamin Graham</strong> com a perpetuidade de caixa de dividendos de <strong>Décio Bazin</strong>.';
+    }
+    
+    calculate();
+  }
+
+  // ── ALTERNAR ENTRE ENTRADAS DE DPA (TAB 1) ──
   function setDpaMode(mode) {
     state.dpaMode = mode;
     document.getElementById('toggle-dpa-direct').classList.toggle('active', mode === 'direct');
@@ -828,7 +992,7 @@
     calculate();
   }
 
-  // ── CONTROLE DO MODO BANCO ──
+  // ── CONTROLE DO MODO BANCO (TAB 1) ──
   function toggleBankMode(checked) {
     state.isBank = checked;
     const container = document.getElementById('debt-slider-container');
@@ -861,7 +1025,6 @@
     
     document.getElementById('lbl-debt').textContent = state.debtEbitda.toFixed(2) + 'x';
     
-    // Muda a cor do texto do indicador de dívida no slider para dar feedback visual
     const badge = document.getElementById('lbl-debt');
     if (state.debtEbitda <= 2.5) {
       badge.style.color = 'var(--green)';
@@ -876,7 +1039,17 @@
 
   // ── CORE LOGIC DE CÁLCULO E DIAGNÓSTICO ──
   function calculate() {
-    // Coleta dos inputs comuns
+    if (state.activeTab === 'bazin') {
+      calculateBazinClassic();
+    } else {
+      calculateGrahamBazin();
+    }
+  }
+
+  // ── CÁLCULO 1: BAZIN CLÁSSICO ──
+  function calculateBazinClassic() {
+    document.getElementById('analysis-section-hdr').textContent = "Diagnóstico Detalhado da Ação";
+    
     const rawPrice = document.getElementById('input-price').value;
     const rawDyMedio = document.getElementById('input-dy-medio').value;
 
@@ -889,7 +1062,6 @@
     let dpa = 0;
     let hasDpa = false;
 
-    // Lógica de leitura de acordo com o modo ativo
     if (state.dpaMode === 'direct') {
       const rawDpa = document.getElementById('input-dpa').value;
       hasDpa = rawDpa !== '' && !isNaN(parseFloat(rawDpa)) && parseFloat(rawDpa) >= 0;
@@ -897,7 +1069,6 @@
         dpa = parseFloat(rawDpa);
       }
     } else {
-      // Calcular a média móvel dos últimos 5 anos individuais preenchidos
       const y1 = parseFloat(document.getElementById('dpa-y1').value);
       const y2 = parseFloat(document.getElementById('dpa-y2').value);
       const y3 = parseFloat(document.getElementById('dpa-y3').value);
@@ -915,7 +1086,6 @@
       }
     }
 
-    // VALIDAR CO-OPCIONALIDADE: Exige no mínimo DPA ou DY Médio preenchidos
     if (!hasDpa && !hasDyMedio) {
       const banner = document.getElementById('farol-banner');
       banner.className = 'farol-banner status-neutro';
@@ -943,7 +1113,6 @@
       return;
     }
 
-    // Engenharia reversa inteligente em caso de dados complementares ausentes:
     let dyMedio = 0;
     if (hasDpa && hasDyMedio) {
       dyMedio = dyMedioInput;
@@ -954,18 +1123,13 @@
       dpa = price * (dyMedio / 100);
     }
 
-    // Preço Teto Bazin Fixo em K = 6.0% (0.06)
     const kDecimal = 0.06;
     const precoTeto = dpa / kDecimal;
-
-    // Calcular Margem de Segurança
     const margemSeguranca = precoTeto > 0 ? (((precoTeto - price) / precoTeto) * 100) : -100;
 
-    // Exibir métricas nos displays principais
     document.getElementById('res-teto').textContent = fmtReal(precoTeto);
     document.getElementById('res-margem').textContent = fmtPct(margemSeguranca);
 
-    // Ajustar cor da margem de segurança
     const resMargemElement = document.getElementById('res-margem');
     if (margemSeguranca >= 0) {
       resMargemElement.style.color = 'var(--green)';
@@ -975,7 +1139,6 @@
       resMargemElement.style.color = 'var(--red)';
     }
 
-    // Atualizar Barra de Progresso Visual
     document.getElementById('pb-current-lbl').textContent = `Cotação: ${fmtReal(price)}`;
     document.getElementById('pb-teto-lbl').textContent = `Teto: ${fmtReal(precoTeto)}`;
     
@@ -992,7 +1155,6 @@
     const percentFill = Math.min(100, Math.max(0, ratio));
     pbFill.style.width = percentFill + '%';
 
-    // Cores do progresso
     if (price <= precoTeto) {
       pbFill.style.backgroundColor = 'var(--green)';
       document.getElementById('pb-margin-lbl').style.color = 'var(--green)';
@@ -1004,33 +1166,21 @@
       document.getElementById('pb-margin-lbl').style.color = 'var(--red)';
     }
 
-    // Configurar blocos explicativos de acordo com o que foi fornecido pelo usuário
-    let baseExplanation = "";
-    if (hasDpa && hasDyMedio) {
-      baseExplanation = `A análise cruza a cotação atual de <strong>${fmtReal(price)}</strong> com o DPA de <strong>${fmtReal(dpa)}</strong> (Preço-Teto clássico de <strong>${fmtReal(precoTeto)}</strong>, gerando margem de <strong>${fmtPct(margemSeguranca)}</strong>) e o histórico consolidado de DY de 5 anos em <strong>${dyMedio.toFixed(1)}%</strong>.`;
-    } else if (hasDpa && !hasDyMedio) {
-      baseExplanation = `A análise foca puramente no DPA de <strong>${fmtReal(dpa)}</strong> (Preço-Teto clássico de <strong>${fmtReal(precoTeto)}</strong>, gerando margem de <strong>${fmtPct(margemSeguranca)}</strong>) frente à cotação atual de <strong>${fmtReal(price)}</strong>. O rendimento histórico percentual (DY) de 5 anos não foi fornecido e foi desconsiderado nesta avaliação.`;
-    } else {
-      baseExplanation = `O histórico de DY de 5 anos de <strong>${dyMedio.toFixed(1)}%</strong> foi utilizado para estimar um DPA implícito de <strong>${fmtReal(dpa)}</strong> baseado na cotação de <strong>${fmtReal(price)}</strong>, gerando um Preço-Teto de segurança de <strong>${fmtReal(precoTeto)}</strong> com margem de <strong>${fmtPct(margemSeguranca)}</strong>.`;
-    }
+    let baseExplanation = `A análise cruza a cotação atual de <strong>${fmtReal(price)}</strong> com o DPA de <strong>${fmtReal(dpa)}</strong> (Preço-Teto clássico de <strong>${fmtReal(precoTeto)}</strong>, gerando margem de <strong>${fmtPct(margemSeguranca)}</strong>) e o histórico de DY de 5 anos estimado em <strong>${dyMedio.toFixed(1)}%</strong>.`;
 
-    // Lógica de Decisão e Farol (Preço + Alavancagem + Histórico de Dividendos)
-    let status = ''; // 'compra', 'neutro', 'reprovado'
+    let status = '';
     let statusTitle = '';
     let explanationText = '';
     let stepsList = [];
 
-    // Estados de alavancagem
     const levOk = state.isBank || state.debtEbitda <= 2.5;
     const levAlerta = !state.isBank && state.debtEbitda > 2.5 && state.debtEbitda <= 3.5;
     const levCritica = !state.isBank && state.debtEbitda > 3.5;
 
-    // Estados de preço/teto
     const precoSobTeto = price <= precoTeto;
     const precoEsticado = price > precoTeto && price <= (precoTeto * 1.1);
     const precoCaro = price > (precoTeto * 1.1);
 
-    // Estados de consistência de DY Histórico (Exigência rígida de 6%)
     const dyHistOk = !hasDyMedio || dyMedio >= 6.0;
     const dyHistAlerta = hasDyMedio && dyMedio >= 5.0 && dyMedio < 6.0;
     const dyHistRuim = hasDyMedio && dyMedio < 5.0;
@@ -1038,112 +1188,95 @@
     if (dpa <= 0) {
       status = 'reprovado';
       statusTitle = 'REPROVADO · RENDIMENTO ZERADO';
-      explanationText = `${baseExplanation}<br><br>A empresa sob análise apresenta distribuição nula de dividendos. Sem proveitos recorrentes declarados, o modelo original de Bazin é inviabilizado de imediato pela falta de fluxo de caixa gerador de renda passiva.`;
+      explanationText = `${baseExplanation}<br><br>O ativo sob análise apresenta distribuição nula de dividendos. Sem dividendos declarados, a tese de Bazin de fluxo contínuo de caixa perde sustentação metodológica imediata.`;
       stepsList = [
-        `<strong>Aguardar Dividendos:</strong> Aguarde a divulgação de novos resultados operacionais da companhia para verificar se há previsão de distribuição de proventos futuros.`,
-        `<strong>Identificar Alinhamento:</strong> Certifique-se de que a companhia analisada é focada em dividendos e não uma empresa de crescimento em estágio inicial, que retém 100% de seus lucros.`
+        `<strong>Aguardar Regularização:</strong> Acompanhe a divulgação de novos lucros trimestrais para identificar se a empresa retomará o pagamento de proventos futuros.`,
+        `<strong>Buscar Ativos de Renda:</strong> Reposicione o capital para empresas com fluxo consistente e histórico consolidado de distribuição.`
       ];
     }
     else if (levCritica) {
       status = 'reprovado';
-      statusTitle = 'REPROVADO · ENDIVIDAMENTO CRÍTICO';
-      explanationText = `${baseExplanation}<br><br>A alavancagem operacional atual está em patamar crítico de <strong>${state.debtEbitda.toFixed(2)}x</strong> Dívida Líquida/EBITDA. Uma estrutura altamente endividada eleva as despesas de juros da empresa, asfixia o lucro líquido distribuível e aumenta drasticamente a probabilidade de corte de proventos nos próximos trimestres.`;
+      statusTitle = 'REPROVADO · ENDIVIDAMENTO OPERACIONAL EXTREMO';
+      explanationText = `${baseExplanation}<br><br>O endividamento operacional medido em <strong>${state.debtEbitda.toFixed(2)}x</strong> Dívida Líquida/EBITDA está em patamar de risco severo. Sob condições de juros altos, a empresa canalizará o caixa para despesas com credores e amortizações, inviabilizando ou reduzindo drasticamente os dividendos.`;
       stepsList = [
-        `<strong>Não Efetuar Aportes:</strong> Recomenda-se cautela absoluta. Evite se expor ao ativo até que o nível de endividamento retorne para patamares saudáveis (abaixo de 2.5x ou pelo menos 3.5x).`,
-        `<strong>Investigar Cronograma de Amortização:</strong> Verifique os canais de Relações com Investidores para identificar se a empresa está passando por um pico planejado de Capex ou se está em crise estrutural de crédito.`
+        `<strong>Cuidado com Armadilhas de Valor:</strong> Evite aportes novos mesmo que o preço atual pareça tentador. O risco de corte abrupto nos próximos exercícios é real.`,
+        `<strong>Monitorar Desalavancagem:</strong> Verifique no release de RI se há em andamento um plano estruturado de alienação de ativos não-essenciais ou captação estratégica de baixo custo para atenuar a dívida.`
       ];
     }
     else if (dyHistRuim) {
       status = 'reprovado';
-      statusTitle = 'REPROVADO · HISTÓRICO 5 ANOS FRÁGIL';
-      explanationText = `${baseExplanation}<br><br>Embora a cotação momentânea ou o DPA pontual possam apresentar uma oportunidade nominal, o histórico consolidado de DY de 5 anos de <strong>${dyMedio.toFixed(1)}%</strong> mostra-se cronicamente fraco ou irregular (abaixo de 5,0%). Bazin defendia que o histórico consolidado é a melhor prova de solidez operacional.`;
+      statusTitle = 'REPROVADO · RENDIMENTO HISTÓRICO FRACO';
+      explanationText = `${baseExplanation}<br><br>Embora possa apresentar um desconto momentâneo na cotação, a ação possui um histórico inconsistente de proventos, traduzido no Yield médio de 5 anos de apenas <strong>${dyMedio.toFixed(1)}%</strong>. O modelo Bazin prioriza estabilidade de renda e exige consistência provada no longo prazo.`;
       stepsList = [
-        `<strong>Priorizar Ativos Consistentes:</strong> Busque empresas com histórico consolidado e ininterrupto de distribuição de renda superior a 6,0% ao longo dos anos.`,
-        `<strong>Avaliar se o Dividend Yield é Non-Recorrente:</strong> Se o DPA atual está excelente mas o histórico de 5 anos é fraco, verifique se a distribuição recente não é fruto de ganhos não-recorrentes isolados.`
+        `<strong>Priorizar Qualidade e Constância:</strong> Redirecione o fluxo de capital para corporações estabelecidas que ostentem uma média de Yield superior ao piso metodológico de 6%.`,
+        `<strong>Identificar Sazonalidades:</strong> Investigue se a empresa não pertence a setores de infraestrutura em fases intensivas de Capex, as quais costumam reduzir os proventos temporariamente.`
       ];
     }
-    // Cenário de Compra: Preço abaixo do teto, dívida OK (ou modo banco ativo) e histórico OK
     else if (precoSobTeto && levOk && dyHistOk) {
       status = 'compra';
-      statusTitle = 'COMPRA · PARÂMETROS SAUDÁVEIS';
+      statusTitle = 'COMPRA · PILARES TOTALMENTE SAUDÁVEIS';
+      let isBankNote = state.isBank ? " Como se trata de uma instituição bancária, a relação de alavancagem convencional foi desativada de acordo com as especificidades do balanço financeiro." : "";
       
-      let isBankNote = state.isBank ? " Como se trata de uma instituição bancária, a relação Dívida/EBITDA foi desativada por não ser compatível com seu balanço de captações." : "";
-      
-      explanationText = `Excelente oportunidade estrutural baseada nos pilares de geração de renda passiva.<br><br>${baseExplanation}<br><br>A ação avaliada cumpre de forma excepcional as diretrizes tradicionais de Bazin e Barsi.${isBankNote} A saúde de margem está em patamar confortável frente ao preço de segurança de <strong>${fmtReal(precoTeto)}</strong>.`;
+      explanationText = `Excelente oportunidade de alocação de caixa.<br><br>${baseExplanation}<br><br>O ativo atende com folga as métricas de segurança patrimonial e operacional de Barsi e Bazin.${isBankNote} A cotação apresenta margem de desconto convidativa frente ao preço-teto real de <strong>${fmtReal(precoTeto)}</strong>.`;
       
       if (state.isBank) {
         stepsList = [
-          `<strong>Verificar Índice de Basileia:</strong> Confirme qualitativamente se o índice de solvência do banco está confortavelmente acima do limite exigido de 11% (idealmente acima de 14% para garantir resiliência Barsi-style).`,
-          `<strong>Avaliar ROE e Inadimplência:</strong> Verifique se o banco apresenta ROE sustentado acima de 15% e se o índice de inadimplência (NPL > 90 dias) está controlado abaixo de 4%.`,
-          `<strong>Aportar Recorrentemente:</strong> Preço de mercado abaixo de <strong>${fmtReal(precoTeto)}</strong> indica ótima janela de acúmulo de cotas para otimização da carteira satélite.`
+          `<strong>Aportar Escalonadamente:</strong> Inicie ou reforce a montagem de posição estruturada sob cotações descontadas para garantir uma excelente taxa de retorno interna.`,
+          `<strong>Auditar Qualidade do Crédito:</strong> Verifique de forma qualitativa se o banco possui ROE acima de 15% e Índice de Basileia superior à exigência mínima prudencial de 11% (idealmente > 14%).`,
+          `<strong>Reinvestir Proventos:</strong> Programe o acúmulo de novas ações utilizando os dividendos creditados para otimizar o efeito dos juros compostos.`
         ];
       } else {
         stepsList = [
-          `<strong>Executar Aportes Regulares:</strong> O preço de mercado está abaixo da zona de teto de segurança de <strong>${fmtReal(precoTeto)}</strong>, conferindo excelente margem de segurança.`,
-          `<strong>Programar Reinvestimento:</strong> Maximize os retornos de longo prazo utilizando os dividendos recebidos para comprar novas cotas do mesmo ativo enquanto ele se mantiver abaixo do teto.`,
-          `<strong>Verificar Atualizações Trimestrais:</strong> Monitore periodicamente se o EBITDA ou a receita sofreram flutuações severas nos balanços trimestrais.`
+          `<strong>Efetuar Aportes Periódicos:</strong> Preço abaixo do teto de segurança operacional de <strong>${fmtReal(precoTeto)}</strong> aponta para uma ótima assimetria de longo prazo.`,
+          `<strong>Reinvestir Proventos:</strong> Programe o acúmulo de novas ações utilizando os dividendos creditados para otimizar o efeito dos juros compostos.`,
+          `<strong>Acompanhar Indicadores:</strong> Realize avaliações periódicas quadrimestrais para garantir que o EBITDA de suporte à dívida não sofra contrações graves.`
         ];
       }
     }
-    // Neutralidade por critérios limitantes ou preço marginalmente esticado
     else if ((precoSobTeto && levAlerta) || (precoSobTeto && dyHistAlerta) || (precoEsticado && !levCritica)) {
       status = 'neutro';
-      statusTitle = 'NEUTRALIDADE · CRITÉRIO EM VIGILÂNCIA';
-      
+      statusTitle = 'NEUTRALIDADE · CRITÉRIO EM MONITORAMENTO';
       let context = '';
       if (precoEsticado) {
-        context = `a cotação de <strong>${fmtReal(price)}</strong> ultrapassou de forma leve o preço-teto recomendado (margem de segurança negativa de <strong>${fmtPct(margemSeguranca)}</strong>).`;
+        context = `a cotação de <strong>${fmtReal(price)}</strong> está operando ligeiramente acima do preço-teto recomendado de <strong>${fmtReal(precoTeto)}</strong>, diluindo o rendimento real imediato.`;
       } else if (levAlerta) {
-        context = `a alavancagem atual está em zona de alerta moderado (<strong>${state.debtEbitda.toFixed(2)}x</strong>), sugerindo cautela no fluxo de proventos projetados.`;
+        context = `a relação de endividamento de <strong>${state.debtEbitda.toFixed(2)}x</strong> está em zona de transição e alerta moderado, demandando acompanhamento próximo.`;
       } else {
-        context = `o histórico médio de DY de 5 anos (<strong>${dyMedio.toFixed(1)}%</strong>) está ligeiramente aquém dos 6,0% de segurança de Bazin.`;
+        context = `o histórico médio consolidado de DY de 5 anos está ligeiramente aquém da margem de 6,0% recomendada de forma clássica.`;
       }
 
-      explanationText = `${baseExplanation}<br><br>A tese de renda recorrente na empresa analisada permanece viva, mas o momento não é propício para alocações agressivas porque ${context} O farol de atenção indica prudência para evitar a perda de rendimento real.`;
+      explanationText = `${baseExplanation}<br><br>Os fundamentos operacionais do ativo seguem preservados, contudo o cenário macro ou micro sugere cautela momentânea pois ${context}`;
       
       if (state.isBank) {
         stepsList = [
-          `<strong>Pausar Aportes Agressivos:</strong> Monitore se os dividendos futuros tendem a aumentar. Deixe ordens de compra pré-configuradas no preço-teto correto de <strong>${fmtReal(precoTeto)}</strong>.`,
-          `<strong>Rastrear Qualidade do Crédito:</strong> Bancos com margem esticada podem estar enfrentando aumento sazonal de provisões (PDD) devido à inadimplência. Verifique este ponto no release trimestral de resultados.`,
-          `<strong>Manter a Posição:</strong> Continue carregando a posição para coletar os dividendos normais, mas evite alocar novos fluxos de capital neste ponto.`
+          `<strong>Pausar Compras Agressivas:</strong> Mantenha a custódia das ações já adquiridas sob preços antigos e aguarde correções de mercado para restabelecer novos aportes.`,
+          `<strong>Monitorar Inadimplência:</strong> Analise nos balanços se o nível de Provisão para Devedores Duvidosos (PDD) ou os ativos problemáticos estão em tendência de alta no trimestre.`
         ];
       } else {
         stepsList = [
-          `<strong>Deixar Ordens Próximas ao Teto:</strong> Evite comprar ativos esticados. Configure ordens de compra limitadas ao preço real de segurança (<strong>${fmtReal(precoTeto)}</strong>).`,
-          `<strong>Vigiar Redução de Endividamento:</strong> Caso a alavancagem seja o limitador atual, acompanhe se os novos investimentos operacionais em andamento vão desalavancar a empresa nos próximos meses.`,
-          `<strong>Manter Posições Antigas:</strong> Se você já possui as cotas, continue carregando-as na carteira de renda passiva, mantendo foco na coleta dos dividendos normais.`
+          `<strong>Pausar Compras Agressivas:</strong> Mantenha a custódia das ações já adquiridas sob preços antigos e aguarde correções de mercado para restabelecer novos aportes.`,
+          `<strong>Configurar Ordens de Compra Limitada:</strong> Posicione gatilhos automáticos de compra próximos ou abaixo do teto exato de segurança de <strong>${fmtReal(precoTeto)}</strong>.`,
+          `<strong>Auditar Margens de Lucratividade:</strong> Verifique se a empresa mantém poder de repasse de inflação sobre seus custos operacionais para blindar as margens de lucros futuros.`
         ];
       }
     }
-    // Reprovado por preço caro (mais de 10% de ágio)
     else if (precoCaro && !levCritica) {
       status = 'reprovado';
-      statusTitle = 'REPROVADO · PREÇO MUITO ELEVADO';
-      explanationText = `${baseExplanation}<br><br>A ação avaliada é negociada com ágio expressivo acima de seu Preço-Teto de segurança de <strong>${fmtReal(precoTeto)}</strong>. Ao pagar o valor de mercado de <strong>${fmtReal(price)}</strong>, o seu rendimento projetado cairá consideravelmente abaixo dos 6% mínimos exigidos pelo modelo Bazin, contrariando o princípio de compra de margem de segurança de Barsi.`;
-      
-      if (state.isBank) {
-        stepsList = [
-          `<strong>Suspender Novos Aportes:</strong> Não compre ações de bancos em momentos de rali ou otimismo esticado. O setor financeiro costuma apresentar flutuações e excelentes momentos de estresse de mercado que reduzem o preço dos papéis.`,
-          `<strong>Manutenção em Custódia (Hold):</strong> Mantenha as ações antigas de custo médio saudável na carteira para usufruir do pagamento recorrente de dividendos, mas não gaste novas reservas nela.`,
-          `<strong>Direcionar Caixa de Oportunidade:</strong> Guarde as sobras financeiras em caixa de oportunidade (renda fixa de alta liquidez) para investir em outras empresas que estejam baratas no momento.`
-        ];
-      } else {
-        stepsList = [
-          `<strong>Suspender Compras Imediatas:</strong> Não compre novas cotas neste patamar inflado. Direcione seu aporte estruturado do mês para outros papéis que apresentem margens de desconto reais.`,
-          `<strong>Vigiar Grandes Correções:</strong> Deixe o ativo no seu radar de monitoramento. Eventuais correções amplas ou pânicos gerais de mercado podem reposicionar esta companhia de volta à zona de compra no futuro.`
-        ];
-      }
+      statusTitle = 'REPROVADO · PREÇO MUITO ELEVADO (ÁGIO ALTO)';
+      explanationText = `${baseExplanation}<br><br>A cotação atual está consideravelmente esticada em relação ao Preço-Teto Bazin de <strong>${fmtReal(precoTeto)}</strong>. Alocar capital neste preço significa travar um retorno de dividendos significativamente inferior ao custo de oportunidade de investimentos conservadores alternativos.`;
+      stepsList = [
+        `<strong>Suspender Compras no Rali:</strong> Não persiga preços no mercado. Aguarde pacientemente janelas de realização de lucros ou momentos de pânico setorial que devolvam as cotações a patamares protegidos pelo teto.`,
+        `<strong>Manter Posições de Custo Médio Baixo (Hold):</strong> Carregue as cotas antigas recebendo o fluxo de caixa passivo normal, sem cometer o erro de inflar seu preço médio geral.`
+      ];
     }
 
-    // 5. Aplicar classes de estilização dinâmicas ao Farol
     const banner = document.getElementById('farol-banner');
-    banner.className = 'farol-banner'; // Reset
+    banner.className = 'farol-banner'; 
     banner.classList.add(`status-${status}`);
     
     document.getElementById('farol-status-title').textContent = statusTitle;
     document.getElementById('analysis-explanation').innerHTML = explanationText;
 
-    // Preencher lista de passos dinamicamente
     const listElement = document.getElementById('analysis-steps');
     listElement.innerHTML = '';
     stepsList.forEach(step => {
@@ -1153,7 +1286,155 @@
     });
   }
 
-  // Inicializar interface e rodar cálculo na montagem da tela
+  // ── CÁLCULO 2: INTEGRAÇÃO GRAHAM + BAZIN ──
+  function calculateGrahamBazin() {
+    document.getElementById('analysis-section-hdr').textContent = "Diagnóstico Graham + Bazin";
+
+    // 1. Coleta e tratamento de inputs
+    const vpa = parseFloat(document.getElementById('input-vpa').value) || 0.01;
+    const lpa = parseFloat(document.getElementById('input-lpa').value) || 0;
+    const payout = parseFloat(document.getElementById('input-payout').value) || 0;
+    const price = parseFloat(document.getElementById('input-graham-price').value) || 0.01;
+
+    // 2. Cálculo do Valor Intrínseco de Graham (VI)
+    // VI = Sqrt(22.5 * LPA * VPA)
+    const product = 22.5 * lpa * vpa;
+    const vi = product > 0 ? Math.sqrt(product) : 0;
+
+    // 3. Margem de Segurança de Graham
+    // Margem = (VI - Atual) / VI
+    const margemGraham = vi > 0 ? (((vi - price) / vi) * 100) : -100;
+
+    // 4. Potencial de Convergência de Graham
+    // Convergência = (VI - Atual) / Atual
+    const convGraham = price > 0 ? (((vi - price) / price) * 100) : 0;
+
+    // 5. Cálculo do Fluxo Bazin Interno
+    // DPA = LPA * (Payout / 100)
+    const dpa = lpa * (payout / 100);
+    // Preço-Teto Bazin (K = 6%)
+    const precoTetoBazin = dpa / 0.06;
+
+    // Atualizar UI dos cards de métricas específicas
+    document.getElementById('res-graham-vi').textContent = fmtReal(vi);
+    document.getElementById('res-graham-teto').textContent = fmtReal(precoTetoBazin);
+    document.getElementById('res-graham-margem').textContent = fmtPct(margemGraham);
+    document.getElementById('res-graham-conv').textContent = fmtPct(convGraham);
+
+    // Conforme especificado pelo usuário: Margem de segurança de Graham verde se > 30%
+    const resGrahamMargemEl = document.getElementById('res-graham-margem');
+    if (margemGraham >= 30.0) {
+      resGrahamMargemEl.style.color = 'var(--green)';
+    } else if (margemGraham >= 0.0) {
+      resGrahamMargemEl.style.color = 'var(--yellow)';
+    } else {
+      resGrahamMargemEl.style.color = 'var(--red)';
+    }
+
+    // Configurar Barra de Progresso Visual comparando com o Valor Intrínseco de Graham
+    document.getElementById('pb-current-lbl').textContent = `Cotação: ${fmtReal(price)}`;
+    document.getElementById('pb-teto-lbl').textContent = `V.I. Graham: ${fmtReal(vi)}`;
+    
+    const marginText = margemGraham >= 0 ? `Margem Graham: ${fmtPct(margemGraham)}` : `Ágio Graham: ${fmtPct(Math.abs(margemGraham))}`;
+    document.getElementById('pb-margin-lbl').textContent = marginText;
+
+    const pbFill = document.getElementById('pb-fill');
+    let ratio = 0;
+    if (vi > 0) {
+      ratio = (price / vi) * 100;
+    } else if (price > 0) {
+      ratio = 100;
+    }
+    const percentFill = Math.min(100, Math.max(0, ratio));
+    pbFill.style.width = percentFill + '%';
+
+    // Cores da barra baseado na Margem Graham
+    if (margemGraham >= 30.0) {
+      pbFill.style.backgroundColor = 'var(--green)';
+      document.getElementById('pb-margin-lbl').style.color = 'var(--green)';
+    } else if (margemGraham >= 0.0) {
+      pbFill.style.backgroundColor = 'var(--yellow)';
+      document.getElementById('pb-margin-lbl').style.color = 'var(--yellow)';
+    } else {
+      pbFill.style.backgroundColor = 'var(--red)';
+      document.getElementById('pb-margin-lbl').style.color = 'var(--red)';
+    }
+
+    // Diagnósticos e Farol Integrado Graham + Bazin
+    let status = '';
+    let statusTitle = '';
+    let explanationText = '';
+    let stepsList = [];
+
+    const hasMargem30 = margemGraham >= 30.0;
+    const isUnderBazinTeto = price <= precoTetoBazin;
+    const hasDiscountGraham = margemGraham > 0;
+
+    let baseExplanation = `A análise cruza o modelo estático patrimonial de <strong>Benjamin Graham</strong> (Valor Intrínseco de <strong>${fmtReal(vi)}</strong>, gerando Margem de <strong>${fmtPct(margemGraham)}</strong>) com o modelo de dividendos projetados de <strong>Décio Bazin</strong> (DPA implícito de <strong>${fmtReal(dpa)}</strong> sob payout de <strong>${payout.toFixed(1)}%</strong>, resultando em Preço-Teto de <strong>${fmtReal(precoTetoBazin)}</strong>).`;
+
+    if (lpa <= 0) {
+      status = 'reprovado';
+      statusTitle = 'REPROVADO · OPERAÇÃO PREJUÍZO';
+      explanationText = `${baseExplanation}<br><br>O Lucro por Ação ($LPA$) informado é nulo ou negativo. Uma empresa operando sob prejuízo não gera Valor Intrínseco estático no cálculo de Graham e é incapaz de distribuir dividendos consistentes pelo pilar de Bazin, quebrando o fluxo de caixa para proventos.`;
+      stepsList = [
+        `<strong>Aguardar Turnaround:</strong> Evite qualquer investimento no momento. Empresas em reestruturação operacional intensa devem ser avaliadas apenas após reverterem o fluxo para lucro líquido positivo estável.`,
+        `<strong>Buscar Negócios Perenes:</strong> Priorize ativos monopolistas ou de setores essenciais que garantam fluxo constante de lucros e patrimônio crescente.`
+      ];
+    }
+    else if (hasMargem30 && isUnderBazinTeto) {
+      status = 'compra';
+      statusTitle = 'COMPRA · EXCELENTE MARGEM & PROVENTO';
+      explanationText = `${baseExplanation}<br><br><strong>Assimetria Perfeita!</strong> O ativo sob análise está cotado em patamar excelente com margem de segurança de Graham superior ao critério de segurança de **30%** (medido em <strong>${fmtPct(margemGraham)}</strong>) com potencial de convergência patrimonial de <strong>${fmtPct(convGraham)}</strong>. Paralelamente, o preço de <strong>${fmtReal(price)}</strong> está abaixo do teto de dividendos de Bazin (<strong>${fmtReal(precoTetoBazin)}</strong>), garantindo um retorno mínimo projetado em proventos superior a 6,0% ao ano.`;
+      stepsList = [
+        `<strong>Aportar Firme com Margem de Segurança:</strong> Ação muito descontada frente ao seu real valor intrínseco de ativos e com ótimo potencial de dividendo. Excelente momento de aporte.`,
+        `<strong>Acompanhar Consistência do ROE:</strong> Certifique-se de que a empresa mantém eficiência de retorno sobre o patrimônio ($ROE$) para sustentar o crescimento real dos lucros.`,
+        `<strong>Reinvestir Integralmente os Proventos:</strong> Maximize a velocidade de bola de neve comprando mais frações do mesmo ativo com as distribuições trimestrais/semestrais.`
+      ];
+    }
+    else if (hasDiscountGraham && isUnderBazinTeto) {
+      status = 'neutro';
+      statusTitle = 'NEUTRALIDADE · DESCONTO MODERADO';
+      explanationText = `${baseExplanation}<br><br>O ativo está cotado abaixo de seu preço-teto de dividendos de Bazin (<strong>${fmtReal(precoTetoBazin)}</strong>) e apresenta desconto frente ao valor patrimonial intrínseco de Graham. No entanto, a margem de segurança de Graham (<strong>${fmtPct(margemGraham)}</strong>) está abaixo do limiar conservador exigido de **30%**.`;
+      stepsList = [
+        `<strong>Aportes Parciais ou Fracionados:</strong> O ativo oferece uma boa taxa de proventos, mas o colchão de proteção de preço estático de ativos patrimoniais é menor. Prefira os aportes cautelosos.`,
+        `<strong>Aguardar Volatilidade:</strong> Monitore o mercado. Oscilações rotineiras da Bolsa de Valores podem comprimir a cotação e empurrar a Margem Graham acima do nível recomendado de 30% para compra.`
+      ];
+    }
+    else if (!hasDiscountGraham || price > precoTetoBazin) {
+      status = 'reprovado';
+      statusTitle = 'REPROVADO · FUNDAMENTOS ESTICADOS';
+      
+      let motivo = "";
+      if (!hasDiscountGraham) {
+        motivo = `a cotação atual está sendo negociada com ágio sobre o Valor Intrínseco de Graham de <strong>${fmtReal(vi)}</strong>, gerando margem de segurança negativa.`;
+      } else {
+        motivo = `o valor de mercado ultrapassa o teto de rendimento sustentável de dividendos de Bazin de <strong>${fmtReal(precoTetoBazin)}</strong>.`;
+      }
+
+      explanationText = `${baseExplanation}<br><br><strong>Risco de Custo de Oportunidade.</strong> O momento de entrada do ativo não oferece condições ideais de segurança patrimonial ou fluxo de dividendos de 6% ao ano, pois ${motivo}`;
+      stepsList = [
+        `<strong>Manter em Observação (Watchlist):</strong> Não realize compras novas para a carteira de proventos neste nível de preço. Direcione os recursos acumulados para alternativas com maior margem protetiva.`,
+        `<strong>Recalcular no Trimestre:</strong> Aguarde a atualização de lucros ($LPA$) e valor patrimonial ($VPA$) nos próximos resultados para checar se o crescimento corporativo elevará o valor intrínseco.`
+      ];
+    }
+
+    const banner = document.getElementById('farol-banner');
+    banner.className = 'farol-banner'; 
+    banner.classList.add(`status-${status}`);
+    
+    document.getElementById('farol-status-title').textContent = statusTitle;
+    document.getElementById('analysis-explanation').innerHTML = explanationText;
+
+    const listElement = document.getElementById('analysis-steps');
+    listElement.innerHTML = '';
+    stepsList.forEach(step => {
+      const li = document.createElement('li');
+      li.innerHTML = step;
+      listElement.appendChild(li);
+    });
+  }
+
+  // Inicializar modo banco e rodar cálculo inicial na montagem da tela
   window.onload = function() {
     state.isBank = document.getElementById('input-is-bank').checked;
     state.dpaMode = 'direct';
