@@ -51,7 +51,8 @@
   label, 
   .slider-val-badge, 
   .analysis-section-title, 
-  .header-meta span {
+  .header-meta span,
+  .btn-fetch {
     transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
   }
 
@@ -188,6 +189,71 @@
     border-bottom: 1px solid var(--border);
     padding-bottom: 8px;
     margin-bottom: 4px;
+  }
+
+  /* ── Ticker Search Bar (Brapi API) ── */
+  .ticker-search-box {
+    background: rgba(var(--accent-rgb), 0.03);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ticker-input-wrap {
+    display: flex;
+    gap: 10px;
+  }
+  .ticker-input-wrap input {
+    flex: 1;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .btn-fetch {
+    background: var(--accent);
+    color: #0d0f14;
+    border: none;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 0 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-fetch:hover {
+    filter: brightness(1.1);
+  }
+  .btn-fetch:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .ticker-status-msg {
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .status-success { color: var(--green); }
+  .status-error { color: var(--red); }
+  .status-loading { color: var(--yellow); }
+
+  /* CSS Spinner */
+  .spinner {
+    width: 13px;
+    height: 13px;
+    border: 2px solid rgba(13, 15, 20, 0.3);
+    border-top-color: #0d0f14;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
   .form-group {
@@ -670,6 +736,19 @@
     <!-- LEFT: Inputs panel -->
     <div class="panel">
       
+      <!-- Brapi API Ticker Search Box -->
+      <div class="ticker-search-box">
+        <label for="input-search-ticker">Buscar Cotação em Tempo Real (Brapi API)</label>
+        <div class="ticker-input-wrap">
+          <input type="text" id="input-search-ticker" value="VALE3" placeholder="Ex: PETR4, BBAS3, B3SA3..." onkeydown="if(event.key === 'Enter') handleSearchTicker()">
+          <button type="button" id="btn-fetch" class="btn-fetch" onclick="handleSearchTicker()">
+            <span id="btn-fetch-spinner" class="spinner" style="display: none;"></span>
+            <span id="btn-fetch-text">Buscar Dados</span>
+          </button>
+        </div>
+        <div id="ticker-status-msg" class="ticker-status-msg"></div>
+      </div>
+
       <!-- TAB 1: BAZIN CLASSIC INPUTS -->
       <div id="inputs-tab-bazin" style="display: flex; flex-direction: column; gap: 20px;">
         <div class="panel-title">Parâmetros de Avaliação (Bazin)</div>
@@ -742,7 +821,7 @@
             <label for="input-price">Cotação Atual</label>
             <div class="input-with-symbol">
               <span class="input-symbol">R$</span>
-              <input type="number" id="input-price" value="62.50" step="0.01" min="0.01" oninput="calculate()">
+              <input type="number" id="input-price" value="62.50" step="0.01" min="0.01" oninput="onPriceInput(this.value)">
             </div>
           </div>
 
@@ -814,7 +893,7 @@
             <label for="input-graham-price">Cotação Atual</label>
             <div class="input-with-symbol">
               <span class="input-symbol">R$</span>
-              <input type="number" id="input-graham-price" value="45.00" step="0.01" min="0.01" oninput="calculate()">
+              <input type="number" id="input-graham-price" value="62.50" step="0.01" min="0.01" oninput="onGrahamPriceInput(this.value)">
             </div>
           </div>
         </div>
@@ -912,7 +991,7 @@
     <h3>Estrutura Decisória dos Pilares de Bazin & Graham</h3>
     <p>Com a taxa de desconto imutável estabelecida no padrão de <strong>K = 6,0%</strong>, os critérios decisórios deste painel avaliam três dimensões simultâneas:</p>
     <ul>
-      <li><strong>Pilar 1: Preço Descontado (Margem de Segurança):</strong> A cotação atual precisa estar abaixo do preço-teto calculado ($Preço\ Teto = DPA / 0,06$) para garantir que o yield projetado seja no mínimo 6%.</li>
+      <li><strong>Pilar 1: Preço Descontado (Margem de Segurança):</strong> A cotação atual precisa estar abaixo do preço-teto calculated ($Preço\ Teto = DPA / 0,06$) para garantir que o yield projetado seja no mínimo 6%.</li>
       <li><strong>Pilar 2: Consistência Histórica (DY Médio de 5 Anos):</strong> O Dividend Yield histórico do ativo (média consolidada dos últimos 5 anos) deve ser idealmente superior a <strong>6,0%</strong>. Se informado, valores abaixo disso acendem o farol amarelo pela perda de constância histórica de retorno.</li>
       <li><strong>Pilar 3: Alavancagem Controlada (Dívida Líquida / EBITDA ou Basileia):</strong> 
         <br>• <strong>Para empresas comuns:</strong> Dívida Líquida abaixo de <strong>2,5x</strong> o EBITDA é sinal verde; acima de <strong>3,5x</strong> reprova o ativo de imediato.
@@ -924,7 +1003,7 @@
 
 </div>
 
-<script {is_runnable="true"}>
+<script>
   // ── ESTADO GLOBAL ──
   let state = {
     activeTab: 'bazin', // 'bazin' ou 'graham'
@@ -937,6 +1016,175 @@
     isBank: false
   };
 
+  // ── BRAPI API CONFIGURATION ──
+  // Reads BRAPI_TOKEN from environment if available, or falls back to provided key
+  const BRAPI_TOKEN = (typeof process !== 'undefined' && process?.env?.BRAPI_TOKEN) || window.BRAPI_TOKEN || 'xkbBiwNYnwJ4pvmPBpTGYB';
+
+  /**
+   * Fetches stock quote and dividend data from Brapi API
+   * @param {string} symbol - B3 Stock Ticker (e.g. "B3SA3", "PETR4")
+   * @returns {Promise<Object>} Stock quote object containing price and dividend history
+   */
+  async function fetchBrapiStockQuote(symbol) {
+    if (!symbol || !symbol.trim()) {
+      throw new Error('Por favor, informe o código do ativo (Ticker).');
+    }
+
+    const cleanSymbol = symbol.trim().toUpperCase();
+    const apiUrl = `https://brapi.dev/api/v2/stocks/quote?symbols=${encodeURIComponent(cleanSymbol)}&dividends=true`;
+
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${BRAPI_TOKEN}`,
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error(`Ativo "${cleanSymbol}" não foi encontrado na B3.`);
+      } else if (response.status === 401 || response.status === 403) {
+        throw new Error('Chave de API Brapi não autorizada ou limite excedido.');
+      } else {
+        throw new Error(`Erro de resposta na API Brapi (Status ${response.status}).`);
+      }
+    }
+
+    const data = await response.json();
+    if (!data.results || !Array.isArray(data.results) || data.results.length === 0) {
+      throw new Error(`Nenhum resultado retornado para o ticker "${cleanSymbol}".`);
+    }
+
+    // Returns results[0] as specified
+    return data.results[0];
+  }
+
+  /**
+   * Parses cashDividends from Brapi response into 12m DPA and 5-year historical yearly totals
+   */
+  function parseBrapiDividends(cashDividends) {
+    if (!Array.isArray(cashDividends) || cashDividends.length === 0) {
+      return { dpa12m: 0, dpa5Years: [0, 0, 0, 0, 0] };
+    }
+
+    const now = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(now.getFullYear() - 1);
+
+    let dpa12m = 0;
+    const currentYear = now.getFullYear();
+    const yearlySums = {};
+
+    cashDividends.forEach(item => {
+      const rate = parseFloat(item.rate || item.amount || 0);
+      if (isNaN(rate) || rate <= 0) return;
+
+      const dateStr = item.paymentDate || item.approvedDate || item.lastDatePrior;
+      if (!dateStr) return;
+
+      const divDate = new Date(dateStr);
+      if (isNaN(divDate.getTime())) return;
+
+      // Sum dividends in the last 365 days
+      if (divDate >= oneYearAgo && divDate <= now) {
+        dpa12m += rate;
+      }
+
+      // Group dividends by calendar year
+      const yr = divDate.getFullYear();
+      yearlySums[yr] = (yearlySums[yr] || 0) + rate;
+    });
+
+    // Populate array for last 5 years [Ano 1, Ano 2, Ano 3, Ano 4, Ano 5]
+    const dpa5Years = [];
+    for (let i = 0; i < 5; i++) {
+      const targetYear = currentYear - i;
+      const totalForYear = yearlySums[targetYear] ? parseFloat(yearlySums[targetYear].toFixed(2)) : 0;
+      dpa5Years.push(totalForYear);
+    }
+
+    return {
+      dpa12m: parseFloat(dpa12m.toFixed(2)),
+      dpa5Years: dpa5Years
+    };
+  }
+
+  /**
+   * Main Handler to fetch stock data from Brapi when user searches a ticker
+   */
+  async function handleSearchTicker() {
+    const inputEl = document.getElementById('input-search-ticker');
+    const btnEl = document.getElementById('btn-fetch');
+    const btnTextEl = document.getElementById('btn-fetch-text');
+    const spinnerEl = document.getElementById('btn-fetch-spinner');
+    const statusEl = document.getElementById('ticker-status-msg');
+
+    const ticker = inputEl.value.trim().toUpperCase();
+    if (!ticker) {
+      statusEl.className = 'ticker-status-msg status-error';
+      statusEl.textContent = 'Digite um ticker válido (Ex: PETR4).';
+      return;
+    }
+
+    // UI Loading state
+    btnEl.disabled = true;
+    spinnerEl.style.display = 'inline-block';
+    btnTextEl.textContent = 'Buscando...';
+    statusEl.className = 'ticker-status-msg status-loading';
+    statusEl.textContent = `Consultando cotação de ${ticker} na B3 via Brapi...`;
+
+    try {
+      const stockData = await fetchBrapiStockQuote(ticker);
+
+      // Extract price
+      const price = stockData.regularMarketPrice || stockData.close || 0;
+      
+      // Update Price inputs in both tabs
+      if (price > 0) {
+        document.getElementById('input-price').value = price.toFixed(2);
+        document.getElementById('input-graham-price').value = price.toFixed(2);
+        state.price = price;
+      }
+
+      // Extract and Parse Dividend History
+      const cashDividends = stockData.dividendsData?.cashDividends || stockData.cashDividends || [];
+      const { dpa12m, dpa5Years } = parseBrapiDividends(cashDividends);
+
+      let dividendDetailMsg = '';
+
+      if (dpa12m > 0 || dpa5Years.some(v => v > 0)) {
+        // Update DPA inputs
+        document.getElementById('input-dpa').value = dpa12m > 0 ? dpa12m.toFixed(2) : (dpa5Years[0] || 0).toFixed(2);
+        
+        document.getElementById('dpa-y1').value = dpa5Years[0].toFixed(2);
+        document.getElementById('dpa-y2').value = dpa5Years[1].toFixed(2);
+        document.getElementById('dpa-y3').value = dpa5Years[2].toFixed(2);
+        document.getElementById('dpa-y4').value = dpa5Years[3].toFixed(2);
+        document.getElementById('dpa-y5').value = dpa5Years[4].toFixed(2);
+
+        dividendDetailMsg = ` | DPA 12m: R$ ${dpa12m.toFixed(2)}`;
+      } else {
+        dividendDetailMsg = ` | Proventos recentes não identificados.`;
+      }
+
+      const nameInfo = stockData.shortName || stockData.longName || ticker;
+      statusEl.className = 'ticker-status-msg status-success';
+      statusEl.textContent = `✓ ${nameInfo}: Cotação R$ ${price.toFixed(2)}${dividendDetailMsg}`;
+
+      // Trigger automatic recalculation
+      calculate();
+
+    } catch (err) {
+      statusEl.className = 'ticker-status-msg status-error';
+      statusEl.textContent = `✕ ${err.message || 'Erro ao consultar a API.'}`;
+    } finally {
+      btnEl.disabled = false;
+      spinnerEl.style.display = 'none';
+      btnTextEl.textContent = 'Buscar Dados';
+    }
+  }
+
   // ── UTILITÁRIOS ──
   function fmtReal(val) {
     if (isNaN(val) || !isFinite(val) || val < 0) return 'R$ 0,00';
@@ -947,6 +1195,16 @@
     if (isNaN(val) || !isFinite(val)) return '0,0%';
     const prefix = val > 0 ? '+' : '';
     return prefix + val.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+  }
+
+  // Synchronize price inputs across tabs
+  function onPriceInput(val) {
+    document.getElementById('input-graham-price').value = val;
+    calculate();
+  }
+  function onGrahamPriceInput(val) {
+    document.getElementById('input-price').value = val;
+    calculate();
   }
 
   // ── SWITCH MAIN TABS & THEME COLORS (AZUL <-> ROXO) ──
@@ -961,7 +1219,7 @@
     document.getElementById('grid-metrics-bazin').style.display = tab === 'bazin' ? 'grid' : 'none';
     document.getElementById('grid-metrics-graham').style.display = tab === 'graham' ? 'grid' : 'none';
     
-    // Atualização dinâmica do tema através das variáveis de estilo do elemento raiz (:root)
+    // Theme color switch
     const root = document.documentElement;
     if (tab === 'bazin') {
       root.style.setProperty('--accent', '#4f8ef7'); // Azul clássico Bazin
@@ -1107,8 +1365,8 @@
       
       const listElement = document.getElementById('analysis-steps');
       listElement.innerHTML = `
-        <li><strong>Informar DPA Consolidado ou Histórico:</strong> Insira o dividendo direto ou preencha as caixas atemporais de 5 anos para obter a média.</li>
-        <li><strong>OU Informar DY Médio de 5 Anos:</strong> Digite a média de rendimento percentual dos últimos exercícios fiscais.</li>
+        <li><strong>Buscar Ticker na Brapi API:</strong> Digite o código da ação no topo para importar a cotação e proventos em tempo real.</li>
+        <li><strong>OU Informar DPA / DY Médio:</strong> Insira o dividendo direto ou preencha o histórico dos últimos anos.</li>
       `;
       return;
     }
@@ -1296,23 +1554,18 @@
     const payout = parseFloat(document.getElementById('input-payout').value) || 0;
     const price = parseFloat(document.getElementById('input-graham-price').value) || 0.01;
 
-    // 2. Cálculo do Valor Intrínseco de Graham (VI)
-    // VI = Sqrt(22.5 * LPA * VPA)
+    // 2. Cálculo do Valor Intrínseco de Graham (VI = Sqrt(22.5 * LPA * VPA))
     const product = 22.5 * lpa * vpa;
     const vi = product > 0 ? Math.sqrt(product) : 0;
 
-    // 3. Margem de Segurança de Graham
-    // Margem = (VI - Atual) / VI
+    // 3. Margem de Segurança de Graham: (VI - Atual) / VI
     const margemGraham = vi > 0 ? (((vi - price) / vi) * 100) : -100;
 
-    // 4. Potencial de Convergência de Graham
-    // Convergência = (VI - Atual) / Atual
+    // 4. Potencial de Convergência de Graham: (VI - Atual) / Atual
     const convGraham = price > 0 ? (((vi - price) / price) * 100) : 0;
 
-    // 5. Cálculo do Fluxo Bazin Interno
-    // DPA = LPA * (Payout / 100)
+    // 5. Cálculo do Fluxo Bazin Interno (DPA = LPA * Payout%)
     const dpa = lpa * (payout / 100);
-    // Preço-Teto Bazin (K = 6%)
     const precoTetoBazin = dpa / 0.06;
 
     // Atualizar UI dos cards de métricas específicas
@@ -1321,7 +1574,7 @@
     document.getElementById('res-graham-margem').textContent = fmtPct(margemGraham);
     document.getElementById('res-graham-conv').textContent = fmtPct(convGraham);
 
-    // Conforme especificado pelo usuário: Margem de segurança de Graham verde se > 30%
+    // Margem de segurança de Graham verde se > 30%
     const resGrahamMargemEl = document.getElementById('res-graham-margem');
     if (margemGraham >= 30.0) {
       resGrahamMargemEl.style.color = 'var(--green)';
@@ -1434,11 +1687,14 @@
     });
   }
 
-  // Inicializar modo banco e rodar cálculo inicial na montagem da tela
+  // Initial setup on window load
   window.onload = function() {
     state.isBank = document.getElementById('input-is-bank').checked;
     state.dpaMode = 'direct';
     toggleBankMode(state.isBank);
+
+    // Initial search for default ticker VALE3
+    handleSearchTicker();
   };
 </script>
 
