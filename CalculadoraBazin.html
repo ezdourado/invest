@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Calculadora Preço-Teto Bazin · Inteligência de Renda</title>
+<title>Calculadora Preço-Teto Bazin & Terminal Multimétodos</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
@@ -22,6 +22,8 @@
     --yellow:      #f7c948;
     --red:         #f76f6f;
     --purple:      #a78bfa;
+    --amber:       #f59e0b;
+    --amber-rgb:   245, 158, 11;
     --mono:        'IBM Plex Mono', monospace;
     --sans:        'IBM Plex Sans', sans-serif;
   }
@@ -45,7 +47,7 @@
   }
 
   .container {
-    max-width: 1100px;
+    max-width: 1180px;
     margin: 0 auto;
     width: 100%;
   }
@@ -58,16 +60,15 @@
   span, 
   label, 
   .slider-val-badge, 
-  .analysis-section-title, 
   .header-meta span,
   .btn-copy,
   .btn-fetch-quote,
   .btn-add-radar,
-  .btn-clear-radar {
+  .btn-clear-radar,
+  .btn-terminal-save {
     transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
   }
 
-  /* ── Header ── */
   .header {
     margin-bottom: 20px;
     border-bottom: 1px solid var(--border);
@@ -107,7 +108,6 @@
   }
   .header-meta span { color: var(--accent); }
 
-  /* ── Main Tab Navigation ── */
   .main-tabs {
     display: flex;
     border-bottom: 1px solid var(--border);
@@ -153,7 +153,6 @@
     background: var(--accent);
   }
 
-  /* ── Info Box: Header Fixed ── */
   .info-k-fixed {
     background: rgba(var(--accent-rgb), 0.05);
     border: 1px dashed rgba(var(--accent-rgb), 0.25);
@@ -186,21 +185,22 @@
     line-height: 1.5;
   }
 
-  /* ── Workspace Grid ── */
   .workspace-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 20px;
   }
+  .workspace-grid > * {
+    min-width: 0;
+  }
 
   @media (min-width: 880px) {
     .workspace-grid {
-      grid-template-columns: 1.05fr 0.95fr;
+      grid-template-columns: minmax(320px, 380px) 1fr;
       gap: 24px;
     }
   }
 
-  /* ── Input Panel ── */
   .panel {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -256,7 +256,6 @@
     font-style: italic;
   }
 
-  /* Ticker Input with Brapi Quote Fetch Button */
   .ticker-fetch-wrap {
     display: flex;
     gap: 8px;
@@ -341,7 +340,6 @@
     box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.2);
   }
 
-  /* ── Segmented Tab Group (DPA Selector) ── */
   .dpa-toggle-group {
     display: flex;
     background: var(--bg);
@@ -373,7 +371,6 @@
     font-weight: 600;
   }
 
-  /* Grid dos 5 anos de DPA */
   .dpa-years-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -432,7 +429,6 @@
     font-weight: 600;
   }
 
-  /* ── Custom Checkbox (Setor Bancário) ── */
   .checkbox-group {
     flex-direction: row !important;
     align-items: center;
@@ -470,7 +466,6 @@
     flex-shrink: 0;
   }
 
-  /* Slider Styling */
   .slider-header {
     display: flex;
     justify-content: space-between;
@@ -524,7 +519,6 @@
     transition: all 0.3s ease;
   }
 
-  /* ── Output / Traffic Light Panel ── */
   .result-panel {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -543,7 +537,6 @@
     }
   }
 
-  /* Farol Status Banner */
   .farol-banner {
     border-radius: 4px;
     padding: 14px;
@@ -618,7 +611,6 @@
     .farol-title { font-size: 18px; }
   }
 
-  /* Add to Radar Button */
   .btn-add-radar {
     background: rgba(61, 220, 151, 0.12);
     border: 1px solid rgba(61, 220, 151, 0.35);
@@ -644,7 +636,6 @@
     box-shadow: 0 0 12px rgba(61, 220, 151, 0.25);
   }
 
-  /* Calculated Metrics Grid */
   .calc-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -676,7 +667,6 @@
     .calc-value { font-size: 20px; }
   }
 
-  /* ── 1. RÉGUA VISUAL MULTI-MARCADORES ── */
   .ruler-section {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -776,7 +766,6 @@
     color: #e8ecf5;
   }
 
-  /* ── 2. MATRIZ DE SENSIBILIDADE DE PREÇO-TETO (YIELD LADDER) ── */
   .ladder-section {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -826,7 +815,7 @@
     vertical-align: middle;
   }
   .ladder-table tr.yield-row-bazin {
-    background: rgba(79, 142, 247, 0.08);
+    background: rgba(var(--accent-rgb), 0.08);
     border-left: 3px solid var(--accent);
   }
   .td-yield-label {
@@ -852,7 +841,6 @@
   .badge-red { background: rgba(247, 111, 111, 0.15); color: var(--red); }
   .badge-neutral { background: rgba(255, 255, 255, 0.05); color: var(--dim); }
 
-  /* Copy Summary Tool Box */
   .summary-copy-box {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -909,7 +897,164 @@
     text-align: right;
   }
 
-  /* ── Radar de Oportunidades (Watchlist Section) ── */
+  .terminal-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .terminal-top-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .terminal-k-setting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .terminal-k-setting label {
+    margin-bottom: 0;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .input-k-global {
+    width: 90px !important;
+    padding: 6px 8px !important;
+    font-size: 13px !important;
+    min-height: 36px !important;
+  }
+
+  .terminal-json-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-terminal-action {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    touch-action: manipulation;
+  }
+  .btn-terminal-action:hover {
+    border-color: var(--amber);
+    color: var(--amber);
+    background: rgba(245, 158, 11, 0.08);
+  }
+
+  .btn-terminal-save {
+    background: var(--amber);
+    color: #0d0f14;
+    border: none;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 12px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    touch-action: manipulation;
+    width: 100%;
+  }
+  .btn-terminal-save:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+  }
+
+  .terminal-table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .terminal-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+
+  .terminal-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .terminal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .terminal-table thead th {
+    text-align: left;
+    padding: 8px 10px;
+    color: var(--dim);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.2);
+  }
+
+  .terminal-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .terminal-table tbody tr:hover {
+    background: rgba(245, 158, 11, 0.04);
+  }
+
+  .terminal-table tbody td {
+    padding: 10px;
+    vertical-align: middle;
+  }
+
+  .rank-badge {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .rank-top1 { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.5); }
+  .rank-top2 { background: rgba(234, 179, 8, 0.15); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.4); }
+  .rank-top3 { background: rgba(217, 119, 6, 0.15); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.4); }
+  .rank-normal { background: rgba(255, 255, 255, 0.04); color: var(--dim); }
+  .rank-financial { background: rgba(167, 139, 250, 0.15); color: var(--purple); border: 1px solid rgba(167, 139, 250, 0.35); }
+
   .radar-section {
     margin-top: 28px;
     background: var(--surface);
@@ -1083,7 +1228,6 @@
     font-size: 11px;
   }
 
-  /* Custom Confirmation Modal Overlay */
   .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -1157,7 +1301,6 @@
   }
   .btn-modal-confirm:hover { filter: brightness(1.15); }
 
-  /* Info Footer */
   .info-footer {
     margin-top: 28px;
     padding: 16px;
@@ -1190,7 +1333,6 @@
 
 <div class="container">
 
-  <!-- ── Header ── -->
   <div class="header">
     <div class="header-titles">
       <div class="header-label">Ferramenta Satélite de Avaliação</div>
@@ -1201,13 +1343,12 @@
     </div>
   </div>
 
-  <!-- ── Main Tab Navigation ── -->
   <div class="main-tabs">
     <button type="button" class="main-tab-btn active" id="tab-bazin" onclick="switchMainTab('bazin')">Método Bazin Clássico</button>
     <button type="button" class="main-tab-btn" id="tab-graham" onclick="switchMainTab('graham')">Integração Graham + Bazin</button>
+    <button type="button" class="main-tab-btn" id="tab-terminal" onclick="switchMainTab('terminal')">Terminal Multimétodos (Greenblatt + Gordon)</button>
   </div>
 
-  <!-- ── Info Box: Fixed K Rate ── -->
   <div class="info-k-fixed">
     <div class="info-k-badge" id="info-k-badge">K = 6.0% de Bazin</div>
     <div class="info-k-text" id="info-k-text">
@@ -1215,17 +1356,14 @@
     </div>
   </div>
 
-  <!-- ── Workspace Grid ── -->
-  <div class="workspace-grid">
+  <div class="workspace-grid" id="workspace-grid-classic">
     
-    <!-- LEFT: Inputs panel -->
     <div class="panel">
       
       <!-- TAB 1: BAZIN CLASSIC INPUTS -->
       <div id="inputs-tab-bazin" style="display: flex; flex-direction: column; gap: 18px;">
         <div class="panel-title">Parâmetros de Avaliação (Bazin)</div>
 
-        <!-- Ticker com Botão da API Brapi -->
         <div class="form-group">
           <label for="input-ticker">Nome / Código do Papel (Ticker) <span class="optional-label">(Ex: BBAS3, VALE3)</span></label>
           <div class="ticker-fetch-wrap">
@@ -1238,7 +1376,6 @@
           <div class="fetch-quote-status" id="status-bazin"></div>
         </div>
 
-        <!-- Sector Selector (Setor Bancário Checkbox) -->
         <div class="form-group checkbox-group">
           <label class="checkbox-label" for="input-is-bank">
             <input type="checkbox" id="input-is-bank" onchange="toggleBankMode(this.checked)">
@@ -1246,7 +1383,6 @@
           </label>
         </div>
 
-        <!-- DPA Selection Tab Switch -->
         <div class="form-group">
           <label>Forma de Entrada de Proventos (DPA)</label>
           <div class="dpa-toggle-group">
@@ -1255,10 +1391,7 @@
           </div>
         </div>
 
-        <!-- Dynamic DPA Container -->
         <div class="form-group" id="dpa-input-container">
-          
-          <!-- Mode A: Single Input -->
           <div id="dpa-direct-wrapper">
             <label for="input-dpa">DPA 12m (Média R$) <span class="optional-label">(Opcional se DY preenchido)</span></label>
             <div class="input-with-symbol">
@@ -1267,7 +1400,6 @@
             </div>
           </div>
 
-          <!-- Mode B: 5 Years Fields -->
           <div id="dpa-years-wrapper" style="display: none;">
             <label>Valores Anuais de DPA (R$)</label>
             <div class="dpa-years-grid">
@@ -1296,12 +1428,9 @@
               Média Calculada: <span id="avg-computed-dpa">R$ 0,00</span>
             </div>
           </div>
-
         </div>
 
-        <!-- Grid for Cotação and DY Médio -->
         <div class="form-row-2col">
-          <!-- Current Price Input -->
           <div class="form-group">
             <label for="input-price">Cotação Atual</label>
             <div class="input-with-symbol">
@@ -1310,7 +1439,6 @@
             </div>
           </div>
 
-          <!-- DY Médio Histórico Input (5 anos) -->
           <div class="form-group">
             <label for="input-dy-medio">DY Médio 5 Anos (%) <span class="optional-label">(Opcional se DPA preenchido)</span></label>
             <div class="input-with-symbol">
@@ -1320,7 +1448,6 @@
           </div>
         </div>
 
-        <!-- Net Debt / EBITDA slider -->
         <div id="debt-slider-container" class="form-group">
           <div class="slider-header">
             <label id="lbl-debt-title" for="slider-debt">Dívida Líquida / EBITDA</label>
@@ -1345,7 +1472,6 @@
       <div id="inputs-tab-graham" style="display: none; flex-direction: column; gap: 18px;">
         <div class="panel-title">Parâmetros de Avaliação (Graham + Bazin)</div>
 
-        <!-- Campo Ticker no Graham -->
         <div class="form-group">
           <label for="input-graham-ticker">Nome / Código do Papel (Ticker) <span class="optional-label">(Ex: BBAS3, VALE3)</span></label>
           <div class="ticker-fetch-wrap">
@@ -1358,7 +1484,6 @@
           <div class="fetch-quote-status" id="status-graham"></div>
         </div>
 
-        <!-- VPA and LPA inputs -->
         <div class="form-row-2col">
           <div class="form-group">
             <label for="input-vpa">VPA <span class="optional-label">(Valor Patrimonial p/ Ação)</span></label>
@@ -1377,13 +1502,13 @@
           </div>
         </div>
 
-        <!-- Payout and Cotação Atual inputs -->
         <div class="form-row-2col">
           <div class="form-group">
             <label for="input-payout">Payout Estimado (%)</label>
             <div class="input-with-symbol">
               <span class="input-symbol">%</span>
-              <input type="number" id="input-payout" value="" placeholder="0.0" step="0.5" min="0" max="100" oninput="onGrahamProfitInput()">
+              <!-- Unrestricted Payout (> 100% allowed) -->
+              <input type="number" id="input-payout" value="" placeholder="0.0" step="0.5" min="0" oninput="onGrahamProfitInput()">
             </div>
           </div>
 
@@ -1396,7 +1521,6 @@
           </div>
         </div>
 
-        <!-- Implicit DPA Display Box -->
         <div class="calc-avg-badge">
           DPA Implícito (LPA × Payout): <span id="graham-implicit-dpa">R$ 0,00</span>
         </div>
@@ -1404,11 +1528,9 @@
 
     </div>
 
-    <!-- RIGHT: Results & Farol panel -->
     <div class="result-panel">
       <div class="panel-title">Resultado da Análise</div>
 
-      <!-- Farol Banner (Dynamic colors) -->
       <div class="farol-banner" id="farol-banner">
         <div class="farol-indicator" id="farol-indicator"></div>
         <div class="farol-content">
@@ -1417,12 +1539,10 @@
         </div>
       </div>
 
-      <!-- Button to Add to Radar (Watchlist) -->
       <button type="button" class="btn-add-radar" onclick="addToRadar()">
         <span>📡</span> <span>+ Adicionar ao Radar de Oportunidades</span>
       </button>
 
-      <!-- METRICS GRID TAB 1: BAZIN -->
       <div id="grid-metrics-bazin" class="calc-grid">
         <div class="calc-card">
           <span class="calc-label">Preço-Teto Bazin (6%)</span>
@@ -1434,7 +1554,6 @@
         </div>
       </div>
 
-      <!-- METRICS GRID TAB 2: GRAHAM -->
       <div id="grid-metrics-graham" class="calc-grid" style="display: none; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div class="calc-card">
           <span class="calc-label">V. Intrínseco (Graham)</span>
@@ -1462,7 +1581,6 @@
         </div>
       </div>
 
-      <!-- ── 1. RÉGUA VISUAL MULTI-MARCADORES (BARRA COMPARATIVA UNIFICADA) ── -->
       <div class="ruler-section">
         <div class="ruler-header">
           <span class="title">📍 Régua Comparativa de Preços</span>
@@ -1472,23 +1590,19 @@
         <div class="ruler-track-wrap">
           <div class="ruler-track-line"></div>
           
-          <!-- Marker 1: Cotação Atual -->
           <div class="ruler-pin ruler-pin-price" id="ruler-pin-price" style="left: 50%; display: none;" title="Cotação Atual">
             <div class="ruler-pin-dot"></div>
           </div>
           
-          <!-- Marker 2: Preço-Teto Bazin -->
           <div class="ruler-pin ruler-pin-teto" id="ruler-pin-teto" style="left: 50%; display: none;" title="Preço-Teto Bazin (6%)">
             <div class="ruler-pin-dot"></div>
           </div>
           
-          <!-- Marker 3: Valor Intrínseco de Graham -->
           <div class="ruler-pin ruler-pin-graham" id="ruler-pin-graham" style="left: 50%; display: none;" title="Valor Intrínseco Graham">
             <div class="ruler-pin-dot"></div>
           </div>
         </div>
 
-        <!-- Ruler Legend Cards -->
         <div class="ruler-legend-grid">
           <div class="ruler-legend-item">
             <span class="ruler-legend-label">🟢 Cotação Atual</span>
@@ -1505,7 +1619,6 @@
         </div>
       </div>
 
-      <!-- ── 2. MATRIZ DE SENSIBILIDADE DE PREÇO-TETO (YIELD LADDER 6% A 10%) ── -->
       <div class="ladder-section">
         <div class="ladder-title">
           <span>📊 Matriz de Sensibilidade (Yield Ladder)</span>
@@ -1523,13 +1636,11 @@
               </tr>
             </thead>
             <tbody id="yield-ladder-tbody">
-              <!-- Renderizado via JavaScript -->
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Copy Summary Tool -->
       <div class="summary-copy-box">
         <div class="summary-copy-header">
           <span class="calc-label" style="margin-bottom:0; color:var(--text);">Resumo Executivo (WhatsApp)</span>
@@ -1545,8 +1656,170 @@
 
   </div>
 
-  <!-- ── Radar de Oportunidades & Watchlist Section ── -->
-  <div class="radar-section">
+  <div class="terminal-section" id="workspace-grid-terminal" style="display: none;">
+    
+    <div class="terminal-top-bar">
+      <div class="terminal-k-setting">
+        <label for="terminal-k-global">Taxa $K$ Global (% a.a.):</label>
+        <div class="input-with-symbol" style="width: auto;">
+          <span class="input-symbol">%</span>
+          <input type="number" id="terminal-k-global" class="input-k-global" value="10.0" step="0.5" min="1.0" max="30.0" oninput="renderTerminalTable()">
+        </div>
+      </div>
+
+      <div class="terminal-json-actions">
+        <button type="button" class="btn-terminal-action" onclick="copyTerminalTextSummary()">📋 Copiar Ranking Texto</button>
+        <button type="button" class="btn-terminal-action" onclick="exportTerminalJSON()">⬇️ Exportar Backup JSON</button>
+        <button type="button" class="btn-terminal-action" onclick="document.getElementById('import-json-file').click()">📁 Importar Backup JSON</button>
+        <input type="file" id="import-json-file" accept=".json" style="display: none;" onchange="handleImportJSON(event)">
+      </div>
+    </div>
+
+    <div class="workspace-grid">
+      
+      <!-- LEFT: Terminal Input Form -->
+      <div class="panel">
+        <div class="panel-title" id="terminal-form-title">⚡ Cadastrar Novo Ativo no Terminal</div>
+        
+        <form id="form-terminal" onsubmit="event.preventDefault(); saveTerminalItem();">
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label for="term-ticker">Ticker da Ação</label>
+              <input type="text" id="term-ticker" placeholder="Ex: BBAS3" required uppercase oninput="this.value = this.value.toUpperCase()">
+            </div>
+            <div class="form-group">
+              <label for="term-price">Cotação Atual</label>
+              <div class="input-with-symbol">
+                <span class="input-symbol">R$</span>
+                <input type="number" id="term-price" placeholder="0.00" step="0.01" min="0.01" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sector Checkbox: Financials & Holdings Exclusion from Magic Formula -->
+          <div class="form-group checkbox-group" style="margin-top: 10px;">
+            <label class="checkbox-label" for="term-is-financial">
+              <input type="checkbox" id="term-is-financial">
+              <span><strong>Banco / Seguradora / Holding</strong> (Excluir da Magic Formula)</span>
+            </label>
+          </div>
+
+          <div class="form-row-2col" style="margin-top: 10px;">
+            <div class="form-group">
+              <label for="term-dpa">DPA (R$ / 12m) <span class="optional-label">(Auto: LPA × Payout)</span></label>
+              <div class="input-with-symbol">
+                <span class="input-symbol">R$</span>
+                <input type="number" id="term-dpa" placeholder="0.00" step="0.01" min="0">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="term-lpa">LPA (R$)</label>
+              <div class="input-with-symbol">
+                <span class="input-symbol">R$</span>
+                <input type="number" id="term-lpa" placeholder="0.00" step="0.01" oninput="autoCalcTerminalDPA()">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row-2col" style="margin-top: 10px;">
+            <div class="form-group">
+              <label for="term-vpa">VPA (R$)</label>
+              <div class="input-with-symbol">
+                <span class="input-symbol">R$</span>
+                <input type="number" id="term-vpa" placeholder="0.00" step="0.01">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="term-payout">Payout (%)</label>
+              <div class="input-with-symbol">
+                <span class="input-symbol">%</span>
+                <!-- Unrestricted Payout (> 100% allowed) -->
+                <input type="number" id="term-payout" placeholder="50.0" step="0.1" min="0" oninput="autoCalcTerminalDPA()">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row-2col" style="margin-top: 10px;">
+            <div class="form-group">
+              <label for="term-ev-ebit">EV / EBIT (x)</label>
+              <div class="input-with-symbol">
+                <span class="input-symbol">x</span>
+                <input type="number" id="term-ev-ebit" placeholder="5.50" step="0.01">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="term-roic">ROIC (%)</label>
+              <div class="input-with-symbol">
+                <span class="input-symbol">%</span>
+                <input type="number" id="term-roic" placeholder="18.5" step="0.1">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label for="term-roe">ROE (%)</label>
+            <div class="input-with-symbol">
+              <span class="input-symbol">%</span>
+              <input type="number" id="term-roe" placeholder="15.0" step="0.1">
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <button type="submit" class="btn-terminal-save" id="btn-save-terminal">
+              <span>+ Adicionar Ativo ao Terminal</span>
+            </button>
+            <button type="button" class="btn-modal-cancel" id="btn-cancel-edit-terminal" style="display: none;" onclick="resetTerminalForm()">
+              Cancelar Edição
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- RIGHT: Screening Table Results -->
+      <div class="terminal-table-card">
+        <div class="terminal-table-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="radar-title">🏆 Ranking Magic Formula & Valuation</span>
+            <span class="radar-count-badge" id="terminal-count-badge">0 ativos</span>
+          </div>
+          <span style="font-family: var(--mono); font-size: 10px; color: var(--dim);">Order: Magic Formula Rank (Empresas Operacionais)</span>
+        </div>
+
+        <div class="terminal-table-wrap">
+          <table class="terminal-table">
+            <thead>
+              <tr>
+                <th>Rank MF</th>
+                <th>Ticker & Price</th>
+                <th>Bazin (PT 6%)</th>
+                <th>Graham (V.I.)</th>
+                <th>Gordon (Preço Justo)</th>
+                <th>Múltiplos (EV/EBIT | ROIC)</th>
+                <th style="text-align: right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="terminal-tbody">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="summary-copy-box" style="margin-top: 10px;">
+          <div class="summary-copy-header">
+            <span class="calc-label" style="margin-bottom:0; color:var(--text);">Resumo Executivo do Ranking (WhatsApp)</span>
+            <button type="button" class="btn-copy" id="btn-copy-terminal" onclick="copyTerminalTextSummary()">
+              <span id="copy-terminal-btn-icon">📋</span> <span id="copy-terminal-btn-text">Copiar Ranking</span>
+            </button>
+          </div>
+          <textarea id="terminal-summary-textarea" readonly rows="6" class="summary-textarea">Resumo do ranking...</textarea>
+          <div id="copy-terminal-toast" class="copy-toast" style="display:none;">✓ Ranking copiado para a área de transferência!</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <div class="radar-section" id="radar-section-classic">
     <div class="radar-header">
       <div class="radar-header-titles">
         <span class="radar-title">📡 Radar de Oportunidades (Watchlist)</span>
@@ -1568,30 +1841,24 @@
           </tr>
         </thead>
         <tbody id="radar-tbody">
-          <!-- Populated by JS -->
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- ── Info Footer ── -->
   <div class="info-footer">
-    <h3>Estrutura Decisória dos Pilares de Bazin & Graham</h3>
-    <p>Com a taxa de desconto imutável estabelecida no padrão de <strong>K = 6,0%</strong>, os critérios decisórios deste painel avaliam três dimensões simultâneas:</p>
+    <h3>Estrutura Decisória dos Pilares de Valuation</h3>
+    <p>Com a taxa de desconto imutável estabelecida no padrão de <strong>K = 6,0%</strong> para Bazin e customizável no Terminal Multimétodos, avaliamos quatro dimensões consagradas da análise fundamentalista:</p>
     <ul>
-      <li><strong>Pilar 1: Preço Descontado (Margem de Segurança):</strong> A cotação atual precisa estar abaixo do preço-teto calculado ($Preço\ Teto = DPA / 0,06$) para garantir que o yield projetado seja no mínimo 6%.</li>
-      <li><strong>Pilar 2: Consistência Histórica (DY Médio de 5 Anos):</strong> O Dividend Yield histórico do ativo (média consolidada dos últimos 5 anos) deve ser idealmente superior a <strong>6,0%</strong>. Se informado, valores abaixo disso acendem o farol amarelo pela perda de constância histórica de retorno.</li>
-      <li><strong>Pilar 3: Alavancagem Controlada (Dívida Líquida / EBITDA ou Basileia):</strong> 
-        <br>• <strong>Para empresas comuns:</strong> Dívida Líquida abaixo de <strong>2,5x</strong> o EBITDA é sinal verde; acima de <strong>3,5x</strong> reprova o ativo de imediato.
-        <br>• <strong>Para Bancos/Financeiras:</strong> A métrica de Dívida Líquida/EBITDA é desativada por incompatibilidade de balanço. O modelo orienta a verificação de solvência bancária qualitativa de forma manual (Índice de Basileia &gt; 11% e ROE &gt; 15%).
-      </li>
-      <li><strong>Pilar Graham (Opcional Integrado):</strong> O cálculo de Graham de Valor Intrínseco ($VI = \sqrt{22.5 \times LPA \times VPA}$) confere uma margem estática baseada em múltiplos tangíveis. Idealmente, a Margem de Segurança do ativo deve superar <strong>30%</strong> para acender o gatilho verde de assimetria favorável para investidores de valor.</li>
+      <li><strong>Pilar Bazin (Preço Descontado):</strong> O Preço-Teto ($PT = DPA / 0,06$) assegura que a empresa pague no mínimo 6,0% de rendimento em dividendos anuais.</li>
+      <li><strong>Pilar Graham (Valor Intrínseco Patrimonial):</strong> A fórmula $VI = \sqrt{22.5 \times LPA \times VPA}$ estabelece o teto físico-tangível baseado em múltiplos de Lucro ($P/L \le 15$) e Patrimônio ($P/VP \le 1,5$).</li>
+      <li><strong>Modelo de Gordon (Crescimento Perpétuo):</strong> Avalia a renda descontada aplicando a taxa de crescimento sustentável do negócio ($g = ROE \times (1 - Payout/100)$ com Payout $\ge 100\%$ zerando o crescimento orgânico $g = 0,0\%$ e trava prudencial em $g \le 4,5\%$).</li>
+      <li><strong>Magic Formula de Greenblatt (Screening Quântico):</strong> Ordena exclusivamente as empresas comerciais e industriais atribuindo um ranking combinado de ROIC elevado e menor EV/EBIT. Bancos, seguradoras e holdings são isentos de ranking para evitar distorções de equivalência patrimonial.</li>
     </ul>
   </div>
 
 </div>
 
-<!-- ── Custom Confirmation Modal ── -->
 <div class="modal-overlay" id="modal-clear-radar">
   <div class="modal-box">
     <div class="modal-title">Limpar Radar de Oportunidades</div>
@@ -1606,21 +1873,19 @@
 </div>
 
 <script>
-  // ── ESTADO GLOBAL REUTILIZÁVEL ENTRE ABAS ──
   let state = {
-    activeTab: 'bazin', // 'bazin' ou 'graham'
+    activeTab: 'bazin',
     ticker: '',
-    dpaMode: 'direct',  // 'direct' ou 'years'
+    dpaMode: 'direct',
     dpa: 0,
     price: 0,
     dyMedio: 0,
-    k: 6.0,             // FIXO EM 6%
+    k: 6.0,
     debtEbitda: 0,
     isBank: false,
     vpa: 0,
     lpa: 0,
     payout: 0,
-    // Current analysis outcome
     tetoBazin: 0,
     margemBazin: 0,
     viGraham: 0,
@@ -1628,18 +1893,14 @@
     farolTitle: 'AGUARDANDO DADOS'
   };
 
-  // BRAPI API TOKEN CONFIGURATION
   const BRAPI_TOKEN = (typeof process !== 'undefined' && process?.env?.BRAPI_TOKEN) || window.BRAPI_TOKEN || 'xkbBiwNYnwJ4pvmPBpTGYB';
 
-  // ── LOCAL STORAGE RADAR DATA WRAPPER ──
   let inMemoryRadar = [];
 
   function getRadarData() {
     try {
       const data = localStorage.getItem('radar_bazin_data');
-      if (data) {
-        return JSON.parse(data);
-      }
+      if (data) return JSON.parse(data);
     } catch (e) {
       console.warn('localStorage inacessível, utilizando armazenamento em memória.', e);
     }
@@ -1655,7 +1916,34 @@
     }
   }
 
-  // ── UTILITÁRIOS DE FORMATAÇÃO ──
+  /* Default initial dataset for Terminal Multimetodos */
+  let inMemoryTerminal = [
+    { ticker: 'BBAS3', price: 27.50, dpa: 2.32, lpa: 5.80, vpa: 31.20, evEbit: 0, roic: 0, roe: 18.2, payout: 40.0, isFinancial: true },
+    { ticker: 'PETR4', price: 38.20, dpa: 4.55, lpa: 9.10, vpa: 29.50, evEbit: 3.1, roic: 22.4, roe: 28.5, payout: 50.0, isFinancial: false },
+    { ticker: 'VALE3', price: 61.00, dpa: 5.60, lpa: 11.20, vpa: 42.00, evEbit: 4.8, roic: 18.0, roe: 21.0, payout: 50.0, isFinancial: false },
+    { ticker: 'CMIG4', price: 11.20, dpa: 1.05, lpa: 2.10, vpa: 9.80, evEbit: 5.1, roic: 17.2, roe: 19.5, payout: 50.0, isFinancial: false },
+    { ticker: 'WEGE3', price: 44.50, dpa: 0.675, lpa: 1.35, vpa: 5.20, evEbit: 21.5, roic: 26.8, roe: 29.0, payout: 50.0, isFinancial: false }
+  ];
+
+  function getTerminalData() {
+    try {
+      const data = localStorage.getItem('valuation_multimetodos_data');
+      if (data) return JSON.parse(data);
+    } catch (e) {
+      console.warn('localStorage inacessível para o Terminal.', e);
+    }
+    return inMemoryTerminal;
+  }
+
+  function saveTerminalData(arr) {
+    inMemoryTerminal = arr;
+    try {
+      localStorage.setItem('valuation_multimetodos_data', JSON.stringify(arr));
+    } catch (e) {
+      console.warn('Falha ao salvar Terminal no localStorage:', e);
+    }
+  }
+
   function fmtReal(val) {
     if (isNaN(val) || !isFinite(val) || val <= 0) return 'R$ 0,00';
     return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -1667,7 +1955,6 @@
     return prefix + val.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
   }
 
-  // ── BRAPI API: RESGATE EXCLUSIVO DA COTAÇÃO MAIS ATUALIZADA ──
   async function fetchBrapiQuote(symbol) {
     if (!symbol || !symbol.trim()) {
       showQuoteStatus('error', 'Digite um código de ativo válido (ex: VALE3).');
@@ -1679,17 +1966,12 @@
 
     try {
       const apiUrl = `https://brapi.dev/api/v2/stocks/quote?symbols=${encodeURIComponent(cleanSymbol)}&token=${encodeURIComponent(BRAPI_TOKEN)}`;
-      
       let response = await fetch(apiUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
 
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error(`Ativo "${cleanSymbol}" não localizado na B3.`);
-        } else if (response.status === 401 || response.status === 403) {
-          throw new Error('Chave da API Brapi expirada ou inválida.');
-        } else {
-          throw new Error(`Erro de resposta na API (Código ${response.status}).`);
-        }
+        if (response.status === 404) throw new Error(`Ativo "${cleanSymbol}" não localizado na B3.`);
+        else if (response.status === 401 || response.status === 403) throw new Error('Chave da API Brapi expirada ou inválida.');
+        else throw new Error(`Erro de resposta na API (Código ${response.status}).`);
       }
 
       const json = await response.json();
@@ -1701,11 +1983,8 @@
       const data = item.data || item;
       const price = parseFloat(data.regularMarketPrice ?? data.close ?? data.price ?? 0);
 
-      if (isNaN(price) || price <= 0) {
-        throw new Error('Preço de mercado indisponível no momento.');
-      }
+      if (isNaN(price) || price <= 0) throw new Error('Preço de mercado indisponível no momento.');
 
-      // Preenche unicamente o campo de Cotação Atual
       onPriceInput(price.toFixed(2));
       showQuoteStatus('success', `✓ ${cleanSymbol}: Cotação R$ ${price.toFixed(2)} atualizada!`);
 
@@ -1744,7 +2023,6 @@
     }
   }
 
-  // Synchronize stock inputs across both tabs
   function onTickerInput(val) {
     state.ticker = val;
     document.getElementById('input-ticker').value = val;
@@ -1779,35 +2057,54 @@
     calculate();
   }
 
-  // ── SWITCH MAIN TABS & THEME COLORS ──
   function switchMainTab(tab) {
     state.activeTab = tab;
     document.getElementById('tab-bazin').classList.toggle('active', tab === 'bazin');
     document.getElementById('tab-graham').classList.toggle('active', tab === 'graham');
+    document.getElementById('tab-terminal').classList.toggle('active', tab === 'terminal');
     
-    document.getElementById('inputs-tab-bazin').style.display = tab === 'bazin' ? 'flex' : 'none';
-    document.getElementById('inputs-tab-graham').style.display = tab === 'graham' ? 'flex' : 'none';
-    
-    document.getElementById('grid-metrics-bazin').style.display = tab === 'bazin' ? 'grid' : 'none';
-    document.getElementById('grid-metrics-graham').style.display = tab === 'graham' ? 'grid' : 'none';
+    const classicGrid = document.getElementById('workspace-grid-classic');
+    const terminalGrid = document.getElementById('workspace-grid-terminal');
+    const classicRadar = document.getElementById('radar-section-classic');
+
+    if (tab === 'terminal') {
+      classicGrid.style.display = 'none';
+      classicRadar.style.display = 'none';
+      terminalGrid.style.display = 'flex';
+    } else {
+      classicGrid.style.display = 'grid';
+      classicRadar.style.display = 'flex';
+      terminalGrid.style.display = 'none';
+
+      document.getElementById('inputs-tab-bazin').style.display = tab === 'bazin' ? 'flex' : 'none';
+      document.getElementById('inputs-tab-graham').style.display = tab === 'graham' ? 'flex' : 'none';
+      document.getElementById('grid-metrics-bazin').style.display = tab === 'bazin' ? 'grid' : 'none';
+      document.getElementById('grid-metrics-graham').style.display = tab === 'graham' ? 'grid' : 'none';
+    }
     
     const root = document.documentElement;
     const badgeEl = document.getElementById('info-k-badge');
     const infoTextEl = document.getElementById('info-k-text');
 
     if (tab === 'bazin') {
-      root.style.setProperty('--accent', '#4f8ef7'); // Azul Bazin
+      root.style.setProperty('--accent', '#4f8ef7');
       root.style.setProperty('--accent-rgb', '79, 142, 247');
       if (badgeEl) badgeEl.textContent = 'K = 6.0% de Bazin';
       if (infoTextEl) infoTextEl.innerHTML = 'Esta ferramenta utiliza a taxa de desconto imutável de <strong>6,0% ao ano</strong> estabelecida pelo método clássico de Décio Bazin para garantir a margem de retorno em dividendos.';
-    } else {
-      root.style.setProperty('--accent', '#a78bfa'); // Roxo Graham
+      calculate();
+    } else if (tab === 'graham') {
+      root.style.setProperty('--accent', '#a78bfa');
       root.style.setProperty('--accent-rgb', '167, 139, 250');
       if (badgeEl) badgeEl.textContent = 'Fórmula de Graham + Bazin';
       if (infoTextEl) infoTextEl.innerHTML = 'Esta aba integra o modelo estático de valor intrínseco de ativos de <strong>Benjamin Graham</strong> com a perpetuidade de caixa de dividendos de <strong>Décio Bazin</strong>.';
+      calculate();
+    } else if (tab === 'terminal') {
+      root.style.setProperty('--accent', '#f59e0b');
+      root.style.setProperty('--accent-rgb', '245, 158, 11');
+      if (badgeEl) badgeEl.textContent = 'Greenblatt + Gordon + Bazin + Graham';
+      if (infoTextEl) infoTextEl.innerHTML = 'Terminal multi-modelo integrado: rastreie o ranking da <strong>Magic Formula (EV/EBIT + ROIC)</strong> combinada à margem de segurança de Bazin, Graham e ao crescimento perpétuo do <strong>Modelo de Gordon</strong>.';
+      renderTerminalTable();
     }
-    
-    calculate();
   }
 
   function setDpaMode(mode) {
@@ -1853,18 +2150,13 @@
     document.getElementById('lbl-debt').textContent = state.debtEbitda.toFixed(2) + 'x';
     
     const badge = document.getElementById('lbl-debt');
-    if (state.debtEbitda <= 2.5) {
-      badge.style.color = 'var(--green)';
-    } else if (state.debtEbitda <= 3.5) {
-      badge.style.color = 'var(--yellow)';
-    } else {
-      badge.style.color = 'var(--red)';
-    }
+    if (state.debtEbitda <= 2.5) badge.style.color = 'var(--green)';
+    else if (state.debtEbitda <= 3.5) badge.style.color = 'var(--yellow)';
+    else badge.style.color = 'var(--red)';
 
     calculate();
   }
 
-  // ── ATUALIZAR RÉGUA VISUAL MULTI-MARCADORES ──
   function updateMultiMarkerRuler(price, tetoBazin, viGraham = 0) {
     const pinPrice = document.getElementById('ruler-pin-price');
     const pinTeto = document.getElementById('ruler-pin-teto');
@@ -1892,28 +2184,21 @@
       pinPrice.style.display = 'flex';
       const pctP = Math.min(95, Math.max(5, (price / maxVal) * 100));
       pinPrice.style.left = pctP.toFixed(1) + '%';
-    } else if (pinPrice) {
-      pinPrice.style.display = 'none';
-    }
+    } else if (pinPrice) pinPrice.style.display = 'none';
 
     if (tetoBazin > 0 && pinTeto) {
       pinTeto.style.display = 'flex';
       const pctT = Math.min(95, Math.max(5, (tetoBazin / maxVal) * 100));
       pinTeto.style.left = pctT.toFixed(1) + '%';
-    } else if (pinTeto) {
-      pinTeto.style.display = 'none';
-    }
+    } else if (pinTeto) pinTeto.style.display = 'none';
 
     if (viGraham > 0 && pinGraham) {
       pinGraham.style.display = 'flex';
       const pctG = Math.min(95, Math.max(5, (viGraham / maxVal) * 100));
       pinGraham.style.left = pctG.toFixed(1) + '%';
-    } else if (pinGraham) {
-      pinGraham.style.display = 'none';
-    }
+    } else if (pinGraham) pinGraham.style.display = 'none';
   }
 
-  // ── ATUALIZAR MATRIZ DE SENSIBILIDADE (YIELD LADDER) ──
   function updateYieldLadder(price, dpa) {
     const tbody = document.getElementById('yield-ladder-tbody');
     if (!tbody) return;
@@ -1943,15 +2228,10 @@
       const margemColor = margem >= 0 ? 'var(--green)' : 'var(--red)';
 
       let badge = '';
-      if (price <= 0) {
-        badge = `<span class="ladder-badge badge-neutral">-</span>`;
-      } else if (price <= teto) {
-        badge = `<span class="ladder-badge badge-green">🟢 Desconto</span>`;
-      } else if (price <= teto * 1.05) {
-        badge = `<span class="ladder-badge badge-yellow">🟡 Limite</span>`;
-      } else {
-        badge = `<span class="ladder-badge badge-red">🔴 Ágio</span>`;
-      }
+      if (price <= 0) badge = `<span class="ladder-badge badge-neutral">-</span>`;
+      else if (price <= teto) badge = `<span class="ladder-badge badge-green">🟢 Desconto</span>`;
+      else if (price <= teto * 1.05) badge = `<span class="ladder-badge badge-yellow">🟡 Limite</span>`;
+      else badge = `<span class="ladder-badge badge-red">🔴 Ágio</span>`;
 
       const rowClass = y.isBazin ? 'yield-row-bazin' : '';
 
@@ -1967,14 +2247,10 @@
   }
 
   function calculate() {
-    if (state.activeTab === 'bazin') {
-      calculateBazinClassic();
-    } else {
-      calculateGrahamBazin();
-    }
+    if (state.activeTab === 'bazin') calculateBazinClassic();
+    else if (state.activeTab === 'graham') calculateGrahamBazin();
   }
 
-  // ── CÁLCULO 1: BAZIN CLÁSSICO ──
   function calculateBazinClassic() {
     const rawPrice = document.getElementById('input-price').value;
     const hasPrice = rawPrice !== '' && !isNaN(parseFloat(rawPrice)) && parseFloat(rawPrice) > 0;
@@ -2015,11 +2291,9 @@
     }
 
     let dyMedio = 0;
-    if (hasDpa && hasDyMedio) {
-      dyMedio = dyMedioInput;
-    } else if (hasDpa && !hasDyMedio) {
-      dyMedio = price > 0 ? (dpa / price) * 100 : 0;
-    } else if (!hasDpa && hasDyMedio) {
+    if (hasDpa && hasDyMedio) dyMedio = dyMedioInput;
+    else if (hasDpa && !hasDyMedio) dyMedio = price > 0 ? (dpa / price) * 100 : 0;
+    else if (!hasDpa && hasDyMedio) {
       dyMedio = dyMedioInput;
       dpa = price * (dyMedio / 100);
     }
@@ -2038,19 +2312,13 @@
     document.getElementById('res-margem').textContent = fmtPct(margemSeguranca);
 
     const resMargemElement = document.getElementById('res-margem');
-    if (margemSeguranca >= 0) {
-      resMargemElement.style.color = 'var(--green)';
-    } else if (margemSeguranca >= -10) {
-      resMargemElement.style.color = 'var(--yellow)';
-    } else {
-      resMargemElement.style.color = 'var(--red)';
-    }
+    if (margemSeguranca >= 0) resMargemElement.style.color = 'var(--green)';
+    else if (margemSeguranca >= -10) resMargemElement.style.color = 'var(--yellow)';
+    else resMargemElement.style.color = 'var(--red)';
 
-    // Atualiza a Régua Visual e a Matriz de Sensibilidade
     updateMultiMarkerRuler(price, precoTeto, 0);
     updateYieldLadder(price, dpa);
 
-    // Farol de Decisão
     const levOk = state.isBank || state.debtEbitda <= 2.5;
     const levCritica = !state.isBank && state.debtEbitda > 3.5;
     const precoSobTeto = price <= precoTeto;
@@ -2080,7 +2348,6 @@
     generateSummaryText(price, dpa, precoTeto, margemSeguranca, status, statusTitle);
   }
 
-  // ── CÁLCULO 2: INTEGRAÇÃO GRAHAM + BAZIN ──
   function calculateGrahamBazin() {
     const vpa = parseFloat(document.getElementById('input-vpa').value) || 0;
     const lpa = parseFloat(document.getElementById('input-lpa').value) || 0;
@@ -2093,13 +2360,11 @@
       return;
     }
 
-    // Graham Sqrt(22.5 * LPA * VPA)
     const product = 22.5 * lpa * vpa;
     const vi = product > 0 ? Math.sqrt(product) : 0;
     const margemGraham = vi > 0 ? (((vi - price) / vi) * 100) : -100;
     const convGraham = price > 0 ? (((vi - price) / price) * 100) : 0;
 
-    // Implicit Bazin Flow
     const dpaImplicit = lpa * (payout / 100);
     const precoTetoBazin = dpaImplicit / 0.06;
     const margemBazin = precoTetoBazin > 0 ? (((precoTetoBazin - price) / precoTetoBazin) * 100) : -100;
@@ -2110,7 +2375,6 @@
     state.margemBazin = margemBazin;
     state.viGraham = vi;
 
-    // UI Updates
     document.getElementById('graham-implicit-dpa').textContent = fmtReal(dpaImplicit);
     document.getElementById('res-graham-vi').textContent = fmtReal(vi);
     document.getElementById('res-graham-dpa').textContent = fmtReal(dpaImplicit);
@@ -2120,19 +2384,13 @@
     document.getElementById('res-graham-conv').textContent = fmtPct(convGraham);
 
     const resGrahamMargemEl = document.getElementById('res-graham-margem');
-    if (margemGraham >= 30.0) {
-      resGrahamMargemEl.style.color = 'var(--green)';
-    } else if (margemGraham >= 0.0) {
-      resGrahamMargemEl.style.color = 'var(--yellow)';
-    } else {
-      resGrahamMargemEl.style.color = 'var(--red)';
-    }
+    if (margemGraham >= 30.0) resGrahamMargemEl.style.color = 'var(--green)';
+    else if (margemGraham >= 0.0) resGrahamMargemEl.style.color = 'var(--yellow)';
+    else resGrahamMargemEl.style.color = 'var(--red)';
 
-    // Atualiza a Régua Visual e a Matriz de Sensibilidade
     updateMultiMarkerRuler(price, precoTetoBazin, vi);
     updateYieldLadder(price, dpaImplicit);
 
-    // Farol Logic
     let status = 'neutro';
     let statusTitle = 'NEUTRALIDADE · MARGEM MODERADA';
 
@@ -2179,7 +2437,6 @@
     document.getElementById('summary-textarea').value = 'Insira os dados da ação para gerar o resumo...';
   }
 
-  // ── RESUMO EXECUTIVO (COPIAR E COLAR PARA WHATSAPP) ──
   function generateSummaryText(price, dpa, tetoBazin, margemBazin, status, statusTitle, viGraham = 0, margemGraham = 0) {
     if (viGraham === 0) {
       const vpa = parseFloat(document.getElementById('input-vpa')?.value) || state.vpa || 0;
@@ -2238,7 +2495,431 @@
     }, 2500);
   }
 
-  // ── RADAR DE OPORTUNIDADES & WATCHLIST (LOCAL STORAGE) ──
+  let editingTerminalId = null;
+
+  function autoCalcTerminalDPA() {
+    const lpa = parseFloat(document.getElementById('term-lpa').value) || 0;
+    const payout = parseFloat(document.getElementById('term-payout').value) || 0;
+    if (lpa > 0 && payout >= 0) {
+      const calcDpa = lpa * (payout / 100);
+      document.getElementById('term-dpa').value = calcDpa.toFixed(2);
+    }
+  }
+
+  /* Structural Fix 1 & 2: Calculation Engine with Payout >= 100% handling and Financials Exclusion */
+  function calculateTerminalItemMetrics(item, globalK) {
+    const price = parseFloat(item.price) || 0;
+    const lpa = parseFloat(item.lpa) || 0;
+    const vpa = parseFloat(item.vpa) || 0;
+    const evEbit = parseFloat(item.evEbit) || 0;
+    const roic = parseFloat(item.roic) || 0;
+    const roe = parseFloat(item.roe) || 0;
+    const payout = parseFloat(item.payout) || 0;
+
+    const dpa = (lpa > 0 && payout > 0) ? (lpa * (payout / 100)) : (parseFloat(item.dpa) || 0);
+
+    const ptBazin = dpa > 0 ? (dpa / 0.06) : 0;
+    const marginBazin = (ptBazin > 0 && price > 0) ? (((ptBazin - price) / ptBazin) * 100) : -100;
+
+    const productGraham = 22.5 * lpa * vpa;
+    const viGraham = (productGraham > 0 && lpa > 0 && vpa > 0) ? Math.sqrt(productGraham) : 0;
+    const marginGraham = (viGraham > 0 && price > 0) ? (((viGraham - price) / viGraham) * 100) : -100;
+
+    /* Rule 1: Payout >= 100% fixes g_calculated = 0.0% (no profit retention for organic growth) */
+    let gCalcRaw = 0;
+    if (payout >= 100) {
+      gCalcRaw = 0.0;
+    } else {
+      gCalcRaw = roe * (1 - (payout / 100));
+      if (gCalcRaw < 0) gCalcRaw = 0.0;
+    }
+
+    const maxGAllowed = Math.min(4.5, globalK - 0.5);
+    const gCalculated = Math.max(0, Math.min(gCalcRaw, maxGAllowed));
+
+    let priceGordon = 0;
+    let marginGordon = -100;
+    let gordonValid = true;
+
+    if (globalK <= gCalculated || dpa <= 0) {
+      gordonValid = false;
+    } else {
+      priceGordon = (dpa * (1 + (gCalculated / 100))) / ((globalK / 100) - (gCalculated / 100));
+      marginGordon = (priceGordon > 0 && price > 0) ? (((priceGordon - price) / priceGordon) * 100) : -100;
+    }
+
+    return {
+      ptBazin, marginBazin,
+      viGraham, marginGraham,
+      gCalculated, priceGordon, marginGordon, gordonValid,
+      evEbit, roic
+    };
+  }
+
+  /* Structural Fix 2: Magic Formula Ranking Segmentation (Financials/Holdings Excluded) */
+  function rankTerminalList(list, globalK) {
+    if (!list || list.length === 0) return [];
+
+    const processed = list.map(item => ({
+      ...item,
+      calc: calculateTerminalItemMetrics(item, globalK)
+    }));
+
+    // Separate operational companies from financials/holdings
+    const nonFinancials = processed.filter(x => !x.isFinancial);
+    const financials = processed.filter(x => !!x.isFinancial);
+
+    if (nonFinancials.length > 0) {
+      // Sort by EV/EBIT ascending (EV/EBIT <= 0 penalized to the end)
+      const sortedByEvEbit = [...nonFinancials].sort((a, b) => {
+        const aVal = a.calc.evEbit;
+        const bVal = b.calc.evEbit;
+        if (aVal <= 0 && bVal <= 0) return 0;
+        if (aVal <= 0) return 1;
+        if (bVal <= 0) return -1;
+        return aVal - bVal;
+      });
+
+      sortedByEvEbit.forEach((item, index) => {
+        item.evEbitRank = index + 1;
+      });
+
+      // Sort by ROIC descending
+      const sortedByRoic = [...nonFinancials].sort((a, b) => b.calc.roic - a.calc.roic);
+      sortedByRoic.forEach((item, index) => {
+        item.roicRank = index + 1;
+      });
+
+      nonFinancials.forEach(item => {
+        item.magicScore = item.evEbitRank + item.roicRank;
+      });
+
+      nonFinancials.sort((a, b) => a.magicScore - b.magicScore);
+      nonFinancials.forEach((item, index) => {
+        item.magicRank = index + 1;
+      });
+    }
+
+    // Mark financial assets as excluded from Magic Formula
+    financials.forEach(item => {
+      item.magicRank = null;
+      item.magicScore = null;
+    });
+
+    // Combine: Operational companies on top (by Magic Formula rank), Financials/Holdings grouped below
+    return [...nonFinancials, ...financials];
+  }
+
+  function generateTerminalTextSummary() {
+    const globalKInput = document.getElementById('terminal-k-global');
+    const globalK = parseFloat(globalKInput?.value) || 10.0;
+    const list = getTerminalData();
+    const rankedList = rankTerminalList(list, globalK);
+
+    if (rankedList.length === 0) {
+      return 'Nenhum ativo cadastrado no Terminal.';
+    }
+
+    let text = `🏆 *RANKING MAGIC FORMULA & VALUATION (K = ${globalK.toFixed(1)}%a.a.)*\n\n`;
+
+    const nonFinancials = rankedList.filter(x => !x.isFinancial);
+    const financials = rankedList.filter(x => !!x.isFinancial);
+
+    if (nonFinancials.length > 0) {
+      text += `--- *EMPRESAS OPERACIONAIS (MAGIC FORMULA)* ---\n`;
+      nonFinancials.forEach(item => {
+        const c = item.calc;
+        let medal = '•';
+        if (item.magicRank === 1) medal = '🥇';
+        else if (item.magicRank === 2) medal = '🥈';
+        else if (item.magicRank === 3) medal = '🥉';
+
+        const viGrahamStr = c.viGraham > 0 ? fmtReal(c.viGraham) : 'N/A';
+        const marginGrahamStr = c.viGraham > 0 ? fmtPct(c.marginGraham) : 'N/A';
+        const gordonStr = (c.gordonValid && c.priceGordon > 0) ? `${fmtReal(c.priceGordon)} (${fmtPct(c.marginGordon)})` : 'N/A';
+
+        text += `${medal} *#${item.magicRank} ${item.ticker}* (${fmtReal(item.price)})\n`;
+        text += `  • Bazin PT (6%): ${fmtReal(c.ptBazin)} | Margem: ${fmtPct(c.marginBazin)}\n`;
+        text += `  • Graham VI: ${viGrahamStr} | Margem: ${marginGrahamStr}\n`;
+        text += `  • Gordon: ${gordonStr}\n`;
+        text += `  • EV/EBIT: ${c.evEbit > 0 ? c.evEbit.toFixed(1) + 'x' : 'N/A'} | ROIC: ${c.roic.toFixed(1)}%\n\n`;
+      });
+    }
+
+    if (financials.length > 0) {
+      text += `--- *SETOR FINANCEIRO & HOLDINGS (ISENTOS DA MF)* ---\n`;
+      financials.forEach(item => {
+        const c = item.calc;
+        const viGrahamStr = c.viGraham > 0 ? fmtReal(c.viGraham) : 'N/A';
+        const marginGrahamStr = c.viGraham > 0 ? fmtPct(c.marginGraham) : 'N/A';
+        const gordonStr = (c.gordonValid && c.priceGordon > 0) ? `${fmtReal(c.priceGordon)} (${fmtPct(c.marginGordon)})` : 'N/A';
+
+        text += `🏦 *${item.ticker}* (${fmtReal(item.price)})\n`;
+        text += `  • Bazin PT (6%): ${fmtReal(c.ptBazin)} | Margem: ${fmtPct(c.marginBazin)}\n`;
+        text += `  • Graham VI: ${viGrahamStr} | Margem: ${marginGrahamStr}\n`;
+        text += `  • Gordon: ${gordonStr}\n`;
+        text += `  • ROE: ${item.roe ? item.roe.toFixed(1) + '%' : 'N/A'} | Payout: ${item.payout ? item.payout.toFixed(1) + '%' : 'N/A'}\n\n`;
+      });
+    }
+
+    return text.trim();
+  }
+
+  function updateTerminalSummaryText() {
+    const textarea = document.getElementById('terminal-summary-textarea');
+    if (textarea) {
+      textarea.value = generateTerminalTextSummary();
+    }
+  }
+
+  function copyTerminalTextSummary() {
+    const textarea = document.getElementById('terminal-summary-textarea');
+    if (!textarea) return;
+    
+    textarea.value = generateTerminalTextSummary();
+    textarea.select();
+    textarea.setSelectionRange(0, 99999);
+    
+    try {
+      document.execCommand('copy');
+      showTerminalCopyToast();
+    } catch (err) {
+      console.error('Falha ao copiar ranking:', err);
+    }
+  }
+
+  function showTerminalCopyToast() {
+    const btnIcon = document.getElementById('copy-terminal-btn-icon');
+    const btnText = document.getElementById('copy-terminal-btn-text');
+    const toast = document.getElementById('copy-terminal-toast');
+    
+    if (btnIcon) btnIcon.textContent = '✓';
+    if (btnText) btnText.textContent = 'Copiado!';
+    if (toast) toast.style.display = 'block';
+    
+    setTimeout(() => {
+      if (btnIcon) btnIcon.textContent = '📋';
+      if (btnText) btnText.textContent = 'Copiar Ranking';
+      if (toast) toast.style.display = 'none';
+    }, 2500);
+  }
+
+  function renderTerminalTable() {
+    const tbody = document.getElementById('terminal-tbody');
+    const badge = document.getElementById('terminal-count-badge');
+    const globalKInput = document.getElementById('terminal-k-global');
+    const globalK = parseFloat(globalKInput?.value) || 10.0;
+
+    const list = getTerminalData();
+    const rankedList = rankTerminalList(list, globalK);
+
+    if (badge) badge.textContent = `${rankedList.length} ${rankedList.length === 1 ? 'ativo' : 'ativos'}`;
+    
+    updateTerminalSummaryText();
+
+    if (!tbody) return;
+
+    if (rankedList.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="radar-empty-state">
+            Nenhum ativo cadastrado no Terminal. Preencha o formulário e clique em "+ Adicionar Ativo ao Terminal".
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = rankedList.map(item => {
+      const c = item.calc;
+      let rankBadge = '';
+
+      if (item.isFinancial) {
+        rankBadge = `<span class="rank-badge rank-financial" title="Setor Financeiro / Holding (Isento da Magic Formula)">🏦</span>`;
+      } else if (item.magicRank === 1) {
+        rankBadge = `<span class="rank-badge rank-top1">🥇 Top 1</span>`;
+      } else if (item.magicRank === 2) {
+        rankBadge = `<span class="rank-badge rank-top2">🥈 Top 2</span>`;
+      } else if (item.magicRank === 3) {
+        rankBadge = `<span class="rank-badge rank-top3">🥉 Top 3</span>`;
+      } else {
+        rankBadge = `<span class="rank-badge rank-normal">${item.magicRank}º</span>`;
+      }
+
+      const margemBazinColor = c.marginBazin >= 0 ? 'var(--green)' : 'var(--red)';
+      const margemGrahamColor = c.marginGraham >= 0 ? 'var(--green)' : 'var(--red)';
+      const margemGordonColor = c.marginGordon >= 0 ? 'var(--green)' : 'var(--red)';
+
+      const viGrahamStr = c.viGraham > 0 ? fmtReal(c.viGraham) : 'N/A';
+      const marginGrahamStr = c.viGraham > 0 ? fmtPct(c.marginGraham) : 'N/A';
+
+      let gordonStr = 'N/A';
+      if (c.gordonValid && c.priceGordon > 0) {
+        gordonStr = `${fmtReal(c.priceGordon)} <span style="font-size:10px; color:${margemGordonColor};">(${fmtPct(c.marginGordon)})</span>`;
+      } else {
+        gordonStr = `<span style="color: var(--yellow); font-size: 10px;" title="Taxa K inferior ao crescimento g ou sem DPA">⚠️ g ≥ K</span>`;
+      }
+
+      const multiplesStr = item.isFinancial 
+        ? `<div style="color: var(--dim);">EV/EBIT: N/A</div><div style="color: var(--accent);">ROE: <strong>${item.roe ? item.roe.toFixed(1) + '%' : 'N/A'}</strong></div>`
+        : `<div>EV/EBIT: <strong>${c.evEbit > 0 ? c.evEbit.toFixed(1) + 'x' : 'N/A'}</strong></div><div style="color: var(--accent);">ROIC: <strong>${c.roic.toFixed(1)}%</strong></div>`;
+
+      return `
+        <tr>
+          <td>${rankBadge}</td>
+          <td>
+            <div style="font-weight: 700; color: #e8ecf5;">${item.ticker}</div>
+            <div style="color: var(--dim); font-size: 10px;">${fmtReal(item.price)}</div>
+          </td>
+          <td>
+            <div>${fmtReal(c.ptBazin)}</div>
+            <div style="color: ${margemBazinColor}; font-size: 10px;">${fmtPct(c.marginBazin)}</div>
+          </td>
+          <td>
+            <div>${viGrahamStr}</div>
+            <div style="color: ${c.viGraham > 0 ? margemGrahamColor : 'var(--dim)'}; font-size: 10px;">${marginGrahamStr}</div>
+          </td>
+          <td>
+            <div>${gordonStr}</div>
+            <div style="color: var(--dim); font-size: 9px;">g: ${c.gCalculated.toFixed(1)}%</div>
+          </td>
+          <td>
+            ${multiplesStr}
+          </td>
+          <td style="text-align: right;">
+            <div class="radar-actions" style="justify-content: flex-end;">
+              <button type="button" class="btn-action-load" onclick="editTerminalItem('${item.ticker}')">✏️ Editar</button>
+              <button type="button" class="btn-action-delete" title="Excluir" onclick="deleteTerminalItem('${item.ticker}')">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function saveTerminalItem() {
+    const ticker = document.getElementById('term-ticker').value.trim().toUpperCase();
+    if (!ticker) return;
+
+    const lpa = parseFloat(document.getElementById('term-lpa').value) || 0;
+    const payout = parseFloat(document.getElementById('term-payout').value) || 0;
+    let dpa = parseFloat(document.getElementById('term-dpa').value) || 0;
+
+    if (lpa > 0 && payout >= 0) {
+      dpa = lpa * (payout / 100);
+    }
+
+    const item = {
+      ticker: ticker,
+      price: parseFloat(document.getElementById('term-price').value) || 0,
+      dpa: parseFloat(dpa.toFixed(2)),
+      lpa: lpa,
+      vpa: parseFloat(document.getElementById('term-vpa').value) || 0,
+      payout: payout,
+      evEbit: parseFloat(document.getElementById('term-ev-ebit').value) || 0,
+      roic: parseFloat(document.getElementById('term-roic').value) || 0,
+      roe: parseFloat(document.getElementById('term-roe').value) || 0,
+      isFinancial: document.getElementById('term-is-financial').checked
+    };
+
+    let list = getTerminalData();
+
+    if (editingTerminalId) {
+      const idx = list.findIndex(x => x.ticker === editingTerminalId);
+      if (idx >= 0) list[idx] = item;
+      else list.push(item);
+    } else {
+      const idx = list.findIndex(x => x.ticker === ticker);
+      if (idx >= 0) list[idx] = item;
+      else list.push(item);
+    }
+
+    saveTerminalData(list);
+    resetTerminalForm();
+    renderTerminalTable();
+  }
+
+  function editTerminalItem(ticker) {
+    const list = getTerminalData();
+    const item = list.find(x => x.ticker === ticker);
+    if (!item) return;
+
+    editingTerminalId = ticker;
+    document.getElementById('term-ticker').value = item.ticker;
+    document.getElementById('term-price').value = item.price;
+    document.getElementById('term-lpa').value = item.lpa;
+    document.getElementById('term-vpa').value = item.vpa;
+    document.getElementById('term-payout').value = item.payout;
+    document.getElementById('term-ev-ebit').value = item.evEbit;
+    document.getElementById('term-roic').value = item.roic;
+    document.getElementById('term-roe').value = item.roe;
+    document.getElementById('term-is-financial').checked = !!item.isFinancial;
+
+    autoCalcTerminalDPA();
+    if (!document.getElementById('term-dpa').value) {
+      document.getElementById('term-dpa').value = item.dpa;
+    }
+
+    document.getElementById('terminal-form-title').textContent = `✏️ Editando Ativo [${ticker}]`;
+    document.getElementById('btn-save-terminal').innerHTML = `<span>💾 Salvar Alterações [${ticker}]</span>`;
+    document.getElementById('btn-cancel-edit-terminal').style.display = 'block';
+
+    window.scrollTo({ top: 120, behavior: 'smooth' });
+  }
+
+  function resetTerminalForm() {
+    editingTerminalId = null;
+    document.getElementById('form-terminal').reset();
+    document.getElementById('term-is-financial').checked = false;
+    document.getElementById('terminal-form-title').textContent = `⚡ Cadastrar Novo Ativo no Terminal`;
+    document.getElementById('btn-save-terminal').innerHTML = `<span>+ Adicionar Ativo ao Terminal</span>`;
+    document.getElementById('btn-cancel-edit-terminal').style.display = 'none';
+  }
+
+  function deleteTerminalItem(ticker) {
+    let list = getTerminalData();
+    list = list.filter(x => x.ticker !== ticker);
+    saveTerminalData(list);
+    renderTerminalTable();
+  }
+
+  function exportTerminalJSON() {
+    const list = getTerminalData();
+    const jsonStr = JSON.stringify(list, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `valuation_radar.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function handleImportJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        if (Array.isArray(parsed)) {
+          saveTerminalData(parsed);
+          renderTerminalTable();
+        } else {
+          console.warn('O arquivo JSON não contém um formato de lista válido.');
+        }
+      } catch (err) {
+        console.error('Erro ao ler arquivo JSON:', err);
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
   function addToRadar() {
     const paperName = state.ticker && state.ticker.trim() !== '' ? state.ticker.trim().toUpperCase() : '';
     if (!paperName) {
@@ -2246,7 +2927,6 @@
       return;
     }
     
-    // Captura estado atual
     const item = {
       id: paperName,
       ticker: paperName,
@@ -2270,19 +2950,14 @@
 
     let list = getRadarData();
     const existingIndex = list.findIndex(x => x.ticker === paperName);
-    if (existingIndex >= 0) {
-      list[existingIndex] = item;
-    } else {
-      list.push(item);
-    }
+    if (existingIndex >= 0) list[existingIndex] = item;
+    else list.push(item);
 
-    // Ordenação Automática: Sempre ordenada de forma decrescente pela Margem de Segurança (%)
     list.sort((a, b) => b.margemBazin - a.margemBazin);
 
     saveRadarData(list);
     renderRadarTable();
 
-    // Feedback visual temporário no botão
     const btn = document.querySelector('.btn-add-radar');
     if (btn) {
       const origHTML = btn.innerHTML;
@@ -2300,10 +2975,7 @@
     const badge = document.getElementById('radar-count-badge');
     const list = getRadarData();
 
-    if (badge) {
-      badge.textContent = `${list.length} ${list.length === 1 ? 'papel' : 'papéis'}`;
-    }
-
+    if (badge) badge.textContent = `${list.length} ${list.length === 1 ? 'papel' : 'papéis'}`;
     if (!tbody) return;
 
     if (list.length === 0) {
@@ -2351,7 +3023,6 @@
     const item = list.find(x => x.ticker === ticker);
     if (!item) return;
 
-    // Preenche campos da calculadora
     state.ticker = item.ticker;
     document.getElementById('input-ticker').value = item.ticker;
     document.getElementById('input-graham-ticker').value = item.ticker;
@@ -2378,13 +3049,9 @@
     if (item.lpa) document.getElementById('input-lpa').value = item.lpa;
     if (item.payout) document.getElementById('input-payout').value = item.payout;
 
-    if (item.activeTab && item.activeTab !== state.activeTab) {
-      switchMainTab(item.activeTab);
-    } else {
-      calculate();
-    }
+    if (item.activeTab && item.activeTab !== state.activeTab) switchMainTab(item.activeTab);
+    else calculate();
 
-    // Scroll suave até o topo
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -2411,13 +3078,13 @@
     hideClearRadarModal();
   }
 
-  // Initial setup on window load
   window.onload = function() {
     state.isBank = document.getElementById('input-is-bank').checked;
     state.dpaMode = 'direct';
     toggleBankMode(state.isBank);
     calculate();
     renderRadarTable();
+    renderTerminalTable();
   };
 </script>
 
