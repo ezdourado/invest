@@ -2,28 +2,28 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Calculadora Preço-Teto Bazin · Inteligência de Renda</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 
   :root {
-    --bg:       #0d0f14;
-    --surface:  #13161e;
-    --border:   #1e2330;
-    --muted:    var(--bg);
-    --muted-btn:#2a2f3d;
-    --text:     #c8cdd8;
-    --dim:      #5a6175;
-    --accent:   #4f8ef7;
-    --accent-rgb: 79, 142, 247;
-    --green:    #3ddc97;
-    --yellow:   #f7c948;
-    --red:      #f76f6f;
-    --purple:   #a78bfa;
-    --mono:     'IBM Plex Mono', monospace;
-    --sans:     'IBM Plex Sans', sans-serif;
+    --bg:          #0d0f14;
+    --surface:     #13161e;
+    --border:      #1e2330;
+    --muted:       var(--bg);
+    --muted-btn:   #2a2f3d;
+    --text:        #c8cdd8;
+    --dim:         #5a6175;
+    --accent:      #4f8ef7;
+    --accent-rgb:  79, 142, 247;
+    --green:       #3ddc97;
+    --yellow:      #f7c948;
+    --red:         #f76f6f;
+    --purple:      #a78bfa;
+    --mono:        'IBM Plex Mono', monospace;
+    --sans:        'IBM Plex Sans', sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,15 +34,22 @@
     font-family: var(--sans);
     font-size: 14px;
     line-height: 1.6;
-    padding: 32px 24px 64px;
+    padding: 20px 16px 48px;
+    overflow-x: hidden;
+  }
+
+  @media (min-width: 600px) {
+    body {
+      padding: 32px 24px 64px;
+    }
   }
 
   .container {
     max-width: 1100px;
     margin: 0 auto;
+    width: 100%;
   }
 
-  /* Smooth color transitions between tabs */
   .main-tab-btn, 
   .info-k-badge, 
   .info-k-fixed, 
@@ -62,18 +69,18 @@
 
   /* ── Header ── */
   .header {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 20px;
+    padding-bottom: 16px;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 12px;
   }
   .header-titles {
     flex: 1;
-    min-width: 280px;
+    min-width: 260px;
   }
   .header-label {
     font-family: var(--mono);
@@ -81,16 +88,19 @@
     color: var(--dim);
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .header h1 {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 600;
     color: #e8ecf5;
     letter-spacing: -0.02em;
   }
+  @media (min-width: 600px) {
+    .header h1 { font-size: 26px; }
+  }
   .header-meta {
-    margin-top: 6px;
+    margin-top: 4px;
     font-size: 12px;
     color: var(--dim);
     font-family: var(--mono);
@@ -101,23 +111,29 @@
   .main-tabs {
     display: flex;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 24px;
-    gap: 8px;
-    flex-wrap: wrap;
+    margin-bottom: 20px;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .main-tab-btn {
     background: transparent;
     border: none;
     color: var(--dim);
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    padding: 12px 16px;
+    padding: 10px 14px;
     cursor: pointer;
     position: relative;
     border-radius: 4px 4px 0 0;
+    white-space: nowrap;
+    touch-action: manipulation;
+  }
+  @media (min-width: 600px) {
+    .main-tab-btn { font-size: 12px; padding: 12px 18px; }
   }
   .main-tab-btn:hover {
     color: var(--text);
@@ -142,13 +158,14 @@
     background: rgba(var(--accent-rgb), 0.05);
     border: 1px dashed rgba(var(--accent-rgb), 0.25);
     border-radius: 4px;
-    padding: 12px 16px;
-    margin-bottom: 24px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     font-size: 12px;
     color: #a3b2cc;
+    flex-wrap: wrap;
   }
   .info-k-badge {
     background: var(--accent);
@@ -165,20 +182,21 @@
   }
   .info-k-text {
     flex: 1;
-    min-width: 0;
+    min-width: 220px;
     line-height: 1.5;
   }
 
-  /* ── Interactive Workspace Grid ── */
+  /* ── Workspace Grid ── */
   .workspace-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 20px;
   }
 
-  @media (min-width: 850px) {
+  @media (min-width: 880px) {
     .workspace-grid {
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
     }
   }
 
@@ -187,20 +205,23 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 4px;
-    padding: 24px;
+    padding: 18px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 18px;
+  }
+  @media (min-width: 600px) {
+    .panel { padding: 24px; gap: 20px; }
   }
   .panel-title {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 11px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--dim);
     border-bottom: 1px solid var(--border);
     padding-bottom: 8px;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
   }
 
   .form-group {
@@ -210,8 +231,14 @@
   }
   .form-row-2col {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 480px) {
+    .form-row-2col {
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
   }
   label {
     font-size: 11px;
@@ -221,6 +248,7 @@
     letter-spacing: 0.05em;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
   }
   label span.optional-label {
     text-transform: none;
@@ -246,7 +274,10 @@
     white-space: nowrap;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
+    min-height: 42px;
+    touch-action: manipulation;
   }
   .btn-fetch-quote:hover {
     background: var(--accent);
@@ -299,6 +330,7 @@
     font-size: 15px;
     padding: 10px 12px 10px 36px;
     outline: none;
+    min-height: 42px;
     transition: all 0.2s;
   }
   input[type="text"] {
@@ -327,31 +359,37 @@
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 8px 12px;
+    padding: 8px 6px;
     cursor: pointer;
     border-radius: 3px;
     transition: all 0.2s;
+    min-height: 36px;
+    touch-action: manipulation;
   }
-  .dpa-toggle-btn:hover {
-    color: var(--text);
-  }
+  .dpa-toggle-btn:hover { color: var(--text); }
   .dpa-toggle-btn.active {
     background: var(--muted-btn);
     color: var(--accent);
+    font-weight: 600;
   }
 
-  /* Grid dos 5 anos de DPA ampliado */
+  /* Grid dos 5 anos de DPA */
   .dpa-years-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    gap: 6px;
     margin-top: 4px;
     width: 100%;
+  }
+  @media (max-width: 400px) {
+    .dpa-years-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
   .year-input-box {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     align-items: center;
   }
   .year-label {
@@ -363,8 +401,8 @@
   }
   .input-year-val {
     width: 100% !important;
-    padding: 10px 8px !important;
-    font-size: 14px !important;
+    padding: 8px 4px !important;
+    font-size: 13px !important;
     text-align: center;
     background: var(--bg);
     border: 1px solid var(--border);
@@ -372,6 +410,7 @@
     color: #e8ecf5;
     font-family: var(--mono);
     outline: none;
+    min-height: 38px;
   }
   .input-year-val:focus {
     border-color: var(--accent);
@@ -383,9 +422,10 @@
     color: var(--dim);
     background: rgba(var(--accent-rgb), 0.05);
     border: 1px dashed rgba(var(--accent-rgb), 0.2);
-    padding: 6px 12px;
+    padding: 8px 12px;
     border-radius: 3px;
     display: inline-block;
+    width: 100%;
   }
   .calc-avg-badge span {
     color: var(--accent);
@@ -402,6 +442,7 @@
     border-radius: 3px;
     padding: 12px;
     cursor: pointer;
+    min-height: 42px;
     transition: background 0.2s, border-color 0.2s;
   }
   .checkbox-group:hover {
@@ -422,10 +463,11 @@
     user-select: none;
   }
   .checkbox-label input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     accent-color: var(--accent);
     cursor: pointer;
+    flex-shrink: 0;
   }
 
   /* Slider Styling */
@@ -436,7 +478,7 @@
   }
   .slider-val-badge {
     font-family: var(--mono);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--accent);
   }
@@ -448,29 +490,30 @@
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 4px;
-    border-radius: 2px;
+    height: 6px;
+    border-radius: 3px;
     outline: none;
     cursor: pointer;
     background: var(--muted);
+    touch-action: manipulation;
   }
   input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: var(--accent);
     border: 3px solid var(--bg);
     box-shadow: 0 0 0 1px var(--accent);
     transition: transform 0.1s;
   }
-  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
   .slider-ticks {
     display: flex;
     justify-content: space-between;
-    margin-top: 4px;
+    margin-top: 6px;
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: 9px;
     color: var(--dim);
   }
 
@@ -486,21 +529,27 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 4px;
-    padding: 24px;
+    padding: 18px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    position: sticky;
-    top: 20px;
+    gap: 16px;
+  }
+  @media (min-width: 600px) {
+    .result-panel {
+      padding: 24px;
+      gap: 20px;
+      position: sticky;
+      top: 20px;
+    }
   }
 
   /* Farol Status Banner */
   .farol-banner {
     border-radius: 4px;
-    padding: 16px;
+    padding: 14px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     border-left: 4px solid var(--border);
     transition: all 0.3s ease;
   }
@@ -518,14 +567,14 @@
   }
 
   .farol-indicator {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
     position: relative;
   }
   .farol-indicator::after {
@@ -560,10 +609,13 @@
     letter-spacing: 0.1em;
   }
   .farol-title {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: #e8ecf5;
     letter-spacing: -0.01em;
+  }
+  @media (min-width: 600px) {
+    .farol-title { font-size: 18px; }
   }
 
   /* Add to Radar Button */
@@ -574,7 +626,7 @@
     font-family: var(--mono);
     font-size: 12px;
     font-weight: 700;
-    padding: 10px 16px;
+    padding: 12px 16px;
     border-radius: 4px;
     cursor: pointer;
     display: flex;
@@ -582,6 +634,8 @@
     justify-content: center;
     gap: 8px;
     width: 100%;
+    min-height: 44px;
+    touch-action: manipulation;
     transition: all 0.2s ease;
   }
   .btn-add-radar:hover {
@@ -594,18 +648,18 @@
   .calc-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 10px;
   }
   .calc-card {
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 3px;
-    padding: 14px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
   }
   .calc-label {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--dim);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -614,51 +668,16 @@
   }
   .calc-value {
     font-family: var(--mono);
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 600;
     color: #e8ecf5;
   }
-
-  /* Progress slider simulation */
-  .bazin-progress-section {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 14px;
-  }
-  .bazin-progress-top {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--mono);
-    font-size: 11px;
-    margin-bottom: 8px;
-  }
-  .b-label { color: var(--dim); }
-  .b-prices { display: flex; gap: 12px; }
-  .b-teto { font-weight: 600; }
-  .progress-track {
-    height: 6px;
-    background: var(--muted);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    width: 0%;
-    border-radius: 3px;
-    transition: width 0.35s ease, background-color 0.25s ease;
-  }
-  .progress-footer {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--dim);
-    margin-top: 6px;
+  @media (min-width: 600px) {
+    .calc-value { font-size: 20px; }
   }
 
-  /* Copy Summary Tool Box */
-  .summary-copy-box {
+  /* ── 1. RÉGUA VISUAL MULTI-MARCADORES ── */
+  .ruler-section {
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 4px;
@@ -666,6 +685,182 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+  }
+  .ruler-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .ruler-header span.title {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .ruler-track-wrap {
+    position: relative;
+    height: 38px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin: 6px 0 2px;
+    padding: 0 12px;
+  }
+  .ruler-track-line {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    right: 12px;
+    height: 4px;
+    background: #1e2330;
+    border-radius: 2px;
+    transform: translateY(-50%);
+  }
+  .ruler-pin {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: left 0.35s ease;
+    z-index: 2;
+  }
+  .ruler-pin-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 6px rgba(0,0,0,0.6);
+  }
+  .ruler-pin-price .ruler-pin-dot { background: var(--green); }
+  .ruler-pin-teto .ruler-pin-dot { background: var(--accent); }
+  .ruler-pin-graham .ruler-pin-dot { background: var(--purple); }
+
+  .ruler-legend-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 2px;
+  }
+  @media (max-width: 480px) {
+    .ruler-legend-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .ruler-legend-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ruler-legend-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--dim);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .ruler-legend-val {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: #e8ecf5;
+  }
+
+  /* ── 2. MATRIZ DE SENSIBILIDADE DE PREÇO-TETO (YIELD LADDER) ── */
+  .ladder-section {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ladder-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--dim);
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .ladder-title span.badge-k {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .ladder-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ladder-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .ladder-table th {
+    text-align: left;
+    padding: 6px 8px;
+    color: var(--dim);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  .ladder-table td {
+    padding: 7px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    vertical-align: middle;
+  }
+  .ladder-table tr.yield-row-bazin {
+    background: rgba(79, 142, 247, 0.08);
+    border-left: 3px solid var(--accent);
+  }
+  .td-yield-label {
+    color: #e8ecf5;
+    font-weight: 500;
+  }
+  .td-yield-val {
+    font-weight: 600;
+    color: #e8ecf5;
+  }
+  .td-yield-margin {
+    font-weight: 600;
+  }
+  .ladder-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-weight: 600;
+    display: inline-block;
+  }
+  .badge-green { background: rgba(61, 220, 151, 0.15); color: var(--green); }
+  .badge-yellow { background: rgba(247, 201, 72, 0.15); color: var(--yellow); }
+  .badge-red { background: rgba(247, 111, 111, 0.15); color: var(--red); }
+  .badge-neutral { background: rgba(255, 255, 255, 0.05); color: var(--dim); }
+
+  /* Copy Summary Tool Box */
+  .summary-copy-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
   .summary-copy-header {
     display: flex;
@@ -679,12 +874,14 @@
     font-family: var(--mono);
     font-size: 11px;
     font-weight: 700;
-    padding: 6px 14px;
+    padding: 6px 12px;
     border-radius: 3px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
+    min-height: 36px;
+    touch-action: manipulation;
   }
   .btn-copy:hover {
     filter: brightness(1.1);
@@ -697,7 +894,7 @@
     color: #a3b2cc;
     font-family: var(--mono);
     font-size: 11px;
-    padding: 10px;
+    padding: 8px;
     resize: vertical;
     outline: none;
     line-height: 1.5;
@@ -707,39 +904,46 @@
   }
   .copy-toast {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 10px;
     color: var(--green);
     text-align: right;
   }
 
   /* ── Radar de Oportunidades (Watchlist Section) ── */
   .radar-section {
-    margin-top: 36px;
+    margin-top: 28px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 4px;
-    padding: 24px;
+    padding: 18px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
+  }
+  @media (min-width: 600px) {
+    .radar-section {
+      padding: 24px;
+      gap: 16px;
+      margin-top: 36px;
+    }
   }
   .radar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 12px;
+    padding-bottom: 10px;
   }
   .radar-header-titles {
     display: flex;
-    align-items: baseline;
-    gap: 10px;
+    align-items: center;
+    gap: 8px;
   }
   .radar-title {
     font-family: var(--mono);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: #e8ecf5;
     letter-spacing: 0.05em;
@@ -747,7 +951,7 @@
   }
   .radar-count-badge {
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 10px;
     background: rgba(79, 142, 247, 0.12);
     color: var(--accent);
     padding: 2px 8px;
@@ -763,6 +967,7 @@
     padding: 6px 12px;
     border-radius: 3px;
     cursor: pointer;
+    touch-action: manipulation;
   }
   .btn-clear-radar:hover {
     border-color: var(--red);
@@ -772,22 +977,23 @@
 
   .radar-table-wrap {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .radar-table {
     width: 100%;
     border-collapse: collapse;
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 11px;
+    white-space: nowrap;
   }
   .radar-table thead th {
     text-align: left;
-    padding: 10px 12px;
+    padding: 8px 10px;
     color: var(--dim);
-    font-size: 10px;
+    font-size: 9px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     border-bottom: 1px solid var(--border);
-    white-space: nowrap;
   }
   .radar-table tbody tr {
     border-bottom: 1px solid var(--border);
@@ -798,23 +1004,22 @@
     background: rgba(255, 255, 255, 0.025);
   }
   .radar-table tbody td {
-    padding: 12px;
+    padding: 10px;
     vertical-align: middle;
-    white-space: nowrap;
   }
   .td-ticker-badge {
     color: #e8ecf5;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
   }
   .radar-status-badge {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
-    padding: 3px 8px;
+    padding: 2px 6px;
     border-radius: 2px;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     text-transform: uppercase;
   }
   .radar-status-badge.status-compra {
@@ -845,9 +1050,10 @@
     font-family: var(--mono);
     font-size: 10px;
     font-weight: 600;
-    padding: 4px 10px;
+    padding: 4px 8px;
     border-radius: 2px;
     cursor: pointer;
+    touch-action: manipulation;
   }
   .btn-action-load:hover {
     background: var(--accent);
@@ -857,10 +1063,11 @@
     background: transparent;
     border: 1px solid var(--border);
     color: var(--dim);
-    font-size: 12px;
-    padding: 3px 8px;
+    font-size: 11px;
+    padding: 3px 6px;
     border-radius: 2px;
     cursor: pointer;
+    touch-action: manipulation;
   }
   .btn-action-delete:hover {
     border-color: var(--red);
@@ -869,14 +1076,14 @@
   }
 
   .radar-empty-state {
-    padding: 32px 16px;
+    padding: 24px 12px;
     text-align: center;
     color: var(--dim);
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 11px;
   }
 
-  /* ── Custom Modal Overlay (No alert/confirm) ── */
+  /* Custom Confirmation Modal Overlay */
   .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -889,6 +1096,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
+    padding: 16px;
   }
   .modal-overlay.active {
     opacity: 1;
@@ -898,12 +1106,12 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: 24px;
-    width: 90%;
-    max-width: 420px;
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
   .modal-title {
@@ -915,15 +1123,15 @@
     letter-spacing: 0.05em;
   }
   .modal-body {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text);
     line-height: 1.5;
   }
   .modal-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-top: 8px;
+    gap: 8px;
+    margin-top: 4px;
   }
   .btn-modal-cancel {
     background: transparent;
@@ -931,13 +1139,11 @@
     color: var(--text);
     font-family: var(--mono);
     font-size: 11px;
-    padding: 8px 14px;
+    padding: 8px 12px;
     border-radius: 3px;
     cursor: pointer;
   }
-  .btn-modal-cancel:hover {
-    background: var(--muted-btn);
-  }
+  .btn-modal-cancel:hover { background: var(--muted-btn); }
   .btn-modal-confirm {
     background: var(--red);
     border: none;
@@ -945,42 +1151,39 @@
     font-family: var(--mono);
     font-size: 11px;
     font-weight: 700;
-    padding: 8px 14px;
+    padding: 8px 12px;
     border-radius: 3px;
     cursor: pointer;
   }
-  .btn-modal-confirm:hover {
-    filter: brightness(1.15);
-  }
+  .btn-modal-confirm:hover { filter: brightness(1.15); }
 
-  /* ── Info Footer ── */
+  /* Info Footer */
   .info-footer {
-    margin-top: 36px;
-    padding: 20px;
+    margin-top: 28px;
+    padding: 16px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--dim);
-    line-height: 1.7;
+    line-height: 1.6;
+  }
+  @media (min-width: 600px) {
+    .info-footer { padding: 20px; font-size: 12px; line-height: 1.7; margin-top: 36px; }
   }
   .info-footer h3 {
     font-family: var(--mono);
     color: var(--text);
-    font-size: 13px;
-    margin-bottom: 10px;
+    font-size: 12px;
+    margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
-  .info-footer p {
-    margin-bottom: 8px;
-  }
-  .info-footer p:last-child {
-    margin-bottom: 0;
-  }
-  .info-footer strong {
-    color: var(--text);
-  }
+  .info-footer p { margin-bottom: 8px; }
+  .info-footer p:last-child { margin-bottom: 0; }
+  .info-footer strong { color: var(--text); }
+  .info-footer ul { padding-left: 14px; }
+  .info-footer li { margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -1019,7 +1222,7 @@
     <div class="panel">
       
       <!-- TAB 1: BAZIN CLASSIC INPUTS -->
-      <div id="inputs-tab-bazin" style="display: flex; flex-direction: column; gap: 20px;">
+      <div id="inputs-tab-bazin" style="display: flex; flex-direction: column; gap: 18px;">
         <div class="panel-title">Parâmetros de Avaliação (Bazin)</div>
 
         <!-- Ticker com Botão da API Brapi -->
@@ -1048,7 +1251,7 @@
           <label>Forma de Entrada de Proventos (DPA)</label>
           <div class="dpa-toggle-group">
             <button type="button" class="dpa-toggle-btn active" id="toggle-dpa-direct" onclick="setDpaMode('direct')">DPA Consolidado Único</button>
-            <button type="button" class="dpa-toggle-btn" id="toggle-dpa-years" onclick="setDpaMode('years')">Média de 5 Anos de DPA</button>
+            <button type="button" class="dpa-toggle-btn" id="toggle-dpa-years" onclick="setDpaMode('years')">Média 5 Anos DPA</button>
           </div>
         </div>
 
@@ -1139,7 +1342,7 @@
       </div>
 
       <!-- TAB 2: GRAHAM + BAZIN INTEGRATION INPUTS -->
-      <div id="inputs-tab-graham" style="display: none; flex-direction: column; gap: 20px;">
+      <div id="inputs-tab-graham" style="display: none; flex-direction: column; gap: 18px;">
         <div class="panel-title">Parâmetros de Avaliação (Graham + Bazin)</div>
 
         <!-- Campo Ticker no Graham -->
@@ -1232,7 +1435,7 @@
       </div>
 
       <!-- METRICS GRID TAB 2: GRAHAM -->
-      <div id="grid-metrics-graham" class="calc-grid" style="display: none; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div id="grid-metrics-graham" class="calc-grid" style="display: none; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div class="calc-card">
           <span class="calc-label">V. Intrínseco (Graham)</span>
           <span class="calc-value" id="res-graham-vi">R$ 0,00</span>
@@ -1259,33 +1462,82 @@
         </div>
       </div>
 
-      <!-- Visual progress representation -->
-      <div class="bazin-progress-section">
-        <div class="bazin-progress-top">
-          <span class="b-label" id="pb-current-title">Status da Cotação</span>
-          <div class="b-prices">
-            <span class="b-current" id="pb-current-lbl">Cotação: R$ 0,00</span>
+      <!-- ── 1. RÉGUA VISUAL MULTI-MARCADORES (BARRA COMPARATIVA UNIFICADA) ── -->
+      <div class="ruler-section">
+        <div class="ruler-header">
+          <span class="title">📍 Régua Comparativa de Preços</span>
+          <span>Escala Relativa</span>
+        </div>
+        
+        <div class="ruler-track-wrap">
+          <div class="ruler-track-line"></div>
+          
+          <!-- Marker 1: Cotação Atual -->
+          <div class="ruler-pin ruler-pin-price" id="ruler-pin-price" style="left: 50%; display: none;" title="Cotação Atual">
+            <div class="ruler-pin-dot"></div>
+          </div>
+          
+          <!-- Marker 2: Preço-Teto Bazin -->
+          <div class="ruler-pin ruler-pin-teto" id="ruler-pin-teto" style="left: 50%; display: none;" title="Preço-Teto Bazin (6%)">
+            <div class="ruler-pin-dot"></div>
+          </div>
+          
+          <!-- Marker 3: Valor Intrínseco de Graham -->
+          <div class="ruler-pin ruler-pin-graham" id="ruler-pin-graham" style="left: 50%; display: none;" title="Valor Intrínseco Graham">
+            <div class="ruler-pin-dot"></div>
           </div>
         </div>
-        <div class="progress-track">
-          <div class="progress-fill" id="pb-fill"></div>
+
+        <!-- Ruler Legend Cards -->
+        <div class="ruler-legend-grid">
+          <div class="ruler-legend-item">
+            <span class="ruler-legend-label">🟢 Cotação Atual</span>
+            <span class="ruler-legend-val" id="ruler-val-price">R$ 0,00</span>
+          </div>
+          <div class="ruler-legend-item">
+            <span class="ruler-legend-label">🔹 Preço-Teto Bazin</span>
+            <span class="ruler-legend-val" id="ruler-val-teto">R$ 0,00</span>
+          </div>
+          <div class="ruler-legend-item">
+            <span class="ruler-legend-label">🟣 VI Graham</span>
+            <span class="ruler-legend-val" id="ruler-val-graham">N/A</span>
+          </div>
         </div>
-        <div class="progress-footer">
-          <span>R$ 0,00</span>
-          <span id="pb-margin-lbl" style="font-weight: 600;">Margem: 0,0%</span>
-          <span id="pb-teto-lbl">Teto: R$ 0,00</span>
+      </div>
+
+      <!-- ── 2. MATRIZ DE SENSIBILIDADE DE PREÇO-TETO (YIELD LADDER 6% A 10%) ── -->
+      <div class="ladder-section">
+        <div class="ladder-title">
+          <span>📊 Matriz de Sensibilidade (Yield Ladder)</span>
+          <span class="badge-k">DPA / Y%</span>
+        </div>
+        
+        <div class="ladder-table-wrap">
+          <table class="ladder-table">
+            <thead>
+              <tr>
+                <th>Yield Alvo</th>
+                <th>Preço-Teto</th>
+                <th>Margem (%)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="yield-ladder-tbody">
+              <!-- Renderizado via JavaScript -->
+            </tbody>
+          </table>
         </div>
       </div>
 
       <!-- Copy Summary Tool -->
       <div class="summary-copy-box">
         <div class="summary-copy-header">
-          <span class="calc-label" style="margin-bottom:0; color:var(--text);">Resumo Executivo (Copiar & Colar)</span>
+          <span class="calc-label" style="margin-bottom:0; color:var(--text);">Resumo Executivo (WhatsApp)</span>
           <button type="button" class="btn-copy" id="btn-copy-summary" onclick="copySummaryText()">
-            <span id="copy-btn-icon">📋</span> <span id="copy-btn-text">Copiar Resumo</span>
+            <span id="copy-btn-icon">📋</span> <span id="copy-btn-text">Copiar</span>
           </button>
         </div>
-        <textarea id="summary-textarea" readonly rows="6" class="summary-textarea">Insira os dados da ação para gerar o resumo...</textarea>
+        <textarea id="summary-textarea" readonly rows="5" class="summary-textarea">Insira os dados da ação para gerar o resumo...</textarea>
         <div id="copy-toast" class="copy-toast" style="display:none;">✓ Resumo copiado para a área de transferência!</div>
       </div>
 
@@ -1371,6 +1623,7 @@
     // Current analysis outcome
     tetoBazin: 0,
     margemBazin: 0,
+    viGraham: 0,
     farolStatus: 'neutro',
     farolTitle: 'AGUARDANDO DADOS'
   };
@@ -1491,7 +1744,7 @@
     }
   }
 
-  // Sincronizar o Nome do Papel (Ticker) entre as abas
+  // Synchronize stock inputs across both tabs
   function onTickerInput(val) {
     state.ticker = val;
     document.getElementById('input-ticker').value = val;
@@ -1499,7 +1752,6 @@
     calculate();
   }
 
-  // Synchronize stock prices across both tabs
   function onPriceInput(val) {
     state.price = parseFloat(val) || 0;
     document.getElementById('input-price').value = val;
@@ -1510,13 +1762,11 @@
     onPriceInput(val);
   }
 
-  // Direct DPA Input handler (Tab 1)
   function onDpaDirectInput(val) {
     state.dpa = parseFloat(val) || 0;
     calculate();
   }
 
-  // Graham Profit & Payout Input handler (Tab 2)
   function onGrahamProfitInput() {
     const lpa = parseFloat(document.getElementById('input-lpa').value) || 0;
     const payout = parseFloat(document.getElementById('input-payout').value) || 0;
@@ -1549,7 +1799,7 @@
       root.style.setProperty('--accent', '#4f8ef7'); // Azul Bazin
       root.style.setProperty('--accent-rgb', '79, 142, 247');
       if (badgeEl) badgeEl.textContent = 'K = 6.0% de Bazin';
-      if (infoTextEl) infoTextEl.innerHTML = 'Esta ferramenta utiliza a taxa de desconto imutável de <strong>6,0% ao ano</strong> established pelo método clássico de Décio Bazin para garantir a margem de retorno em dividendos.';
+      if (infoTextEl) infoTextEl.innerHTML = 'Esta ferramenta utiliza a taxa de desconto imutável de <strong>6,0% ao ano</strong> estabelecida pelo método clássico de Décio Bazin para garantir a margem de retorno em dividendos.';
     } else {
       root.style.setProperty('--accent', '#a78bfa'); // Roxo Graham
       root.style.setProperty('--accent-rgb', '167, 139, 250');
@@ -1612,6 +1862,108 @@
     }
 
     calculate();
+  }
+
+  // ── ATUALIZAR RÉGUA VISUAL MULTI-MARCADORES ──
+  function updateMultiMarkerRuler(price, tetoBazin, viGraham = 0) {
+    const pinPrice = document.getElementById('ruler-pin-price');
+    const pinTeto = document.getElementById('ruler-pin-teto');
+    const pinGraham = document.getElementById('ruler-pin-graham');
+
+    const lblPrice = document.getElementById('ruler-val-price');
+    const lblTeto = document.getElementById('ruler-val-teto');
+    const lblGraham = document.getElementById('ruler-val-graham');
+
+    lblPrice.textContent = price > 0 ? fmtReal(price) : 'R$ 0,00';
+    lblTeto.textContent = tetoBazin > 0 ? fmtReal(tetoBazin) : 'R$ 0,00';
+    lblGraham.textContent = viGraham > 0 ? fmtReal(viGraham) : 'N/A';
+
+    const validVals = [price, tetoBazin, viGraham].filter(v => v > 0);
+    if (validVals.length === 0) {
+      if (pinPrice) pinPrice.style.display = 'none';
+      if (pinTeto) pinTeto.style.display = 'none';
+      if (pinGraham) pinGraham.style.display = 'none';
+      return;
+    }
+
+    const maxVal = Math.max(...validVals) * 1.15;
+
+    if (price > 0 && pinPrice) {
+      pinPrice.style.display = 'flex';
+      const pctP = Math.min(95, Math.max(5, (price / maxVal) * 100));
+      pinPrice.style.left = pctP.toFixed(1) + '%';
+    } else if (pinPrice) {
+      pinPrice.style.display = 'none';
+    }
+
+    if (tetoBazin > 0 && pinTeto) {
+      pinTeto.style.display = 'flex';
+      const pctT = Math.min(95, Math.max(5, (tetoBazin / maxVal) * 100));
+      pinTeto.style.left = pctT.toFixed(1) + '%';
+    } else if (pinTeto) {
+      pinTeto.style.display = 'none';
+    }
+
+    if (viGraham > 0 && pinGraham) {
+      pinGraham.style.display = 'flex';
+      const pctG = Math.min(95, Math.max(5, (viGraham / maxVal) * 100));
+      pinGraham.style.left = pctG.toFixed(1) + '%';
+    } else if (pinGraham) {
+      pinGraham.style.display = 'none';
+    }
+  }
+
+  // ── ATUALIZAR MATRIZ DE SENSIBILIDADE (YIELD LADDER) ──
+  function updateYieldLadder(price, dpa) {
+    const tbody = document.getElementById('yield-ladder-tbody');
+    if (!tbody) return;
+
+    if (!dpa || dpa <= 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" style="text-align: center; color: var(--dim); padding: 10px; font-size: 10px;">
+            Preencha o DPA para visualizar a Matriz de Sensibilidade.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    const yieldTargets = [
+      { rate: 6.0, label: '6,0% (Bazin Clássico)', isBazin: true },
+      { rate: 7.0, label: '7,0% (Conservador)', isBazin: false },
+      { rate: 8.0, label: '8,0% (Exigente)', isBazin: false },
+      { rate: 9.0, label: '9,0% (Cíclicas / Risco)', isBazin: false },
+      { rate: 10.0, label: '10,0% (Margem Extrema)', isBazin: false }
+    ];
+
+    tbody.innerHTML = yieldTargets.map(y => {
+      const teto = dpa / (y.rate / 100);
+      const margem = price > 0 ? (((teto - price) / teto) * 100) : 0;
+      const margemColor = margem >= 0 ? 'var(--green)' : 'var(--red)';
+
+      let badge = '';
+      if (price <= 0) {
+        badge = `<span class="ladder-badge badge-neutral">-</span>`;
+      } else if (price <= teto) {
+        badge = `<span class="ladder-badge badge-green">🟢 Desconto</span>`;
+      } else if (price <= teto * 1.05) {
+        badge = `<span class="ladder-badge badge-yellow">🟡 Limite</span>`;
+      } else {
+        badge = `<span class="ladder-badge badge-red">🔴 Ágio</span>`;
+      }
+
+      const rowClass = y.isBazin ? 'yield-row-bazin' : '';
+
+      return `
+        <tr class="${rowClass}">
+          <td class="td-yield-label">${y.label}</td>
+          <td class="td-yield-val">${fmtReal(teto)}</td>
+          <td class="td-yield-margin" style="color: ${price > 0 ? margemColor : 'var(--text)'};">${price > 0 ? fmtPct(margem) : '---'}</td>
+          <td>${badge}</td>
+        </tr>
+      `;
+    }).join('');
   }
 
   function calculate() {
@@ -1680,6 +2032,7 @@
     state.price = price;
     state.tetoBazin = precoTeto;
     state.margemBazin = margemSeguranca;
+    state.viGraham = 0;
 
     document.getElementById('res-teto').textContent = fmtReal(precoTeto);
     document.getElementById('res-margem').textContent = fmtPct(margemSeguranca);
@@ -1693,7 +2046,9 @@
       resMargemElement.style.color = 'var(--red)';
     }
 
-    updateProgressBar(price, precoTeto, margemSeguranca);
+    // Atualiza a Régua Visual e a Matriz de Sensibilidade
+    updateMultiMarkerRuler(price, precoTeto, 0);
+    updateYieldLadder(price, dpa);
 
     // Farol de Decisão
     const levOk = state.isBank || state.debtEbitda <= 2.5;
@@ -1753,6 +2108,7 @@
     state.price = price;
     state.tetoBazin = precoTetoBazin;
     state.margemBazin = margemBazin;
+    state.viGraham = vi;
 
     // UI Updates
     document.getElementById('graham-implicit-dpa').textContent = fmtReal(dpaImplicit);
@@ -1772,7 +2128,9 @@
       resGrahamMargemEl.style.color = 'var(--red)';
     }
 
-    updateProgressBar(price, vi, margemGraham, 'V.I. Graham');
+    // Atualiza a Régua Visual e a Matriz de Sensibilidade
+    updateMultiMarkerRuler(price, precoTetoBazin, vi);
+    updateYieldLadder(price, dpaImplicit);
 
     // Farol Logic
     let status = 'neutro';
@@ -1796,30 +2154,6 @@
     generateSummaryText(price, dpaImplicit, precoTetoBazin, margemBazin, status, statusTitle, vi, margemGraham);
   }
 
-  function updateProgressBar(price, teto, margem, tetoLabel = 'Teto') {
-    document.getElementById('pb-current-lbl').textContent = `Cotação: ${fmtReal(price)}`;
-    document.getElementById('pb-teto-lbl').textContent = `${tetoLabel}: ${fmtReal(teto)}`;
-    
-    const marginText = margem >= 0 ? `Margem: ${fmtPct(margem)}` : `Ágio: ${fmtPct(Math.abs(margem))}`;
-    document.getElementById('pb-margin-lbl').textContent = marginText;
-
-    const pbFill = document.getElementById('pb-fill');
-    let ratio = teto > 0 ? (price / teto) * 100 : 100;
-    const percentFill = Math.min(100, Math.max(0, ratio));
-    pbFill.style.width = percentFill + '%';
-
-    if (price <= teto && price > 0) {
-      pbFill.style.backgroundColor = 'var(--green)';
-      document.getElementById('pb-margin-lbl').style.color = 'var(--green)';
-    } else if (price <= teto * 1.1 && price > 0) {
-      pbFill.style.backgroundColor = 'var(--yellow)';
-      document.getElementById('pb-margin-lbl').style.color = 'var(--yellow)';
-    } else {
-      pbFill.style.backgroundColor = 'var(--red)';
-      document.getElementById('pb-margin-lbl').style.color = 'var(--red)';
-    }
-  }
-
   function setFarolBanner(status, title) {
     const banner = document.getElementById('farol-banner');
     banner.className = `farol-banner status-${status}`;
@@ -1838,12 +2172,10 @@
     document.getElementById('res-graham-bazin-margem').textContent = '0,0%';
     document.getElementById('res-graham-margem').textContent = '0,0%';
     document.getElementById('res-graham-conv').textContent = '0,0%';
-    document.getElementById('pb-current-lbl').textContent = 'Cotação: R$ 0,00';
-    document.getElementById('pb-teto-lbl').textContent = 'Teto: R$ 0,00';
-    document.getElementById('pb-margin-lbl').textContent = 'Margem: 0,0%';
-    document.getElementById('pb-margin-lbl').style.color = 'var(--dim)';
-    document.getElementById('pb-fill').style.width = '0%';
-    document.getElementById('pb-fill').style.backgroundColor = 'var(--muted)';
+    
+    updateMultiMarkerRuler(0, 0, 0);
+    updateYieldLadder(0, 0);
+    
     document.getElementById('summary-textarea').value = 'Insira os dados da ação para gerar o resumo...';
   }
 
@@ -1901,7 +2233,7 @@
     
     setTimeout(() => {
       btnIcon.textContent = '📋';
-      btnText.textContent = 'Copiar Resumo';
+      btnText.textContent = 'Copiar';
       toast.style.display = 'none';
     }, 2500);
   }
@@ -1922,6 +2254,7 @@
       dpa: state.dpa,
       tetoBazin: state.tetoBazin,
       margemBazin: state.margemBazin,
+      viGraham: state.viGraham,
       farolStatus: state.farolStatus,
       farolTitle: state.farolTitle,
       isBank: state.isBank,
