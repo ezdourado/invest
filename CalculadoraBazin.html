@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadora Preço-Teto Bazin</title>
+<title>Calculadora Preço-Teto Bazin · Inteligência de Renda</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
@@ -21,6 +21,7 @@
     --green:    #3ddc97;
     --yellow:   #f7c948;
     --red:      #f76f6f;
+    --purple:   #a78bfa;
     --mono:     'IBM Plex Mono', monospace;
     --sans:     'IBM Plex Sans', sans-serif;
   }
@@ -41,7 +42,7 @@
     margin: 0 auto;
   }
 
-  /* Transição suave de cores para transicionar entre os temas Azul e Roxo */
+  /* Smooth color transitions between tabs */
   .main-tab-btn, 
   .info-k-badge, 
   .info-k-fixed, 
@@ -52,7 +53,8 @@
   .slider-val-badge, 
   .analysis-section-title, 
   .header-meta span,
-  .btn-fetch {
+  .btn-copy,
+  .btn-fetch-quote {
     transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
   }
 
@@ -99,6 +101,7 @@
     border-bottom: 1px solid var(--border);
     margin-bottom: 24px;
     gap: 8px;
+    flex-wrap: wrap;
   }
   .main-tab-btn {
     background: transparent;
@@ -132,7 +135,7 @@
     background: var(--accent);
   }
 
-  /* ── Info Box: K Fixo ── */
+  /* ── Info Box: Header Fixed ── */
   .info-k-fixed {
     background: rgba(var(--accent-rgb), 0.05);
     border: 1px dashed rgba(var(--accent-rgb), 0.25);
@@ -141,7 +144,7 @@
     margin-bottom: 24px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     font-size: 12px;
     color: #a3b2cc;
   }
@@ -150,11 +153,18 @@
     color: #0d0f14;
     font-family: var(--mono);
     font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 2px;
+    padding: 4px 10px;
+    border-radius: 3px;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .info-k-text {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.5;
   }
 
   /* ── Interactive Workspace Grid ── */
@@ -191,71 +201,6 @@
     margin-bottom: 4px;
   }
 
-  /* ── Ticker Search Bar (Brapi API) ── */
-  .ticker-search-box {
-    background: rgba(var(--accent-rgb), 0.03);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 14px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .ticker-input-wrap {
-    display: flex;
-    gap: 10px;
-  }
-  .ticker-input-wrap input {
-    flex: 1;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .btn-fetch {
-    background: var(--accent);
-    color: #0d0f14;
-    border: none;
-    border-radius: 3px;
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 0 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    white-space: nowrap;
-  }
-  .btn-fetch:hover {
-    filter: brightness(1.1);
-  }
-  .btn-fetch:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  .ticker-status-msg {
-    font-family: var(--mono);
-    font-size: 11px;
-    line-height: 1.4;
-  }
-  .status-success { color: var(--green); }
-  .status-error { color: var(--red); }
-  .status-loading { color: var(--yellow); }
-
-  /* CSS Spinner */
-  .spinner {
-    width: 13px;
-    height: 13px;
-    border: 2px solid rgba(13, 15, 20, 0.3);
-    border-top-color: #0d0f14;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
   .form-group {
     display: flex;
     flex-direction: column;
@@ -280,6 +225,56 @@
     color: var(--dim);
     font-style: italic;
   }
+
+  /* Ticker Input with Brapi Quote Fetch Button */
+  .ticker-fetch-wrap {
+    display: flex;
+    gap: 8px;
+  }
+  .btn-fetch-quote {
+    background: rgba(var(--accent-rgb), 0.12);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-fetch-quote:hover {
+    background: var(--accent);
+    color: #0d0f14;
+  }
+  .btn-fetch-quote:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .fetch-quote-status {
+    font-family: var(--mono);
+    font-size: 10px;
+    margin-top: 2px;
+  }
+  .fetch-quote-status.success { color: var(--green); }
+  .fetch-quote-status.error { color: var(--red); }
+  .fetch-quote-status.loading { color: var(--yellow); }
+
+  .spinner-sm {
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
   .input-with-symbol {
     position: relative;
     display: flex;
@@ -384,14 +379,14 @@
     font-family: var(--mono);
     font-size: 11px;
     color: var(--dim);
-    background: rgba(61, 220, 151, 0.05);
-    border: 1px dashed rgba(61, 220, 151, 0.15);
-    padding: 6px 10px;
+    background: rgba(var(--accent-rgb), 0.05);
+    border: 1px dashed rgba(var(--accent-rgb), 0.2);
+    padding: 6px 12px;
     border-radius: 3px;
     display: inline-block;
   }
   .calc-avg-badge span {
-    color: var(--green);
+    color: var(--accent);
     font-weight: 600;
   }
 
@@ -477,7 +472,6 @@
     color: var(--dim);
   }
 
-  /* Disabled Visual State for Slider */
   .disabled-panel {
     opacity: 0.3;
     pointer-events: none;
@@ -498,7 +492,7 @@
     top: 20px;
   }
 
-  /* Traffic Light / Farol Status Banner */
+  /* Farol Status Banner */
   .farol-banner {
     border-radius: 4px;
     padding: 16px;
@@ -637,41 +631,62 @@
     margin-top: 6px;
   }
 
-  /* Analysis & Next steps block */
-  .analysis-card {
-    border-top: 1px solid var(--border);
-    padding-top: 16px;
-  }
-  .analysis-section-title {
-    font-family: var(--mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 8px;
-    letter-spacing: 0.05em;
-  }
-  .analysis-text {
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.6;
-    margin-bottom: 16px;
-  }
-  .next-steps-list {
+  /* Copy Summary Tool Box */
+  .summary-copy-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding-left: 14px;
+    gap: 10px;
   }
-  .next-steps-list li {
-    font-size: 12px;
-    color: var(--text);
+  .summary-copy-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .btn-copy {
+    background: var(--accent);
+    color: #0d0f14;
+    border: none;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-copy:hover {
+    filter: brightness(1.1);
+  }
+  .summary-textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: #a3b2cc;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 10px;
+    resize: vertical;
+    outline: none;
     line-height: 1.5;
   }
-  .next-steps-list li strong {
-    color: #e8ecf5;
+  .summary-textarea:focus {
+    border-color: var(--accent);
+  }
+  .copy-toast {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green);
+    text-align: right;
   }
 
-  /* ── Info Footer (Theoretical context) ── */
+  /* ── Info Footer ── */
   .info-footer {
     margin-top: 36px;
     padding: 20px;
@@ -709,9 +724,9 @@
   <div class="header">
     <div class="header-titles">
       <div class="header-label">Ferramenta Satélite de Avaliação</div>
-      <h1>Modelo Bazin · Inteligência de Entrada</h1>
+      <h1>Modelo Bazin · Inteligência de Renda</h1>
       <div class="header-meta">
-        Calculadora Integrada: <span>Preço-Teto, Graham & Alavancagem</span>
+        Calculadora Integrada: <span>Preço-Teto & Graham (K = 6.0%)</span>
       </div>
     </div>
   </div>
@@ -722,10 +737,10 @@
     <button type="button" class="main-tab-btn" id="tab-graham" onclick="switchMainTab('graham')">Integração Graham + Bazin</button>
   </div>
 
-  <!-- ── Info Box: K Fixo ── -->
+  <!-- ── Info Box: Fixed K Rate ── -->
   <div class="info-k-fixed">
-    <div class="info-k-badge">K = 6.0% de Bazin</div>
-    <div>
+    <div class="info-k-badge" id="info-k-badge">K = 6.0% de Bazin</div>
+    <div class="info-k-text" id="info-k-text">
       Esta ferramenta utiliza a taxa de desconto imutável de <strong>6,0% ao ano</strong> estabelecida pelo método clássico de Décio Bazin para garantir a margem de retorno em dividendos.
     </div>
   </div>
@@ -736,22 +751,22 @@
     <!-- LEFT: Inputs panel -->
     <div class="panel">
       
-      <!-- Brapi API Ticker Search Box -->
-      <div class="ticker-search-box">
-        <label for="input-search-ticker">Buscar Cotação em Tempo Real (Brapi API)</label>
-        <div class="ticker-input-wrap">
-          <input type="text" id="input-search-ticker" value="VALE3" placeholder="Ex: PETR4, BBAS3, B3SA3..." onkeydown="if(event.key === 'Enter') handleSearchTicker()">
-          <button type="button" id="btn-fetch" class="btn-fetch" onclick="handleSearchTicker()">
-            <span id="btn-fetch-spinner" class="spinner" style="display: none;"></span>
-            <span id="btn-fetch-text">Buscar Dados</span>
-          </button>
-        </div>
-        <div id="ticker-status-msg" class="ticker-status-msg"></div>
-      </div>
-
       <!-- TAB 1: BAZIN CLASSIC INPUTS -->
       <div id="inputs-tab-bazin" style="display: flex; flex-direction: column; gap: 20px;">
         <div class="panel-title">Parâmetros de Avaliação (Bazin)</div>
+
+        <!-- Campo do Nome do Papel / Ticker com Botão da API Brapi -->
+        <div class="form-group">
+          <label for="input-ticker">Nome / Código do Papel (Ticker) <span class="optional-label">(Ex: BBAS3, VALE3)</span></label>
+          <div class="ticker-fetch-wrap">
+            <input type="text" id="input-ticker" value="VALE3" placeholder="Ex: BBAS3, VALE3, PETR4" oninput="onTickerInput(this.value)" onkeydown="if(event.key==='Enter') fetchBrapiQuote(this.value)">
+            <button type="button" class="btn-fetch-quote" id="btn-fetch-bazin" onclick="fetchBrapiQuote(document.getElementById('input-ticker').value)">
+              <span class="spinner-sm" id="spinner-bazin" style="display:none;"></span>
+              <span id="btn-text-bazin">⚡ Buscar Cotação</span>
+            </button>
+          </div>
+          <div class="fetch-quote-status" id="status-bazin"></div>
+        </div>
 
         <!-- Sector Selector (Setor Bancário Checkbox) -->
         <div class="form-group checkbox-group">
@@ -770,7 +785,7 @@
           </div>
         </div>
 
-        <!-- Full-Width Dynamic DPA Container -->
+        <!-- Dynamic DPA Container -->
         <div class="form-group" id="dpa-input-container">
           
           <!-- Mode A: Single Input -->
@@ -778,13 +793,13 @@
             <label for="input-dpa">DPA 12m (Média R$) <span class="optional-label">(Opcional se DY preenchido)</span></label>
             <div class="input-with-symbol">
               <span class="input-symbol">R$</span>
-              <input type="number" id="input-dpa" value="5.20" step="0.01" min="0" oninput="calculate()">
+              <input type="number" id="input-dpa" value="5.20" step="0.01" min="0" oninput="onDpaDirectInput(this.value)">
             </div>
           </div>
 
-          <!-- Mode B: 5 Years Fields (Larger and Full-Width) -->
+          <!-- Mode B: 5 Years Fields -->
           <div id="dpa-years-wrapper" style="display: none;">
-            <label>Valores Anuais de DPA (R$) <span class="optional-label">(Histórico atemporal)</span></label>
+            <label>Valores Anuais de DPA (R$)</label>
             <div class="dpa-years-grid">
               <div class="year-input-box">
                 <span class="year-label">Ano 1</span>
@@ -860,6 +875,19 @@
       <div id="inputs-tab-graham" style="display: none; flex-direction: column; gap: 20px;">
         <div class="panel-title">Parâmetros de Avaliação (Graham + Bazin)</div>
 
+        <!-- Campo do Nome do Papel / Ticker com Botão da API Brapi -->
+        <div class="form-group">
+          <label for="input-graham-ticker">Nome / Código do Papel (Ticker) <span class="optional-label">(Ex: BBAS3, VALE3)</span></label>
+          <div class="ticker-fetch-wrap">
+            <input type="text" id="input-graham-ticker" value="VALE3" placeholder="Ex: BBAS3, VALE3, PETR4" oninput="onTickerInput(this.value)" onkeydown="if(event.key==='Enter') fetchBrapiQuote(this.value)">
+            <button type="button" class="btn-fetch-quote" id="btn-fetch-graham" onclick="fetchBrapiQuote(document.getElementById('input-graham-ticker').value)">
+              <span class="spinner-sm" id="spinner-graham" style="display:none;"></span>
+              <span id="btn-text-graham">⚡ Buscar Cotação</span>
+            </button>
+          </div>
+          <div class="fetch-quote-status" id="status-graham"></div>
+        </div>
+
         <!-- VPA and LPA inputs -->
         <div class="form-row-2col">
           <div class="form-group">
@@ -874,7 +902,7 @@
             <label for="input-lpa">LPA <span class="optional-label">(Lucro Líquido por Ação)</span></label>
             <div class="input-with-symbol">
               <span class="input-symbol">R$</span>
-              <input type="number" id="input-lpa" value="4.50" step="0.01" oninput="calculate()">
+              <input type="number" id="input-lpa" value="4.50" step="0.01" oninput="onGrahamProfitInput()">
             </div>
           </div>
         </div>
@@ -885,7 +913,7 @@
             <label for="input-payout">Payout Estimado (%)</label>
             <div class="input-with-symbol">
               <span class="input-symbol">%</span>
-              <input type="number" id="input-payout" value="60.0" step="0.5" min="0" max="100" oninput="calculate()">
+              <input type="number" id="input-payout" value="60.0" step="0.5" min="0" max="100" oninput="onGrahamProfitInput()">
             </div>
           </div>
 
@@ -898,9 +926,9 @@
           </div>
         </div>
 
-        <div style="font-size: 11px; color: var(--dim); line-height: 1.4; border-left: 2px solid var(--border); padding-left: 12px; margin-top: 4px;">
-          <strong>Modelo Integrado de Alocação:</strong><br>
-          Com base nas teorias de Benjamin Graham, determinamos o Valor Intrínseco estático. Através do Payout projetado e do lucro ($LPA \times Payout\%$), construímos o fluxo de rendimento sob o crivo rígido de dividendos de Bazin ($DPA / 0,06$).
+        <!-- Implicit DPA Display Box -->
+        <div class="calc-avg-badge">
+          DPA Implícito (LPA × Payout): <span id="graham-implicit-dpa">R$ 2,70</span>
         </div>
       </div>
 
@@ -938,8 +966,16 @@
           <span class="calc-value" id="res-graham-vi">R$ 0,00</span>
         </div>
         <div class="calc-card">
+          <span class="calc-label">DPA Implícito</span>
+          <span class="calc-value" id="res-graham-dpa">R$ 0,00</span>
+        </div>
+        <div class="calc-card">
           <span class="calc-label">Preço-Teto Bazin (6%)</span>
           <span class="calc-value" id="res-graham-teto">R$ 0,00</span>
+        </div>
+        <div class="calc-card">
+          <span class="calc-label">Margem Bazin</span>
+          <span class="calc-value" id="res-graham-bazin-margem">0,0%</span>
         </div>
         <div class="calc-card">
           <span class="calc-label">Margem Graham (VI)</span>
@@ -969,29 +1005,28 @@
         </div>
       </div>
 
-      <!-- Analysis Explanations -->
-      <div class="analysis-card">
-        <div class="analysis-section-title" id="analysis-section-hdr">Diagnóstico Detalhado da Ação</div>
-        <p class="analysis-text" id="analysis-explanation">
-          Carregando análise...
-        </p>
-
-        <div class="analysis-section-title">Sugestão de Próximos Passos</div>
-        <ul class="next-steps-list" id="analysis-steps">
-          <!-- Populated by JavaScript -->
-        </ul>
+      <!-- Copy Summary Tool -->
+      <div class="summary-copy-box">
+        <div class="summary-copy-header">
+          <span class="calc-label" style="margin-bottom:0; color:var(--text);">Resumo Executivo (Copiar & Colar)</span>
+          <button type="button" class="btn-copy" id="btn-copy-summary" onclick="copySummaryText()">
+            <span id="copy-btn-icon">📋</span> <span id="copy-btn-text">Copiar Resumo</span>
+          </button>
+        </div>
+        <textarea id="summary-textarea" readonly rows="6" class="summary-textarea"></textarea>
+        <div id="copy-toast" class="copy-toast" style="display:none;">✓ Resumo copiado para a área de transferência!</div>
       </div>
 
     </div>
 
   </div>
 
-  <!-- ── Info Footer (Theoretical context) ── -->
+  <!-- ── Info Footer ── -->
   <div class="info-footer">
     <h3>Estrutura Decisória dos Pilares de Bazin & Graham</h3>
     <p>Com a taxa de desconto imutável estabelecida no padrão de <strong>K = 6,0%</strong>, os critérios decisórios deste painel avaliam três dimensões simultâneas:</p>
     <ul>
-      <li><strong>Pilar 1: Preço Descontado (Margem de Segurança):</strong> A cotação atual precisa estar abaixo do preço-teto calculated ($Preço\ Teto = DPA / 0,06$) para garantir que o yield projetado seja no mínimo 6%.</li>
+      <li><strong>Pilar 1: Preço Descontado (Margem de Segurança):</strong> A cotação atual precisa estar abaixo do preço-teto calculado ($Preço\ Teto = DPA / 0,06$) para garantir que o yield projetado seja no mínimo 6%.</li>
       <li><strong>Pilar 2: Consistência Histórica (DY Médio de 5 Anos):</strong> O Dividend Yield histórico do ativo (média consolidada dos últimos 5 anos) deve ser idealmente superior a <strong>6,0%</strong>. Se informado, valores abaixo disso acendem o farol amarelo pela perda de constância histórica de retorno.</li>
       <li><strong>Pilar 3: Alavancagem Controlada (Dívida Líquida / EBITDA ou Basileia):</strong> 
         <br>• <strong>Para empresas comuns:</strong> Dívida Líquida abaixo de <strong>2,5x</strong> o EBITDA é sinal verde; acima de <strong>3,5x</strong> reprova o ativo de imediato.
@@ -1004,188 +1039,26 @@
 </div>
 
 <script>
-  // ── ESTADO GLOBAL ──
+  // ── ESTADO GLOBAL REUTILIZÁVEL ENTRE ABAS ──
   let state = {
     activeTab: 'bazin', // 'bazin' ou 'graham'
-    dpaMode: 'direct', // 'direct' ou 'years'
+    ticker: 'VALE3',
+    dpaMode: 'direct',  // 'direct' ou 'years'
     dpa: 5.20,
     price: 62.50,
     dyMedio: 7.50,
-    k: 6.0, // FIXO EM 6%
+    k: 6.0,             // FIXO EM 6%
     debtEbitda: 1.20,
-    isBank: false
+    isBank: false,
+    vpa: 40.00,
+    lpa: 4.50,
+    payout: 60.0
   };
 
-  // ── BRAPI API CONFIGURATION ──
-  // Reads BRAPI_TOKEN from environment if available, or falls back to provided key
+  // BRAPI API TOKEN CONFIGURATION
   const BRAPI_TOKEN = (typeof process !== 'undefined' && process?.env?.BRAPI_TOKEN) || window.BRAPI_TOKEN || 'xkbBiwNYnwJ4pvmPBpTGYB';
 
-  /**
-   * Fetches stock quote and dividend data from Brapi API
-   * @param {string} symbol - B3 Stock Ticker (e.g. "B3SA3", "PETR4")
-   * @returns {Promise<Object>} Stock quote object containing price and dividend history
-   */
-  async function fetchBrapiStockQuote(symbol) {
-    if (!symbol || !symbol.trim()) {
-      throw new Error('Por favor, informe o código do ativo (Ticker).');
-    }
-
-    const cleanSymbol = symbol.trim().toUpperCase();
-    const apiUrl = `https://brapi.dev/api/v2/stocks/quote?symbols=${encodeURIComponent(cleanSymbol)}&dividends=true`;
-
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${BRAPI_TOKEN}`,
-        'Accept': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new Error(`Ativo "${cleanSymbol}" não foi encontrado na B3.`);
-      } else if (response.status === 401 || response.status === 403) {
-        throw new Error('Chave de API Brapi não autorizada ou limite excedido.');
-      } else {
-        throw new Error(`Erro de resposta na API Brapi (Status ${response.status}).`);
-      }
-    }
-
-    const data = await response.json();
-    if (!data.results || !Array.isArray(data.results) || data.results.length === 0) {
-      throw new Error(`Nenhum resultado retornado para o ticker "${cleanSymbol}".`);
-    }
-
-    // Returns results[0] as specified
-    return data.results[0];
-  }
-
-  /**
-   * Parses cashDividends from Brapi response into 12m DPA and 5-year historical yearly totals
-   */
-  function parseBrapiDividends(cashDividends) {
-    if (!Array.isArray(cashDividends) || cashDividends.length === 0) {
-      return { dpa12m: 0, dpa5Years: [0, 0, 0, 0, 0] };
-    }
-
-    const now = new Date();
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(now.getFullYear() - 1);
-
-    let dpa12m = 0;
-    const currentYear = now.getFullYear();
-    const yearlySums = {};
-
-    cashDividends.forEach(item => {
-      const rate = parseFloat(item.rate || item.amount || 0);
-      if (isNaN(rate) || rate <= 0) return;
-
-      const dateStr = item.paymentDate || item.approvedDate || item.lastDatePrior;
-      if (!dateStr) return;
-
-      const divDate = new Date(dateStr);
-      if (isNaN(divDate.getTime())) return;
-
-      // Sum dividends in the last 365 days
-      if (divDate >= oneYearAgo && divDate <= now) {
-        dpa12m += rate;
-      }
-
-      // Group dividends by calendar year
-      const yr = divDate.getFullYear();
-      yearlySums[yr] = (yearlySums[yr] || 0) + rate;
-    });
-
-    // Populate array for last 5 years [Ano 1, Ano 2, Ano 3, Ano 4, Ano 5]
-    const dpa5Years = [];
-    for (let i = 0; i < 5; i++) {
-      const targetYear = currentYear - i;
-      const totalForYear = yearlySums[targetYear] ? parseFloat(yearlySums[targetYear].toFixed(2)) : 0;
-      dpa5Years.push(totalForYear);
-    }
-
-    return {
-      dpa12m: parseFloat(dpa12m.toFixed(2)),
-      dpa5Years: dpa5Years
-    };
-  }
-
-  /**
-   * Main Handler to fetch stock data from Brapi when user searches a ticker
-   */
-  async function handleSearchTicker() {
-    const inputEl = document.getElementById('input-search-ticker');
-    const btnEl = document.getElementById('btn-fetch');
-    const btnTextEl = document.getElementById('btn-fetch-text');
-    const spinnerEl = document.getElementById('btn-fetch-spinner');
-    const statusEl = document.getElementById('ticker-status-msg');
-
-    const ticker = inputEl.value.trim().toUpperCase();
-    if (!ticker) {
-      statusEl.className = 'ticker-status-msg status-error';
-      statusEl.textContent = 'Digite um ticker válido (Ex: PETR4).';
-      return;
-    }
-
-    // UI Loading state
-    btnEl.disabled = true;
-    spinnerEl.style.display = 'inline-block';
-    btnTextEl.textContent = 'Buscando...';
-    statusEl.className = 'ticker-status-msg status-loading';
-    statusEl.textContent = `Consultando cotação de ${ticker} na B3 via Brapi...`;
-
-    try {
-      const stockData = await fetchBrapiStockQuote(ticker);
-
-      // Extract price
-      const price = stockData.regularMarketPrice || stockData.close || 0;
-      
-      // Update Price inputs in both tabs
-      if (price > 0) {
-        document.getElementById('input-price').value = price.toFixed(2);
-        document.getElementById('input-graham-price').value = price.toFixed(2);
-        state.price = price;
-      }
-
-      // Extract and Parse Dividend History
-      const cashDividends = stockData.dividendsData?.cashDividends || stockData.cashDividends || [];
-      const { dpa12m, dpa5Years } = parseBrapiDividends(cashDividends);
-
-      let dividendDetailMsg = '';
-
-      if (dpa12m > 0 || dpa5Years.some(v => v > 0)) {
-        // Update DPA inputs
-        document.getElementById('input-dpa').value = dpa12m > 0 ? dpa12m.toFixed(2) : (dpa5Years[0] || 0).toFixed(2);
-        
-        document.getElementById('dpa-y1').value = dpa5Years[0].toFixed(2);
-        document.getElementById('dpa-y2').value = dpa5Years[1].toFixed(2);
-        document.getElementById('dpa-y3').value = dpa5Years[2].toFixed(2);
-        document.getElementById('dpa-y4').value = dpa5Years[3].toFixed(2);
-        document.getElementById('dpa-y5').value = dpa5Years[4].toFixed(2);
-
-        dividendDetailMsg = ` | DPA 12m: R$ ${dpa12m.toFixed(2)}`;
-      } else {
-        dividendDetailMsg = ` | Proventos recentes não identificados.`;
-      }
-
-      const nameInfo = stockData.shortName || stockData.longName || ticker;
-      statusEl.className = 'ticker-status-msg status-success';
-      statusEl.textContent = `✓ ${nameInfo}: Cotação R$ ${price.toFixed(2)}${dividendDetailMsg}`;
-
-      // Trigger automatic recalculation
-      calculate();
-
-    } catch (err) {
-      statusEl.className = 'ticker-status-msg status-error';
-      statusEl.textContent = `✕ ${err.message || 'Erro ao consultar a API.'}`;
-    } finally {
-      btnEl.disabled = false;
-      spinnerEl.style.display = 'none';
-      btnTextEl.textContent = 'Buscar Dados';
-    }
-  }
-
-  // ── UTILITÁRIOS ──
+  // ── UTILITÁRIOS DE FORMATAÇÃO ──
   function fmtReal(val) {
     if (isNaN(val) || !isFinite(val) || val < 0) return 'R$ 0,00';
     return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -1197,17 +1070,123 @@
     return prefix + val.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
   }
 
-  // Synchronize price inputs across tabs
+  // ── BRAPI API: RESGATE EXCLUSIVO DA COTAÇÃO MAIS ATUALIZADA ──
+  async function fetchBrapiQuote(symbol) {
+    if (!symbol || !symbol.trim()) {
+      showQuoteStatus('error', 'Digite um código de ativo válido (ex: VALE3).');
+      return;
+    }
+
+    const cleanSymbol = symbol.trim().toUpperCase();
+    showQuoteStatus('loading', `Buscando cotação de ${cleanSymbol}...`);
+
+    try {
+      const apiUrl = `https://brapi.dev/api/v2/stocks/quote?symbols=${encodeURIComponent(cleanSymbol)}&token=${encodeURIComponent(BRAPI_TOKEN)}`;
+      
+      let response = await fetch(apiUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error(`Ativo "${cleanSymbol}" não localizado na B3.`);
+        } else if (response.status === 401 || response.status === 403) {
+          throw new Error('Chave da API Brapi expirada ou inválida.');
+        } else {
+          throw new Error(`Erro de resposta na API (Código ${response.status}).`);
+        }
+      }
+
+      const json = await response.json();
+      if (!json.results || !Array.isArray(json.results) || json.results.length === 0) {
+        throw new Error(`Cotação para "${cleanSymbol}" não encontrada.`);
+      }
+
+      const item = json.results[0];
+      const data = item.data || item;
+      const price = parseFloat(data.regularMarketPrice ?? data.close ?? data.price ?? 0);
+
+      if (isNaN(price) || price <= 0) {
+        throw new Error('Preço de mercado indisponível no momento.');
+      }
+
+      // Preenche unicamente o campo de Cotação Atual (sem alterar dividendos/DPA)
+      onPriceInput(price.toFixed(2));
+      showQuoteStatus('success', `✓ ${cleanSymbol}: Cotação R$ ${price.toFixed(2)} atualizada!`);
+
+    } catch (err) {
+      showQuoteStatus('error', `✕ ${err.message || 'Falha ao buscar cotação.'}`);
+    }
+  }
+
+  function showQuoteStatus(type, msg) {
+    const statusBazin = document.getElementById('status-bazin');
+    const statusGraham = document.getElementById('status-graham');
+    const spinnerBazin = document.getElementById('spinner-bazin');
+    const spinnerGraham = document.getElementById('spinner-graham');
+    const btnBazin = document.getElementById('btn-fetch-bazin');
+    const btnGraham = document.getElementById('btn-fetch-graham');
+
+    const isLoading = type === 'loading';
+
+    if (spinnerBazin) spinnerBazin.style.display = isLoading ? 'inline-block' : 'none';
+    if (spinnerGraham) spinnerGraham.style.display = isLoading ? 'inline-block' : 'none';
+    if (btnBazin) btnBazin.disabled = isLoading;
+    if (btnGraham) btnGraham.disabled = isLoading;
+
+    [statusBazin, statusGraham].forEach(el => {
+      if (el) {
+        el.className = `fetch-quote-status ${type}`;
+        el.textContent = msg;
+      }
+    });
+
+    if (type === 'success' || type === 'error') {
+      setTimeout(() => {
+        if (statusBazin) statusBazin.textContent = '';
+        if (statusGraham) statusGraham.textContent = '';
+      }, 5000);
+    }
+  }
+
+  // Sincronizar o Nome do Papel (Ticker) entre as abas
+  function onTickerInput(val) {
+    state.ticker = val;
+    document.getElementById('input-ticker').value = val;
+    document.getElementById('input-graham-ticker').value = val;
+    calculate();
+  }
+
+  // Synchronize stock prices across both tabs
   function onPriceInput(val) {
+    state.price = parseFloat(val) || 0.01;
+    document.getElementById('input-price').value = val;
     document.getElementById('input-graham-price').value = val;
     calculate();
   }
   function onGrahamPriceInput(val) {
-    document.getElementById('input-price').value = val;
+    onPriceInput(val);
+  }
+
+  // Direct DPA Input handler (Tab 1)
+  function onDpaDirectInput(val) {
+    state.dpa = parseFloat(val) || 0;
     calculate();
   }
 
-  // ── SWITCH MAIN TABS & THEME COLORS (AZUL <-> ROXO) ──
+  // Graham Profit & Payout Input handler (Tab 2)
+  function onGrahamProfitInput() {
+    const lpa = parseFloat(document.getElementById('input-lpa').value) || 0;
+    const payout = parseFloat(document.getElementById('input-payout').value) || 0;
+    state.lpa = lpa;
+    state.payout = payout;
+    
+    // Implicit DPA from Graham tab updates global DPA if needed
+    const implicitDpa = lpa * (payout / 100);
+    document.getElementById('graham-implicit-dpa').textContent = fmtReal(implicitDpa);
+    
+    calculate();
+  }
+
+  // ── SWITCH MAIN TABS & THEME COLORS ──
   function switchMainTab(tab) {
     state.activeTab = tab;
     document.getElementById('tab-bazin').classList.toggle('active', tab === 'bazin');
@@ -1219,26 +1198,25 @@
     document.getElementById('grid-metrics-bazin').style.display = tab === 'bazin' ? 'grid' : 'none';
     document.getElementById('grid-metrics-graham').style.display = tab === 'graham' ? 'grid' : 'none';
     
-    // Theme color switch
     const root = document.documentElement;
+    const badgeEl = document.getElementById('info-k-badge');
+    const infoTextEl = document.getElementById('info-k-text');
+
     if (tab === 'bazin') {
-      root.style.setProperty('--accent', '#4f8ef7'); // Azul clássico Bazin
+      root.style.setProperty('--accent', '#4f8ef7'); // Azul Bazin
       root.style.setProperty('--accent-rgb', '79, 142, 247');
-      
-      document.querySelector('.info-k-badge').textContent = 'K = 6.0% de Bazin';
-      document.querySelector('.info-k-fixed div').innerHTML = 'Esta ferramenta utiliza a taxa de desconto imutável de <strong>6,0% ao ano</strong> estabelecida pelo método clássico de Décio Bazin para garantir a margem de retorno em dividendos.';
+      if (badgeEl) badgeEl.textContent = 'K = 6.0% de Bazin';
+      if (infoTextEl) infoTextEl.innerHTML = 'Esta ferramenta utiliza a taxa de desconto imutável de <strong>6,0% ao ano</strong> estabelecida pelo método clássico de Décio Bazin para garantir a margem de retorno em dividendos.';
     } else {
-      root.style.setProperty('--accent', '#a78bfa'); // Roxo Graham Premium
+      root.style.setProperty('--accent', '#a78bfa'); // Roxo Graham
       root.style.setProperty('--accent-rgb', '167, 139, 250');
-      
-      document.querySelector('.info-k-badge').textContent = 'Fórmula de Graham + Bazin';
-      document.querySelector('.info-k-fixed div').innerHTML = 'Esta aba integra o modelo estático de valor intrínseco de ativos de <strong>Benjamin Graham</strong> com a perpetuidade de caixa de dividendos de <strong>Décio Bazin</strong>.';
+      if (badgeEl) badgeEl.textContent = 'Fórmula de Graham + Bazin';
+      if (infoTextEl) infoTextEl.innerHTML = 'Esta aba integra o modelo estático de valor intrínseco de ativos de <strong>Benjamin Graham</strong> com a perpetuidade de caixa de dividendos de <strong>Décio Bazin</strong>.';
     }
     
     calculate();
   }
 
-  // ── ALTERNAR ENTRE ENTRADAS DE DPA (TAB 1) ──
   function setDpaMode(mode) {
     state.dpaMode = mode;
     document.getElementById('toggle-dpa-direct').classList.toggle('active', mode === 'direct');
@@ -1250,7 +1228,6 @@
     calculate();
   }
 
-  // ── CONTROLE DO MODO BANCO (TAB 1) ──
   function toggleBankMode(checked) {
     state.isBank = checked;
     const container = document.getElementById('debt-slider-container');
@@ -1271,7 +1248,6 @@
     calculate();
   }
 
-  // ── EVENTOS DE INPUTS ──
   function onDebtChange(val) {
     state.debtEbitda = parseFloat(val);
     
@@ -1295,7 +1271,6 @@
     calculate();
   }
 
-  // ── CORE LOGIC DE CÁLCULO E DIAGNÓSTICO ──
   function calculate() {
     if (state.activeTab === 'bazin') {
       calculateBazinClassic();
@@ -1306,14 +1281,8 @@
 
   // ── CÁLCULO 1: BAZIN CLÁSSICO ──
   function calculateBazinClassic() {
-    document.getElementById('analysis-section-hdr').textContent = "Diagnóstico Detalhado da Ação";
-    
-    const rawPrice = document.getElementById('input-price').value;
+    const price = state.price || 0.01;
     const rawDyMedio = document.getElementById('input-dy-medio').value;
-
-    const hasPrice = rawPrice !== '' && !isNaN(parseFloat(rawPrice)) && parseFloat(rawPrice) > 0;
-    const price = hasPrice ? parseFloat(rawPrice) : 0.01;
-
     const hasDyMedio = rawDyMedio !== '' && !isNaN(parseFloat(rawDyMedio)) && parseFloat(rawDyMedio) >= 0;
     const dyMedioInput = hasDyMedio ? parseFloat(rawDyMedio) : 0;
 
@@ -1323,9 +1292,7 @@
     if (state.dpaMode === 'direct') {
       const rawDpa = document.getElementById('input-dpa').value;
       hasDpa = rawDpa !== '' && !isNaN(parseFloat(rawDpa)) && parseFloat(rawDpa) >= 0;
-      if (hasDpa) {
-        dpa = parseFloat(rawDpa);
-      }
+      if (hasDpa) dpa = parseFloat(rawDpa);
     } else {
       const y1 = parseFloat(document.getElementById('dpa-y1').value);
       const y2 = parseFloat(document.getElementById('dpa-y2').value);
@@ -1345,29 +1312,7 @@
     }
 
     if (!hasDpa && !hasDyMedio) {
-      const banner = document.getElementById('farol-banner');
-      banner.className = 'farol-banner status-neutro';
-      document.getElementById('farol-status-title').textContent = 'AGUARDANDO DADOS';
-      
-      document.getElementById('res-teto').textContent = '---';
-      document.getElementById('res-margem').textContent = '---';
-      document.getElementById('res-margem').style.color = 'var(--dim)';
-      
-      document.getElementById('pb-current-lbl').textContent = `Cotação: ${fmtReal(hasPrice ? price : 0)}`;
-      document.getElementById('pb-teto-lbl').textContent = `Teto: ---`;
-      document.getElementById('pb-margin-lbl').textContent = 'Margem: ---';
-      document.getElementById('pb-margin-lbl').style.color = 'var(--dim)';
-      document.getElementById('pb-fill').style.width = '0%';
-      document.getElementById('pb-fill').style.backgroundColor = 'var(--muted)';
-      
-      document.getElementById('analysis-explanation').innerHTML = 
-        `Por favor, insira ao menos o <strong>DPA (Média de Dividendos)</strong> ou o <strong>DY Médio 5 Anos (%)</strong> para que o modelo de análise seja processado de forma satisfatória.`;
-      
-      const listElement = document.getElementById('analysis-steps');
-      listElement.innerHTML = `
-        <li><strong>Buscar Ticker na Brapi API:</strong> Digite o código da ação no topo para importar a cotação e proventos em tempo real.</li>
-        <li><strong>OU Informar DPA / DY Médio:</strong> Insira o dividendo direto ou preencha o histórico dos últimos anos.</li>
-      `;
+      setEmptyState();
       return;
     }
 
@@ -1397,184 +1342,62 @@
       resMargemElement.style.color = 'var(--red)';
     }
 
-    document.getElementById('pb-current-lbl').textContent = `Cotação: ${fmtReal(price)}`;
-    document.getElementById('pb-teto-lbl').textContent = `Teto: ${fmtReal(precoTeto)}`;
-    
-    const marginText = margemSeguranca >= 0 ? `Margem: ${fmtPct(margemSeguranca)}` : `Ágio: ${fmtPct(Math.abs(margemSeguranca))}`;
-    document.getElementById('pb-margin-lbl').textContent = marginText;
+    updateProgressBar(price, precoTeto, margemSeguranca);
 
-    const pbFill = document.getElementById('pb-fill');
-    let ratio = 0;
-    if (precoTeto > 0) {
-      ratio = (price / precoTeto) * 100;
-    } else if (price > 0) {
-      ratio = 100;
-    }
-    const percentFill = Math.min(100, Math.max(0, ratio));
-    pbFill.style.width = percentFill + '%';
-
-    if (price <= precoTeto) {
-      pbFill.style.backgroundColor = 'var(--green)';
-      document.getElementById('pb-margin-lbl').style.color = 'var(--green)';
-    } else if (price <= precoTeto * 1.1) {
-      pbFill.style.backgroundColor = 'var(--yellow)';
-      document.getElementById('pb-margin-lbl').style.color = 'var(--yellow)';
-    } else {
-      pbFill.style.backgroundColor = 'var(--red)';
-      document.getElementById('pb-margin-lbl').style.color = 'var(--red)';
-    }
-
-    let baseExplanation = `A análise cruza a cotação atual de <strong>${fmtReal(price)}</strong> com o DPA de <strong>${fmtReal(dpa)}</strong> (Preço-Teto clássico de <strong>${fmtReal(precoTeto)}</strong>, gerando margem de <strong>${fmtPct(margemSeguranca)}</strong>) e o histórico de DY de 5 anos estimado em <strong>${dyMedio.toFixed(1)}%</strong>.`;
-
-    let status = '';
-    let statusTitle = '';
-    let explanationText = '';
-    let stepsList = [];
-
+    // Farol de Decisão
     const levOk = state.isBank || state.debtEbitda <= 2.5;
-    const levAlerta = !state.isBank && state.debtEbitda > 2.5 && state.debtEbitda <= 3.5;
     const levCritica = !state.isBank && state.debtEbitda > 3.5;
-
     const precoSobTeto = price <= precoTeto;
-    const precoEsticado = price > precoTeto && price <= (precoTeto * 1.1);
-    const precoCaro = price > (precoTeto * 1.1);
-
     const dyHistOk = !hasDyMedio || dyMedio >= 6.0;
-    const dyHistAlerta = hasDyMedio && dyMedio >= 5.0 && dyMedio < 6.0;
-    const dyHistRuim = hasDyMedio && dyMedio < 5.0;
+
+    let status = 'neutro';
+    let statusTitle = 'NEUTRALIDADE · AGUARDAR AJUSTE';
 
     if (dpa <= 0) {
       status = 'reprovado';
-      statusTitle = 'REPROVADO · RENDIMENTO ZERADO';
-      explanationText = `${baseExplanation}<br><br>O ativo sob análise apresenta distribuição nula de dividendos. Sem dividendos declarados, a tese de Bazin de fluxo contínuo de caixa perde sustentação metodológica imediata.`;
-      stepsList = [
-        `<strong>Aguardar Regularização:</strong> Acompanhe a divulgação de novos lucros trimestrais para identificar se a empresa retomará o pagamento de proventos futuros.`,
-        `<strong>Buscar Ativos de Renda:</strong> Reposicione o capital para empresas com fluxo consistente e histórico consolidado de distribuição.`
-      ];
-    }
-    else if (levCritica) {
+      statusTitle = 'REPROVADO · SEM PROVENTOS';
+    } else if (levCritica) {
       status = 'reprovado';
-      statusTitle = 'REPROVADO · ENDIVIDAMENTO OPERACIONAL EXTREMO';
-      explanationText = `${baseExplanation}<br><br>O endividamento operacional medido em <strong>${state.debtEbitda.toFixed(2)}x</strong> Dívida Líquida/EBITDA está em patamar de risco severo. Sob condições de juros altos, a empresa canalizará o caixa para despesas com credores e amortizações, inviabilizando ou reduzindo drasticamente os dividendos.`;
-      stepsList = [
-        `<strong>Cuidado com Armadilhas de Valor:</strong> Evite aportes novos mesmo que o preço atual pareça tentador. O risco de corte abrupto nos próximos exercícios é real.`,
-        `<strong>Monitorar Desalavancagem:</strong> Verifique no release de RI se há em andamento um plano estruturado de alienação de ativos não-essenciais ou captação estratégica de baixo custo para atenuar a dívida.`
-      ];
-    }
-    else if (dyHistRuim) {
-      status = 'reprovado';
-      statusTitle = 'REPROVADO · RENDIMENTO HISTÓRICO FRACO';
-      explanationText = `${baseExplanation}<br><br>Embora possa apresentar um desconto momentâneo na cotação, a ação possui um histórico inconsistente de proventos, traduzido no Yield médio de 5 anos de apenas <strong>${dyMedio.toFixed(1)}%</strong>. O modelo Bazin prioriza estabilidade de renda e exige consistência provada no longo prazo.`;
-      stepsList = [
-        `<strong>Priorizar Qualidade e Constância:</strong> Redirecione o fluxo de capital para corporações estabelecidas que ostentem uma média de Yield superior ao piso metodológico de 6%.`,
-        `<strong>Identificar Sazonalidades:</strong> Investigue se a empresa não pertence a setores de infraestrutura em fases intensivas de Capex, as quais costumam reduzir os proventos temporariamente.`
-      ];
-    }
-    else if (precoSobTeto && levOk && dyHistOk) {
+      statusTitle = 'REPROVADO · ENDIVIDAMENTO CRÍTICO';
+    } else if (precoSobTeto && levOk && dyHistOk) {
       status = 'compra';
-      statusTitle = 'COMPRA · PILARES TOTALMENTE SAUDÁVEIS';
-      let isBankNote = state.isBank ? " Como se trata de uma instituição bancária, a relação de alavancagem convencional foi desativada de acordo com as especificidades do balanço financeiro." : "";
-      
-      explanationText = `Excelente oportunidade de alocação de caixa.<br><br>${baseExplanation}<br><br>O ativo atende com folga as métricas de segurança patrimonial e operacional de Barsi e Bazin.${isBankNote} A cotação apresenta margem de desconto convidativa frente ao preço-teto real de <strong>${fmtReal(precoTeto)}</strong>.`;
-      
-      if (state.isBank) {
-        stepsList = [
-          `<strong>Aportar Escalonadamente:</strong> Inicie ou reforce a montagem de posição estruturada sob cotações descontadas para garantir uma excelente taxa de retorno interna.`,
-          `<strong>Auditar Qualidade do Crédito:</strong> Verifique de forma qualitativa se o banco possui ROE acima de 15% e Índice de Basileia superior à exigência mínima prudencial de 11% (idealmente > 14%).`,
-          `<strong>Reinvestir Proventos:</strong> Programe o acúmulo de novas ações utilizando os dividendos creditados para otimizar o efeito dos juros compostos.`
-        ];
-      } else {
-        stepsList = [
-          `<strong>Efetuar Aportes Periódicos:</strong> Preço abaixo do teto de segurança operacional de <strong>${fmtReal(precoTeto)}</strong> aponta para uma ótima assimetria de longo prazo.`,
-          `<strong>Reinvestir Proventos:</strong> Programe o acúmulo de novas ações utilizando os dividendos creditados para otimizar o efeito dos juros compostos.`,
-          `<strong>Acompanhar Indicadores:</strong> Realize avaliações periódicas quadrimestrais para garantir que o EBITDA de suporte à dívida não sofra contrações graves.`
-        ];
-      }
-    }
-    else if ((precoSobTeto && levAlerta) || (precoSobTeto && dyHistAlerta) || (precoEsticado && !levCritica)) {
-      status = 'neutro';
-      statusTitle = 'NEUTRALIDADE · CRITÉRIO EM MONITORAMENTO';
-      let context = '';
-      if (precoEsticado) {
-        context = `a cotação de <strong>${fmtReal(price)}</strong> está operando ligeiramente acima do preço-teto recomendado de <strong>${fmtReal(precoTeto)}</strong>, diluindo o rendimento real imediato.`;
-      } else if (levAlerta) {
-        context = `a relação de endividamento de <strong>${state.debtEbitda.toFixed(2)}x</strong> está em zona de transição e alerta moderado, demandando acompanhamento próximo.`;
-      } else {
-        context = `o histórico médio consolidado de DY de 5 anos está ligeiramente aquém da margem de 6,0% recomendada de forma clássica.`;
-      }
-
-      explanationText = `${baseExplanation}<br><br>Os fundamentos operacionais do ativo seguem preservados, contudo o cenário macro ou micro sugere cautela momentânea pois ${context}`;
-      
-      if (state.isBank) {
-        stepsList = [
-          `<strong>Pausar Compras Agressivas:</strong> Mantenha a custódia das ações já adquiridas sob preços antigos e aguarde correções de mercado para restabelecer novos aportes.`,
-          `<strong>Monitorar Inadimplência:</strong> Analise nos balanços se o nível de Provisão para Devedores Duvidosos (PDD) ou os ativos problemáticos estão em tendência de alta no trimestre.`
-        ];
-      } else {
-        stepsList = [
-          `<strong>Pausar Compras Agressivas:</strong> Mantenha a custódia das ações já adquiridas sob preços antigos e aguarde correções de mercado para restabelecer novos aportes.`,
-          `<strong>Configurar Ordens de Compra Limitada:</strong> Posicione gatilhos automáticos de compra próximos ou abaixo do teto exato de segurança de <strong>${fmtReal(precoTeto)}</strong>.`,
-          `<strong>Auditar Margens de Lucratividade:</strong> Verifique se a empresa mantém poder de repasse de inflação sobre seus custos operacionais para blindar as margens de lucros futuros.`
-        ];
-      }
-    }
-    else if (precoCaro && !levCritica) {
+      statusTitle = 'COMPRA · MARGEM & SAÚDE OK';
+    } else if (price > precoTeto * 1.1) {
       status = 'reprovado';
-      statusTitle = 'REPROVADO · PREÇO MUITO ELEVADO (ÁGIO ALTO)';
-      explanationText = `${baseExplanation}<br><br>A cotação atual está consideravelmente esticada em relação ao Preço-Teto Bazin de <strong>${fmtReal(precoTeto)}</strong>. Alocar capital neste preço significa travar um retorno de dividendos significativamente inferior ao custo de oportunidade de investimentos conservadores alternativos.`;
-      stepsList = [
-        `<strong>Suspender Compras no Rali:</strong> Não persiga preços no mercado. Aguarde pacientemente janelas de realização de lucros ou momentos de pânico setorial que devolvam as cotações a patamares protegidos pelo teto.`,
-        `<strong>Manter Posições de Custo Médio Baixo (Hold):</strong> Carregue as cotas antigas recebendo o fluxo de caixa passivo normal, sem cometer o erro de inflar seu preço médio geral.`
-      ];
+      statusTitle = 'REPROVADO · PREÇO MUITO ELEVADO';
     }
 
-    const banner = document.getElementById('farol-banner');
-    banner.className = 'farol-banner'; 
-    banner.classList.add(`status-${status}`);
-    
-    document.getElementById('farol-status-title').textContent = statusTitle;
-    document.getElementById('analysis-explanation').innerHTML = explanationText;
-
-    const listElement = document.getElementById('analysis-steps');
-    listElement.innerHTML = '';
-    stepsList.forEach(step => {
-      const li = document.createElement('li');
-      li.innerHTML = step;
-      listElement.appendChild(li);
-    });
+    setFarolBanner(status, statusTitle);
+    generateSummaryText(price, dpa, precoTeto, margemSeguranca, status, statusTitle);
   }
 
   // ── CÁLCULO 2: INTEGRAÇÃO GRAHAM + BAZIN ──
   function calculateGrahamBazin() {
-    document.getElementById('analysis-section-hdr').textContent = "Diagnóstico Graham + Bazin";
-
-    // 1. Coleta e tratamento de inputs
     const vpa = parseFloat(document.getElementById('input-vpa').value) || 0.01;
     const lpa = parseFloat(document.getElementById('input-lpa').value) || 0;
     const payout = parseFloat(document.getElementById('input-payout').value) || 0;
-    const price = parseFloat(document.getElementById('input-graham-price').value) || 0.01;
+    const price = state.price || 0.01;
 
-    // 2. Cálculo do Valor Intrínseco de Graham (VI = Sqrt(22.5 * LPA * VPA))
+    // Graham Sqrt(22.5 * LPA * VPA)
     const product = 22.5 * lpa * vpa;
     const vi = product > 0 ? Math.sqrt(product) : 0;
-
-    // 3. Margem de Segurança de Graham: (VI - Atual) / VI
     const margemGraham = vi > 0 ? (((vi - price) / vi) * 100) : -100;
-
-    // 4. Potencial de Convergência de Graham: (VI - Atual) / Atual
     const convGraham = price > 0 ? (((vi - price) / price) * 100) : 0;
 
-    // 5. Cálculo do Fluxo Bazin Interno (DPA = LPA * Payout%)
-    const dpa = lpa * (payout / 100);
-    const precoTetoBazin = dpa / 0.06;
+    // Implicit Bazin Flow
+    const dpaImplicit = lpa * (payout / 100);
+    const precoTetoBazin = dpaImplicit / 0.06;
+    const margemBazin = precoTetoBazin > 0 ? (((precoTetoBazin - price) / precoTetoBazin) * 100) : -100;
 
-    // Atualizar UI dos cards de métricas específicas
+    // UI Updates
+    document.getElementById('graham-implicit-dpa').textContent = fmtReal(dpaImplicit);
     document.getElementById('res-graham-vi').textContent = fmtReal(vi);
+    document.getElementById('res-graham-dpa').textContent = fmtReal(dpaImplicit);
     document.getElementById('res-graham-teto').textContent = fmtReal(precoTetoBazin);
+    document.getElementById('res-graham-bazin-margem').textContent = fmtPct(margemBazin);
     document.getElementById('res-graham-margem').textContent = fmtPct(margemGraham);
     document.getElementById('res-graham-conv').textContent = fmtPct(convGraham);
 
-    // Margem de segurança de Graham verde se > 30%
     const resGrahamMargemEl = document.getElementById('res-graham-margem');
     if (margemGraham >= 30.0) {
       resGrahamMargemEl.style.color = 'var(--green)';
@@ -1584,117 +1407,131 @@
       resGrahamMargemEl.style.color = 'var(--red)';
     }
 
-    // Configurar Barra de Progresso Visual comparando com o Valor Intrínseco de Graham
+    updateProgressBar(price, vi, margemGraham, 'V.I. Graham');
+
+    // Farol Logic
+    let status = 'neutro';
+    let statusTitle = 'NEUTRALIDADE · MARGEM MODERADA';
+
+    if (lpa <= 0) {
+      status = 'reprovado';
+      statusTitle = 'REPROVADO · OPERAÇÃO PREJUÍZO';
+    } else if (margemGraham >= 30.0 && price <= precoTetoBazin) {
+      status = 'compra';
+      statusTitle = 'COMPRA · EXCELENTE MARGEM & PROVENTO';
+    } else if (margemGraham < 0 || price > precoTetoBazin) {
+      status = 'reprovado';
+      statusTitle = 'REPROVADO · FUNDAMENTOS ESTICADOS';
+    }
+
+    setFarolBanner(status, statusTitle);
+    generateSummaryText(price, dpaImplicit, precoTetoBazin, margemBazin, status, statusTitle, vi, margemGraham);
+  }
+
+  function updateProgressBar(price, teto, margem, tetoLabel = 'Teto') {
     document.getElementById('pb-current-lbl').textContent = `Cotação: ${fmtReal(price)}`;
-    document.getElementById('pb-teto-lbl').textContent = `V.I. Graham: ${fmtReal(vi)}`;
+    document.getElementById('pb-teto-lbl').textContent = `${tetoLabel}: ${fmtReal(teto)}`;
     
-    const marginText = margemGraham >= 0 ? `Margem Graham: ${fmtPct(margemGraham)}` : `Ágio Graham: ${fmtPct(Math.abs(margemGraham))}`;
+    const marginText = margem >= 0 ? `Margem: ${fmtPct(margem)}` : `Ágio: ${fmtPct(Math.abs(margem))}`;
     document.getElementById('pb-margin-lbl').textContent = marginText;
 
     const pbFill = document.getElementById('pb-fill');
-    let ratio = 0;
-    if (vi > 0) {
-      ratio = (price / vi) * 100;
-    } else if (price > 0) {
-      ratio = 100;
-    }
+    let ratio = teto > 0 ? (price / teto) * 100 : 100;
     const percentFill = Math.min(100, Math.max(0, ratio));
     pbFill.style.width = percentFill + '%';
 
-    // Cores da barra baseado na Margem Graham
-    if (margemGraham >= 30.0) {
+    if (price <= teto) {
       pbFill.style.backgroundColor = 'var(--green)';
       document.getElementById('pb-margin-lbl').style.color = 'var(--green)';
-    } else if (margemGraham >= 0.0) {
+    } else if (price <= teto * 1.1) {
       pbFill.style.backgroundColor = 'var(--yellow)';
       document.getElementById('pb-margin-lbl').style.color = 'var(--yellow)';
     } else {
       pbFill.style.backgroundColor = 'var(--red)';
       document.getElementById('pb-margin-lbl').style.color = 'var(--red)';
     }
+  }
 
-    // Diagnósticos e Farol Integrado Graham + Bazin
-    let status = '';
-    let statusTitle = '';
-    let explanationText = '';
-    let stepsList = [];
-
-    const hasMargem30 = margemGraham >= 30.0;
-    const isUnderBazinTeto = price <= precoTetoBazin;
-    const hasDiscountGraham = margemGraham > 0;
-
-    let baseExplanation = `A análise cruza o modelo estático patrimonial de <strong>Benjamin Graham</strong> (Valor Intrínseco de <strong>${fmtReal(vi)}</strong>, gerando Margem de <strong>${fmtPct(margemGraham)}</strong>) com o modelo de dividendos projetados de <strong>Décio Bazin</strong> (DPA implícito de <strong>${fmtReal(dpa)}</strong> sob payout de <strong>${payout.toFixed(1)}%</strong>, resultando em Preço-Teto de <strong>${fmtReal(precoTetoBazin)}</strong>).`;
-
-    if (lpa <= 0) {
-      status = 'reprovado';
-      statusTitle = 'REPROVADO · OPERAÇÃO PREJUÍZO';
-      explanationText = `${baseExplanation}<br><br>O Lucro por Ação ($LPA$) informado é nulo ou negativo. Uma empresa operando sob prejuízo não gera Valor Intrínseco estático no cálculo de Graham e é incapaz de distribuir dividendos consistentes pelo pilar de Bazin, quebrando o fluxo de caixa para proventos.`;
-      stepsList = [
-        `<strong>Aguardar Turnaround:</strong> Evite qualquer investimento no momento. Empresas em reestruturação operacional intensa devem ser avaliadas apenas após reverterem o fluxo para lucro líquido positivo estável.`,
-        `<strong>Buscar Negócios Perenes:</strong> Priorize ativos monopolistas ou de setores essenciais que garantam fluxo constante de lucros e patrimônio crescente.`
-      ];
-    }
-    else if (hasMargem30 && isUnderBazinTeto) {
-      status = 'compra';
-      statusTitle = 'COMPRA · EXCELENTE MARGEM & PROVENTO';
-      explanationText = `${baseExplanation}<br><br><strong>Assimetria Perfeita!</strong> O ativo sob análise está cotado em patamar excelente com margem de segurança de Graham superior ao critério de segurança de **30%** (medido em <strong>${fmtPct(margemGraham)}</strong>) com potencial de convergência patrimonial de <strong>${fmtPct(convGraham)}</strong>. Paralelamente, o preço de <strong>${fmtReal(price)}</strong> está abaixo do teto de dividendos de Bazin (<strong>${fmtReal(precoTetoBazin)}</strong>), garantindo um retorno mínimo projetado em proventos superior a 6,0% ao ano.`;
-      stepsList = [
-        `<strong>Aportar Firme com Margem de Segurança:</strong> Ação muito descontada frente ao seu real valor intrínseco de ativos e com ótimo potencial de dividendo. Excelente momento de aporte.`,
-        `<strong>Acompanhar Consistência do ROE:</strong> Certifique-se de que a empresa mantém eficiência de retorno sobre o patrimônio ($ROE$) para sustentar o crescimento real dos lucros.`,
-        `<strong>Reinvestir Integralmente os Proventos:</strong> Maximize a velocidade de bola de neve comprando mais frações do mesmo ativo com as distribuições trimestrais/semestrais.`
-      ];
-    }
-    else if (hasDiscountGraham && isUnderBazinTeto) {
-      status = 'neutro';
-      statusTitle = 'NEUTRALIDADE · DESCONTO MODERADO';
-      explanationText = `${baseExplanation}<br><br>O ativo está cotado abaixo de seu preço-teto de dividendos de Bazin (<strong>${fmtReal(precoTetoBazin)}</strong>) e apresenta desconto frente ao valor patrimonial intrínseco de Graham. No entanto, a margem de segurança de Graham (<strong>${fmtPct(margemGraham)}</strong>) está abaixo do limiar conservador exigido de **30%**.`;
-      stepsList = [
-        `<strong>Aportes Parciais ou Fracionados:</strong> O ativo oferece uma boa taxa de proventos, mas o colchão de proteção de preço estático de ativos patrimoniais é menor. Prefira os aportes cautelosos.`,
-        `<strong>Aguardar Volatilidade:</strong> Monitore o mercado. Oscilações rotineiras da Bolsa de Valores podem comprimir a cotação e empurrar a Margem Graham acima do nível recomendado de 30% para compra.`
-      ];
-    }
-    else if (!hasDiscountGraham || price > precoTetoBazin) {
-      status = 'reprovado';
-      statusTitle = 'REPROVADO · FUNDAMENTOS ESTICADOS';
-      
-      let motivo = "";
-      if (!hasDiscountGraham) {
-        motivo = `a cotação atual está sendo negociada com ágio sobre o Valor Intrínseco de Graham de <strong>${fmtReal(vi)}</strong>, gerando margem de segurança negativa.`;
-      } else {
-        motivo = `o valor de mercado ultrapassa o teto de rendimento sustentável de dividendos de Bazin de <strong>${fmtReal(precoTetoBazin)}</strong>.`;
-      }
-
-      explanationText = `${baseExplanation}<br><br><strong>Risco de Custo de Oportunidade.</strong> O momento de entrada do ativo não oferece condições ideais de segurança patrimonial ou fluxo de dividendos de 6% ao ano, pois ${motivo}`;
-      stepsList = [
-        `<strong>Manter em Observação (Watchlist):</strong> Não realize compras novas para a carteira de proventos neste nível de preço. Direcione os recursos acumulados para alternativas com maior margem protetiva.`,
-        `<strong>Recalcular no Trimestre:</strong> Aguarde a atualização de lucros ($LPA$) e valor patrimonial ($VPA$) nos próximos resultados para checar se o crescimento corporativo elevará o valor intrínseco.`
-      ];
-    }
-
+  function setFarolBanner(status, title) {
     const banner = document.getElementById('farol-banner');
-    banner.className = 'farol-banner'; 
-    banner.classList.add(`status-${status}`);
-    
-    document.getElementById('farol-status-title').textContent = statusTitle;
-    document.getElementById('analysis-explanation').innerHTML = explanationText;
+    banner.className = `farol-banner status-${status}`;
+    document.getElementById('farol-status-title').textContent = title;
+  }
 
-    const listElement = document.getElementById('analysis-steps');
-    listElement.innerHTML = '';
-    stepsList.forEach(step => {
-      const li = document.createElement('li');
-      li.innerHTML = step;
-      listElement.appendChild(li);
-    });
+  function setEmptyState() {
+    setFarolBanner('neutro', 'AGUARDANDO DADOS');
+    document.getElementById('res-teto').textContent = '---';
+    document.getElementById('res-margem').textContent = '---';
+    document.getElementById('res-margem').style.color = 'var(--dim)';
+    document.getElementById('summary-textarea').value = 'Insira os dados da ação para gerar o resumo...';
+  }
+
+  // ── RESUMO EXECUTIVO (COPIAR E COLAR PARA WHATSAPP) ──
+  function generateSummaryText(price, dpa, tetoBazin, margemBazin, status, statusTitle, viGraham = 0, margemGraham = 0) {
+    if (viGraham === 0) {
+      const vpa = parseFloat(document.getElementById('input-vpa')?.value) || state.vpa || 0;
+      const lpa = parseFloat(document.getElementById('input-lpa')?.value) || state.lpa || 0;
+      const product = 22.5 * lpa * vpa;
+      if (product > 0) {
+        viGraham = Math.sqrt(product);
+        margemGraham = viGraham > 0 ? (((viGraham - price) / viGraham) * 100) : -100;
+      }
+    }
+
+    let emoji = '🟡';
+    if (status === 'compra') emoji = '🟢';
+    if (status === 'reprovado') emoji = '🔴';
+
+    const viStr = viGraham > 0 ? fmtReal(viGraham) : 'N/A';
+    const margemGrahamStr = viGraham > 0 ? fmtPct(margemGraham) : 'N/A';
+    const paperName = state.ticker && state.ticker.trim() !== '' ? state.ticker.trim().toUpperCase() : 'ATIVO';
+
+    let text = `📌 *RESUMO DE ANÁLISE - ${paperName}*\n`;
+    text += `• *Cotação:* ${fmtReal(price)}\n`;
+    text += `• *DPA:* ${fmtReal(dpa)}\n`;
+    text += `• *PT Bazin (6%):* ${fmtReal(tetoBazin)} | *Margem:* ${fmtPct(margemBazin)}\n`;
+    text += `• *VI Graham:* ${viStr} | *Margem:* ${margemGrahamStr}\n`;
+    text += `• *Diagnóstico:* ${emoji} ${statusTitle}`;
+
+    document.getElementById('summary-textarea').value = text;
+  }
+
+  function copySummaryText() {
+    const textarea = document.getElementById('summary-textarea');
+    textarea.select();
+    textarea.setSelectionRange(0, 99999);
+    
+    try {
+      document.execCommand('copy');
+      showCopyToast();
+    } catch (err) {
+      console.error('Falha ao copiar:', err);
+    }
+  }
+
+  function showCopyToast() {
+    const btnIcon = document.getElementById('copy-btn-icon');
+    const btnText = document.getElementById('copy-btn-text');
+    const toast = document.getElementById('copy-toast');
+    
+    btnIcon.textContent = '✓';
+    btnText.textContent = 'Copiado!';
+    toast.style.display = 'block';
+    
+    setTimeout(() => {
+      btnIcon.textContent = '📋';
+      btnText.textContent = 'Copiar Resumo';
+      toast.style.display = 'none';
+    }, 2500);
   }
 
   // Initial setup on window load
   window.onload = function() {
     state.isBank = document.getElementById('input-is-bank').checked;
+    state.ticker = document.getElementById('input-ticker').value;
     state.dpaMode = 'direct';
     toggleBankMode(state.isBank);
-
-    // Initial search for default ticker VALE3
-    handleSearchTicker();
+    calculate();
   };
 </script>
 
