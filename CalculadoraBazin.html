@@ -582,6 +582,7 @@
     justify-content: center;
     gap: 8px;
     width: 100%;
+    transition: all 0.2s ease;
   }
   .btn-add-radar:hover {
     background: var(--green);
@@ -1021,11 +1022,11 @@
       <div id="inputs-tab-bazin" style="display: flex; flex-direction: column; gap: 20px;">
         <div class="panel-title">Parâmetros de Avaliação (Bazin)</div>
 
-        <!-- Campo do Nome do Papel / Ticker com Botão da API Brapi -->
+        <!-- Ticker com Botão da API Brapi -->
         <div class="form-group">
           <label for="input-ticker">Nome / Código do Papel (Ticker) <span class="optional-label">(Ex: BBAS3, VALE3)</span></label>
           <div class="ticker-fetch-wrap">
-            <input type="text" id="input-ticker" value="VALE3" placeholder="Ex: BBAS3, VALE3, PETR4" oninput="onTickerInput(this.value)" onkeydown="if(event.key==='Enter') fetchBrapiQuote(this.value)">
+            <input type="text" id="input-ticker" value="" placeholder="Ex: BBAS3, VALE3, PETR4" oninput="onTickerInput(this.value)" onkeydown="if(event.key==='Enter') fetchBrapiQuote(this.value)">
             <button type="button" class="btn-fetch-quote" id="btn-fetch-bazin" onclick="fetchBrapiQuote(document.getElementById('input-ticker').value)">
               <span class="spinner-sm" id="spinner-bazin" style="display:none;"></span>
               <span id="btn-text-bazin">⚡ Buscar Cotação</span>
@@ -1059,7 +1060,7 @@
             <label for="input-dpa">DPA 12m (Média R$) <span class="optional-label">(Opcional se DY preenchido)</span></label>
             <div class="input-with-symbol">
               <span class="input-symbol">R$</span>
-              <input type="number" id="input-dpa" value="5.20" step="0.01" min="0" oninput="onDpaDirectInput(this.value)">
+              <input type="number" id="input-dpa" value="" placeholder="0.00" step="0.01" min="0" oninput="onDpaDirectInput(this.value)">
             </div>
           </div>
 
@@ -1069,27 +1070,27 @@
             <div class="dpa-years-grid">
               <div class="year-input-box">
                 <span class="year-label">Ano 1</span>
-                <input type="number" class="input-year-val" id="dpa-y1" value="4.20" step="0.01" min="0" oninput="calculate()">
+                <input type="number" class="input-year-val" id="dpa-y1" value="" placeholder="0.00" step="0.01" min="0" oninput="calculate()">
               </div>
               <div class="year-input-box">
                 <span class="year-label">Ano 2</span>
-                <input type="number" class="input-year-val" id="dpa-y2" value="4.80" step="0.01" min="0" oninput="calculate()">
+                <input type="number" class="input-year-val" id="dpa-y2" value="" placeholder="0.00" step="0.01" min="0" oninput="calculate()">
               </div>
               <div class="year-input-box">
                 <span class="year-label">Ano 3</span>
-                <input type="number" class="input-year-val" id="dpa-y3" value="5.00" step="0.01" min="0" oninput="calculate()">
+                <input type="number" class="input-year-val" id="dpa-y3" value="" placeholder="0.00" step="0.01" min="0" oninput="calculate()">
               </div>
               <div class="year-input-box">
                 <span class="year-label">Ano 4</span>
-                <input type="number" class="input-year-val" id="dpa-y4" value="5.50" step="0.01" min="0" oninput="calculate()">
+                <input type="number" class="input-year-val" id="dpa-y4" value="" placeholder="0.00" step="0.01" min="0" oninput="calculate()">
               </div>
               <div class="year-input-box">
                 <span class="year-label">Ano 5</span>
-                <input type="number" class="input-year-val" id="dpa-y5" value="6.50" step="0.01" min="0" oninput="calculate()">
+                <input type="number" class="input-year-val" id="dpa-y5" value="" placeholder="0.00" step="0.01" min="0" oninput="calculate()">
               </div>
             </div>
             <div class="calc-avg-badge">
-              Média Calculada: <span id="avg-computed-dpa">R$ 5,20</span>
+              Média Calculada: <span id="avg-computed-dpa">R$ 0,00</span>
             </div>
           </div>
 
@@ -1102,7 +1103,7 @@
             <label for="input-price">Cotação Atual</label>
             <div class="input-with-symbol">
               <span class="input-symbol">R$</span>
-              <input type="number" id="input-price" value="62.50" step="0.01" min="0.01" oninput="onPriceInput(this.value)">
+              <input type="number" id="input-price" value="" placeholder="0.00" step="0.01" min="0.01" oninput="onPriceInput(this.value)">
             </div>
           </div>
 
@@ -1111,7 +1112,7 @@
             <label for="input-dy-medio">DY Médio 5 Anos (%) <span class="optional-label">(Opcional se DPA preenchido)</span></label>
             <div class="input-with-symbol">
               <span class="input-symbol">%</span>
-              <input type="number" id="input-dy-medio" value="7.50" step="0.1" min="0" max="100" oninput="calculate()">
+              <input type="number" id="input-dy-medio" value="" placeholder="0.0" step="0.1" min="0" max="100" oninput="calculate()">
             </div>
           </div>
         </div>
@@ -1120,10 +1121,10 @@
         <div id="debt-slider-container" class="form-group">
           <div class="slider-header">
             <label id="lbl-debt-title" for="slider-debt">Dívida Líquida / EBITDA</label>
-            <span class="slider-val-badge" id="lbl-debt" style="color: var(--accent);">1.20x</span>
+            <span class="slider-val-badge" id="lbl-debt" style="color: var(--accent);">0.00x</span>
           </div>
           <div class="slider-wrap">
-            <input type="range" id="slider-debt" min="-1.0" max="6.0" step="0.01" value="1.20" oninput="onDebtChange(this.value)">
+            <input type="range" id="slider-debt" min="-1.0" max="6.0" step="0.01" value="0.00" oninput="onDebtChange(this.value)">
             <div class="slider-ticks">
               <span>-1.0x (Caixa)</span>
               <span>0.0x</span>
@@ -1141,11 +1142,11 @@
       <div id="inputs-tab-graham" style="display: none; flex-direction: column; gap: 20px;">
         <div class="panel-title">Parâmetros de Avaliação (Graham + Bazin)</div>
 
-        <!-- Campo do Nome do Papel / Ticker com Botão da API Brapi -->
+        <!-- Campo Ticker no Graham -->
         <div class="form-group">
           <label for="input-graham-ticker">Nome / Código do Papel (Ticker) <span class="optional-label">(Ex: BBAS3, VALE3)</span></label>
           <div class="ticker-fetch-wrap">
-            <input type="text" id="input-graham-ticker" value="VALE3" placeholder="Ex: BBAS3, VALE3, PETR4" oninput="onTickerInput(this.value)" onkeydown="if(event.key==='Enter') fetchBrapiQuote(this.value)">
+            <input type="text" id="input-graham-ticker" value="" placeholder="Ex: BBAS3, VALE3, PETR4" oninput="onTickerInput(this.value)" onkeydown="if(event.key==='Enter') fetchBrapiQuote(this.value)">
             <button type="button" class="btn-fetch-quote" id="btn-fetch-graham" onclick="fetchBrapiQuote(document.getElementById('input-graham-ticker').value)">
               <span class="spinner-sm" id="spinner-graham" style="display:none;"></span>
               <span id="btn-text-graham">⚡ Buscar Cotação</span>
@@ -1160,7 +1161,7 @@
             <label for="input-vpa">VPA <span class="optional-label">(Valor Patrimonial p/ Ação)</span></label>
             <div class="input-with-symbol">
               <span class="input-symbol">R$</span>
-              <input type="number" id="input-vpa" value="40.00" step="0.01" min="0.01" oninput="calculate()">
+              <input type="number" id="input-vpa" value="" placeholder="0.00" step="0.01" min="0.01" oninput="calculate()">
             </div>
           </div>
 
@@ -1168,7 +1169,7 @@
             <label for="input-lpa">LPA <span class="optional-label">(Lucro Líquido por Ação)</span></label>
             <div class="input-with-symbol">
               <span class="input-symbol">R$</span>
-              <input type="number" id="input-lpa" value="4.50" step="0.01" oninput="onGrahamProfitInput()">
+              <input type="number" id="input-lpa" value="" placeholder="0.00" step="0.01" oninput="onGrahamProfitInput()">
             </div>
           </div>
         </div>
@@ -1179,7 +1180,7 @@
             <label for="input-payout">Payout Estimado (%)</label>
             <div class="input-with-symbol">
               <span class="input-symbol">%</span>
-              <input type="number" id="input-payout" value="60.0" step="0.5" min="0" max="100" oninput="onGrahamProfitInput()">
+              <input type="number" id="input-payout" value="" placeholder="0.0" step="0.5" min="0" max="100" oninput="onGrahamProfitInput()">
             </div>
           </div>
 
@@ -1187,14 +1188,14 @@
             <label for="input-graham-price">Cotação Atual</label>
             <div class="input-with-symbol">
               <span class="input-symbol">R$</span>
-              <input type="number" id="input-graham-price" value="62.50" step="0.01" min="0.01" oninput="onGrahamPriceInput(this.value)">
+              <input type="number" id="input-graham-price" value="" placeholder="0.00" step="0.01" min="0.01" oninput="onGrahamPriceInput(this.value)">
             </div>
           </div>
         </div>
 
         <!-- Implicit DPA Display Box -->
         <div class="calc-avg-badge">
-          DPA Implícito (LPA × Payout): <span id="graham-implicit-dpa">R$ 2,70</span>
+          DPA Implícito (LPA × Payout): <span id="graham-implicit-dpa">R$ 0,00</span>
         </div>
       </div>
 
@@ -1209,7 +1210,7 @@
         <div class="farol-indicator" id="farol-indicator"></div>
         <div class="farol-content">
           <span class="farol-title-sub" id="farol-status-label">Farol de Entrada</span>
-          <span class="farol-title" id="farol-status-title">Processando...</span>
+          <span class="farol-title" id="farol-status-title">Aguardando Dados...</span>
         </div>
       </div>
 
@@ -1284,7 +1285,7 @@
             <span id="copy-btn-icon">📋</span> <span id="copy-btn-text">Copiar Resumo</span>
           </button>
         </div>
-        <textarea id="summary-textarea" readonly rows="6" class="summary-textarea"></textarea>
+        <textarea id="summary-textarea" readonly rows="6" class="summary-textarea">Insira os dados da ação para gerar o resumo...</textarea>
         <div id="copy-toast" class="copy-toast" style="display:none;">✓ Resumo copiado para a área de transferência!</div>
       </div>
 
@@ -1326,7 +1327,7 @@
     <h3>Estrutura Decisória dos Pilares de Bazin & Graham</h3>
     <p>Com a taxa de desconto imutável estabelecida no padrão de <strong>K = 6,0%</strong>, os critérios decisórios deste painel avaliam três dimensões simultâneas:</p>
     <ul>
-      <li><strong>Pilar 1: Preço Descontado (Margem de Segurança):</strong> A cotação atual precisa estar abaixo do preço-teto calculated ($Preço\ Teto = DPA / 0,06$) para garantir que o yield projetado seja no mínimo 6%.</li>
+      <li><strong>Pilar 1: Preço Descontado (Margem de Segurança):</strong> A cotação atual precisa estar abaixo do preço-teto calculado ($Preço\ Teto = DPA / 0,06$) para garantir que o yield projetado seja no mínimo 6%.</li>
       <li><strong>Pilar 2: Consistência Histórica (DY Médio de 5 Anos):</strong> O Dividend Yield histórico do ativo (média consolidada dos últimos 5 anos) deve ser idealmente superior a <strong>6,0%</strong>. Se informado, valores abaixo disso acendem o farol amarelo pela perda de constância histórica de retorno.</li>
       <li><strong>Pilar 3: Alavancagem Controlada (Dívida Líquida / EBITDA ou Basileia):</strong> 
         <br>• <strong>Para empresas comuns:</strong> Dívida Líquida abaixo de <strong>2,5x</strong> o EBITDA é sinal verde; acima de <strong>3,5x</strong> reprova o ativo de imediato.
@@ -1356,22 +1357,22 @@
   // ── ESTADO GLOBAL REUTILIZÁVEL ENTRE ABAS ──
   let state = {
     activeTab: 'bazin', // 'bazin' ou 'graham'
-    ticker: 'VALE3',
+    ticker: '',
     dpaMode: 'direct',  // 'direct' ou 'years'
-    dpa: 5.20,
-    price: 62.50,
-    dyMedio: 7.50,
+    dpa: 0,
+    price: 0,
+    dyMedio: 0,
     k: 6.0,             // FIXO EM 6%
-    debtEbitda: 1.20,
+    debtEbitda: 0,
     isBank: false,
-    vpa: 40.00,
-    lpa: 4.50,
-    payout: 60.0,
+    vpa: 0,
+    lpa: 0,
+    payout: 0,
     // Current analysis outcome
-    tetoBazin: 86.67,
-    margemBazin: 27.88,
-    farolStatus: 'compra',
-    farolTitle: 'COMPRA · MARGEM & SAÚDE OK'
+    tetoBazin: 0,
+    margemBazin: 0,
+    farolStatus: 'neutro',
+    farolTitle: 'AGUARDANDO DADOS'
   };
 
   // BRAPI API TOKEN CONFIGURATION
@@ -1403,7 +1404,7 @@
 
   // ── UTILITÁRIOS DE FORMATAÇÃO ──
   function fmtReal(val) {
-    if (isNaN(val) || !isFinite(val) || val < 0) return 'R$ 0,00';
+    if (isNaN(val) || !isFinite(val) || val <= 0) return 'R$ 0,00';
     return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
@@ -1500,7 +1501,7 @@
 
   // Synchronize stock prices across both tabs
   function onPriceInput(val) {
-    state.price = parseFloat(val) || 0.01;
+    state.price = parseFloat(val) || 0;
     document.getElementById('input-price').value = val;
     document.getElementById('input-graham-price').value = val;
     calculate();
@@ -1548,7 +1549,7 @@
       root.style.setProperty('--accent', '#4f8ef7'); // Azul Bazin
       root.style.setProperty('--accent-rgb', '79, 142, 247');
       if (badgeEl) badgeEl.textContent = 'K = 6.0% de Bazin';
-      if (infoTextEl) infoTextEl.innerHTML = 'Esta ferramenta utiliza a taxa de desconto imutável de <strong>6,0% ao ano</strong> estabelecida pelo método clássico de Décio Bazin para garantir a margem de retorno em dividendos.';
+      if (infoTextEl) infoTextEl.innerHTML = 'Esta ferramenta utiliza a taxa de desconto imutável de <strong>6,0% ao ano</strong> established pelo método clássico de Décio Bazin para garantir a margem de retorno em dividendos.';
     } else {
       root.style.setProperty('--accent', '#a78bfa'); // Roxo Graham
       root.style.setProperty('--accent-rgb', '167, 139, 250');
@@ -1591,7 +1592,7 @@
   }
 
   function onDebtChange(val) {
-    state.debtEbitda = parseFloat(val);
+    state.debtEbitda = parseFloat(val) || 0;
     
     if (state.isBank) {
       document.getElementById('lbl-debt').textContent = 'N/A (Banco)';
@@ -1623,7 +1624,10 @@
 
   // ── CÁLCULO 1: BAZIN CLÁSSICO ──
   function calculateBazinClassic() {
-    const price = state.price || 0.01;
+    const rawPrice = document.getElementById('input-price').value;
+    const hasPrice = rawPrice !== '' && !isNaN(parseFloat(rawPrice)) && parseFloat(rawPrice) > 0;
+    const price = hasPrice ? parseFloat(rawPrice) : 0;
+
     const rawDyMedio = document.getElementById('input-dy-medio').value;
     const hasDyMedio = rawDyMedio !== '' && !isNaN(parseFloat(rawDyMedio)) && parseFloat(rawDyMedio) >= 0;
     const dyMedioInput = hasDyMedio ? parseFloat(rawDyMedio) : 0;
@@ -1633,7 +1637,7 @@
 
     if (state.dpaMode === 'direct') {
       const rawDpa = document.getElementById('input-dpa').value;
-      hasDpa = rawDpa !== '' && !isNaN(parseFloat(rawDpa)) && parseFloat(rawDpa) >= 0;
+      hasDpa = rawDpa !== '' && !isNaN(parseFloat(rawDpa)) && parseFloat(rawDpa) > 0;
       if (hasDpa) dpa = parseFloat(rawDpa);
     } else {
       const y1 = parseFloat(document.getElementById('dpa-y1').value);
@@ -1643,17 +1647,17 @@
       const y5 = parseFloat(document.getElementById('dpa-y5').value);
 
       const yearsVals = [y1, y2, y3, y4, y5].filter(v => !isNaN(v) && v >= 0);
-      hasDpa = yearsVals.length > 0;
+      hasDpa = yearsVals.length > 0 && yearsVals.some(v => v > 0);
       
       if (hasDpa) {
         dpa = yearsVals.reduce((a, b) => a + b, 0) / yearsVals.length;
         document.getElementById('avg-computed-dpa').textContent = fmtReal(dpa);
       } else {
-        document.getElementById('avg-computed-dpa').textContent = '---';
+        document.getElementById('avg-computed-dpa').textContent = 'R$ 0,00';
       }
     }
 
-    if (!hasDpa && !hasDyMedio) {
+    if ((!hasDpa && !hasDyMedio) || price <= 0) {
       setEmptyState();
       return;
     }
@@ -1662,7 +1666,7 @@
     if (hasDpa && hasDyMedio) {
       dyMedio = dyMedioInput;
     } else if (hasDpa && !hasDyMedio) {
-      dyMedio = (dpa / price) * 100;
+      dyMedio = price > 0 ? (dpa / price) * 100 : 0;
     } else if (!hasDpa && hasDyMedio) {
       dyMedio = dyMedioInput;
       dpa = price * (dyMedio / 100);
@@ -1673,6 +1677,7 @@
     const margemSeguranca = precoTeto > 0 ? (((precoTeto - price) / precoTeto) * 100) : -100;
 
     state.dpa = dpa;
+    state.price = price;
     state.tetoBazin = precoTeto;
     state.margemBazin = margemSeguranca;
 
@@ -1722,10 +1727,16 @@
 
   // ── CÁLCULO 2: INTEGRAÇÃO GRAHAM + BAZIN ──
   function calculateGrahamBazin() {
-    const vpa = parseFloat(document.getElementById('input-vpa').value) || 0.01;
+    const vpa = parseFloat(document.getElementById('input-vpa').value) || 0;
     const lpa = parseFloat(document.getElementById('input-lpa').value) || 0;
     const payout = parseFloat(document.getElementById('input-payout').value) || 0;
-    const price = state.price || 0.01;
+    const rawPrice = document.getElementById('input-graham-price').value;
+    const price = parseFloat(rawPrice) || 0;
+
+    if (price <= 0 || lpa <= 0 || vpa <= 0) {
+      setEmptyState();
+      return;
+    }
 
     // Graham Sqrt(22.5 * LPA * VPA)
     const product = 22.5 * lpa * vpa;
@@ -1739,6 +1750,7 @@
     const margemBazin = precoTetoBazin > 0 ? (((precoTetoBazin - price) / precoTetoBazin) * 100) : -100;
 
     state.dpa = dpaImplicit;
+    state.price = price;
     state.tetoBazin = precoTetoBazin;
     state.margemBazin = margemBazin;
 
@@ -1796,10 +1808,10 @@
     const percentFill = Math.min(100, Math.max(0, ratio));
     pbFill.style.width = percentFill + '%';
 
-    if (price <= teto) {
+    if (price <= teto && price > 0) {
       pbFill.style.backgroundColor = 'var(--green)';
       document.getElementById('pb-margin-lbl').style.color = 'var(--green)';
-    } else if (price <= teto * 1.1) {
+    } else if (price <= teto * 1.1 && price > 0) {
       pbFill.style.backgroundColor = 'var(--yellow)';
       document.getElementById('pb-margin-lbl').style.color = 'var(--yellow)';
     } else {
@@ -1816,9 +1828,22 @@
 
   function setEmptyState() {
     setFarolBanner('neutro', 'AGUARDANDO DADOS');
-    document.getElementById('res-teto').textContent = '---';
-    document.getElementById('res-margem').textContent = '---';
+    document.getElementById('farol-status-label').textContent = 'Farol de Entrada';
+    document.getElementById('res-teto').textContent = 'R$ 0,00';
+    document.getElementById('res-margem').textContent = '0,0%';
     document.getElementById('res-margem').style.color = 'var(--dim)';
+    document.getElementById('res-graham-vi').textContent = 'R$ 0,00';
+    document.getElementById('res-graham-dpa').textContent = 'R$ 0,00';
+    document.getElementById('res-graham-teto').textContent = 'R$ 0,00';
+    document.getElementById('res-graham-bazin-margem').textContent = '0,0%';
+    document.getElementById('res-graham-margem').textContent = '0,0%';
+    document.getElementById('res-graham-conv').textContent = '0,0%';
+    document.getElementById('pb-current-lbl').textContent = 'Cotação: R$ 0,00';
+    document.getElementById('pb-teto-lbl').textContent = 'Teto: R$ 0,00';
+    document.getElementById('pb-margin-lbl').textContent = 'Margem: 0,0%';
+    document.getElementById('pb-margin-lbl').style.color = 'var(--dim)';
+    document.getElementById('pb-fill').style.width = '0%';
+    document.getElementById('pb-fill').style.backgroundColor = 'var(--muted)';
     document.getElementById('summary-textarea').value = 'Insira os dados da ação para gerar o resumo...';
   }
 
@@ -1883,7 +1908,11 @@
 
   // ── RADAR DE OPORTUNIDADES & WATCHLIST (LOCAL STORAGE) ──
   function addToRadar() {
-    const paperName = state.ticker && state.ticker.trim() !== '' ? state.ticker.trim().toUpperCase() : 'ATIVO';
+    const paperName = state.ticker && state.ticker.trim() !== '' ? state.ticker.trim().toUpperCase() : '';
+    if (!paperName) {
+      showQuoteStatus('error', 'Digite o Ticker do papel antes de adicionar ao Radar.');
+      return;
+    }
     
     // Captura estado atual
     const item = {
@@ -1907,7 +1936,6 @@
     };
 
     let list = getRadarData();
-    // Se o ticker já existir, atualiza os dados dele; caso contrário, insere
     const existingIndex = list.findIndex(x => x.ticker === paperName);
     if (existingIndex >= 0) {
       list[existingIndex] = item;
@@ -1949,7 +1977,7 @@
       tbody.innerHTML = `
         <tr>
           <td colspan="6" class="radar-empty-state">
-            Nenhum ativo adicionado ao Radar ainda. Analise um papel e clique em "+ Adicionar ao Radar".
+            Nenhum ativo adicionado ao Radar ainda. Preencha os dados de um papel e clique em "+ Adicionar ao Radar".
           </td>
         </tr>
       `;
@@ -2000,8 +2028,10 @@
       state.dpa = item.dpa;
       document.getElementById('input-dpa').value = item.dpa.toFixed(2);
     }
-    if (item.dyMedio !== undefined) {
+    if (item.dyMedio !== undefined && item.dyMedio > 0) {
       document.getElementById('input-dy-medio').value = item.dyMedio;
+    } else {
+      document.getElementById('input-dy-medio').value = '';
     }
     if (item.isBank !== undefined) {
       document.getElementById('input-is-bank').checked = item.isBank;
@@ -2051,7 +2081,6 @@
   // Initial setup on window load
   window.onload = function() {
     state.isBank = document.getElementById('input-is-bank').checked;
-    state.ticker = document.getElementById('input-ticker').value;
     state.dpaMode = 'direct';
     toggleBankMode(state.isBank);
     calculate();
