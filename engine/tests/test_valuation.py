@@ -229,14 +229,17 @@ def test_obter_ativos_isola_falha_e_registra_erros_log(tmp_path, monkeypatch):
 
     def fake_coletar(symbol):
         if symbol == "FALHA3":
-            return {"preco": -10.0, "eventos_dividendos": [], "fundamentos": {}}
+            return {"preco": -10.0, "dividendos": [], "fundamentos": {}}
         return {
             "preco": 25.0,
-            "eventos_dividendos": [(date(2024, 5, 10), 1.50), (date(2025, 5, 10), 1.80)],
+            "dividendos": [
+                Dividendo(data_com=date(2024, 5, 10), valor=1.50, tipo="dividendo"),
+                Dividendo(data_com=date(2025, 5, 10), valor=1.80, tipo="jcp"),
+            ],
             "fundamentos": {"lpa": 4.0, "vpa": 20.0, "ebit": 100.0, "ev": 500.0, "capital_investido": 400.0, "g_perpetuidade": 0.02},
         }
 
-    monkeypatch.setattr(sources, "_coletar_dados_yahoo", fake_coletar)
+    monkeypatch.setattr(sources, "_coletar_dados_ativo", fake_coletar)
     log_file = tmp_path / "erros.log"
 
     entradas = [
