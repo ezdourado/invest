@@ -1,18 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg:          #0d0f14;
-  --surface:     #13161e;
-  --border:      #1e2330;
+  --bg:          #0a0e14;
+  --surface:     #10161f;
+  --border:      #1d2632;
   --muted:       var(--bg);
-  --muted-btn:   #2a2f3d;
-  --text:        #c8cdd8;
-  --dim:         #5a6175;
-  --accent:      #4f8ef7;
-  --accent-rgb:  79, 142, 247;
-  --green:       #3ddc97;
-  --yellow:      #f7c948;
-  --red:         #f76f6f;
+  --muted-btn:   #2a3545;
+  --text:        #c9d1dd;
+  --dim:         #5a6576;
+  --accent:      #5b8def;
+  --accent-rgb:  91, 141, 239;
+  --green:       #2fbf86;
+  --yellow:      #e0b341;
+  --red:         #e5636b;
   --purple:      #a78bfa;
   --amber:       #f59e0b;
   --amber-rgb:   245, 158, 11;
