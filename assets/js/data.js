@@ -118,13 +118,13 @@ function renderizarCoberturaBesst() {
   }).join('');
 }
 
-function renderizarSeletorUniverso() {
+function renderizarSeletorUniverso(termoFiltro = '') {
   const chipsContainer = document.getElementById('universe-chips-list');
   const datalist = document.getElementById('universe-tickers-datalist');
   const universeCountEl = document.getElementById('universe-total-badge');
 
   if (universeCountEl) {
-    universeCountEl.textContent = `${painelState.universo.length} disponíveis na base`;
+    universeCountEl.textContent = `${painelState.universo.length} disponíveis na base (${painelState.selecionados.length} selecionados)`;
   }
 
   if (datalist) {
@@ -136,17 +136,43 @@ function renderizarSeletorUniverso() {
   if (!chipsContainer) return;
 
   const setSelecionados = new Set(painelState.selecionados.map(t => t.toUpperCase()));
+  const q = termoFiltro.trim().toLowerCase();
 
-  chipsContainer.innerHTML = painelState.universo.map(item => {
-    const ativo = setSelecionados.has(item.ticker.toUpperCase());
-    const chipClass = ativo ? 'ticker-chip active' : 'ticker-chip';
-    const icon = ativo ? '✓' : '+';
+  const grupos = [
+    { titulo: '🏦 Bancos (B)', filtro: a => mapearSetorBesst(a.setor) === 'bancos' },
+    { titulo: '⚡ Energia Elétrica (E)', filtro: a => mapearSetorBesst(a.setor) === 'energia' },
+    { titulo: '💧 Saneamento (S)', filtro: a => mapearSetorBesst(a.setor) === 'saneamento' },
+    { titulo: '🛡️ Seguros (S)', filtro: a => mapearSetorBesst(a.setor) === 'seguros' },
+    { titulo: '📡 Telecom (T)', filtro: a => mapearSetorBesst(a.setor) === 'telecom' },
+    { titulo: '🏭 Outras Pagadoras de Dividendos', filtro: a => !mapearSetorBesst(a.setor) }
+  ];
+
+  chipsContainer.innerHTML = grupos.map(grupo => {
+    const itens = painelState.universo.filter(a => {
+      if (!grupo.filtro(a)) return false;
+      if (!q) return true;
+      return a.ticker.toLowerCase().includes(q) || a.setor.toLowerCase().includes(q);
+    });
+
+    if (itens.length === 0) return '';
+
+    const botoes = itens.map(item => {
+      const ativo = setSelecionados.has(item.ticker.toUpperCase());
+      const chipClass = ativo ? 'ticker-chip active' : 'ticker-chip';
+      const icon = ativo ? '✓' : '+';
+      return `
+        <button type="button" class="${chipClass}" data-action="toggle-ticker" data-ticker="${item.ticker}" title="${item.setor.toUpperCase()} · Cotação: ${fmtReal(item.preco)} · Teto Bazin: ${fmtReal(item.bazin?.teto)}">
+          <span class="chip-icon">${icon}</span>
+          <span class="chip-ticker">${item.ticker}</span>
+        </button>
+      `;
+    }).join('');
+
     return `
-      <button type="button" class="${chipClass}" data-action="toggle-ticker" data-ticker="${item.ticker}" title="${item.setor.toUpperCase()} · ${fmtReal(item.preco)}">
-        <span class="chip-icon">${icon}</span>
-        <span class="chip-ticker">${item.ticker}</span>
-        <span class="chip-sector">${item.setor}</span>
-      </button>
+      <div class="universe-sector-group">
+        <span class="universe-sector-title">${grupo.titulo} (${itens.length})</span>
+        <div class="universe-sector-chips">${botoes}</div>
+      </div>
     `;
   }).join('');
 }
@@ -402,10 +428,15 @@ async function carregarValuationJson() {
 
 function bindPainelEvents() {
   document.getElementById('btn-add-universe-ticker')?.addEventListener('click', () => adicionarTickerPorInput());
-  document.getElementById('input-search-universe')?.addEventListener('keydown', (e) => {
+  const searchInput = document.getElementById('input-search-universe');
+  searchInput?.addEventListener('input', (e) => {
+    renderizarSeletorUniverso(e.target.value);
+  });
+  searchInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       adicionarTickerPorInput();
+      renderizarSeletorUniverso('');
     }
   });
 
