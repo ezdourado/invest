@@ -209,3 +209,44 @@ def test_build_gera_saida_valida():
     setores = {a.setor for a in saida.ativos}
     assert {"bancos", "energia", "saneamento", "seguros", "telecom"}.issubset(setores)
     assert any(a.besst is True for a in saida.ativos)
+
+
+def test_conversao_data_ex_para_data_com():
+    """Valida a regra de conversão de data-ex (Yahoo Finance) para data-com (dia útil anterior)."""
+    from engine.sources import converter_data_ex_para_data_com
+
+    # Segunda-feira (2026-01-05) -> Sexta-feira anterior (2026-01-02)
+    assert converter_data_ex_para_data_com(date(2026, 1, 5)) == date(2026, 1, 2)
+    # Terça-feira (2026-01-06) -> Segunda-feira (2026-01-05)
+    assert converter_data_ex_para_data_com(date(2026, 1, 6)) == date(2026, 1, 5)
+    # Virada de ano: data-ex na quinta 2026-01-01 -> data-com na quarta 2025-12-31
+    assert converter_data_ex_para_data_com(date(2026, 1, 1)) == date(2025, 12, 31)
+
+
+def test_obter_ativos_isola_falha_e_registra_erros_log(tmp_path, monkeypatch):
+    """Se um ativo falhar na coleta ou validação Pydantic, registra em erros.log e segue o build."""
+    import engine.sources as sources
+
+    def fake_coletar(symbol):
+        if symbol == "FALHA3":
+            return {"preco": -10.0, "eventos_dividendos": [], "fundamentos": {}}
+        return {
+            "preco": 25.0,
+            "eventos_dividendos": [(date(2024, 5, 10), 1.50), (date(2025, 5, 10), 1.80)],
+            "fundamentos": {"lpa": 4.0, "vpa": 20.0, "ebit": 100.0, "ev": 500.0, "capital_investido": 400.0, "g_perpetuidade": 0.02},
+        }
+
+    monkeypatch.setattr(sources, "_coletar_dados_yahoo", fake_coletar)
+    log_file = tmp_path / "erros.log"
+
+    entradas = [
+        {"ticker": "FALHA3", "setor": "energia"},
+        {"ticker": "TAEE11", "setor": "energia"},
+    ]
+    ativos = sources.obter_ativos(entradas, caminho_log=log_file)
+
+    assert len(ativos) == 1
+    assert ativos[0].ticker == "TAEE11"
+    assert log_file.exists()
+    conteudo_log = log_file.read_text(encoding="utf-8")
+    assert "FALHA3" in conteudo_log

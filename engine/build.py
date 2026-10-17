@@ -1,12 +1,14 @@
-"""Script de geração do arquivo estático data/valuation.json a partir de exemplo_ativos.json."""
+"""Script de geração do arquivo estático data/valuation.json a partir de dados reais (engine/sources.py)."""
 
 from __future__ import annotations
 
+import argparse
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 
 from engine.schemas import Ativo, ResultadoAtivo, Saida
+from engine.sources import CAMINHO_TICKERS_PADRAO, carregar_tickers_json, obter_ativos
 from engine.valuation import (
     avaliar_bazin,
     eh_setor_besst,
@@ -74,12 +76,32 @@ def construir_saida(
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Gera data/valuation.json com dados de valuation da B3.")
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Usa engine/exemplo_ativos.json em vez de consultar a API externa.",
+    )
+    parser.add_argument(
+        "--tickers-file",
+        type=Path,
+        default=CAMINHO_TICKERS_PADRAO,
+        help="Caminho para o arquivo JSON com a lista de tickers e setores.",
+    )
+    args = parser.parse_args()
+
     raiz_projeto = Path(__file__).resolve().parent.parent
-    caminho_entrada = Path(__file__).resolve().parent / "exemplo_ativos.json"
     caminho_saida = raiz_projeto / "data" / "valuation.json"
 
-    dados_brutos = json.loads(caminho_entrada.read_text(encoding="utf-8"))
-    ativos = [Ativo.model_validate(item) for item in dados_brutos]
+    if args.offline:
+        caminho_exemplo = Path(__file__).resolve().parent / "exemplo_ativos.json"
+        dados_brutos = json.loads(caminho_exemplo.read_text(encoding="utf-8"))
+        ativos = [Ativo.model_validate(item) for item in dados_brutos]
+    else:
+        lista_tickers = carregar_tickers_json(args.tickers_file)
+        ativos = obter_ativos(lista_tickers)
+        if not ativos:
+            raise RuntimeError("Nenhum ativo válido pôde ser obtido pela fonte de dados.")
 
     saida = construir_saida(ativos)
     saida_validada = Saida.model_validate(saida.model_dump(mode="json"))
@@ -89,7 +111,7 @@ def main() -> None:
         json.dumps(saida_validada.model_dump(mode="json"), ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
-    print(f"Arquivo gerado com sucesso: {caminho_saida} ({len(saida_validada.ativos)} ativos)")
+    print(f"Arquivo gerado com sucesso: {caminho_saida} ({len(saida_validada.ativos)} ativos reais)")
 
 
 if __name__ == "__main__":
