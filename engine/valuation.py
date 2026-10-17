@@ -152,6 +152,7 @@ def avaliar_bazin(
         teto_sem_extra=teto_principal if res_dpa.tem_extraordinario else teto_com_extra,
         margem_seguranca=m_seguranca,
         veredito=veredito_bazin(teto_principal, preco),
+        por_ano={str(ano): round(val, 4) for ano, val in res_dpa.por_ano_sem_extra.items()},
     )
 
 
