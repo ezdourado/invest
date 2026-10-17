@@ -2,114 +2,178 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Painel de Valuation B3 · Bazin, Graham, Gordon & Greenblatt</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Painel de Valuation · B3</title>
   <link rel="icon" type="image/png" href="./favicon.png">
-  <link rel="stylesheet" href="./assets/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="./assets/css/painel.css">
 </head>
 <body>
 
-<div class="container">
-
-  <div class="header">
-    <div class="header-titles">
-      <div class="header-label">Leitor Oficial da Base JSON · Motor Python</div>
-      <h1>Painel de Valuation · Ações da B3</h1>
-      <div class="header-meta">
-        Modelos Integrados: <span>Bazin (K = 6.0%) · Graham · Gordon · Greenblatt · BESST</span>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div class="brand-text">
+        <span class="brand-title">Valuation B3</span>
+        <span class="brand-sub">Bazin · Graham · Gordon · Greenblatt</span>
       </div>
     </div>
-    <div class="header-nav-links">
-      <a href="./index.html" class="nav-link-pill active">📊 Painel de Valuation (JSON)</a>
-      <a href="./CalculadoraBazin.html" class="nav-link-pill">🧮 Calculadora Manual</a>
+    <nav class="topnav" aria-label="Navegação principal">
+      <a href="./index.html" class="topnav-link is-active" aria-current="page">Painel</a>
+      <a href="./CalculadoraBazin.html" class="topnav-link">Calculadora</a>
+    </nav>
+    <div class="status-pill" id="status-pill" data-tip="Data e hora em que o motor Python gerou ./data/valuation.json">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span id="status-text">Carregando base…</span>
     </div>
   </div>
+</header>
 
-  <div class="selector-panel">
-    <div class="radar-header">
-      <div class="radar-header-titles">
-        <span class="radar-title">🔎 Selecionar Ativos para Visualização</span>
-        <span class="radar-count-badge" id="universe-total-badge">0 disponíveis na base</span>
-      </div>
-      <div class="selector-quick-actions">
-        <button type="button" class="btn-terminal-action" id="btn-select-besst-universe">🛡️ Selecionar Setores BESST</button>
-        <button type="button" class="btn-terminal-action" id="btn-select-all-universe">✓ Selecionar Todos</button>
-        <button type="button" class="btn-clear-radar" id="btn-clear-universe">Limpar Seleção</button>
+<main class="shell">
+
+  <section class="page-head">
+    <div>
+      <p class="eyebrow">Painel de Valuation</p>
+      <h1>Ações da B3 · visão analítica</h1>
+      <p class="page-lede">Bazin com K fixo de 6%, DPA retroativo de 5 anos civis fechados pela data-com. Use o painel para triar papéis e priorizar estudos.</p>
+    </div>
+    <div class="page-head-actions">
+      <button type="button" class="btn btn-primary" id="btn-open-selector">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Gerenciar ativos
+      </button>
+    </div>
+  </section>
+
+  <div class="alert alert-error is-hidden" id="engine-error-banner" role="alert"></div>
+
+  <section class="kpi-grid" id="kpi-grid" aria-label="Indicadores do painel"></section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2 class="card-title">Cobertura setorial BESST</h2>
+        <p class="card-sub">Bancos · Energia · Saneamento · Seguros · Telecom — clique em um setor para filtrar</p>
       </div>
     </div>
+    <div class="besst-grid" id="besst-coverage-grid"></div>
+  </section>
 
-    <div class="selector-top-row">
-      <div class="selector-search-wrap">
-        <input type="text" id="input-search-universe" list="universe-tickers-datalist" placeholder="Digite o Ticker da ação (ex: BBAS3, TAEE11, PETR4, WEGE3)...">
-        <datalist id="universe-tickers-datalist"></datalist>
-        <button type="button" class="btn-fetch-quote" id="btn-add-universe-ticker">+ Adicionar ao Painel</button>
+  <section class="card card-table">
+    <div class="card-head card-head-wrap">
+      <div>
+        <h2 class="card-title">Tabela de valuation</h2>
+        <p class="card-sub" id="engine-count-badge">0 ativos exibidos</p>
       </div>
-    </div>
-    <div class="fetch-quote-status" id="search-universe-feedback"></div>
-
-    <div class="universe-chips-wrap">
-      <span class="universe-chips-label">Clique nos ativos disponíveis em ./data/valuation.json para incluir ou remover do seu Painel:</span>
-      <div class="universe-chips-list" id="universe-chips-list"></div>
-    </div>
-  </div>
-
-  <div class="engine-data-section" id="engine-data-section">
-    <div class="radar-header">
-      <div class="radar-header-titles">
-        <span class="radar-title">⚙️ Tabela de Valuation · Seus Ativos Selecionados</span>
-        <span class="radar-count-badge" id="engine-count-badge">0 ativos exibidos</span>
-      </div>
-      <span class="engine-meta-label" id="engine-valuation-meta">Carregando ./data/valuation.json...</span>
-    </div>
-
-    <div class="engine-error-banner is-hidden" id="engine-error-banner"></div>
-
-    <div class="besst-coverage-box">
-      <div class="besst-coverage-title">
-        <span>🛡️ Cobertura Setorial BESST (Bancos · Energia · Saneamento · Seguros · Telecom)</span>
-        <div class="sector-filter-bar">
-          <button type="button" class="btn-sector-filter active" data-action="filter-sector-btn" data-sector="todos">Todos Selecionados</button>
-          <button type="button" class="btn-sector-filter" data-action="filter-sector-btn" data-sector="besst">Apenas BESST</button>
+      <div class="toolbar">
+        <label class="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="input-filter-table" placeholder="Filtrar por ticker ou setor" autocomplete="off">
+        </label>
+        <div class="segmented" role="group" aria-label="Filtrar por veredito" id="verdict-filter">
+          <button type="button" class="seg-btn is-active" data-verdict="todos">Todos</button>
+          <button type="button" class="seg-btn" data-verdict="verde"><i class="dot dot-green"></i>Compra</button>
+          <button type="button" class="seg-btn" data-verdict="amarelo"><i class="dot dot-yellow"></i>Atenção</button>
+          <button type="button" class="seg-btn" data-verdict="vermelho"><i class="dot dot-red"></i>Caro</button>
         </div>
+        <label class="select-wrap mobile-only">
+          <span class="sr-only">Ordenar por</span>
+          <select id="select-sort-mobile" aria-label="Ordenar por"></select>
+        </label>
       </div>
-      <div class="besst-coverage-grid" id="besst-coverage-grid"></div>
     </div>
 
-    <div class="radar-table-wrap">
-      <table class="radar-table" id="engine-valuation-table">
+    <div class="filter-chips" id="active-filters"></div>
+
+    <div class="table-wrap">
+      <table class="vt" id="engine-valuation-table">
         <thead>
           <tr>
-            <th>Ticker</th>
-            <th>Setor</th>
-            <th>Preço</th>
-            <th>DPA Retroativo (5a)</th>
-            <th>Teto Bazin (6%)</th>
-            <th>Margem Bazin</th>
-            <th>Veredito</th>
-            <th>Graham (V.I.)</th>
-            <th>Gordon</th>
-            <th class="text-right">Greenblatt / Ação</th>
+            <th data-sort="ticker" data-tip="Código de negociação e setor do ativo">Ativo</th>
+            <th data-sort="preco" class="num" data-tip="Cotação de fechamento usada pelo motor">Preço</th>
+            <th data-sort="dpa" class="num" data-tip="Média dos dividendos + JCP por ação nos últimos 5 anos civis fechados, agrupados pela data-com. Sem extraordinários.">DPA 5a</th>
+            <th data-sort="teto" class="num" data-tip="Preço-teto Bazin = DPA ÷ 6%">Teto Bazin</th>
+            <th data-sort="margem" class="num" data-tip="Margem de segurança = (Teto − Preço) ÷ Teto">Margem Bazin</th>
+            <th data-sort="veredito" data-tip="Veredito do motor com base na margem Bazin">Veredito</th>
+            <th data-sort="graham" class="num" data-tip="Valor intrínseco de Graham = √(22,5 × LPA × VPA). Referência secundária.">Graham</th>
+            <th data-sort="gordon" class="num" data-tip="Modelo de Gordon: DPA × (1+g) ÷ (k − g)">Gordon</th>
+            <th data-sort="greenblatt" class="num" data-tip="Posição no ranking Greenblatt (EBIT/EV + ROIC). Bancos ficam fora.">Greenblatt</th>
+            <th class="col-actions"><span class="sr-only">Ações</span></th>
           </tr>
         </thead>
         <tbody id="engine-valuation-tbody">
+          <tr class="row-skeleton"><td colspan="10"><div class="skeleton"></div></td></tr>
+          <tr class="row-skeleton"><td colspan="10"><div class="skeleton"></div></td></tr>
+          <tr class="row-skeleton"><td colspan="10"><div class="skeleton"></div></td></tr>
         </tbody>
       </table>
     </div>
+  </section>
+
+  <section class="card card-notes">
+    <h2 class="card-title">Metodologia (PROJETO.md)</h2>
+    <dl class="notes">
+      <div><dt>Bazin</dt><dd>K = 6% fixo. DPA retroativo = média de dividendos reais por ano civil da data-com nos últimos 5 anos fechados. Extraordinários calculados à parte e sinalizados.</dd></div>
+      <div><dt>Margem</dt><dd>(Teto − Preço) ÷ Teto, com o teto no denominador.</dd></div>
+      <div><dt>Graham &amp; Gordon</dt><dd>√(22,5 × LPA × VPA) e DPA × (1+g) ÷ (k − g). Graham é referência secundária para financeiras e holdings.</dd></div>
+      <div><dt>Greenblatt &amp; BESST</dt><dd>Ranking no universo operacional; bancos ficam fora com motivo registrado. BESST é atributo de cobertura e não descarta ativos.</dd></div>
+    </dl>
+  </section>
+
+  <footer class="foot">Leitor da base <code>./data/valuation.json</code> · Não é recomendação de investimento.</footer>
+</main>
+
+<!-- Gaveta de seleção de ativos -->
+<div class="overlay is-hidden" id="overlay" data-close-drawer></div>
+
+<aside class="drawer is-hidden" id="selector-drawer" role="dialog" aria-modal="true" aria-labelledby="selector-title">
+  <div class="drawer-head">
+    <div>
+      <h2 id="selector-title">Gerenciar ativos</h2>
+      <p class="card-sub" id="universe-total-badge">0 disponíveis</p>
+    </div>
+    <button type="button" class="icon-btn" data-close-drawer aria-label="Fechar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
   </div>
-
-  <div class="info-footer">
-    <h3>Regras do Motor de Valuation (PROJETO.md)</h3>
-    <ul>
-      <li><strong>Bazin (K = 6,0% fixo):</strong> DPA retroativo calculado pelos dividendos reais agrupados pelo ano civil da data-com nos últimos 5 anos fechados. Dividendos extraordinários são calculados à parte e sinalizados (<code>⚠️ c/ Extra</code>).</li>
-      <li><strong>Margem de Segurança:</strong> Calculada com o preço-teto no denominador: $(\text{Teto} - \text{Preço}) / \text{Teto}$.</li>
-      <li><strong>Graham & Gordon:</strong> Referências patrimoniais ($\sqrt{22,5 \times LPA \times VPA}$) e de perpetuidade de proventos ($\frac{DPA(1+g)}{k-g}$).</li>
-      <li><strong>Greenblatt & Filtro BESST:</strong> Ranking calculado sobre o universo operacional (Bancos ficam fora do ranking registrando o motivo). A cobertura BESST agrega seus ativos selecionados por setor sem descartar papéis fora do BESST.</li>
-    </ul>
+  <div class="drawer-body">
+    <label class="search search-block">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="input-search-universe" placeholder="Buscar ticker ou setor · Enter adiciona" autocomplete="off">
+    </label>
+    <div class="feedback" id="search-universe-feedback" aria-live="polite"></div>
+    <div class="quick-actions">
+      <button type="button" class="btn btn-ghost" id="btn-select-besst-universe">Somente BESST</button>
+      <button type="button" class="btn btn-ghost" id="btn-select-green-universe">Somente veredito verde</button>
+      <button type="button" class="btn btn-ghost" id="btn-select-all-universe">Selecionar todos</button>
+      <button type="button" class="btn btn-ghost btn-danger" id="btn-clear-universe">Limpar</button>
+    </div>
+    <div class="universe" id="universe-chips-list"></div>
   </div>
+</aside>
 
-</div>
+<!-- Painel de detalhes do ativo -->
+<aside class="drawer drawer-detail is-hidden" id="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+  <div class="drawer-head">
+    <div>
+      <h2 id="detail-title">Ativo</h2>
+      <p class="card-sub" id="detail-sub"></p>
+    </div>
+    <button type="button" class="icon-btn" data-close-drawer aria-label="Fechar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body" id="detail-body"></div>
+</aside>
 
-<script src="./assets/js/valuation.js"></script>
+<div class="tooltip" id="tooltip" role="tooltip"></div>
+
 <script src="./assets/js/data.js"></script>
 </body>
 </html>
