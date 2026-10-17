@@ -933,7 +933,7 @@ function exibirErro(msg) {
   if (tbody) tbody.innerHTML = `<tr class="row-empty"><td colspan="10" class="empty"><strong>Dados indisponíveis</strong>${esc(msg)}</td></tr>`;
 }
 
-async function carregarValuationJson() {
+async function carregarValuationJson(silencioso = false) {
   try {
     const resp = await fetch('./data/valuation.json', { headers: { Accept: 'application/json' }, cache: 'no-store' });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}${resp.statusText ? ' ' + resp.statusText : ''}`);
@@ -946,19 +946,25 @@ async function carregarValuationJson() {
     painelState.selecionados = lerStorage(STORAGE_KEY_PAINEL_TICKERS, [])
       .filter(t => typeof t === 'string' && mapa.has(t.toUpperCase()));
 
-    // Link compartilhável: index.html#t=BBAS3,TAEE4 substitui a seleção salva
-    const hash = new URLSearchParams(location.hash.replace(/^#/, ''));
-    if (hash.get('t')) {
-      const doLink = hash.get('t').split(',').map(t => t.trim().toUpperCase()).filter(t => mapa.has(t));
-      if (doLink.length) salvarSelecionados(doLink);
+    if (!silencioso) {
+      // Link compartilhável: index.html#t=BBAS3,TAEE4 substitui a seleção salva
+      const hash = new URLSearchParams(location.hash.replace(/^#/, ''));
+      if (hash.get('t')) {
+        const doLink = hash.get('t').split(',').map(t => t.trim().toUpperCase()).filter(t => mapa.has(t));
+        if (doLink.length) salvarSelecionados(doLink);
+      }
+      atualizarStatusBase();
+      renderizarTudo();
+      if (hash.get('d') && mapa.has(hash.get('d').toUpperCase())) abrirDetalhe(hash.get('d'));
+    } else {
+      atualizarStatusBase();
+      renderizarTudo();
     }
-
-    atualizarStatusBase();
-    renderizarTudo();
-    if (hash.get('d') && mapa.has(hash.get('d').toUpperCase())) abrirDetalhe(hash.get('d'));
   } catch (err) {
-    const msg = err instanceof TypeError ? 'falha de rede' : (err.message || 'erro desconhecido');
-    exibirErro(msg);
+    if (!silencioso) {
+      const msg = err instanceof TypeError ? 'falha de rede' : (err.message || 'erro desconhecido');
+      exibirErro(msg);
+    }
   }
 }
 
@@ -1079,4 +1085,8 @@ window.addEventListener('DOMContentLoaded', () => {
   if (sortSalvo?.key && sortSalvo?.dir) painelState.sort = sortSalvo;
   bindEventos();
   carregarValuationJson();
+  // Atualiza silenciosamente a base a cada 2 minutos enquanto o painel estiver aberto
+  setInterval(() => {
+    if (!document.hidden) carregarValuationJson(true);
+  }, 120000);
 });
