@@ -1,32 +1,27 @@
 """Módulo isolado de coleta de dados reais de cotações, dividendos e fundamentos da B3.
 
-Fonte primária: Yahoo Finance (`yfinance`, sufixo `.SA` para ativos da B3).
-Todo o código de acesso externo fica restrito a este módulo para permitir
-substituição futura de provedor sem impacto em `valuation.py` ou `build.py`.
-
-REGRA DE CONVERSÃO DATA-EX -> DATA-COM:
-O Yahoo Finance registra os eventos de proventos pela `data-ex` (Ex-Dividend Date),
-que é o primeiro pregão em que a ação passa a ser negociada sem direito ao provento.
-Na B3, a `data-com` (último dia com direito ao dividendo) corresponde ao dia útil
-imediatamente anterior à `data-ex`:
-- Se a `data-ex` cai em uma segunda-feira (`weekday == 0`), a `data-com` é a
-  sexta-feira anterior (`data_ex - 3 dias`).
-- Se a `data-ex` cai em um domingo (`weekday == 6`), recua 2 dias para sexta-feira.
-- Nos demais dias úteis (terça a sábado), a `data-com` é o dia anterior (`data_ex - 1 dia`).
-Isso garante que proventos cuja `data-com` ocorreu nos últimos dias de dezembro
-(e cuja `data-ex` caiu no início de janeiro do ano seguinte) sejam alocados
-corretamente no ano civil da `data-com`, conforme exigido pelo PROJETO.md.
+Fontes utilizadas:
+1. Proventos históricos: Fundamentus (`proventos.php?papel=<TICKER>&tipo=2`), que fornece
+   a série histórica completa da B3 já indexada pela `data-com` oficial e com o tipo de
+   provento explícito (`DIVIDENDO`, `JRS CAP PROPRIO`, `REST CAP DIN`, etc.), ajustada
+   pelos fatores de desdobramento/bonificação (`splits`) da ação para manter a base
+   comparável com a cotação atual.
+   Caso o Fundamentus esteja indisponível para algum ativo, utiliza como fallback a série
+   de dividendos do Yahoo Finance convertendo a `data-ex` para `data-com` (dia útil anterior).
+2. Cotações e múltiplos fundamentalistas: Yahoo Finance (`yfinance`, sufixo `.SA`).
 """
 
 from __future__ import annotations
 
 import json
 import math
+import urllib.request
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
 import yfinance as yf
+from bs4 import BeautifulSoup
 from pydantic import ValidationError
 
 from engine.schemas import Ativo, Dividendo, Fundamentos, TipoDividendo
@@ -38,7 +33,7 @@ CAMINHO_TICKERS_PADRAO = Path(__file__).resolve().parent / "tickers.json"
 def converter_data_ex_para_data_com(data_ex: date) -> date:
     """Converte a data-ex (Ex-Dividend Date) para a data-com (dia útil anterior).
 
-    Documentação da regra:
+    Documentação da regra (usada quando a fonte informa data-ex em vez de data-com):
     - Segunda-feira (weekday == 0) -> recua 3 dias (sexta-feira anterior).
     - Domingo (weekday == 6)       -> recua 2 dias (sexta-feira anterior).
     - Terça a Sábado               -> recua 1 dia.
@@ -80,43 +75,88 @@ def _limpar_float(val: Any) -> Optional[float]:
         return None
 
 
-def _classificar_proventos(eventos_brutos: list[tuple[date, float]]) -> list[Dividendo]:
-    """Converte tuplas (data_com, valor) em objetos Dividendo e detecta extraordinários.
+def _mapear_tipo_provento(tipo_str: str) -> Optional[TipoDividendo]:
+    """Classifica o tipo textual do provento em 'dividendo', 'jcp' ou 'extraordinario'.
 
-    Heurística transparente para sinalizar dividendos extraordinários quando a fonte
-    fornece a série histórica bruta de caixa: se houver ao menos 4 pagamentos na janela
-    e um pagamento individual for superior a 3,0x a mediana dos pagamentos do ativo
-    (e representar valor relevante >= R$ 0,50), ele é classificado como 'extraordinario'.
+    Bonificações em ações ou subscrições retornam None (nunca entram no DPA).
+    Restituição de capital em dinheiro ('REST CAP DIN') ou dividendos especiais/extraordinários
+    são classificados como 'extraordinario'.
     """
-    validos = [(dt, val) for dt, val in eventos_brutos if val is not None and val > 0]
-    if not validos:
+    t = tipo_str.strip().upper()
+    if "BONIFICA" in t or "SUBSCRI" in t or "DESDOBRA" in t or "GRUPAMENTO" in t:
+        return None
+    if "REST" in t or "EXTRA" in t or "ESPECIAL" in t:
+        return "extraordinario"
+    if "JRS" in t or "JUROS" in t or "JCP" in t:
+        return "jcp"
+    return "dividendo"
+
+
+def _coletar_proventos_fundamentus(
+    symbol_b3: str,
+    splits: list[tuple[date, float]],
+) -> list[Dividendo]:
+    """Coleta a tabela oficial de proventos por data-com do Fundamentus ajustada por splits."""
+    papel = symbol_b3.replace(".SA", "").strip().upper()
+    url = f"https://www.fundamentus.com.br/proventos.php?papel={papel}&tipo=2"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        },
+    )
+    with urllib.request.urlopen(req, timeout=12) as resp:
+        html = resp.read().decode("latin-1", errors="ignore")
+
+    soup = BeautifulSoup(html, "lxml")
+    tabela = soup.find("table", {"id": "resultado"})
+    if not tabela or not tabela.find("tbody"):
         return []
 
-    valores_ordenados = sorted(v for _, v in validos)
-    n = len(valores_ordenados)
-    mediana = (
-        valores_ordenados[n // 2]
-        if n % 2 == 1
-        else (valores_ordenados[n // 2 - 1] + valores_ordenados[n // 2]) / 2.0
-    )
+    dividendos: list[Dividendo] = []
+    for tr in tabela.find("tbody").find_all("tr"):
+        cols = [td.get_text(strip=True) for td in tr.find_all("td")]
+        if len(cols) < 5:
+            continue
 
-    limiar_extra = max(mediana * 3.0, 0.50) if n >= 4 else float("inf")
+        dt_str, val_str, tipo_str, _, qtd_str = cols[:5]
+        tipo_mapeado = _mapear_tipo_provento(tipo_str)
+        if tipo_mapeado is None:
+            continue
 
-    resultado: list[Dividendo] = []
-    for dt_com, valor in validos:
-        tipo: TipoDividendo = "extraordinario" if valor >= limiar_extra else "dividendo"
-        resultado.append(
+        try:
+            dia, mes, ano = map(int, dt_str.split("/"))
+            dt_com = date(ano, mes, dia)
+            valor_bruto = float(val_str.replace(".", "").replace(",", "."))
+            lote = float(qtd_str.replace(".", "").replace(",", "."))
+            if lote <= 0 or valor_bruto <= 0:
+                continue
+            valor_por_acao = valor_bruto / lote
+        except (ValueError, ZeroDivisionError):
+            continue
+
+        fator_split = 1.0
+        for dt_split, ratio in splits:
+            if dt_split > dt_com and ratio > 0:
+                fator_split *= ratio
+
+        valor_ajustado = valor_por_acao / fator_split
+        if valor_ajustado <= 0:
+            continue
+
+        dividendos.append(
             Dividendo(
                 data_com=dt_com,
-                valor=round(valor, 6),
-                tipo=tipo,
+                valor=round(valor_ajustado, 6),
+                tipo=tipo_mapeado,
             )
         )
-    return resultado
+
+    return dividendos
 
 
-def _coletar_dados_yahoo(symbol_b3: str) -> dict[str, Any]:
-    """Consulta cotação, dividendos históricos e indicadores fundamentalistas no Yahoo Finance."""
+def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
+    """Consulta cotação, múltiplos e histórico completo de proventos de um ativo da B3."""
     yf_symbol = symbol_b3 if symbol_b3.endswith(".SA") else f"{symbol_b3}.SA"
     ticker_obj = yf.Ticker(yf_symbol)
 
@@ -140,19 +180,43 @@ def _coletar_dados_yahoo(symbol_b3: str) -> dict[str, Any]:
         except Exception:
             preco = None
 
-    eventos_dividendos: list[tuple[date, float]] = []
+    splits: list[tuple[date, float]] = []
     try:
-        serie_div = ticker_obj.dividends
-        if serie_div is not None and not serie_div.empty:
-            for idx_dt, val in serie_div.items():
-                valor_f = _limpar_float(val)
-                if valor_f is None or valor_f <= 0:
-                    continue
-                dt_ex = idx_dt.date() if hasattr(idx_dt, "date") else date.fromisoformat(str(idx_dt)[:10])
-                dt_com = converter_data_ex_para_data_com(dt_ex)
-                eventos_dividendos.append((dt_com, valor_f))
+        serie_splits = ticker_obj.splits
+        if serie_splits is not None and not serie_splits.empty:
+            for idx_dt, ratio in serie_splits.items():
+                r_val = _limpar_float(ratio)
+                if r_val and r_val > 0:
+                    dt_s = idx_dt.date() if hasattr(idx_dt, "date") else date.fromisoformat(str(idx_dt)[:10])
+                    splits.append((dt_s, r_val))
     except Exception:
         pass
+
+    dividendos: list[Dividendo] = []
+    try:
+        dividendos = _coletar_proventos_fundamentus(symbol_b3, splits)
+    except Exception:
+        dividendos = []
+
+    if not dividendos:
+        try:
+            serie_div = ticker_obj.dividends
+            if serie_div is not None and not serie_div.empty:
+                for idx_dt, val in serie_div.items():
+                    valor_f = _limpar_float(val)
+                    if valor_f is None or valor_f <= 0:
+                        continue
+                    dt_ex = idx_dt.date() if hasattr(idx_dt, "date") else date.fromisoformat(str(idx_dt)[:10])
+                    dt_com = converter_data_ex_para_data_com(dt_ex)
+                    dividendos.append(
+                        Dividendo(
+                            data_com=dt_com,
+                            valor=round(valor_f, 6),
+                            tipo="dividendo",
+                        )
+                    )
+        except Exception:
+            pass
 
     lpa = _limpar_float(info.get("trailingEps") or info.get("forwardEps"))
     vpa = _limpar_float(info.get("bookValue"))
@@ -176,7 +240,7 @@ def _coletar_dados_yahoo(symbol_b3: str) -> dict[str, Any]:
 
     return {
         "preco": preco,
-        "eventos_dividendos": eventos_dividendos,
+        "dividendos": dividendos,
         "fundamentos": {
             "lpa": lpa,
             "vpa": vpa,
@@ -192,13 +256,7 @@ def obter_ativos(
     tickers: Iterable[dict[str, str] | str],
     caminho_log: Path = CAMINHO_LOG_ERROS,
 ) -> list[Ativo]:
-    """Obtém e valida uma lista de `Ativo` a partir de uma coleção de tickers.
-
-    Cada item de `tickers` pode ser um `dict` com `{"ticker": "BBAS3", "setor": "bancos"}`
-    ou uma string `"BBAS3"` (caso em que o setor é consultado em `engine/tickers.json`).
-    Se qualquer ativo falhar na coleta ou na validação Pydantic, o erro é gravado em
-    `engine/erros.log` e o processamento prossegue para o próximo ticker.
-    """
+    """Obtém e valida uma lista de `Ativo` a partir de uma coleção de tickers."""
     mapa_setores_padrao: dict[str, str] = {}
     if CAMINHO_TICKERS_PADRAO.exists():
         try:
@@ -224,12 +282,12 @@ def obter_ativos(
             continue
 
         try:
-            bruto = _coletar_dados_yahoo(ticker_raw)
+            bruto = _coletar_dados_ativo(ticker_raw)
             preco = bruto.get("preco")
             if preco is None or preco <= 0:
                 raise ValueError(f"Cotação inválida ou ausente retornada pela fonte: {preco}")
 
-            dividendos = _classificar_proventos(bruto.get("eventos_dividendos", []))
+            dividendos = bruto.get("dividendos", [])
             fundamentos = Fundamentos.model_validate(bruto.get("fundamentos", {}))
 
             ativo = Ativo(
