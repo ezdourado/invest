@@ -1564,3 +1564,172 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
   color: var(--red);
   border: 1px solid rgba(247, 111, 111, 0.35);
 }
+
+/* Seletor de Ativos & Navegação do Painel de Valuation (index.html) */
+.header-nav-links {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-link-pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+.nav-link-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.08);
+}
+.nav-link-pill.active {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.selector-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 18px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+@media (min-width: 600px) {
+  .selector-panel {
+    padding: 22px;
+  }
+}
+
+.selector-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.selector-search-wrap {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 260px;
+}
+
+.selector-quick-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.universe-chips-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.universe-chips-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.universe-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ticker-chip {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 5px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+.ticker-chip:hover {
+  border-color: var(--accent);
+  color: #e8ecf5;
+}
+.ticker-chip.active {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.chip-icon {
+  font-weight: 700;
+  font-size: 11px;
+}
+.chip-sector {
+  font-size: 9px;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.ticker-chip.active .chip-sector {
+  color: #a3b2cc;
+}
+
+.sector-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-sector-filter {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.btn-sector-filter:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.btn-sector-filter.active {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.besst-card {
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.besst-card:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+.besst-card-active-filter {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 1px var(--accent);
+}
