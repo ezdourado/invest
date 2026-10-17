@@ -64,11 +64,82 @@ function fmtPct(v, casas = 1) {
   return sinal + pct.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) + '%';
 }
 
+function fmtPctSimples(v, casas = 1) {
+  if (!valido(v)) return '—';
+  const pct = v * 100;
+  return pct.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) + '%';
+}
+
+function fmtMult(v, sufixo = 'x') {
+  if (!valido(v)) return '—';
+  return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + sufixo;
+}
+
+function fmtMoedaCompacta(v) {
+  if (!valido(v) || v <= 0) return '—';
+  if (v >= 1e9) return 'R$ ' + (v / 1e9).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' bi';
+  if (v >= 1e6) return 'R$ ' + (v / 1e6).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' mi';
+  if (v >= 1e3) return 'R$ ' + (v / 1e3).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' mil';
+  return fmtReal(v);
+}
+
+function urlInvestidor10(ticker) {
+  const clean = String(ticker || '').trim().toLowerCase();
+  return `https://investidor10.com.br/acoes/${encodeURIComponent(clean)}/`;
+}
+
+function tempoRelativoStr(dt) {
+  const diffMin = Math.max(0, Math.round((Date.now() - dt.getTime()) / 60000));
+  if (diffMin < 1) return 'agora mesmo';
+  if (diffMin < 60) return `há ${diffMin} min`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `há ${diffH}h`;
+  const diffD = Math.floor(diffH / 24);
+  return `há ${diffD}d`;
+}
+
 function classeMargem(v) {
   if (!valido(v)) return 't-dim';
   if (v >= 0) return 't-green';
   if (v >= -0.05) return 't-yellow';
   return 't-red';
+}
+
+function classeRoe(v) {
+  if (!valido(v)) return 't-dim';
+  if (v >= 0.15) return 't-green';
+  if (v >= 0.08) return 't-yellow';
+  return 't-red';
+}
+
+function classeRoic(v) {
+  if (!valido(v)) return 't-dim';
+  if (v >= 0.12) return 't-green';
+  if (v >= 0.07) return 't-yellow';
+  return 't-red';
+}
+
+function classeAlavancagem(v, limiteBom = 2.5, limiteAlerta = 3.5) {
+  if (!valido(v)) return 't-dim';
+  if (v <= limiteBom) return 't-green';
+  if (v <= limiteAlerta) return 't-yellow';
+  return 't-red';
+}
+
+function classePl(v) {
+  if (!valido(v)) return 't-dim';
+  if (v <= 0) return 't-red';
+  if (v <= 10) return 't-green';
+  if (v <= 15) return '';
+  return 't-yellow';
+}
+
+function classePvp(v) {
+  if (!valido(v)) return 't-dim';
+  if (v <= 0) return 't-red';
+  if (v <= 1.05) return 't-green';
+  if (v <= 2.0) return '';
+  return 't-yellow';
 }
 
 function mapearSetorBesst(setor) {
@@ -198,12 +269,13 @@ function atualizarStatusBase() {
   if (!p?.gerado_em) return;
   const dt = new Date(p.gerado_em);
   if (Number.isNaN(dt.getTime())) {
-    renderizarStatus('is-ok', `Base ${p.gerado_em}`);
+    renderizarStatus('is-ok', `Últ. atualização: ${p.gerado_em}`);
     return;
   }
   const dias = (Date.now() - dt.getTime()) / 86400000;
-  const quando = dt.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-  renderizarStatus(dias > DIAS_BASE_DESATUALIZADA ? 'is-stale' : 'is-ok', `Base de ${quando} · ${painelState.universo.length} ativos`);
+  const quando = dt.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const rel = tempoRelativoStr(dt);
+  renderizarStatus(dias > DIAS_BASE_DESATUALIZADA ? 'is-stale' : 'is-ok', `Últ. atualização: ${quando} (${rel}) · ${painelState.universo.length} ativos`);
 }
 
 /* ---------- Render: KPIs ---------- */
@@ -412,7 +484,7 @@ function renderizarTabela() {
       <tr class="row" data-ticker="${esc(a.ticker)}" tabindex="0">
         <td class="c-ticker" data-label="Ativo">
           <div class="asset">
-            <span class="asset-ticker">${esc(a.ticker)} ${extra}</span>
+            <span class="asset-ticker" ${a.empresa ? `data-tip="${esc(a.empresa)}"` : ''}>${esc(a.ticker)} ${extra}</span>
             <span class="asset-sector">${esc(a.setor)} ${besst}</span>
           </div>
         </td>
@@ -431,7 +503,10 @@ function renderizarTabela() {
         <td class="num c-gb" data-label="Greenblatt">${htmlGreenblatt(a)}</td>
         <td class="c-actions">
           <div class="row-actions">
-            <button type="button" class="icon-btn" data-row-action="detail" data-tip="Ver detalhes" aria-label="Ver detalhes de ${esc(a.ticker)}">
+            <a href="${urlInvestidor10(a.ticker)}" target="_blank" rel="noopener noreferrer" class="icon-btn" data-row-action="ext" data-tip="Abrir ${esc(a.ticker)} no Investidor10" aria-label="Abrir ${esc(a.ticker)} no Investidor10">
+              <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+            <button type="button" class="icon-btn" data-row-action="detail" data-tip="Abrir Raio-X do ativo" aria-label="Ver detalhes de ${esc(a.ticker)}">
               <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
             <button type="button" class="icon-btn remove" data-row-action="remove" data-tip="Remover do painel" aria-label="Remover ${esc(a.ticker)} do painel">
@@ -518,13 +593,39 @@ function htmlComparativoModelos(a) {
     </div>`;
 }
 
+function htmlHistoricoDpaAnual(porAno) {
+  if (!porAno || typeof porAno !== 'object') return '';
+  const entradas = Object.entries(porAno).sort((a, b) => Number(a[0]) - Number(b[0]));
+  if (!entradas.length) return '';
+  const maxVal = Math.max(...entradas.map(([, v]) => Number(v) || 0), 0.01);
+
+  return `
+    <div class="d-sub-chart">
+      <div class="d-sub-title">Proventos recorrentes por ano civil da data-com</div>
+      <div class="d-bars-5y">
+        ${entradas.map(([ano, val]) => {
+          const num = Number(val) || 0;
+          const h = Math.max(4, Math.round((num / maxVal) * 46));
+          return `
+            <div class="d-bar-col" data-tip="${ano}: ${fmtReal(num)} por ação">
+              <span class="d-bar-val mono">${fmtReal(num).replace('R$ ', '')}</span>
+              <div class="d-bar-track"><div class="d-bar-fill" style="height:${h}px"></div></div>
+              <span class="d-bar-year mono">${ano}</span>
+            </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
 function renderizarDetalhe(ticker) {
   const a = mapaUniverso().get(String(ticker).toUpperCase());
   if (!a) return;
   painelState.detalheTicker = a.ticker;
   const b = a.bazin || {};
+  const f = a.fundamentos || {};
+  const ehBanco = mapearSetorBesst(a.setor) === 'bancos';
 
-  $('#detail-title').textContent = a.ticker;
+  $('#detail-title').textContent = a.empresa ? `${a.ticker} · ${a.empresa}` : a.ticker;
   $('#detail-sub').innerHTML = `${esc(a.setor)}${a.besst ? ' · BESST' : ''} · ${htmlVeredito(b.veredito)}`;
 
   const noPainel = painelState.selecionados.some(t => t.toUpperCase() === a.ticker.toUpperCase());
@@ -532,11 +633,25 @@ function renderizarDetalhe(ticker) {
     ? `#${a.rank_greenblatt}`
     : (a.motivo_exclusao_greenblatt || 'Fora do ranking');
 
+  const dtGerado = painelState.payload?.gerado_em ? new Date(painelState.payload.gerado_em) : null;
+  const geradoStr = dtGerado && !Number.isNaN(dtGerado.getTime())
+    ? `${dtGerado.toLocaleString('pt-BR')} (${tempoRelativoStr(dtGerado)})`
+    : (painelState.payload?.gerado_em || '—');
+
+  const linkInv10 = urlInvestidor10(a.ticker);
+
   $('#detail-body').innerHTML = `
     <div class="d-hero">
       <div class="d-stat"><div class="d-stat-label">Preço</div><div class="d-stat-value">${fmtReal(a.preco)}</div></div>
       <div class="d-stat"><div class="d-stat-label">Teto Bazin</div><div class="d-stat-value">${fmtReal(b.teto)}</div></div>
       <div class="d-stat"><div class="d-stat-label">Margem</div><div class="d-stat-value ${classeMargem(b.margem_seguranca)}">${fmtPct(b.margem_seguranca)}</div></div>
+    </div>
+
+    <div class="d-ext-bar">
+      <a class="btn btn-primary btn-inv10" href="${linkInv10}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">
+        <span>Analisar ${esc(a.ticker)} no Investidor10</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
     </div>
 
     ${htmlComparativoModelos(a)}
@@ -546,13 +661,81 @@ function renderizarDetalhe(ticker) {
       <dl class="kv">
         <dt>DPA 5a sem extraordinários</dt><dd>${fmtReal(b.dpa_sem_extra)}</dd>
         <dt>DPA 5a com extraordinários</dt><dd>${fmtReal(b.dpa)}</dd>
-        <dt>DPA / preço atual</dt><dd>${fmtPct(razaoDpaPreco(a), 2).replace('+', '')}</dd>
+        <dt>Yield implícito (DPA 5a / Preço)</dt><dd class="${razaoDpaPreco(a) >= 0.06 ? 't-green' : ''}">${fmtPctSimples(razaoDpaPreco(a), 2)}</dd>
         <div class="sep"></div>
         <dt>Teto (DPA ÷ 6%)</dt><dd>${fmtReal(b.teto)}</dd>
         ${valido(b.teto_sem_extra) && b.teto_sem_extra !== b.teto ? `<dt>Teto sem extraordinários</dt><dd>${fmtReal(b.teto_sem_extra)}</dd>` : ''}
         <dt>Margem de segurança</dt><dd class="${classeMargem(b.margem_seguranca)}">${fmtPct(b.margem_seguranca)}</dd>
         <dt>Dividendos extraordinários</dt><dd>${b.tem_extraordinario ? '<span class="t-yellow">Sim</span>' : 'Não'}</dd>
       </dl>
+      ${htmlHistoricoDpaAnual(b.por_ano)}
+    </div>
+
+    <div class="d-block">
+      <div class="d-section-title">Análise de Múltiplos (Valuation Relativo)</div>
+      <div class="d-mult-grid">
+        <div class="d-mult-card" data-tip="Preço dividido pelo Lucro por Ação (12m). Abaixo de 10x costuma indicar desconto.">
+          <span class="d-mult-label">P/L</span>
+          <span class="d-mult-val ${classePl(f.pl)}">${fmtMult(f.pl)}</span>
+          <span class="d-mult-sub">LPA: ${fmtReal(f.lpa)}</span>
+        </div>
+        <div class="d-mult-card" data-tip="Preço dividido pelo Valor Patrimonial por Ação. Abaixo de 1,0x negocia abaixo do patrimônio contábil.">
+          <span class="d-mult-label">P/VP</span>
+          <span class="d-mult-val ${classePvp(f.pvp)}">${fmtMult(f.pvp)}</span>
+          <span class="d-mult-sub">VPA: ${fmtReal(f.vpa)}</span>
+        </div>
+        <div class="d-mult-card" data-tip="Valor da Firma (EV) dividido pelo EBITDA de 12 meses (não aplicável a bancos).">
+          <span class="d-mult-label">EV/EBITDA</span>
+          <span class="d-mult-val ${valido(f.ev_ebitda) ? (f.ev_ebitda <= 8 ? 't-green' : (f.ev_ebitda > 12 ? 't-yellow' : '')) : 't-dim'}">${ehBanco ? 'N/A' : fmtMult(f.ev_ebitda)}</span>
+          <span class="d-mult-sub">EV/EBIT: ${ehBanco ? 'N/A' : fmtMult(f.ev_ebit)}</span>
+        </div>
+        <div class="d-mult-card" data-tip="Dividend Yield dos últimos 12 meses e Payout estimado (DPA 5a ÷ LPA).">
+          <span class="d-mult-label">DY (12m)</span>
+          <span class="d-mult-val ${valido(f.dy_12m) && f.dy_12m >= 0.06 ? 't-green' : ''}">${fmtPctSimples(f.dy_12m)}</span>
+          <span class="d-mult-sub">Payout: ${fmtPctSimples(f.payout, 0)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-block">
+      <div class="d-section-title">Qualidade &amp; Rentabilidade</div>
+      <dl class="kv">
+        <dt data-tip="Retorno sobre o Patrimônio Líquido (Lucro Líquido ÷ PL). Acima de 15% destaca alta rentabilidade.">ROE (Retorno s/ Patrimônio)</dt>
+        <dd class="${classeRoe(f.roe)}">${fmtPctSimples(f.roe)}</dd>
+        <dt data-tip="Retorno sobre o Capital Investido (EBIT ÷ Capital Investido). Não aplicável a bancos.">ROIC (Retorno s/ Cap. Investido)</dt>
+        <dd class="${ehBanco ? 't-dim' : classeRoic(f.roic)}">${ehBanco ? 'N/A (Banco)' : fmtPctSimples(f.roic)}</dd>
+        <div class="sep"></div>
+        <dt>Margem EBIT (Operacional)</dt>
+        <dd>${ehBanco ? 'N/A (Banco)' : fmtPctSimples(f.margem_ebit)}</dd>
+        <dt>Margem Líquida</dt>
+        <dd>${ehBanco ? 'N/A (Banco)' : fmtPctSimples(f.margem_liquida)}</dd>
+        <dt>Crescimento de Receita (5a)</dt>
+        <dd class="${valido(f.cresc_receita_5a) ? (f.cresc_receita_5a > 0 ? 't-green' : 't-red') : 't-dim'}">${fmtPct(f.cresc_receita_5a)}</dd>
+      </dl>
+    </div>
+
+    <div class="d-block">
+      <div class="d-section-title">Endividamento &amp; Liquidez (Saúde Financeira)</div>
+      ${ehBanco ? `
+        <p class="d-note" style="margin-bottom:10px">Instituições bancárias captam depósitos como parte da operação; por isso múltiplos de Dívida Líquida/EBITDA não se aplicam.</p>
+        <dl class="kv">
+          <dt>Liquidez Diária Média (2m)</dt><dd>${fmtMoedaCompacta(f.liquidez_diaria)}</dd>
+        </dl>
+      ` : `
+        <dl class="kv">
+          <dt data-tip="Quantos anos de geração de caixa operacional (EBITDA) seriam necessários para quitar a dívida líquida. Até 2,5x é considerado saudável.">Dívida Líquida / EBITDA</dt>
+          <dd class="${classeAlavancagem(f.div_liq_ebitda, 2.5, 3.5)}">${valido(f.div_liq_ebitda) ? (f.div_liq_ebitda < 0 ? `${fmtMult(f.div_liq_ebitda)} (Caixa Líq.)` : fmtMult(f.div_liq_ebitda)) : '—'}</dd>
+          <dt data-tip="Dívida Líquida dividida pelo EBIT de 12 meses.">Dívida Líquida / EBIT</dt>
+          <dd class="${classeAlavancagem(f.div_liq_ebit, 3.0, 4.0)}">${fmtMult(f.div_liq_ebit)}</dd>
+          <dt data-tip="Dívida Líquida sobre o Patrimônio Líquido.">Dívida Líquida / Patrimônio</dt>
+          <dd class="${classeAlavancagem(f.div_liq_patrim, 1.0, 2.0)}">${fmtMult(f.div_liq_patrim)}</dd>
+          <div class="sep"></div>
+          <dt data-tip="Ativo Circulante dividido pelo Passivo Circulante. Acima de 1,0x indica folga de caixa no curto prazo.">Liquidez Corrente</dt>
+          <dd class="${valido(f.liquidez_corrente) ? (f.liquidez_corrente >= 1.2 ? 't-green' : (f.liquidez_corrente >= 1.0 ? 't-yellow' : 't-red')) : 't-dim'}">${fmtMult(f.liquidez_corrente)}</dd>
+          <dt data-tip="Volume financeiro médio negociado por dia nos últimos 2 meses.">Liquidez Diária Média (2m)</dt>
+          <dd>${fmtMoedaCompacta(f.liquidez_diaria)}</dd>
+        </dl>
+      `}
     </div>
 
     <div class="d-block">
@@ -568,10 +751,22 @@ function renderizarDetalhe(ticker) {
       </dl>
     </div>
 
+    <div class="d-block">
+      <div class="d-section-title">Datas de Referência dos Dados</div>
+      <dl class="kv">
+        <dt>Última atualização do painel</dt><dd>${esc(geradoStr)}</dd>
+        <dt>Data da última cotação (B3)</dt><dd>${esc(a.data_ult_cot || f.data_ult_cot || '—')}</dd>
+        <dt>Último balanço processado (CVM)</dt><dd>${esc(a.ult_balanco || f.ult_balanco || '—')}</dd>
+      </dl>
+    </div>
+
     <p class="d-note">Graham é referência secundária para financeiras e holdings. O veredito considera somente a margem Bazin, calculada pelo motor com o teto no denominador.</p>
 
     <div class="d-actions">
-      <button type="button" class="btn ${noPainel ? 'btn-ghost btn-danger' : 'btn-primary'}" data-detail-toggle="${esc(a.ticker)}">
+      <a class="btn btn-primary" href="${linkInv10}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">
+        Investidor10 ↗
+      </a>
+      <button type="button" class="btn ${noPainel ? 'btn-ghost btn-danger' : 'btn-ghost'}" data-detail-toggle="${esc(a.ticker)}">
         ${noPainel ? 'Remover do painel' : 'Adicionar ao painel'}
       </button>
       <a class="btn btn-ghost" href="./CalculadoraBazin.html" style="text-decoration:none">Abrir calculadora</a>
@@ -841,6 +1036,7 @@ function bindEventos() {
       return;
     }
     if (!linha) return;
+    if (acao?.dataset.rowAction === 'ext') return;
     if (acao?.dataset.rowAction === 'remove') { alternarTicker(linha.dataset.ticker); return; }
     abrirDetalhe(linha.dataset.ticker);
   });

@@ -51,13 +51,22 @@ def construir_saida(
         m_gordon = margem(preco_gordon, ativo.preco) if preco_gordon is not None else None
 
         gb_info = mapa_greenblatt.get(ativo.ticker)
+        f = ativo.fundamentos
+        payout_calc = f.payout
+        if payout_calc is None and f.lpa is not None and f.lpa > 0 and bazin_res.dpa_sem_extra >= 0:
+            payout_calc = round(bazin_res.dpa_sem_extra / f.lpa, 4)
+
+        fund_out = f.model_copy(update={"payout": payout_calc})
 
         resultados.append(
             ResultadoAtivo(
                 ticker=ativo.ticker,
+                empresa=f.empresa,
                 setor=ativo.setor,
                 besst=eh_setor_besst(ativo.setor),
                 preco=ativo.preco,
+                data_ult_cot=f.data_ult_cot,
+                ult_balanco=f.ult_balanco,
                 bazin=bazin_res,
                 graham=vi_graham,
                 margem_graham=m_graham,
@@ -65,6 +74,7 @@ def construir_saida(
                 margem_gordon=m_gordon,
                 rank_greenblatt=gb_info.rank if gb_info else None,
                 motivo_exclusao_greenblatt=gb_info.motivo_exclusao if gb_info else None,
+                fundamentos=fund_out,
             )
         )
 

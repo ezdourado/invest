@@ -23,16 +23,40 @@ class Dividendo(BaseModel):
 
 
 class Fundamentos(BaseModel):
-    """Indicadores fundamentalistas opcionais do ativo."""
+    """Indicadores fundamentalistas, múltiplos, qualidade e endividamento opcionais do ativo."""
 
     model_config = ConfigDict(extra="forbid")
 
+    empresa: Optional[str] = None
+    data_ult_cot: Optional[str] = None
+    ult_balanco: Optional[str] = None
     lpa: Optional[float] = None
     vpa: Optional[float] = None
     ebit: Optional[float] = None
     ev: Optional[float] = None
     capital_investido: Optional[float] = None
     g_perpetuidade: Optional[float] = None
+    # Múltiplos de valuation
+    pl: Optional[float] = None
+    pvp: Optional[float] = None
+    psr: Optional[float] = None
+    ev_ebit: Optional[float] = None
+    ev_ebitda: Optional[float] = None
+    dy_12m: Optional[float] = None
+    payout: Optional[float] = None
+    # Qualidade e rentabilidade
+    roe: Optional[float] = None
+    roic: Optional[float] = None
+    margem_bruta: Optional[float] = None
+    margem_ebit: Optional[float] = None
+    margem_liquida: Optional[float] = None
+    cresc_receita_5a: Optional[float] = None
+    # Endividamento e liquidez
+    div_liq_patrim: Optional[float] = None
+    div_liq_ebit: Optional[float] = None
+    div_liq_ebitda: Optional[float] = None
+    liquidez_corrente: Optional[float] = None
+    liquidez_diaria: Optional[float] = None
 
 
 class Ativo(BaseModel):
@@ -59,17 +83,21 @@ class ResultadoBazin(BaseModel):
     teto_sem_extra: Optional[float] = None
     margem_seguranca: Optional[float] = None
     veredito: VereditoCor
+    por_ano: Optional[dict[str, float]] = None
 
 
 class ResultadoAtivo(BaseModel):
-    """Resultado consolidado de valuation de um ativo."""
+    """Resultado consolidado de valuation e raio-x fundamentalista de um ativo."""
 
     model_config = ConfigDict(extra="forbid")
 
     ticker: str
+    empresa: Optional[str] = None
     setor: str
     besst: bool = False
     preco: float = Field(..., gt=0)
+    data_ult_cot: Optional[str] = None
+    ult_balanco: Optional[str] = None
     bazin: ResultadoBazin
     graham: Optional[float] = None
     margem_graham: Optional[float] = None
@@ -77,6 +105,7 @@ class ResultadoAtivo(BaseModel):
     margem_gordon: Optional[float] = None
     rank_greenblatt: Optional[int] = None
     motivo_exclusao_greenblatt: Optional[str] = None
+    fundamentos: Optional[Fundamentos] = None
 
 
 class Saida(BaseModel):
