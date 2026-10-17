@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "gerado_em": "2026-10-17T03:19:25.048942Z",
+  "gerado_em": "2026-10-17T03:24:56.124988Z",
   "ativos": [
     {
       "ticker": "BBAS3",
@@ -45,6 +45,69 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
     },
     {
+      "ticker": "ITUB3",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 29.8,
+      "bazin": {
+        "dpa": 2.27,
+        "dpa_sem_extra": 2.05,
+        "tem_extraordinario": true,
+        "teto": 34.166666666666664,
+        "teto_sem_extra": 34.166666666666664,
+        "margem_seguranca": 0.1278048780487804,
+        "veredito": "verde"
+      },
+      "graham": 43.380871360543225,
+      "margem_graham": 0.3130612856452582,
+      "gordon": 32.64230769230768,
+      "margem_gordon": 0.0870743490043593,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
+      "ticker": "BBDC4",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 14.2,
+      "bazin": {
+        "dpa": 1.0,
+        "dpa_sem_extra": 1.0,
+        "tem_extraordinario": false,
+        "teto": 16.666666666666668,
+        "teto_sem_extra": 16.666666666666668,
+        "margem_seguranca": 0.1480000000000001,
+        "veredito": "verde"
+      },
+      "graham": 24.78406746278746,
+      "margem_graham": 0.42705126907353375,
+      "gordon": 13.666666666666664,
+      "margem_gordon": -0.039024390243902564,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
+      "ticker": "BBDC3",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 12.6,
+      "bazin": {
+        "dpa": 0.908,
+        "dpa_sem_extra": 0.908,
+        "tem_extraordinario": false,
+        "teto": 15.133333333333335,
+        "teto_sem_extra": 15.133333333333335,
+        "margem_seguranca": 0.16740088105726883,
+        "veredito": "verde"
+      },
+      "graham": 24.78406746278746,
+      "margem_graham": 0.49160887255820596,
+      "gordon": 12.40933333333333,
+      "margem_gordon": -0.015364779198452949,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
       "ticker": "SANB11",
       "setor": "bancos",
       "besst": true,
@@ -66,6 +129,216 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
     },
     {
+      "ticker": "SANB4",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 14.9,
+      "bazin": {
+        "dpa": 0.96,
+        "dpa_sem_extra": 0.96,
+        "tem_extraordinario": false,
+        "teto": 16.0,
+        "teto_sem_extra": 16.0,
+        "margem_seguranca": 0.06874999999999998,
+        "veredito": "verde"
+      },
+      "graham": 21.996363335788033,
+      "margem_graham": 0.32261529905910696,
+      "gordon": 13.119999999999996,
+      "margem_gordon": -0.13567073170731747,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
+      "ticker": "SANB3",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 13.6,
+      "bazin": {
+        "dpa": 0.8699999999999999,
+        "dpa_sem_extra": 0.8699999999999999,
+        "tem_extraordinario": false,
+        "teto": 14.499999999999998,
+        "teto_sem_extra": 14.499999999999998,
+        "margem_seguranca": 0.06206896551724129,
+        "veredito": "verde"
+      },
+      "graham": 20.426453436659042,
+      "margem_graham": 0.33419670516114713,
+      "gordon": 11.889999999999995,
+      "margem_gordon": -0.1438183347350719,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
+      "ticker": "ITSA4",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 10.4,
+      "bazin": {
+        "dpa": 0.79,
+        "dpa_sem_extra": 0.74,
+        "tem_extraordinario": true,
+        "teto": 12.333333333333334,
+        "teto_sem_extra": 12.333333333333334,
+        "margem_seguranca": 0.15675675675675677,
+        "veredito": "verde"
+      },
+      "graham": 16.750373130172353,
+      "margem_graham": 0.3791183086383587,
+      "gordon": 10.888571428571428,
+      "margem_gordon": 0.044870112831277786,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
+      "ticker": "ITSA3",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 10.35,
+      "bazin": {
+        "dpa": 0.79,
+        "dpa_sem_extra": 0.74,
+        "tem_extraordinario": true,
+        "teto": 12.333333333333334,
+        "teto_sem_extra": 12.333333333333334,
+        "margem_seguranca": 0.1608108108108109,
+        "veredito": "verde"
+      },
+      "graham": 16.750373130172353,
+      "margem_graham": 0.38210331676990505,
+      "gordon": 10.888571428571428,
+      "margem_gordon": 0.04946208344266594,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
+      "ticker": "ABCB4",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 22.8,
+      "bazin": {
+        "dpa": 1.7100000000000002,
+        "dpa_sem_extra": 1.7100000000000002,
+        "tem_extraordinario": false,
+        "teto": 28.500000000000004,
+        "teto_sem_extra": 28.500000000000004,
+        "margem_seguranca": 0.20000000000000007,
+        "veredito": "verde"
+      },
+      "graham": 48.804200638879436,
+      "margem_graham": 0.5328270988658181,
+      "gordon": 25.161428571428573,
+      "margem_gordon": 0.09385113268608417,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
+      "ticker": "BRSR6",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 11.9,
+      "bazin": {
+        "dpa": 0.984,
+        "dpa_sem_extra": 0.984,
+        "tem_extraordinario": false,
+        "teto": 16.400000000000002,
+        "teto_sem_extra": 16.400000000000002,
+        "margem_seguranca": 0.2743902439024391,
+        "veredito": "verde"
+      },
+      "graham": 35.14612354157995,
+      "margem_graham": 0.6614135841774529,
+      "gordon": 12.546,
+      "margem_gordon": 0.05149051490514898,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
+      "ticker": "BEES3",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 8.9,
+      "bazin": {
+        "dpa": 0.64,
+        "dpa_sem_extra": 0.64,
+        "tem_extraordinario": false,
+        "teto": 10.666666666666668,
+        "teto_sem_extra": 10.666666666666668,
+        "margem_seguranca": 0.16562500000000005,
+        "veredito": "verde"
+      },
+      "graham": 14.620191517213446,
+      "margem_graham": 0.3912528444294752,
+      "gordon": 8.746666666666664,
+      "margem_gordon": -0.017530487804878356,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
+      "ticker": "BEES4",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 9.3,
+      "bazin": {
+        "dpa": 0.64,
+        "dpa_sem_extra": 0.64,
+        "tem_extraordinario": false,
+        "teto": 10.666666666666668,
+        "teto_sem_extra": 10.666666666666668,
+        "margem_seguranca": 0.12812500000000002,
+        "veredito": "verde"
+      },
+      "graham": 14.620191517213446,
+      "margem_graham": 0.3638934217072044,
+      "gordon": 8.746666666666664,
+      "margem_gordon": -0.06326219512195158,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
+      "ticker": "BMGB4",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 3.65,
+      "bazin": {
+        "dpa": 0.34400000000000003,
+        "dpa_sem_extra": 0.34400000000000003,
+        "tem_extraordinario": false,
+        "teto": 5.733333333333334,
+        "teto_sem_extra": 5.733333333333334,
+        "margem_seguranca": 0.36337209302325596,
+        "veredito": "verde"
+      },
+      "graham": 10.274726273726225,
+      "margem_graham": 0.6447593928284482,
+      "gordon": 4.386,
+      "margem_gordon": 0.16780665754673968,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
+      "ticker": "BPAC11",
+      "setor": "bancos",
+      "besst": true,
+      "preco": 33.4,
+      "bazin": {
+        "dpa": 1.046,
+        "dpa_sem_extra": 1.046,
+        "tem_extraordinario": false,
+        "teto": 17.433333333333334,
+        "teto_sem_extra": 17.433333333333334,
+        "margem_seguranca": -0.915869980879541,
+        "veredito": "vermelho"
+      },
+      "graham": 31.802122570671287,
+      "margem_graham": -0.050244364217447365,
+      "gordon": 18.130666666666666,
+      "margem_gordon": -0.8421826739226356,
+      "rank_greenblatt": null,
+      "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica)."
+    },
+    {
       "ticker": "TAEE11",
       "setor": "energia",
       "besst": true,
@@ -83,28 +356,91 @@
       "margem_graham": 0.15872423981908199,
       "gordon": 42.63999999999999,
       "margem_gordon": 0.18386491557223258,
-      "rank_greenblatt": 11,
+      "rank_greenblatt": 34,
       "motivo_exclusao_greenblatt": null
     },
     {
-      "ticker": "CMIG4",
+      "ticker": "TAEE4",
       "setor": "energia",
       "besst": true,
-      "preco": 11.2,
+      "preco": 11.6,
       "bazin": {
-        "dpa": 1.17,
-        "dpa_sem_extra": 1.05,
-        "tem_extraordinario": true,
-        "teto": 17.5,
-        "teto_sem_extra": 17.5,
-        "margem_seguranca": 0.36000000000000004,
+        "dpa": 1.04,
+        "dpa_sem_extra": 1.04,
+        "tem_extraordinario": false,
+        "teto": 17.333333333333336,
+        "teto_sem_extra": 17.333333333333336,
+        "margem_seguranca": 0.33076923076923087,
         "veredito": "verde"
       },
-      "graham": 21.518596608515157,
-      "margem_graham": 0.47951996109411565,
-      "gordon": 14.349999999999996,
-      "margem_gordon": 0.21951219512195105,
-      "rank_greenblatt": 5,
+      "graham": 13.788582233137676,
+      "margem_graham": 0.1587242398190819,
+      "gordon": 14.21333333333333,
+      "margem_gordon": 0.18386491557223245,
+      "rank_greenblatt": 36,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "TAEE3",
+      "setor": "energia",
+      "besst": true,
+      "preco": 11.55,
+      "bazin": {
+        "dpa": 1.04,
+        "dpa_sem_extra": 1.04,
+        "tem_extraordinario": false,
+        "teto": 17.333333333333336,
+        "teto_sem_extra": 17.333333333333336,
+        "margem_seguranca": 0.3336538461538462,
+        "veredito": "verde"
+      },
+      "graham": 13.788582233137676,
+      "margem_graham": 0.1623504284405513,
+      "gordon": 14.21333333333333,
+      "margem_gordon": 0.18738273921200724,
+      "rank_greenblatt": 35,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "ISAE4",
+      "setor": "energia",
+      "besst": true,
+      "preco": 24.2,
+      "bazin": {
+        "dpa": 2.15,
+        "dpa_sem_extra": 2.15,
+        "tem_extraordinario": false,
+        "teto": 35.833333333333336,
+        "teto_sem_extra": 35.833333333333336,
+        "margem_seguranca": 0.3246511627906977,
+        "veredito": "verde"
+      },
+      "graham": 56.3489130329947,
+      "margem_graham": 0.5705329757500404,
+      "gordon": 31.635714285714286,
+      "margem_gordon": 0.23504177015127573,
+      "rank_greenblatt": 27,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "ISAE3",
+      "setor": "energia",
+      "besst": true,
+      "preco": 29.1,
+      "bazin": {
+        "dpa": 2.15,
+        "dpa_sem_extra": 2.15,
+        "tem_extraordinario": false,
+        "teto": 35.833333333333336,
+        "teto_sem_extra": 35.833333333333336,
+        "margem_seguranca": 0.18790697674418605,
+        "veredito": "verde"
+      },
+      "graham": 56.3489130329947,
+      "margem_graham": 0.48357477662504855,
+      "gordon": 31.635714285714286,
+      "margem_gordon": 0.08015353352901329,
+      "rank_greenblatt": 25,
       "motivo_exclusao_greenblatt": null
     },
     {
@@ -125,7 +461,343 @@
       "margem_graham": -0.25614912551403424,
       "gordon": 38.69857142857142,
       "margem_gordon": -0.07239100741998622,
-      "rank_greenblatt": 8,
+      "rank_greenblatt": 29,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "CMIG4",
+      "setor": "energia",
+      "besst": true,
+      "preco": 11.2,
+      "bazin": {
+        "dpa": 1.17,
+        "dpa_sem_extra": 1.05,
+        "tem_extraordinario": true,
+        "teto": 17.5,
+        "teto_sem_extra": 17.5,
+        "margem_seguranca": 0.36000000000000004,
+        "veredito": "verde"
+      },
+      "graham": 21.518596608515157,
+      "margem_graham": 0.47951996109411565,
+      "gordon": 14.349999999999996,
+      "margem_gordon": 0.21951219512195105,
+      "rank_greenblatt": 18,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "CMIG3",
+      "setor": "energia",
+      "besst": true,
+      "preco": 14.3,
+      "bazin": {
+        "dpa": 1.17,
+        "dpa_sem_extra": 1.05,
+        "tem_extraordinario": true,
+        "teto": 17.5,
+        "teto_sem_extra": 17.5,
+        "margem_seguranca": 0.18285714285714283,
+        "veredito": "verde"
+      },
+      "graham": 21.518596608515157,
+      "margem_graham": 0.3354585217540941,
+      "gordon": 14.349999999999996,
+      "margem_gordon": 0.0034843205574909683,
+      "rank_greenblatt": 16,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "CPLE6",
+      "setor": "energia",
+      "besst": true,
+      "preco": 10.1,
+      "bazin": {
+        "dpa": 0.7060000000000001,
+        "dpa_sem_extra": 0.7060000000000001,
+        "tem_extraordinario": false,
+        "teto": 11.766666666666667,
+        "teto_sem_extra": 11.766666666666667,
+        "margem_seguranca": 0.14164305949008507,
+        "veredito": "verde"
+      },
+      "graham": 14.087228258248675,
+      "margem_graham": 0.2830385215000675,
+      "gordon": 10.388285714285715,
+      "margem_gordon": 0.027751038257377895,
+      "rank_greenblatt": 43,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "CPLE3",
+      "setor": "energia",
+      "besst": true,
+      "preco": 9.4,
+      "bazin": {
+        "dpa": 0.642,
+        "dpa_sem_extra": 0.642,
+        "tem_extraordinario": false,
+        "teto": 10.700000000000001,
+        "teto_sem_extra": 10.700000000000001,
+        "margem_seguranca": 0.1214953271028038,
+        "veredito": "verde"
+      },
+      "graham": 14.087228258248675,
+      "margem_graham": 0.33272892100006274,
+      "gordon": 9.44657142857143,
+      "margem_gordon": 0.0049299821552793765,
+      "rank_greenblatt": 41,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "CPFE3",
+      "setor": "energia",
+      "besst": true,
+      "preco": 33.2,
+      "bazin": {
+        "dpa": 2.84,
+        "dpa_sem_extra": 2.84,
+        "tem_extraordinario": false,
+        "teto": 47.333333333333336,
+        "teto_sem_extra": 47.333333333333336,
+        "margem_seguranca": 0.29859154929577464,
+        "veredito": "verde"
+      },
+      "graham": 41.698920849345726,
+      "margem_graham": 0.2038163260879466,
+      "gordon": 38.813333333333325,
+      "margem_gordon": 0.14462384060460298,
+      "rank_greenblatt": 12,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "ENGI11",
+      "setor": "energia",
+      "besst": true,
+      "preco": 42.8,
+      "bazin": {
+        "dpa": 2.44,
+        "dpa_sem_extra": 2.44,
+        "tem_extraordinario": false,
+        "teto": 40.666666666666664,
+        "teto_sem_extra": 40.666666666666664,
+        "margem_seguranca": -0.052459016393442616,
+        "veredito": "vermelho"
+      },
+      "graham": 62.83908019696024,
+      "margem_graham": 0.3188951864691617,
+      "gordon": 38.85230769230769,
+      "margem_gordon": -0.10160766611229903,
+      "rank_greenblatt": 22,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "EQTL3",
+      "setor": "energia",
+      "besst": true,
+      "preco": 31.9,
+      "bazin": {
+        "dpa": 1.06,
+        "dpa_sem_extra": 1.06,
+        "tem_extraordinario": false,
+        "teto": 17.666666666666668,
+        "teto_sem_extra": 17.666666666666668,
+        "margem_seguranca": -0.8056603773584904,
+        "veredito": "vermelho"
+      },
+      "graham": 36.214983087114646,
+      "margem_graham": 0.1191491123089859,
+      "gordon": 18.37333333333333,
+      "margem_gordon": -0.736211901306241,
+      "rank_greenblatt": 32,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "NEOE3",
+      "setor": "energia",
+      "besst": true,
+      "preco": 19.6,
+      "bazin": {
+        "dpa": 1.22,
+        "dpa_sem_extra": 1.22,
+        "tem_extraordinario": false,
+        "teto": 20.333333333333332,
+        "teto_sem_extra": 20.333333333333332,
+        "margem_seguranca": 0.036065573770491674,
+        "veredito": "verde"
+      },
+      "graham": 44.42634353623985,
+      "margem_graham": 0.5588203205602164,
+      "gordon": 17.95142857142857,
+      "margem_gordon": -0.09183511061594805,
+      "rank_greenblatt": 33,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "ELET3",
+      "setor": "energia",
+      "besst": true,
+      "preco": 37.5,
+      "bazin": {
+        "dpa": 1.46,
+        "dpa_sem_extra": 1.46,
+        "tem_extraordinario": false,
+        "teto": 24.333333333333332,
+        "teto_sem_extra": 24.333333333333332,
+        "margem_seguranca": -0.541095890410959,
+        "veredito": "vermelho"
+      },
+      "graham": 65.05574532660432,
+      "margem_graham": 0.4235712801116045,
+      "gordon": 23.247692307692304,
+      "margem_gordon": -0.6130633313480248,
+      "rank_greenblatt": 40,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "ELET6",
+      "setor": "energia",
+      "besst": true,
+      "preco": 41.2,
+      "bazin": {
+        "dpa": 1.654,
+        "dpa_sem_extra": 1.654,
+        "tem_extraordinario": false,
+        "teto": 27.566666666666666,
+        "teto_sem_extra": 27.566666666666666,
+        "margem_seguranca": -0.4945586457073762,
+        "veredito": "vermelho"
+      },
+      "graham": 65.05574532660432,
+      "margem_graham": 0.3666969797492827,
+      "gordon": 26.336769230769224,
+      "margem_gordon": -0.5643528497742266,
+      "rank_greenblatt": 42,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "ALUP11",
+      "setor": "energia",
+      "besst": true,
+      "preco": 29.4,
+      "bazin": {
+        "dpa": 1.6600000000000001,
+        "dpa_sem_extra": 1.6600000000000001,
+        "tem_extraordinario": false,
+        "teto": 27.66666666666667,
+        "teto_sem_extra": 27.66666666666667,
+        "margem_seguranca": -0.06265060240963832,
+        "veredito": "vermelho"
+      },
+      "graham": 45.423011789180165,
+      "margem_graham": 0.3527509770498502,
+      "gordon": 24.425714285714285,
+      "margem_gordon": -0.20364954965493037,
+      "rank_greenblatt": 28,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "AURE3",
+      "setor": "energia",
+      "besst": true,
+      "preco": 11.4,
+      "bazin": {
+        "dpa": 1.33,
+        "dpa_sem_extra": 1.03,
+        "tem_extraordinario": true,
+        "teto": 17.166666666666668,
+        "teto_sem_extra": 17.166666666666668,
+        "margem_seguranca": 0.3359223300970874,
+        "veredito": "verde"
+      },
+      "graham": 18.19890106572372,
+      "margem_graham": 0.3735885502740023,
+      "gordon": 14.076666666666664,
+      "margem_gordon": 0.19014918304522835,
+      "rank_greenblatt": 38,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "COCE5",
+      "setor": "energia",
+      "besst": true,
+      "preco": 44.5,
+      "bazin": {
+        "dpa": 3.15,
+        "dpa_sem_extra": 3.15,
+        "tem_extraordinario": false,
+        "teto": 52.5,
+        "teto_sem_extra": 52.5,
+        "margem_seguranca": 0.1523809523809524,
+        "veredito": "verde"
+      },
+      "graham": 80.97221745759468,
+      "margem_graham": 0.4504287841282753,
+      "gordon": 43.04999999999999,
+      "margem_gordon": -0.0336817653890827,
+      "rank_greenblatt": 10,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "CLSC4",
+      "setor": "energia",
+      "besst": true,
+      "preco": 68.0,
+      "bazin": {
+        "dpa": 4.65,
+        "dpa_sem_extra": 4.65,
+        "tem_extraordinario": false,
+        "teto": 77.50000000000001,
+        "teto_sem_extra": 77.50000000000001,
+        "margem_seguranca": 0.12258064516129048,
+        "veredito": "verde"
+      },
+      "graham": 136.55768012089248,
+      "margem_graham": 0.5020419214810868,
+      "gordon": 63.55,
+      "margem_gordon": -0.07002360346184112,
+      "rank_greenblatt": 5,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "REDE3",
+      "setor": "energia",
+      "besst": true,
+      "preco": 6.8,
+      "bazin": {
+        "dpa": 0.48,
+        "dpa_sem_extra": 0.48,
+        "tem_extraordinario": false,
+        "teto": 8.0,
+        "teto_sem_extra": 8.0,
+        "margem_seguranca": 0.15000000000000002,
+        "veredito": "verde"
+      },
+      "graham": 7.9202272694664515,
+      "margem_graham": 0.14143877837762048,
+      "gordon": 6.559999999999998,
+      "margem_gordon": -0.036585365853658854,
+      "rank_greenblatt": 19,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "CEEB3",
+      "setor": "energia",
+      "besst": true,
+      "preco": 39.0,
+      "bazin": {
+        "dpa": 2.91,
+        "dpa_sem_extra": 2.91,
+        "tem_extraordinario": false,
+        "teto": 48.50000000000001,
+        "teto_sem_extra": 48.50000000000001,
+        "margem_seguranca": 0.19587628865979392,
+        "veredito": "verde"
+      },
+      "graham": 61.509145661438026,
+      "margem_graham": 0.3659479483804585,
+      "gordon": 39.76999999999999,
+      "margem_gordon": 0.019361327633894622,
+      "rank_greenblatt": 26,
       "motivo_exclusao_greenblatt": null
     },
     {
@@ -146,7 +818,49 @@
       "margem_graham": 0.5361992765086377,
       "gordon": 23.837142857142855,
       "margem_gordon": -0.10751528227256389,
-      "rank_greenblatt": 2,
+      "rank_greenblatt": 6,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "SAPR4",
+      "setor": "saneamento",
+      "besst": true,
+      "preco": 5.3,
+      "bazin": {
+        "dpa": 0.324,
+        "dpa_sem_extra": 0.324,
+        "tem_extraordinario": false,
+        "teto": 5.4,
+        "teto_sem_extra": 5.4,
+        "margem_seguranca": 0.018518518518518615,
+        "veredito": "verde"
+      },
+      "graham": 11.384199576606166,
+      "margem_graham": 0.534442455586322,
+      "gordon": 4.767428571428571,
+      "margem_gordon": -0.11171041591753575,
+      "rank_greenblatt": 9,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "SAPR3",
+      "setor": "saneamento",
+      "besst": true,
+      "preco": 5.15,
+      "bazin": {
+        "dpa": 0.304,
+        "dpa_sem_extra": 0.304,
+        "tem_extraordinario": false,
+        "teto": 5.066666666666666,
+        "teto_sem_extra": 5.066666666666666,
+        "margem_seguranca": -0.01644736842105275,
+        "veredito": "amarelo"
+      },
+      "graham": 11.063453348751466,
+      "margem_graham": 0.5345033925974669,
+      "gordon": 4.473142857142856,
+      "margem_gordon": -0.1513157894736845,
+      "rank_greenblatt": 8,
       "motivo_exclusao_greenblatt": null
     },
     {
@@ -155,9 +869,9 @@
       "besst": true,
       "preco": 21.8,
       "bazin": {
-        "dpa": 1.41,
+        "dpa": 1.48,
         "dpa_sem_extra": 1.41,
-        "tem_extraordinario": false,
+        "tem_extraordinario": true,
         "teto": 23.5,
         "teto_sem_extra": 23.5,
         "margem_seguranca": 0.07234042553191486,
@@ -167,7 +881,7 @@
       "margem_graham": 0.4763910063642695,
       "gordon": 19.269999999999992,
       "margem_gordon": -0.1312921639854701,
-      "rank_greenblatt": 6,
+      "rank_greenblatt": 17,
       "motivo_exclusao_greenblatt": null
     },
     {
@@ -188,7 +902,7 @@
       "margem_graham": -0.06448955881837247,
       "gordon": 27.733333333333334,
       "margem_gordon": -2.191105769230769,
-      "rank_greenblatt": 12,
+      "rank_greenblatt": 39,
       "motivo_exclusao_greenblatt": null
     },
     {
@@ -209,7 +923,7 @@
       "margem_graham": -0.46555632461614105,
       "gordon": 44.584615384615375,
       "margem_gordon": 0.23964803312629387,
-      "rank_greenblatt": 3,
+      "rank_greenblatt": 13,
       "motivo_exclusao_greenblatt": null
     },
     {
@@ -230,7 +944,70 @@
       "margem_graham": -0.31724110743786565,
       "gordon": 15.008571428571427,
       "margem_gordon": 0.02722253950123732,
+      "rank_greenblatt": 24,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "PSSA3",
+      "setor": "seguros",
+      "besst": true,
+      "preco": 35.8,
+      "bazin": {
+        "dpa": 1.8400000000000003,
+        "dpa_sem_extra": 1.8400000000000003,
+        "tem_extraordinario": false,
+        "teto": 30.66666666666667,
+        "teto_sem_extra": 30.66666666666667,
+        "margem_seguranca": -0.16739130434782581,
+        "veredito": "vermelho"
+      },
+      "graham": 44.59694496263169,
+      "margem_graham": 0.19725443009611435,
+      "gordon": 29.298461538461538,
+      "margem_gordon": -0.22190716236084848,
       "rank_greenblatt": 7,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "WIZC3",
+      "setor": "seguros",
+      "besst": true,
+      "preco": 6.1,
+      "bazin": {
+        "dpa": 0.49000000000000005,
+        "dpa_sem_extra": 0.49000000000000005,
+        "tem_extraordinario": false,
+        "teto": 8.166666666666668,
+        "teto_sem_extra": 8.166666666666668,
+        "margem_seguranca": 0.25306122448979607,
+        "veredito": "verde"
+      },
+      "graham": 8.899438184514796,
+      "margem_graham": 0.31456347316237065,
+      "gordon": 6.696666666666665,
+      "margem_gordon": 0.08909905425584856,
+      "rank_greenblatt": 1,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "IRBR3",
+      "setor": "seguros",
+      "besst": true,
+      "preco": 42.5,
+      "bazin": {
+        "dpa": 0.33999999999999997,
+        "dpa_sem_extra": 0.33999999999999997,
+        "tem_extraordinario": false,
+        "teto": 5.666666666666666,
+        "teto_sem_extra": 5.666666666666666,
+        "margem_seguranca": -6.500000000000001,
+        "veredito": "vermelho"
+      },
+      "graham": 70.09992867328754,
+      "margem_graham": 0.39372263560954,
+      "gordon": 4.335,
+      "margem_gordon": -8.803921568627452,
+      "rank_greenblatt": 30,
       "motivo_exclusao_greenblatt": null
     },
     {
@@ -251,7 +1028,7 @@
       "margem_graham": 0.07391919941908061,
       "gordon": 33.15,
       "margem_gordon": -0.5444947209653094,
-      "rank_greenblatt": 13,
+      "rank_greenblatt": 44,
       "motivo_exclusao_greenblatt": null
     },
     {
@@ -272,7 +1049,49 @@
       "margem_graham": 0.008006271795084325,
       "gordon": 13.256666666666662,
       "margem_gordon": -0.34272064370128286,
-      "rank_greenblatt": 10,
+      "rank_greenblatt": 31,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "FIQE3",
+      "setor": "telecom",
+      "besst": true,
+      "preco": 3.85,
+      "bazin": {
+        "dpa": 0.25,
+        "dpa_sem_extra": 0.25,
+        "tem_extraordinario": false,
+        "teto": 4.166666666666667,
+        "teto_sem_extra": 4.166666666666667,
+        "margem_seguranca": 0.07600000000000004,
+        "veredito": "verde"
+      },
+      "graham": 5.786190456595773,
+      "margem_graham": 0.3346226625479771,
+      "gordon": 3.6785714285714284,
+      "margem_gordon": -0.04660194174757289,
+      "rank_greenblatt": 15,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "BRST3",
+      "setor": "telecom",
+      "besst": true,
+      "preco": 3.4,
+      "bazin": {
+        "dpa": 0.2,
+        "dpa_sem_extra": 0.2,
+        "tem_extraordinario": false,
+        "teto": 3.3333333333333335,
+        "teto_sem_extra": 3.3333333333333335,
+        "margem_seguranca": -0.019999999999999928,
+        "veredito": "amarelo"
+      },
+      "graham": 5.584353140695885,
+      "margem_graham": 0.3911559827363793,
+      "gordon": 2.9428571428571426,
+      "margem_gordon": -0.1553398058252428,
+      "rank_greenblatt": 20,
       "motivo_exclusao_greenblatt": null
     },
     {
@@ -293,7 +1112,28 @@
       "margem_graham": 0.5084808989715939,
       "gordon": 58.012499999999996,
       "margem_gordon": 0.34152122387416495,
-      "rank_greenblatt": 1,
+      "rank_greenblatt": 4,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "PETR3",
+      "setor": "petróleo e gás",
+      "besst": false,
+      "preco": 41.1,
+      "bazin": {
+        "dpa": 5.0,
+        "dpa_sem_extra": 4.55,
+        "tem_extraordinario": true,
+        "teto": 75.83333333333333,
+        "teto_sem_extra": 75.83333333333333,
+        "margem_seguranca": 0.45802197802197797,
+        "veredito": "verde"
+      },
+      "graham": 77.71824110207332,
+      "margem_graham": 0.4711666216683903,
+      "gordon": 58.012499999999996,
+      "margem_gordon": 0.29153199741435026,
+      "rank_greenblatt": 3,
       "motivo_exclusao_greenblatt": null
     },
     {
@@ -314,28 +1154,112 @@
       "margem_graham": 0.40706795908819887,
       "gordon": 71.39999999999999,
       "margem_gordon": 0.14565826330532203,
-      "rank_greenblatt": 4,
+      "rank_greenblatt": 11,
       "motivo_exclusao_greenblatt": null
     },
     {
-      "ticker": "WEGE3",
-      "setor": "bens industriais",
+      "ticker": "CMIN3",
+      "setor": "mineração",
       "besst": false,
-      "preco": 44.5,
+      "preco": 5.25,
       "bazin": {
-        "dpa": 0.67,
-        "dpa_sem_extra": 0.67,
-        "tem_extraordinario": false,
-        "teto": 11.166666666666668,
-        "teto_sem_extra": 11.166666666666668,
-        "margem_seguranca": -2.985074626865671,
-        "veredito": "vermelho"
+        "dpa": 0.51,
+        "dpa_sem_extra": 0.47400000000000003,
+        "tem_extraordinario": true,
+        "teto": 7.900000000000001,
+        "teto_sem_extra": 7.900000000000001,
+        "margem_seguranca": 0.33544303797468367,
+        "veredito": "verde"
       },
-      "graham": 12.567816039392048,
-      "margem_graham": -2.5407902105283067,
-      "gordon": 12.729999999999997,
-      "margem_gordon": -2.49567949725059,
-      "rank_greenblatt": 9,
+      "graham": 6.17008914036094,
+      "margem_graham": 0.14912088292894843,
+      "gordon": 6.0435,
+      "margem_gordon": 0.13129808885579547,
+      "rank_greenblatt": 2,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "KLBN11",
+      "setor": "papel e celulose",
+      "besst": false,
+      "preco": 21.4,
+      "bazin": {
+        "dpa": 1.28,
+        "dpa_sem_extra": 1.28,
+        "tem_extraordinario": false,
+        "teto": 21.333333333333336,
+        "teto_sem_extra": 21.333333333333336,
+        "margem_seguranca": -0.003124999999999822,
+        "veredito": "amarelo"
+      },
+      "graham": 20.605217785793965,
+      "margem_graham": -0.03857189098743657,
+      "gordon": 18.834285714285713,
+      "margem_gordon": -0.13622572815533981,
+      "rank_greenblatt": 37,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "IRANI3",
+      "setor": "papel e celulose",
+      "besst": false,
+      "preco": 8.1,
+      "bazin": {
+        "dpa": 0.6,
+        "dpa_sem_extra": 0.6,
+        "tem_extraordinario": false,
+        "teto": 10.0,
+        "teto_sem_extra": 10.0,
+        "margem_seguranca": 0.19000000000000003,
+        "veredito": "verde"
+      },
+      "graham": 12.323757543866238,
+      "margem_graham": 0.3427329309938007,
+      "gordon": 8.199999999999998,
+      "margem_gordon": 0.012195121951219256,
+      "rank_greenblatt": 14,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "GGBR4",
+      "setor": "siderurgia",
+      "besst": false,
+      "preco": 18.6,
+      "bazin": {
+        "dpa": 1.4300000000000002,
+        "dpa_sem_extra": 1.4300000000000002,
+        "tem_extraordinario": false,
+        "teto": 23.833333333333336,
+        "teto_sem_extra": 23.833333333333336,
+        "margem_seguranca": 0.2195804195804196,
+        "veredito": "verde"
+      },
+      "graham": 42.42110323883621,
+      "margem_graham": 0.561538984611512,
+      "gordon": 18.2325,
+      "margem_gordon": -0.020156314273961317,
+      "rank_greenblatt": 21,
+      "motivo_exclusao_greenblatt": null
+    },
+    {
+      "ticker": "B3SA3",
+      "setor": "serviços financeiros",
+      "besst": false,
+      "preco": 10.8,
+      "bazin": {
+        "dpa": 0.718,
+        "dpa_sem_extra": 0.718,
+        "tem_extraordinario": false,
+        "teto": 11.966666666666667,
+        "teto_sem_extra": 11.966666666666667,
+        "margem_seguranca": 0.09749303621169911,
+        "veredito": "verde"
+      },
+      "graham": 8.730979326513149,
+      "margem_graham": -0.23697463893928924,
+      "gordon": 10.564857142857141,
+      "margem_gordon": -0.022257078724612828,
+      "rank_greenblatt": 23,
       "motivo_exclusao_greenblatt": null
     }
   ]
