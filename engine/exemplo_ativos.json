@@ -1,0 +1,103 @@
+[
+  {
+    "ticker": "BBAS3",
+    "setor": "bancos",
+    "preco": 27.50,
+    "dividendos": [
+      { "data_com": "2021-05-20", "valor": 1.80, "tipo": "dividendo" },
+      { "data_com": "2022-06-15", "valor": 2.10, "tipo": "jcp" },
+      { "data_com": "2023-08-10", "valor": 2.30, "tipo": "dividendo" },
+      { "data_com": "2024-09-12", "valor": 2.50, "tipo": "jcp" },
+      { "data_com": "2025-11-18", "valor": 2.60, "tipo": "dividendo" },
+      { "data_com": "2025-12-15", "valor": 0.70, "tipo": "extraordinario" }
+    ],
+    "fundamentos": {
+      "lpa": 5.80,
+      "vpa": 31.20,
+      "ebit": null,
+      "ev": null,
+      "capital_investido": null,
+      "g_perpetuidade": 0.03
+    }
+  },
+  {
+    "ticker": "TAEE11",
+    "setor": "energia",
+    "preco": 34.80,
+    "dividendos": [
+      { "data_com": "2021-05-12", "valor": 3.40, "tipo": "dividendo" },
+      { "data_com": "2022-05-14", "valor": 3.10, "tipo": "dividendo" },
+      { "data_com": "2023-08-09", "valor": 2.90, "tipo": "jcp" },
+      { "data_com": "2024-11-11", "valor": 3.00, "tipo": "dividendo" },
+      { "data_com": "2025-11-14", "valor": 3.20, "tipo": "dividendo" }
+    ],
+    "fundamentos": {
+      "lpa": 3.90,
+      "vpa": 19.50,
+      "ebit": 2100.0,
+      "ev": 18500.0,
+      "capital_investido": 14000.0,
+      "g_perpetuidade": 0.025
+    }
+  },
+  {
+    "ticker": "SAPR11",
+    "setor": "saneamento",
+    "preco": 26.40,
+    "dividendos": [
+      { "data_com": "2021-06-30", "valor": 1.35, "tipo": "jcp" },
+      { "data_com": "2022-06-30", "valor": 1.50, "tipo": "jcp" },
+      { "data_com": "2023-06-30", "valor": 1.65, "tipo": "jcp" },
+      { "data_com": "2024-06-28", "valor": 1.75, "tipo": "jcp" },
+      { "data_com": "2025-06-27", "valor": 1.85, "tipo": "jcp" }
+    ],
+    "fundamentos": {
+      "lpa": 4.50,
+      "vpa": 32.00,
+      "ebit": 2400.0,
+      "ev": 11200.0,
+      "capital_investido": 12500.0,
+      "g_perpetuidade": 0.03
+    }
+  },
+  {
+    "ticker": "BBSE3",
+    "setor": "seguros",
+    "preco": 33.90,
+    "dividendos": [
+      { "data_com": "2021-08-18", "valor": 1.90, "tipo": "dividendo" },
+      { "data_com": "2022-08-19", "valor": 2.40, "tipo": "dividendo" },
+      { "data_com": "2023-08-16", "valor": 3.00, "tipo": "dividendo" },
+      { "data_com": "2024-08-15", "valor": 3.20, "tipo": "dividendo" },
+      { "data_com": "2025-08-14", "valor": 3.50, "tipo": "dividendo" }
+    ],
+    "fundamentos": {
+      "lpa": 4.10,
+      "vpa": 5.80,
+      "ebit": 8500.0,
+      "ev": 65000.0,
+      "capital_investido": 12000.0,
+      "g_perpetuidade": 0.035
+    }
+  },
+  {
+    "ticker": "VIVT3",
+    "setor": "telecom",
+    "preco": 51.20,
+    "dividendos": [
+      { "data_com": "2021-04-15", "valor": 2.60, "tipo": "jcp" },
+      { "data_com": "2022-04-18", "valor": 2.50, "tipo": "jcp" },
+      { "data_com": "2023-07-12", "valor": 2.40, "tipo": "dividendo" },
+      { "data_com": "2024-07-15", "valor": 2.70, "tipo": "jcp" },
+      { "data_com": "2025-09-10", "valor": 2.80, "tipo": "dividendo" }
+    ],
+    "fundamentos": {
+      "lpa": 3.25,
+      "vpa": 41.80,
+      "ebit": 9200.0,
+      "ev": 94000.0,
+      "capital_investido": 78000.0,
+      "g_perpetuidade": 0.02
+    }
+  }
+]

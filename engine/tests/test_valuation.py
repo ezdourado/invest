@@ -192,3 +192,20 @@ def test_schema_saida_e_filtro_besst():
     payload = saida.model_dump(mode="json")
     assert payload["schema_version"] == "1.0"
     assert payload["ativos"][0]["ticker"] == "BBAS3"
+
+
+def test_build_gera_saida_valida():
+    """Valida a construção do payload de Saida a partir do exemplo_ativos.json."""
+    import json
+    from pathlib import Path
+    from engine.build import construir_saida
+
+    caminho_exemplo = Path(__file__).resolve().parent.parent / "exemplo_ativos.json"
+    dados = json.loads(caminho_exemplo.read_text(encoding="utf-8"))
+    ativos = [Ativo.model_validate(item) for item in dados]
+
+    saida = construir_saida(ativos, ano_referencia=2026)
+    assert len(saida.ativos) == 5
+    setores = {a.setor for a in saida.ativos}
+    assert setores == {"bancos", "energia", "saneamento", "seguros", "telecom"}
+    assert all(a.besst is True for a in saida.ativos)
