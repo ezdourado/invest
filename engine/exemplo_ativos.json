@@ -21,6 +21,47 @@
     }
   },
   {
+    "ticker": "ITUB4",
+    "setor": "bancos",
+    "preco": 34.10,
+    "dividendos": [
+      { "data_com": "2021-06-01", "valor": 1.40, "tipo": "jcp" },
+      { "data_com": "2022-06-01", "valor": 1.75, "tipo": "jcp" },
+      { "data_com": "2023-06-01", "valor": 2.15, "tipo": "dividendo" },
+      { "data_com": "2024-06-01", "valor": 2.40, "tipo": "dividendo" },
+      { "data_com": "2025-06-01", "valor": 2.55, "tipo": "dividendo" },
+      { "data_com": "2025-12-10", "valor": 1.10, "tipo": "extraordinario" }
+    ],
+    "fundamentos": {
+      "lpa": 4.10,
+      "vpa": 20.40,
+      "ebit": null,
+      "ev": null,
+      "capital_investido": null,
+      "g_perpetuidade": 0.035
+    }
+  },
+  {
+    "ticker": "SANB11",
+    "setor": "bancos",
+    "preco": 28.90,
+    "dividendos": [
+      { "data_com": "2021-07-15", "valor": 2.10, "tipo": "jcp" },
+      { "data_com": "2022-07-15", "valor": 1.85, "tipo": "jcp" },
+      { "data_com": "2023-07-15", "valor": 1.60, "tipo": "jcp" },
+      { "data_com": "2024-07-15", "valor": 1.70, "tipo": "jcp" },
+      { "data_com": "2025-07-15", "valor": 1.90, "tipo": "jcp" }
+    ],
+    "fundamentos": {
+      "lpa": 3.20,
+      "vpa": 24.50,
+      "ebit": null,
+      "ev": null,
+      "capital_investido": null,
+      "g_perpetuidade": 0.025
+    }
+  },
+  {
     "ticker": "TAEE11",
     "setor": "energia",
     "preco": 34.80,
@@ -38,6 +79,47 @@
       "ev": 18500.0,
       "capital_investido": 14000.0,
       "g_perpetuidade": 0.025
+    }
+  },
+  {
+    "ticker": "CMIG4",
+    "setor": "energia",
+    "preco": 11.20,
+    "dividendos": [
+      { "data_com": "2021-06-20", "valor": 0.85, "tipo": "jcp" },
+      { "data_com": "2022-06-20", "valor": 0.95, "tipo": "jcp" },
+      { "data_com": "2023-06-20", "valor": 1.05, "tipo": "dividendo" },
+      { "data_com": "2024-06-20", "valor": 1.15, "tipo": "dividendo" },
+      { "data_com": "2025-06-20", "valor": 1.25, "tipo": "dividendo" },
+      { "data_com": "2025-11-25", "valor": 0.60, "tipo": "extraordinario" }
+    ],
+    "fundamentos": {
+      "lpa": 2.10,
+      "vpa": 9.80,
+      "ebit": 7200.0,
+      "ev": 36800.0,
+      "capital_investido": 41800.0,
+      "g_perpetuidade": 0.025
+    }
+  },
+  {
+    "ticker": "EGIE3",
+    "setor": "energia",
+    "preco": 41.50,
+    "dividendos": [
+      { "data_com": "2021-05-18", "valor": 2.45, "tipo": "dividendo" },
+      { "data_com": "2022-05-18", "valor": 2.65, "tipo": "dividendo" },
+      { "data_com": "2023-05-18", "valor": 2.80, "tipo": "dividendo" },
+      { "data_com": "2024-05-18", "valor": 2.50, "tipo": "jcp" },
+      { "data_com": "2025-05-18", "valor": 2.75, "tipo": "dividendo" }
+    ],
+    "fundamentos": {
+      "lpa": 3.85,
+      "vpa": 12.60,
+      "ebit": 5400.0,
+      "ev": 48000.0,
+      "capital_investido": 28500.0,
+      "g_perpetuidade": 0.03
     }
   },
   {
@@ -61,6 +143,46 @@
     }
   },
   {
+    "ticker": "CSMG3",
+    "setor": "saneamento",
+    "preco": 21.80,
+    "dividendos": [
+      { "data_com": "2021-09-15", "valor": 1.20, "tipo": "jcp" },
+      { "data_com": "2022-09-15", "valor": 1.10, "tipo": "jcp" },
+      { "data_com": "2023-09-15", "valor": 1.45, "tipo": "dividendo" },
+      { "data_com": "2024-09-15", "valor": 1.60, "tipo": "dividendo" },
+      { "data_com": "2025-09-15", "valor": 1.70, "tipo": "dividendo" }
+    ],
+    "fundamentos": {
+      "lpa": 3.60,
+      "vpa": 21.40,
+      "ebit": 1950.0,
+      "ev": 10800.0,
+      "capital_investido": 11200.0,
+      "g_perpetuidade": 0.025
+    }
+  },
+  {
+    "ticker": "SBSP3",
+    "setor": "saneamento",
+    "preco": 88.50,
+    "dividendos": [
+      { "data_com": "2021-04-28", "valor": 1.15, "tipo": "jcp" },
+      { "data_com": "2022-04-28", "valor": 1.30, "tipo": "jcp" },
+      { "data_com": "2023-04-28", "valor": 1.50, "tipo": "jcp" },
+      { "data_com": "2024-04-28", "valor": 1.80, "tipo": "jcp" },
+      { "data_com": "2025-04-28", "valor": 2.25, "tipo": "dividendo" }
+    ],
+    "fundamentos": {
+      "lpa": 6.40,
+      "vpa": 48.00,
+      "ebit": 7800.0,
+      "ev": 76000.0,
+      "capital_investido": 52000.0,
+      "g_perpetuidade": 0.04
+    }
+  },
+  {
     "ticker": "BBSE3",
     "setor": "seguros",
     "preco": 33.90,
@@ -81,6 +203,26 @@
     }
   },
   {
+    "ticker": "CXSE3",
+    "setor": "seguros",
+    "preco": 14.60,
+    "dividendos": [
+      { "data_com": "2021-10-10", "valor": 0.75, "tipo": "dividendo" },
+      { "data_com": "2022-10-10", "valor": 0.90, "tipo": "dividendo" },
+      { "data_com": "2023-10-10", "valor": 1.05, "tipo": "dividendo" },
+      { "data_com": "2024-10-10", "valor": 1.15, "tipo": "dividendo" },
+      { "data_com": "2025-10-10", "valor": 1.25, "tipo": "dividendo" }
+    ],
+    "fundamentos": {
+      "lpa": 1.30,
+      "vpa": 4.20,
+      "ebit": 4100.0,
+      "ev": 43800.0,
+      "capital_investido": 13200.0,
+      "g_perpetuidade": 0.03
+    }
+  },
+  {
     "ticker": "VIVT3",
     "setor": "telecom",
     "preco": 51.20,
@@ -98,6 +240,87 @@
       "ev": 94000.0,
       "capital_investido": 78000.0,
       "g_perpetuidade": 0.02
+    }
+  },
+  {
+    "ticker": "TIMS3",
+    "setor": "telecom",
+    "preco": 17.80,
+    "dividendos": [
+      { "data_com": "2021-07-20", "valor": 0.65, "tipo": "jcp" },
+      { "data_com": "2022-07-20", "valor": 0.80, "tipo": "jcp" },
+      { "data_com": "2023-07-20", "valor": 0.95, "tipo": "jcp" },
+      { "data_com": "2024-07-20", "valor": 1.15, "tipo": "dividendo" },
+      { "data_com": "2025-07-20", "valor": 1.30, "tipo": "dividendo" }
+    ],
+    "fundamentos": {
+      "lpa": 1.35,
+      "vpa": 10.60,
+      "ebit": 5800.0,
+      "ev": 46500.0,
+      "capital_investido": 34000.0,
+      "g_perpetuidade": 0.025
+    }
+  },
+  {
+    "ticker": "PETR4",
+    "setor": "petróleo e gás",
+    "preco": 38.20,
+    "dividendos": [
+      { "data_com": "2021-08-16", "valor": 3.80, "tipo": "dividendo" },
+      { "data_com": "2022-08-11", "valor": 5.20, "tipo": "dividendo" },
+      { "data_com": "2023-08-21", "valor": 4.40, "tipo": "jcp" },
+      { "data_com": "2024-08-21", "valor": 4.60, "tipo": "dividendo" },
+      { "data_com": "2025-08-20", "valor": 4.75, "tipo": "dividendo" },
+      { "data_com": "2025-11-22", "valor": 2.25, "tipo": "extraordinario" }
+    ],
+    "fundamentos": {
+      "lpa": 9.10,
+      "vpa": 29.50,
+      "ebit": 185000.0,
+      "ev": 573500.0,
+      "capital_investido": 825000.0,
+      "g_perpetuidade": 0.02
+    }
+  },
+  {
+    "ticker": "VALE3",
+    "setor": "mineração",
+    "preco": 61.00,
+    "dividendos": [
+      { "data_com": "2021-09-22", "valor": 6.50, "tipo": "dividendo" },
+      { "data_com": "2022-08-11", "valor": 5.80, "tipo": "jcp" },
+      { "data_com": "2023-08-11", "valor": 4.90, "tipo": "jcp" },
+      { "data_com": "2024-08-12", "valor": 5.30, "tipo": "jcp" },
+      { "data_com": "2025-08-12", "valor": 5.50, "tipo": "dividendo" }
+    ],
+    "fundamentos": {
+      "lpa": 11.20,
+      "vpa": 42.00,
+      "ebit": 72000.0,
+      "ev": 345600.0,
+      "capital_investido": 400000.0,
+      "g_perpetuidade": 0.02
+    }
+  },
+  {
+    "ticker": "WEGE3",
+    "setor": "bens industriais",
+    "preco": 44.50,
+    "dividendos": [
+      { "data_com": "2021-07-23", "valor": 0.45, "tipo": "jcp" },
+      { "data_com": "2022-07-22", "valor": 0.55, "tipo": "jcp" },
+      { "data_com": "2023-07-21", "valor": 0.65, "tipo": "dividendo" },
+      { "data_com": "2024-07-20", "valor": 0.78, "tipo": "dividendo" },
+      { "data_com": "2025-07-18", "valor": 0.92, "tipo": "dividendo" }
+    ],
+    "fundamentos": {
+      "lpa": 1.35,
+      "vpa": 5.20,
+      "ebit": 8600.0,
+      "ev": 184900.0,
+      "capital_investido": 32000.0,
+      "g_perpetuidade": 0.045
     }
   }
 ]

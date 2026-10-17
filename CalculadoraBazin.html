@@ -19,6 +19,10 @@
         Calculadora Integrada: <span>Preço-Teto & Graham (K = 6.0%)</span>
       </div>
     </div>
+    <div class="header-nav-links">
+      <a href="./index.html" class="nav-link-pill">📊 Painel de Valuation (JSON)</a>
+      <a href="./CalculadoraBazin.html" class="nav-link-pill active">🧮 Calculadora Manual</a>
+    </div>
   </div>
 
   <div class="main-tabs">
@@ -521,43 +525,6 @@
     </div>
   </div>
 
-  <div class="engine-data-section" id="engine-data-section">
-    <div class="radar-header">
-      <div class="radar-header-titles">
-        <span class="radar-title">⚙️ Painel de Valuation · Motor Python (JSON)</span>
-        <span class="radar-count-badge" id="engine-count-badge">0 ativos</span>
-      </div>
-      <span class="engine-meta-label" id="engine-valuation-meta">Carregando ./data/valuation.json...</span>
-    </div>
-
-    <div class="engine-error-banner is-hidden" id="engine-error-banner"></div>
-
-    <div class="besst-coverage-box">
-      <div class="besst-coverage-title">
-        <span>🛡️ Cobertura Setorial BESST (Bancos · Energia · Saneamento · Seguros · Telecom)</span>
-        <span>Agregação por Setor</span>
-      </div>
-      <div class="besst-coverage-grid" id="besst-coverage-grid"></div>
-    </div>
-
-    <div class="radar-table-wrap">
-      <table class="radar-table" id="engine-valuation-table">
-        <thead>
-          <tr>
-            <th>Ticker</th>
-            <th>Setor</th>
-            <th>Preço</th>
-            <th>Teto Bazin (6%)</th>
-            <th>Margem de Segurança</th>
-            <th>Veredito</th>
-          </tr>
-        </thead>
-        <tbody id="engine-valuation-tbody">
-        </tbody>
-      </table>
-    </div>
-  </div>
-
   <div class="info-footer">
     <h3>Estrutura Decisória dos Pilares de Valuation</h3>
     <p>Com a taxa de desconto imutável estabelecida no padrão de <strong>K = 6,0%</strong> para Bazin e customizável no Terminal Multimétodos, avaliamos quatro dimensões consagradas da análise fundamentalista:</p>
@@ -586,6 +553,5 @@
 
 <script src="./assets/js/valuation.js"></script>
 <script src="./assets/js/app.js"></script>
-<script src="./assets/js/data.js"></script>
 </body>
 </html>
