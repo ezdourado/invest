@@ -380,8 +380,8 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
     else:
         g_perp = 0.025
 
-    pl = detalhes_fund.get("pl") if detalhes_fund.get("pl") is not None else (round(preco / lpa, 2) if (preco and lpa and lpa != 0) else None)
-    pvp = detalhes_fund.get("pvp") if detalhes_fund.get("pvp") is not None else (round(preco / vpa, 2) if (preco and vpa and vpa > 0) else None)
+    pl = (round(preco / lpa, 2) if (preco and lpa and lpa != 0) else None) or detalhes_fund.get("pl")
+    pvp = (round(preco / vpa, 2) if (preco and vpa and vpa > 0) else None) or detalhes_fund.get("pvp")
 
     return {
         "preco": preco,

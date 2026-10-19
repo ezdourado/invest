@@ -933,12 +933,47 @@ function exibirErro(msg) {
   if (tbody) tbody.innerHTML = `<tr class="row-empty"><td colspan="10" class="empty"><strong>Dados indisponíveis</strong>${esc(msg)}</td></tr>`;
 }
 
+const URL_VALUATION_REMOTO = 'https://raw.githubusercontent.com/ezdourado/invest/main/data/valuation.json';
+
+async function buscarJsonComCacheBust(urlBase) {
+  const sep = urlBase.includes('?') ? '&' : '?';
+  const resp = await fetch(`${urlBase}${sep}t=${Date.now()}`, {
+    headers: { Accept: 'application/json' },
+    cache: 'no-store'
+  });
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}${resp.statusText ? ' ' + resp.statusText : ''}`);
+  const json = await resp.json();
+  if (!json || !Array.isArray(json.ativos)) throw new Error('formato inválido (lista "ativos" ausente)');
+  return json;
+}
+
+async function obterPayloadMaisRecente() {
+  const resultados = await Promise.allSettled([
+    buscarJsonComCacheBust('./data/valuation.json'),
+    buscarJsonComCacheBust(URL_VALUATION_REMOTO)
+  ]);
+
+  const validos = resultados
+    .filter(r => r.status === 'fulfilled' && r.value)
+    .map(r => r.value);
+
+  if (!validos.length) {
+    const primeiroErro = resultados.find(r => r.status === 'rejected')?.reason;
+    throw primeiroErro || new Error('Nenhuma fonte de valuation respondeu');
+  }
+
+  validos.sort((a, b) => {
+    const ta = new Date(a.gerado_em || 0).getTime() || 0;
+    const tb = new Date(b.gerado_em || 0).getTime() || 0;
+    return tb - ta;
+  });
+
+  return validos[0];
+}
+
 async function carregarValuationJson(silencioso = false) {
   try {
-    const resp = await fetch('./data/valuation.json', { headers: { Accept: 'application/json' }, cache: 'no-store' });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}${resp.statusText ? ' ' + resp.statusText : ''}`);
-    const payload = await resp.json();
-    if (!payload || !Array.isArray(payload.ativos)) throw new Error('formato inválido (lista "ativos" ausente)');
+    const payload = await obterPayloadMaisRecente();
 
     painelState.payload = payload;
     painelState.universo = payload.ativos;
@@ -1072,6 +1107,12 @@ function bindEventos() {
     if (b) alternarTicker(b.dataset.detailToggle);
   });
 
+  $('#status-pill')?.addEventListener('click', () => {
+    const el = $('#status-text');
+    if (el) el.textContent = 'Sincronizando base…';
+    carregarValuationJson(true);
+  });
+
   document.addEventListener('mouseover', (e) => {
     const alvo = e.target.closest('[data-tip]');
     if (alvo && alvo !== tooltipAlvo) mostrarTooltip(alvo);
@@ -1085,8 +1126,12 @@ window.addEventListener('DOMContentLoaded', () => {
   if (sortSalvo?.key && sortSalvo?.dir) painelState.sort = sortSalvo;
   bindEventos();
   carregarValuationJson();
-  // Atualiza silenciosamente a base a cada 2 minutos enquanto o painel estiver aberto
+  // Consulta silenciosamente a base a cada 60 segundos enquanto o painel estiver aberto
   setInterval(() => {
     if (!document.hidden) carregarValuationJson(true);
-  }, 120000);
+  }, 60000);
+  // Atualiza o contador relativo ("há X min") a cada 30 segundos
+  setInterval(() => {
+    if (!document.hidden && painelState.payload) atualizarStatusBase();
+  }, 30000);
 });
