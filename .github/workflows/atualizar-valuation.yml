@@ -2,9 +2,14 @@ name: Atualizar Valuation B3
 
 on:
   schedule:
-    # Roda a cada 10 minutos durante o pregão da B3 (seg-sex, 10h00 às 18h50 BRT = 13h às 21h UTC)
-    - cron: "*/10 13-21 * * 1-5"
+    # Aciona a cada 10 minutos (seg-sex, 09h00 às 19h50 BRT = 12h às 22h UTC)
+    - cron: "*/10 12-22 * * 1-5"
   workflow_dispatch:
+    inputs:
+      ciclos:
+        description: "Quantidade de ciclos de 10 min nesta execução (1 = imediato, 6 = 1h contínua)"
+        required: false
+        default: "1"
 
 concurrency:
   group: atualizar-valuation
@@ -16,9 +21,12 @@ permissions:
 jobs:
   atualizar-valuation:
     runs-on: ubuntu-latest
+    timeout-minutes: 75
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configurar Python 3.12
         uses: actions/setup-python@v5
@@ -35,17 +43,47 @@ jobs:
       - name: Executar testes unitários do motor
         run: python -m pytest -v engine/tests/test_valuation.py
 
-      - name: Gerar data/valuation.json
-        run: python -m engine.build
-
-      - name: Commit e push de data/valuation.json se houver mudança
+      - name: Loop de atualização (cadência real de 10 em 10 min)
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_CICLOS: ${{ github.event.inputs.ciclos }}
         run: |
-          if git diff --quiet -I '"gerado_em":' -- data/valuation.json; then
-            echo "Nenhuma alteração nos dados de valuation. Commit ignorado."
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Como o agendador cron do GitHub Actions sofre atrasos em intervalos */10,
+          # cada execução agendada mantém o runner ativo por 6 ciclos de 10 minutos (1 hora),
+          # garantindo atualizações pontuais a cada 10 minutos mesmo quando o cron atrasa.
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            TOTAL_CICLOS=6
           else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/valuation.json
-            git commit -m "chore: atualiza data/valuation.json"
-            git push
+            TOTAL_CICLOS="${INPUT_CICLOS:-1}"
           fi
+
+          for (( i=1; i<=TOTAL_CICLOS; i++ )); do
+            INICIO_CICLO=$(date +%s)
+            echo "=== [Ciclo $i/$TOTAL_CICLOS] Iniciando coleta em $(date -u +"%Y-%m-%dT%H:%M:%SZ") ==="
+
+            git pull --rebase -X theirs origin main || true
+            python -m engine.build
+
+            if ! git diff --quiet -- data/valuation.json; then
+              git add data/valuation.json
+              git commit -m "chore: atualiza data/valuation.json ($(date -u +"%H:%M UTC"))"
+              git pull --rebase -X theirs origin main || true
+              git push origin HEAD:main
+              echo "=== [Ciclo $i/$TOTAL_CICLOS] data/valuation.json publicado com sucesso ==="
+            else
+              echo "=== [Ciclo $i/$TOTAL_CICLOS] Sem alterações em data/valuation.json ==="
+            fi
+
+            if [ "$i" -lt "$TOTAL_CICLOS" ]; then
+              FIM_CICLO=$(date +%s)
+              DECORRIDO=$(( FIM_CICLO - INICIO_CICLO ))
+              ESPERA=$(( 600 - DECORRIDO ))
+              if [ "$ESPERA" -gt 0 ]; then
+                echo "Aguardando ${ESPERA}s até o próximo ciclo de 10 minutos..."
+                sleep "$ESPERA"
+              fi
+            fi
+          done
