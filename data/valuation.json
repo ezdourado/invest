@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "gerado_em": "2026-10-23T23:38:22.665799Z",
+  "gerado_em": "2026-10-23T23:48:24.687210Z",
   "ativos": [
     {
       "ticker": "BBAS3",
@@ -68,7 +68,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 48.3,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.8788024,
@@ -94,7 +94,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "ITAUUNIBANCO PN N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 4.23,
         "vpa": 18.83,
@@ -107,7 +107,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.065,
+        "dy_12m": 0.064,
         "payout": 0.8332,
         "roe": 0.224,
         "roic": null,
@@ -119,7 +119,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 1397150000.0
+        "liquidez_diaria": 1396050000.0
       }
     },
     {
@@ -128,7 +128,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 53.16,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.8788024,
@@ -154,7 +154,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "ITAUUNIBANCO ON N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 4.23,
         "vpa": 18.83,
@@ -179,7 +179,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 99818100.0
+        "liquidez_diaria": 99633500.0
       }
     },
     {
@@ -308,7 +308,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 27.53,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 2.04638,
@@ -334,7 +334,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "SANTANDER UNT",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 4.13,
         "vpa": 26.33,
@@ -347,7 +347,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.078,
+        "dy_12m": 0.079,
         "payout": 0.4955,
         "roe": 0.157,
         "roic": null,
@@ -359,7 +359,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 133192000.0
+        "liquidez_diaria": 133833000.0
       }
     },
     {
@@ -368,7 +368,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 13.78,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.07186,
@@ -394,7 +394,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "SANTANDER PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.07,
         "vpa": 13.17,
@@ -407,7 +407,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.082,
+        "dy_12m": 0.083,
         "payout": 0.6827,
         "roe": 0.157,
         "roic": null,
@@ -419,7 +419,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 3551560.0
+        "liquidez_diaria": 3561340.0
       }
     },
     {
@@ -428,7 +428,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 13.76,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.97446,
@@ -454,7 +454,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "SANTANDER ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.07,
         "vpa": 13.17,
@@ -467,7 +467,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.074,
+        "dy_12m": 0.075,
         "payout": 0.6206,
         "roe": 0.157,
         "roic": null,
@@ -479,7 +479,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 2573000.0
+        "liquidez_diaria": 2580570.0
       }
     },
     {
@@ -488,7 +488,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 15.31,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.7338936,
@@ -514,19 +514,19 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "ITAÚSA PN N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.62,
         "vpa": 8.36,
         "ebit": 430000000.0,
-        "ev": 175655000000.0,
+        "ev": 175768000000.0,
         "capital_investido": 97876000000.0,
         "g_perpetuidade": 0.045,
         "pl": 9.45,
         "pvp": 1.83,
-        "psr": 20.24,
-        "ev_ebit": 408.5,
-        "ev_ebitda": 101.13,
+        "psr": 20.26,
+        "ev_ebit": 408.76,
+        "ev_ebitda": 101.19,
         "dy_12m": 0.074,
         "payout": 0.3387,
         "roe": 0.194,
@@ -539,7 +539,7 @@
         "div_liq_ebit": 9.5,
         "div_liq_ebitda": 2.35,
         "liquidez_corrente": 2.0,
-        "liquidez_diaria": 476755000.0
+        "liquidez_diaria": 477988000.0
       }
     },
     {
@@ -548,7 +548,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 15.99,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.7338936,
@@ -574,20 +574,20 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "ITAÚSA ON N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.62,
         "vpa": 8.36,
         "ebit": 430000000.0,
-        "ev": 177674000000.0,
+        "ev": 183393000000.0,
         "capital_investido": 97876000000.0,
         "g_perpetuidade": 0.045,
         "pl": 9.87,
         "pvp": 1.91,
-        "psr": 20.48,
-        "ev_ebit": 413.2,
-        "ev_ebitda": 102.29,
-        "dy_12m": 0.073,
+        "psr": 21.16,
+        "ev_ebit": 426.5,
+        "ev_ebitda": 105.58,
+        "dy_12m": 0.071,
         "payout": 0.3387,
         "roe": 0.194,
         "roic": 0.004,
@@ -599,7 +599,7 @@
         "div_liq_ebit": 9.5,
         "div_liq_ebitda": 2.35,
         "liquidez_corrente": 2.0,
-        "liquidez_diaria": 2443300.0
+        "liquidez_diaria": 2510490.0
       }
     },
     {
@@ -608,7 +608,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 29.49,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.6982400000000002,
@@ -634,7 +634,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "ABC Brasil PN N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 3.79,
         "vpa": 26.96,
@@ -647,7 +647,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.088,
+        "dy_12m": 0.086,
         "payout": 0.625,
         "roe": 0.14,
         "roic": null,
@@ -659,7 +659,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 18237300.0
+        "liquidez_diaria": 18314400.0
       }
     },
     {
@@ -1328,7 +1328,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 16.44,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.28202000000000005,
@@ -1354,7 +1354,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "Pine PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.37,
         "vpa": 7.09,
@@ -1379,7 +1379,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 15167400.0
+        "liquidez_diaria": 15648400.0
       }
     },
     {
@@ -1388,7 +1388,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 14.35,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.0,
@@ -1414,7 +1414,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "Pine ON N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.37,
         "vpa": 7.09,
@@ -1439,7 +1439,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 96929.0
+        "liquidez_diaria": 98969.0
       }
     },
     {
@@ -1808,7 +1808,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 44.75,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 3.8068799999999996,
@@ -1834,19 +1834,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "TAESA UNT",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 4.72,
         "vpa": 23.43,
         "ebit": 2438660000.0,
-        "ev": 25881700000.0,
+        "ev": 25830100000.0,
         "capital_investido": 18484620000.0,
         "g_perpetuidade": 0.025,
         "pl": 9.48,
         "pvp": 1.91,
-        "psr": 3.45,
-        "ev_ebit": 10.61,
-        "ev_ebitda": 10.26,
+        "psr": 3.44,
+        "ev_ebit": 10.59,
+        "ev_ebitda": 10.24,
         "dy_12m": 0.067,
         "payout": 0.8065,
         "roe": 0.201,
@@ -1859,7 +1859,7 @@
         "div_liq_ebit": 4.27,
         "div_liq_ebitda": 4.13,
         "liquidez_corrente": 3.48,
-        "liquidez_diaria": 87837400.0
+        "liquidez_diaria": 88545000.0
       }
     },
     {
@@ -1868,7 +1868,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 15.14,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.2689400000000002,
@@ -1890,16 +1890,16 @@
       "margem_graham": 0.08849454314159086,
       "gordon": 24.109859999999998,
       "margem_gordon": 0.3720411483102763,
-      "rank_greenblatt": 47,
+      "rank_greenblatt": 45,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "TAESA PN N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.57,
         "vpa": 7.81,
         "ebit": 2438660000.0,
-        "ev": 26071200000.0,
+        "ev": 26060900000.0,
         "capital_investido": 18484620000.0,
         "g_perpetuidade": 0.045,
         "pl": 9.64,
@@ -1919,7 +1919,7 @@
         "div_liq_ebit": 4.27,
         "div_liq_ebitda": 4.13,
         "liquidez_corrente": 3.48,
-        "liquidez_diaria": 2960080.0
+        "liquidez_diaria": 3033560.0
       }
     },
     {
@@ -1928,7 +1928,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 14.79,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.2689400000000002,
@@ -1954,19 +1954,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "TAESA N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.57,
         "vpa": 7.81,
         "ebit": 2438660000.0,
-        "ev": 25719800000.0,
+        "ev": 25699200000.0,
         "capital_investido": 18484620000.0,
         "g_perpetuidade": 0.045,
         "pl": 9.42,
         "pvp": 1.89,
         "psr": 3.41,
-        "ev_ebit": 10.55,
-        "ev_ebitda": 10.2,
+        "ev_ebit": 10.54,
+        "ev_ebitda": 10.19,
         "dy_12m": 0.068,
         "payout": 0.6942,
         "roe": 0.201,
@@ -1979,7 +1979,7 @@
         "div_liq_ebit": 4.27,
         "div_liq_ebitda": 4.13,
         "liquidez_corrente": 3.48,
-        "liquidez_diaria": 1351080.0
+        "liquidez_diaria": 1376420.0
       }
     },
     {
@@ -1988,7 +1988,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 28.32,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 2.02834,
@@ -2014,12 +2014,12 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ISA ENERGIA PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 4.01,
         "vpa": 31.51,
         "ebit": 4620360000.0,
-        "ev": 35907800000.0,
+        "ev": 35886700000.0,
         "capital_investido": 38127800000.0,
         "g_perpetuidade": 0.045,
         "pl": 7.06,
@@ -2039,7 +2039,7 @@
         "div_liq_ebit": 3.46,
         "div_liq_ebitda": 3.43,
         "liquidez_corrente": 5.28,
-        "liquidez_diaria": 121560000.0
+        "liquidez_diaria": 121175000.0
       }
     },
     {
@@ -2048,7 +2048,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 37.2,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 2.02834,
@@ -2070,24 +2070,24 @@
       "margem_graham": 0.3023215752246676,
       "gordon": 38.53845999999999,
       "margem_gordon": 0.03473050038844289,
-      "rank_greenblatt": 46,
+      "rank_greenblatt": 47,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ISA ENERGIA ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 4.01,
         "vpa": 31.51,
         "ebit": 4620360000.0,
-        "ev": 40999900000.0,
+        "ev": 42132200000.0,
         "capital_investido": 38127800000.0,
         "g_perpetuidade": 0.045,
         "pl": 9.28,
         "pvp": 1.18,
-        "psr": 2.34,
-        "ev_ebit": 8.87,
-        "ev_ebitda": 8.81,
-        "dy_12m": 0.054,
+        "psr": 2.45,
+        "ev_ebit": 9.12,
+        "ev_ebitda": 9.05,
+        "dy_12m": 0.051,
         "payout": 0.4329,
         "roe": 0.127,
         "roic": 0.096,
@@ -2099,7 +2099,7 @@
         "div_liq_ebit": 3.46,
         "div_liq_ebitda": 3.43,
         "liquidez_corrente": 5.28,
-        "liquidez_diaria": 101002.0
+        "liquidez_diaria": 102588.0
       }
     },
     {
@@ -2108,7 +2108,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 30.79,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.7468572000000002,
@@ -2134,19 +2134,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENGIE BRASIL ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.8,
         "vpa": 10.6,
         "ebit": 5967060000.0,
-        "ev": 68874900000.0,
+        "ev": 68450000000.0,
         "capital_investido": 39852400000.0,
         "g_perpetuidade": 0.045,
         "pl": 11.0,
         "pvp": 2.9,
-        "psr": 3.22,
-        "ev_ebit": 11.54,
-        "ev_ebitda": 9.17,
+        "psr": 3.19,
+        "ev_ebit": 11.47,
+        "ev_ebitda": 9.12,
         "dy_12m": 0.029,
         "payout": 0.3478,
         "roe": 0.264,
@@ -2159,7 +2159,7 @@
         "div_liq_ebit": 4.16,
         "div_liq_ebitda": 3.31,
         "liquidez_corrente": 1.09,
-        "liquidez_diaria": 102632000.0
+        "liquidez_diaria": 101565000.0
       }
     },
     {
@@ -2168,7 +2168,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 11.67,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.9214325999999999,
@@ -2190,16 +2190,16 @@
       "margem_graham": 0.3928911369457086,
       "gordon": 14.18401985901639,
       "margem_gordon": 0.1772431147167562,
-      "rank_greenblatt": 40,
+      "rank_greenblatt": 39,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CEMIG PN N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.61,
         "vpa": 10.2,
         "ebit": 6009850000.0,
-        "ev": 52639000000.0,
+        "ev": 52667600000.0,
         "capital_investido": 48452200000.0,
         "g_perpetuidade": 0.0329,
         "pl": 7.25,
@@ -2207,7 +2207,7 @@
         "psr": 0.76,
         "ev_ebit": 8.76,
         "ev_ebitda": 6.91,
-        "dy_12m": 0.088,
+        "dy_12m": 0.087,
         "payout": 0.7906,
         "roe": 0.157,
         "roic": 0.093,
@@ -2219,7 +2219,7 @@
         "div_liq_ebit": 3.21,
         "div_liq_ebitda": 2.53,
         "liquidez_corrente": 1.17,
-        "liquidez_diaria": 190996000.0
+        "liquidez_diaria": 189429000.0
       }
     },
     {
@@ -2228,7 +2228,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 17.77,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.9214325999999999,
@@ -2250,24 +2250,24 @@
       "margem_graham": 0.0755506001306977,
       "gordon": 12.023342112643675,
       "margem_gordon": -0.4779584439598681,
-      "rank_greenblatt": 51,
+      "rank_greenblatt": 52,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CEMIG ON N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.61,
         "vpa": 10.2,
         "ebit": 6009850000.0,
-        "ev": 69494900000.0,
+        "ev": 70124500000.0,
         "capital_investido": 48452200000.0,
         "g_perpetuidade": 0.0217,
         "pl": 11.04,
         "pvp": 1.74,
-        "psr": 1.15,
-        "ev_ebit": 11.56,
-        "ev_ebitda": 9.12,
-        "dy_12m": 0.058,
+        "psr": 1.16,
+        "ev_ebit": 11.67,
+        "ev_ebitda": 9.2,
+        "dy_12m": 0.057,
         "payout": 0.86160004,
         "roe": 0.157,
         "roic": 0.093,
@@ -2279,7 +2279,7 @@
         "div_liq_ebit": 3.21,
         "div_liq_ebitda": 2.53,
         "liquidez_corrente": 1.17,
-        "liquidez_diaria": 2411420.0
+        "liquidez_diaria": 2385890.0
       }
     },
     {
@@ -2310,7 +2310,7 @@
       "margem_graham": -0.03147654316439533,
       "gordon": 9.26955333333333,
       "margem_gordon": -0.5383697020999937,
-      "rank_greenblatt": 49,
+      "rank_greenblatt": 50,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "COPEL PNB",
@@ -2348,7 +2348,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 17.34,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.78158,
@@ -2374,19 +2374,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "COPEL ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.05,
         "vpa": 8.09,
         "ebit": 5428970000.0,
-        "ev": 72151400000.0,
+        "ev": 71733900000.0,
         "capital_investido": 44140000000.0,
         "g_perpetuidade": 0.0005,
         "pl": 16.51,
         "pvp": 2.14,
-        "psr": 1.86,
-        "ev_ebit": 13.29,
-        "ev_ebitda": 10.3,
+        "psr": 1.85,
+        "ev_ebit": 13.21,
+        "ev_ebitda": 10.24,
         "dy_12m": 0.061,
         "payout": 0.9959,
         "roe": 0.13,
@@ -2399,7 +2399,7 @@
         "div_liq_ebit": 3.69,
         "div_liq_ebitda": 2.86,
         "liquidez_corrente": 1.3,
-        "liquidez_diaria": 349794000.0
+        "liquidez_diaria": 347429000.0
       }
     },
     {
@@ -2408,7 +2408,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 49.79,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 3.0755000000000003,
@@ -2434,19 +2434,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CPFL ENERGIA S.A. ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 5.21,
         "vpa": 19.72,
         "ebit": 11807400000.0,
-        "ev": 84589000000.0,
+        "ev": 84934600000.0,
         "capital_investido": 50281100000.0,
         "g_perpetuidade": 0.045,
         "pl": 9.56,
         "pvp": 2.52,
-        "psr": 1.25,
-        "ev_ebit": 7.16,
-        "ev_ebitda": 6.07,
+        "psr": 1.26,
+        "ev_ebit": 7.19,
+        "ev_ebitda": 6.09,
         "dy_12m": 0.075,
         "payout": 0.71629995,
         "roe": 0.264,
@@ -2459,7 +2459,7 @@
         "div_liq_ebit": 2.33,
         "div_liq_ebitda": 1.98,
         "liquidez_corrente": 0.92,
-        "liquidez_diaria": 93051200.0
+        "liquidez_diaria": 92920600.0
       }
     },
     {
@@ -2468,7 +2468,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 66.47,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 2.2202184,
@@ -2490,23 +2490,23 @@
       "margem_graham": -0.29819396618281363,
       "gordon": 30.342984799999993,
       "margem_gordon": -1.1906216688346365,
-      "rank_greenblatt": 26,
+      "rank_greenblatt": 25,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENERGISA UNT N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 3.01,
         "vpa": 38.71,
         "ebit": 7577560000.0,
-        "ev": 66436000000.0,
+        "ev": 66708000000.0,
         "capital_investido": 52727400000.0,
         "g_perpetuidade": 0.025,
         "pl": 22.08,
         "pvp": 1.72,
-        "psr": 0.9,
-        "ev_ebit": 8.77,
-        "ev_ebitda": 6.77,
+        "psr": 0.91,
+        "ev_ebit": 8.8,
+        "ev_ebitda": 6.8,
         "dy_12m": 0.017,
         "payout": 0.7376,
         "roe": 0.078,
@@ -2519,7 +2519,7 @@
         "div_liq_ebit": 4.39,
         "div_liq_ebitda": 3.39,
         "liquidez_corrente": 1.56,
-        "liquidez_diaria": 235917000.0
+        "liquidez_diaria": 236513000.0
       }
     },
     {
@@ -2528,7 +2528,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 13.1,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.4440366,
@@ -2554,19 +2554,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENERGISA PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.6,
         "vpa": 7.74,
         "ebit": 7577560000.0,
-        "ev": 66118700000.0,
+        "ev": 66219400000.0,
         "capital_investido": 52727400000.0,
         "g_perpetuidade": 0.0375,
         "pl": 21.83,
         "pvp": 1.69,
         "psr": 0.9,
-        "ev_ebit": 8.73,
-        "ev_ebitda": 6.74,
+        "ev_ebit": 8.74,
+        "ev_ebitda": 6.75,
         "dy_12m": 0.017,
         "payout": 0.51919997,
         "roe": 0.078,
@@ -2579,7 +2579,7 @@
         "div_liq_ebit": 4.39,
         "div_liq_ebitda": 3.39,
         "liquidez_corrente": 1.56,
-        "liquidez_diaria": 97680.0
+        "liquidez_diaria": 97379.0
       }
     },
     {
@@ -2588,7 +2588,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 13.81,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.4440366,
@@ -2610,24 +2610,24 @@
       "margem_graham": -0.35100300181742955,
       "gordon": 7.371007560000001,
       "margem_gordon": -0.8735566186286748,
-      "rank_greenblatt": 29,
+      "rank_greenblatt": 30,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENERGISA ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.6,
         "vpa": 7.74,
         "ebit": 7577560000.0,
-        "ev": 67226800000.0,
+        "ev": 68007500000.0,
         "capital_investido": 52727400000.0,
         "g_perpetuidade": 0.0375,
         "pl": 23.02,
         "pvp": 1.78,
-        "psr": 0.93,
-        "ev_ebit": 8.87,
-        "ev_ebitda": 6.85,
-        "dy_12m": 0.017,
+        "psr": 0.95,
+        "ev_ebit": 8.97,
+        "ev_ebitda": 6.93,
+        "dy_12m": 0.016,
         "payout": 0.51919997,
         "roe": 0.078,
         "roic": 0.102,
@@ -2639,7 +2639,7 @@
         "div_liq_ebit": 4.39,
         "div_liq_ebitda": 3.39,
         "liquidez_corrente": 1.56,
-        "liquidez_diaria": 78377.0
+        "liquidez_diaria": 78808.0
       }
     },
     {
@@ -2648,7 +2648,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 48.88,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.9065200000000001,
@@ -2674,20 +2674,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "EQUATORIAL ENERGIA S.A. ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.76,
         "vpa": 20.74,
         "ebit": 9655740000.0,
-        "ev": 114817000000.0,
+        "ev": 115711000000.0,
         "capital_investido": 80276200000.0,
         "g_perpetuidade": 0.025,
         "pl": 64.32,
         "pvp": 2.36,
-        "psr": 1.12,
-        "ev_ebit": 11.89,
-        "ev_ebitda": 9.09,
-        "dy_12m": 0.033,
+        "psr": 1.14,
+        "ev_ebit": 11.98,
+        "ev_ebitda": 9.17,
+        "dy_12m": 0.032,
         "payout": 1.1928,
         "roe": 0.037,
         "roic": 0.092,
@@ -2699,7 +2699,7 @@
         "div_liq_ebit": 5.61,
         "div_liq_ebitda": 4.29,
         "liquidez_corrente": 1.57,
-        "liquidez_diaria": 554393000.0
+        "liquidez_diaria": 553858000.0
       }
     },
     {
@@ -2730,7 +2730,7 @@
       "margem_graham": 0.34504204240210395,
       "gordon": 13.754953333333331,
       "margem_gordon": -1.4572965956991009,
-      "rank_greenblatt": 25,
+      "rank_greenblatt": 28,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "NEOENERGIA ON NM",
@@ -2910,7 +2910,7 @@
       "margem_graham": 0.2867325124818118,
       "gordon": 7.677151399999999,
       "margem_gordon": -0.628208087702947,
-      "rank_greenblatt": 20,
+      "rank_greenblatt": 21,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ALUPAR PN N2",
@@ -3068,7 +3068,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 37.75,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.64158,
@@ -3094,19 +3094,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CIA ENERG CEARA - COELCE PNA",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 4.9,
         "vpa": 64.9,
         "ebit": 1691110000.0,
-        "ev": 10041000000.0,
+        "ev": 9978870000.0,
         "capital_investido": 12322260000.0,
         "g_perpetuidade": 0.0085,
         "pl": 7.7,
         "pvp": 0.58,
         "psr": 0.34,
-        "ev_ebit": 5.94,
-        "ev_ebitda": 4.44,
+        "ev_ebit": 5.9,
+        "ev_ebitda": 4.42,
         "dy_12m": 0.039,
         "payout": 0.8872,
         "roe": 0.075,
@@ -3117,9 +3117,9 @@
         "cresc_receita_5a": 0.017,
         "div_liq_patrim": 1.2,
         "div_liq_ebit": 3.97,
-        "div_liq_ebitda": 2.97,
+        "div_liq_ebitda": 2.98,
         "liquidez_corrente": 0.56,
-        "liquidez_diaria": 258038.0
+        "liquidez_diaria": 253888.0
       }
     },
     {
@@ -3128,7 +3128,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 189.49,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 4.9224,
@@ -3154,19 +3154,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CELESC PN N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 22.69,
         "vpa": 109.62,
         "ebit": 1175750000.0,
-        "ev": 12443200000.0,
+        "ev": 12481000000.0,
         "capital_investido": 9400120000.0,
         "g_perpetuidade": 0.045,
         "pl": 8.35,
         "pvp": 1.73,
         "psr": 0.58,
-        "ev_ebit": 10.58,
-        "ev_ebitda": 7.87,
+        "ev_ebit": 10.62,
+        "ev_ebitda": 7.9,
         "dy_12m": 0.065,
         "payout": 0.59669995,
         "roe": 0.207,
@@ -3179,7 +3179,7 @@
         "div_liq_ebit": 4.4,
         "div_liq_ebitda": 3.27,
         "liquidez_corrente": 1.27,
-        "liquidez_diaria": 1897860.0
+        "liquidez_diaria": 1918570.0
       }
     },
     {
@@ -3248,7 +3248,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 5.41,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.6810799999999999,
@@ -3270,24 +3270,24 @@
       "margem_graham": -0.13825390691970527,
       "gordon": 8.195555071090046,
       "margem_gordon": 0.3398860781152136,
-      "rank_greenblatt": 21,
+      "rank_greenblatt": 20,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "REDE EMPRESAS DE ENERGIA ELÉTRICA S.A. ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.4,
         "vpa": 2.51,
         "ebit": 3986750000.0,
-        "ev": 31866300000.0,
+        "ev": 31352700000.0,
         "capital_investido": 23900500000.0,
         "g_perpetuidade": 0.0156,
         "pl": 13.53,
         "pvp": 2.16,
-        "psr": 0.71,
-        "ev_ebit": 7.99,
-        "ev_ebitda": 6.31,
-        "dy_12m": 0.029,
+        "psr": 0.69,
+        "ev_ebit": 7.86,
+        "ev_ebitda": 6.21,
+        "dy_12m": 0.03,
         "payout": 0.90269995,
         "roe": 0.16,
         "roic": 0.128,
@@ -3299,7 +3299,7 @@
         "div_liq_ebit": 4.38,
         "div_liq_ebitda": 3.46,
         "liquidez_corrente": 1.73,
-        "liquidez_diaria": 7831.0
+        "liquidez_diaria": 7952.0
       }
     },
     {
@@ -3548,7 +3548,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 5.38,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.57192,
@@ -3574,19 +3574,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "EQTL PARA ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.71,
         "vpa": 2.38,
         "ebit": 2972930000.0,
-        "ev": 18296100000.0,
+        "ev": 18318200000.0,
         "capital_investido": 11685190000.0,
         "g_perpetuidade": 0.045,
         "pl": 7.58,
         "pvp": 2.26,
         "psr": 0.93,
-        "ev_ebit": 6.15,
-        "ev_ebitda": 5.09,
+        "ev_ebit": 6.16,
+        "ev_ebitda": 5.1,
         "dy_12m": 0.102,
         "payout": 0.6353,
         "roe": 0.299,
@@ -3599,7 +3599,7 @@
         "div_liq_ebit": 2.16,
         "div_liq_ebitda": 1.79,
         "liquidez_corrente": 1.71,
-        "liquidez_diaria": 144439.0
+        "liquidez_diaria": 153108.0
       }
     },
     {
@@ -3608,7 +3608,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 38.12,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
         "dpa": 6.278060000000001,
@@ -3634,7 +3634,7 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ELEKTRO ELETRICIDADE E SERVIÇOS S.A. PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/09/2026",
         "lpa": 3.76,
         "vpa": 11.97,
@@ -3659,7 +3659,7 @@
         "div_liq_ebit": 3.8,
         "div_liq_ebitda": 3.13,
         "liquidez_corrente": 1.85,
-        "liquidez_diaria": 10062.0
+        "liquidez_diaria": 10093.0
       }
     },
     {
@@ -3668,7 +3668,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 42.17,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 2.77662,
@@ -3694,19 +3694,19 @@
       "motivo_exclusao_greenblatt": "Múltiplos operacionais não positivos (EBIT, EV e Capital Investido devem ser > 0).",
       "fundamentos": {
         "empresa": "EMAE PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": -3.32,
         "vpa": 18.18,
         "ebit": -110490000.0,
-        "ev": 1086730000.0,
+        "ev": 1102990000.0,
         "capital_investido": 216483000.0,
         "g_perpetuidade": 0.025,
         "pl": -12.7,
         "pvp": 2.32,
-        "psr": 3.71,
-        "ev_ebit": -9.84,
-        "ev_ebitda": -12.24,
+        "psr": 3.75,
+        "ev_ebit": -9.98,
+        "ev_ebitda": -12.42,
         "dy_12m": 0.0,
         "payout": 0.0,
         "roe": -0.183,
@@ -3719,7 +3719,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": 3.57,
-        "liquidez_diaria": 130606.0
+        "liquidez_diaria": 134088.0
       }
     },
     {
@@ -3728,7 +3728,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 38.0,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 4.7035800000000005,
@@ -3754,20 +3754,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "DUKE ENERGY INT,GERAÇÃO PARANAPANEMA SA PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": -0.28,
         "vpa": 14.58,
         "ebit": 32679000.0,
-        "ev": 4364510000.0,
+        "ev": 4397570000.0,
         "capital_investido": 2185822000.0,
         "g_perpetuidade": 0.025,
         "pl": -135.71,
         "pvp": 2.61,
-        "psr": 29.9,
-        "ev_ebit": 133.56,
-        "ev_ebitda": 61.95,
-        "dy_12m": 0.17,
+        "psr": 30.18,
+        "ev_ebit": 134.57,
+        "ev_ebitda": 62.42,
+        "dy_12m": 0.168,
         "payout": null,
         "roe": -0.019,
         "roic": 0.01,
@@ -3779,7 +3779,7 @@
         "div_liq_ebit": 24.76,
         "div_liq_ebitda": 11.48,
         "liquidez_corrente": 0.52,
-        "liquidez_diaria": 10292.0
+        "liquidez_diaria": 10679.0
       }
     },
     {
@@ -3788,7 +3788,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 37.7,
-      "data_ult_cot": "20/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 4.05184,
@@ -3810,24 +3810,24 @@
       "margem_graham": -0.14941081048860164,
       "gordon": 55.37514666666666,
       "margem_gordon": 0.3191891621174937,
-      "rank_greenblatt": 35,
+      "rank_greenblatt": 33,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENERGISA MT ON",
-        "data_ult_cot": "20/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.63,
         "vpa": 18.18,
         "ebit": 1801850000.0,
-        "ev": 17303400000.0,
+        "ev": 17020900000.0,
         "capital_investido": 12746340000.0,
         "g_perpetuidade": 0.025,
         "pl": 14.33,
         "pvp": 2.07,
-        "psr": 0.9,
-        "ev_ebit": 9.6,
-        "ev_ebitda": 7.8,
-        "dy_12m": 0.042,
+        "psr": 0.87,
+        "ev_ebit": 9.45,
+        "ev_ebitda": 7.68,
+        "dy_12m": 0.043,
         "payout": 1.5483,
         "roe": 0.145,
         "roic": 0.117,
@@ -3837,9 +3837,9 @@
         "cresc_receita_5a": 0.061,
         "div_liq_patrim": 2.2,
         "div_liq_ebit": 4.87,
-        "div_liq_ebitda": 3.95,
+        "div_liq_ebitda": 3.96,
         "liquidez_corrente": 2.04,
-        "liquidez_diaria": 16124.0
+        "liquidez_diaria": 16619.0
       }
     },
     {
@@ -3848,7 +3848,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 37.79,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 4.165360000000001,
@@ -3870,22 +3870,22 @@
       "margem_graham": -0.15215476202557698,
       "gordon": 56.92658666666666,
       "margem_gordon": 0.33616255228371317,
-      "rank_greenblatt": 33,
+      "rank_greenblatt": 34,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENERGISA MT ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.63,
         "vpa": 18.18,
         "ebit": 1801850000.0,
-        "ev": 17029700000.0,
+        "ev": 17040600000.0,
         "capital_investido": 12746340000.0,
         "g_perpetuidade": 0.025,
         "pl": 14.37,
         "pvp": 2.08,
         "psr": 0.87,
-        "ev_ebit": 9.45,
+        "ev_ebit": 9.46,
         "ev_ebitda": 7.68,
         "dy_12m": 0.043,
         "payout": 1.5483,
@@ -3899,7 +3899,7 @@
         "div_liq_ebit": 4.87,
         "div_liq_ebitda": 3.95,
         "liquidez_corrente": 2.04,
-        "liquidez_diaria": 31803.0
+        "liquidez_diaria": 32346.0
       }
     },
     {
@@ -3908,7 +3908,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 3.67,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.13896,
@@ -3930,23 +3930,23 @@
       "margem_graham": 0.7372363678373909,
       "gordon": 2.6402399999999995,
       "margem_gordon": -0.3900251492288582,
-      "rank_greenblatt": 45,
+      "rank_greenblatt": 46,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "LIGHT SA ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.5,
         "vpa": 5.78,
         "ebit": 1504400000.0,
-        "ev": 13161100000.0,
+        "ev": 13209400000.0,
         "capital_investido": 16608110000.0,
         "g_perpetuidade": 0.045,
         "pl": 2.45,
         "pvp": 0.63,
-        "psr": 0.37,
-        "ev_ebit": 8.75,
-        "ev_ebitda": 5.36,
+        "psr": 0.38,
+        "ev_ebit": 8.78,
+        "ev_ebitda": 5.38,
         "dy_12m": 0.0,
         "payout": 0.0,
         "roe": 0.259,
@@ -3959,7 +3959,7 @@
         "div_liq_ebit": 4.85,
         "div_liq_ebitda": 2.97,
         "liquidez_corrente": 1.16,
-        "liquidez_diaria": 13826300.0
+        "liquidez_diaria": 13889900.0
       }
     },
     {
@@ -3968,7 +3968,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 31.48,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.0,
@@ -3994,19 +3994,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENEVA ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.5,
         "vpa": 10.47,
         "ebit": 3166010000.0,
-        "ev": 82046300000.0,
+        "ev": 81035200000.0,
         "capital_investido": 40181400000.0,
         "g_perpetuidade": 0.045,
         "pl": 62.96,
         "pvp": 3.01,
-        "psr": 3.25,
-        "ev_ebit": 25.91,
-        "ev_ebitda": 14.16,
+        "psr": 3.2,
+        "ev_ebit": 25.6,
+        "ev_ebitda": 13.99,
         "dy_12m": 0.0,
         "payout": 0.0,
         "roe": 0.047,
@@ -4019,7 +4019,7 @@
         "div_liq_ebit": 6.26,
         "div_liq_ebitda": 3.42,
         "liquidez_corrente": 1.28,
-        "liquidez_diaria": 346803000.0
+        "liquidez_diaria": 348452000.0
       }
     },
     {
@@ -4028,7 +4028,7 @@
       "setor": "saneamento",
       "besst": true,
       "preco": 41.92,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.52536,
@@ -4054,19 +4054,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "SANEPAR UNT N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.51,
         "vpa": 40.05,
         "ebit": 2542840000.0,
-        "ev": 15000600000.0,
+        "ev": 15257500000.0,
         "capital_investido": 14691470000.0,
         "g_perpetuidade": 0.025,
         "pl": 27.76,
         "pvp": 1.05,
-        "psr": 1.65,
-        "ev_ebit": 5.9,
-        "ev_ebitda": 4.67,
+        "psr": 1.68,
+        "ev_ebit": 6.0,
+        "ev_ebitda": 4.75,
         "dy_12m": 0.013,
         "payout": 1.0102,
         "roe": 0.038,
@@ -4079,7 +4079,7 @@
         "div_liq_ebit": 1.02,
         "div_liq_ebitda": 0.81,
         "liquidez_corrente": 1.86,
-        "liquidez_diaria": 73710200.0
+        "liquidez_diaria": 73606900.0
       }
     },
     {
@@ -4088,7 +4088,7 @@
       "setor": "saneamento",
       "besst": true,
       "preco": 8.09,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.31074,
@@ -4114,19 +4114,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "SANEPAR PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.3,
         "vpa": 8.01,
         "ebit": 2542840000.0,
-        "ev": 14571400000.0,
+        "ev": 14813200000.0,
         "capital_investido": 14691470000.0,
         "g_perpetuidade": 0.0229,
         "pl": 26.97,
         "pvp": 1.01,
-        "psr": 1.59,
-        "ev_ebit": 5.73,
-        "ev_ebitda": 4.54,
+        "psr": 1.62,
+        "ev_ebit": 5.83,
+        "ev_ebitda": 4.61,
         "dy_12m": 0.014,
         "payout": 0.3984,
         "roe": 0.038,
@@ -4139,7 +4139,7 @@
         "div_liq_ebit": 1.02,
         "div_liq_ebitda": 0.81,
         "liquidez_corrente": 1.86,
-        "liquidez_diaria": 12839100.0
+        "liquidez_diaria": 12799900.0
       }
     },
     {
@@ -4148,7 +4148,7 @@
       "setor": "saneamento",
       "besst": true,
       "preco": 9.5,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.28250000000000003,
@@ -4174,19 +4174,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "SANEPAR ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.3,
         "vpa": 8.01,
         "ebit": 2542840000.0,
-        "ev": 16309300000.0,
+        "ev": 16944000000.0,
         "capital_investido": 14691470000.0,
         "g_perpetuidade": 0.0242,
         "pl": 31.67,
         "pvp": 1.19,
-        "psr": 1.82,
-        "ev_ebit": 6.41,
-        "ev_ebitda": 5.08,
+        "psr": 1.9,
+        "ev_ebit": 6.66,
+        "ev_ebitda": 5.28,
         "dy_12m": 0.011,
         "payout": 0.36220002,
         "roe": 0.038,
@@ -4199,7 +4199,7 @@
         "div_liq_ebit": 1.02,
         "div_liq_ebitda": 0.81,
         "liquidez_corrente": 1.86,
-        "liquidez_diaria": 1933960.0
+        "liquidez_diaria": 1931610.0
       }
     },
     {
@@ -4208,7 +4208,7 @@
       "setor": "saneamento",
       "besst": true,
       "preco": 64.58,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.8555800000000002,
@@ -4230,24 +4230,24 @@
       "margem_graham": -0.5302973814560409,
       "gordon": 35.25602,
       "margem_gordon": -0.8317439121035216,
-      "rank_greenblatt": 52,
+      "rank_greenblatt": 51,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "COPASA MG ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 3.4,
         "vpa": 23.28,
         "ebit": 2238570000.0,
-        "ev": 31797300000.0,
+        "ev": 32413300000.0,
         "capital_investido": 16709980000.0,
         "g_perpetuidade": 0.045,
         "pl": 18.99,
         "pvp": 2.77,
-        "psr": 2.76,
-        "ev_ebit": 14.2,
-        "ev_ebitda": 9.79,
-        "dy_12m": 0.032,
+        "psr": 2.83,
+        "ev_ebit": 14.48,
+        "ev_ebitda": 9.97,
+        "dy_12m": 0.031,
         "payout": 0.5339,
         "roe": 0.146,
         "roic": 0.116,
@@ -4259,7 +4259,7 @@
         "div_liq_ebit": 3.51,
         "div_liq_ebitda": 2.42,
         "liquidez_corrente": 1.21,
-        "liquidez_diaria": 280657000.0
+        "liquidez_diaria": 282557000.0
       }
     },
     {
@@ -4268,7 +4268,7 @@
       "setor": "saneamento",
       "besst": true,
       "preco": 31.98,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.4040706,
@@ -4290,23 +4290,23 @@
       "margem_graham": -0.2470267345615647,
       "gordon": 7.677341399999999,
       "margem_gordon": -3.165504480496335,
-      "rank_greenblatt": 34,
+      "rank_greenblatt": 35,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "SABESP ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.28,
         "vpa": 12.82,
         "ebit": 12653200000.0,
-        "ev": 146297000000.0,
+        "ev": 146932000000.0,
         "capital_investido": 79390700000.0,
         "g_perpetuidade": 0.045,
         "pl": 14.03,
         "pvp": 2.49,
-        "psr": 2.74,
-        "ev_ebit": 11.56,
-        "ev_ebitda": 9.64,
+        "psr": 2.76,
+        "ev_ebit": 11.61,
+        "ev_ebitda": 9.69,
         "dy_12m": 0.021,
         "payout": 0.2956,
         "roe": 0.178,
@@ -4317,9 +4317,9 @@
         "cresc_receita_5a": 0.212,
         "div_liq_patrim": 0.76,
         "div_liq_ebit": 2.7,
-        "div_liq_ebitda": 2.25,
+        "div_liq_ebitda": 2.26,
         "liquidez_corrente": 1.47,
-        "liquidez_diaria": 699570000.0
+        "liquidez_diaria": 697573000.0
       }
     },
     {
@@ -4328,7 +4328,7 @@
       "setor": "saneamento",
       "besst": true,
       "preco": 20.84,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.0,
@@ -4354,19 +4354,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ORIZON ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.09,
         "vpa": 8.83,
         "ebit": 349456000.0,
-        "ev": 13218500000.0,
+        "ev": 13674400000.0,
         "capital_investido": 7078760000.0,
         "g_perpetuidade": 0.01,
         "pl": 231.56,
         "pvp": 2.36,
-        "psr": 7.33,
-        "ev_ebit": 37.83,
-        "ev_ebitda": 24.11,
+        "psr": 7.64,
+        "ev_ebit": 39.13,
+        "ev_ebitda": 24.94,
         "dy_12m": 0.0,
         "payout": 0.0,
         "roe": 0.01,
@@ -4379,7 +4379,7 @@
         "div_liq_ebit": 6.37,
         "div_liq_ebitda": 4.06,
         "liquidez_corrente": 2.38,
-        "liquidez_diaria": 60301500.0
+        "liquidez_diaria": 61500600.0
       }
     },
     {
@@ -4508,7 +4508,7 @@
       "setor": "seguros",
       "besst": true,
       "preco": 21.41,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.8435600000000001,
@@ -4534,19 +4534,19 @@
       "motivo_exclusao_greenblatt": "Múltiplos operacionais não positivos (EBIT, EV e Capital Investido devem ser > 0).",
       "fundamentos": {
         "empresa": "CAIXA SEGURI ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.51,
         "vpa": 4.6,
         "ebit": -165431000.0,
-        "ev": 62609600000.0,
+        "ev": 62939600000.0,
         "capital_investido": 12504240000.0,
         "g_perpetuidade": 0.0425,
         "pl": 14.18,
         "pvp": 4.65,
         "psr": null,
-        "ev_ebit": -378.46,
-        "ev_ebitda": -383.49,
+        "ev_ebit": -380.46,
+        "ev_ebitda": -385.51,
         "dy_12m": 0.063,
         "payout": 0.8703,
         "roe": 0.328,
@@ -4559,7 +4559,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": 1.67,
-        "liquidez_diaria": 155024000.0
+        "liquidez_diaria": 154145000.0
       }
     },
     {
@@ -4568,7 +4568,7 @@
       "setor": "seguros",
       "besst": true,
       "preco": 51.58,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.50899,
@@ -4594,12 +4594,12 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "PORTO SEGURO SA ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 5.7,
         "vpa": 24.94,
         "ebit": 35225600000.0,
-        "ev": 18942200000.0,
+        "ev": 18864600000.0,
         "capital_investido": 1640100000.0,
         "g_perpetuidade": 0.045,
         "pl": 9.05,
@@ -4619,7 +4619,7 @@
         "div_liq_ebit": -0.41,
         "div_liq_ebitda": -0.41,
         "liquidez_corrente": 1.29,
-        "liquidez_diaria": 95947100.0
+        "liquidez_diaria": 95879600.0
       }
     },
     {
@@ -4628,7 +4628,7 @@
       "setor": "seguros",
       "besst": true,
       "preco": 7.07,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.49096,
@@ -4654,20 +4654,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "WIZ CO ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.24,
         "vpa": 4.63,
         "ebit": 619371000.0,
-        "ev": 1096560000.0,
+        "ev": 1112550000.0,
         "capital_investido": 722948000.0,
         "g_perpetuidade": 0.045,
         "pl": 5.7,
         "pvp": 1.53,
-        "psr": 0.87,
-        "ev_ebit": 1.77,
-        "ev_ebitda": 1.51,
-        "dy_12m": 0.09,
+        "psr": 0.89,
+        "ev_ebit": 1.8,
+        "ev_ebitda": 1.53,
+        "dy_12m": 0.089,
         "payout": 0.5067,
         "roe": 0.268,
         "roic": 0.328,
@@ -4679,7 +4679,7 @@
         "div_liq_ebit": -0.03,
         "div_liq_ebitda": -0.02,
         "liquidez_corrente": 1.1,
-        "liquidez_diaria": 5271970.0
+        "liquidez_diaria": 5553320.0
       }
     },
     {
@@ -4688,7 +4688,7 @@
       "setor": "seguros",
       "besst": true,
       "preco": 67.67,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.0,
@@ -4714,7 +4714,7 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "IRBBRASIL RE ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": -1.8,
         "vpa": 65.1,
@@ -4724,10 +4724,10 @@
         "g_perpetuidade": 0.025,
         "pl": -37.59,
         "pvp": 1.04,
-        "psr": 1.23,
+        "psr": 1.24,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.024,
+        "dy_12m": 0.023,
         "payout": 0.3872,
         "roe": -0.028,
         "roic": null,
@@ -4739,7 +4739,7 @@
         "div_liq_ebit": 0.0,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 62913700.0
+        "liquidez_diaria": 62288100.0
       }
     },
     {
@@ -4748,7 +4748,7 @@
       "setor": "telecom",
       "besst": true,
       "preco": 32.43,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.4701,
@@ -4770,24 +4770,24 @@
       "margem_graham": -0.058774041144612356,
       "gordon": 17.17462666666666,
       "margem_gordon": -0.888250651930717,
-      "rank_greenblatt": 50,
+      "rank_greenblatt": 49,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "TELEF BRASIL ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.05,
         "vpa": 20.34,
         "ebit": 10035800000.0,
-        "ev": 118197000000.0,
+        "ev": 115777000000.0,
         "capital_investido": 76769600000.0,
         "g_perpetuidade": 0.025,
         "pl": 15.82,
         "pvp": 1.59,
-        "psr": 1.73,
-        "ev_ebit": 11.78,
-        "ev_ebitda": 4.65,
-        "dy_12m": 0.077,
+        "psr": 1.69,
+        "ev_ebit": 11.54,
+        "ev_ebitda": 4.55,
+        "dy_12m": 0.079,
         "payout": 1.1816001,
         "roe": 0.101,
         "roic": 0.091,
@@ -4799,7 +4799,7 @@
         "div_liq_ebit": 1.11,
         "div_liq_ebitda": 0.44,
         "liquidez_corrente": 0.95,
-        "liquidez_diaria": 174304000.0
+        "liquidez_diaria": 175594000.0
       }
     },
     {
@@ -4808,7 +4808,7 @@
       "setor": "telecom",
       "besst": true,
       "preco": 19.09,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.0784600000000002,
@@ -4834,20 +4834,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "TIM ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.01,
         "vpa": 10.52,
         "ebit": 361935000.0,
-        "ev": 44508400000.0,
+        "ev": 43533000000.0,
         "capital_investido": 23134710000.0,
         "g_perpetuidade": 0.0001,
         "pl": 1909.0,
         "pvp": 1.81,
-        "psr": 59.62,
-        "ev_ebit": 122.97,
-        "ev_ebitda": 118.68,
-        "dy_12m": 0.076,
+        "psr": 58.37,
+        "ev_ebit": 120.28,
+        "ev_ebitda": 116.08,
+        "dy_12m": 0.078,
         "payout": 0.88199997,
         "roe": 0.001,
         "roic": 0.008,
@@ -4859,7 +4859,7 @@
         "div_liq_ebit": -5.2,
         "div_liq_ebitda": -5.01,
         "liquidez_corrente": 0.85,
-        "liquidez_diaria": 148516000.0
+        "liquidez_diaria": 147280000.0
       }
     },
     {
@@ -4868,7 +4868,7 @@
       "setor": "telecom",
       "besst": true,
       "preco": 6.2,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.2563858,
@@ -4894,7 +4894,7 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "UNIFIQUE ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.56,
         "vpa": 3.05,
@@ -4919,7 +4919,7 @@
         "div_liq_ebit": 1.05,
         "div_liq_ebitda": 0.56,
         "liquidez_corrente": 1.99,
-        "liquidez_diaria": 8330580.0
+        "liquidez_diaria": 8349740.0
       }
     },
     {
@@ -4928,7 +4928,7 @@
       "setor": "telecom",
       "besst": true,
       "preco": 19.24,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.04304,
@@ -4950,23 +4950,23 @@
       "margem_graham": -0.6693239881871003,
       "gordon": 0.5742220599739244,
       "margem_gordon": -32.50620141774716,
-      "rank_greenblatt": 30,
+      "rank_greenblatt": 26,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "DESKTOPSIGMA ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.48,
         "vpa": 12.3,
         "ebit": 383256000.0,
-        "ev": 3433380000.0,
+        "ev": 3429900000.0,
         "capital_investido": 2623190000.0,
         "g_perpetuidade": 0.0233,
         "pl": 40.08,
         "pvp": 1.56,
         "psr": 1.76,
-        "ev_ebit": 8.96,
-        "ev_ebitda": 5.32,
+        "ev_ebit": 8.95,
+        "ev_ebitda": 5.31,
         "dy_12m": 0.01,
         "payout": 0.4031,
         "roe": 0.039,
@@ -4979,7 +4979,7 @@
         "div_liq_ebit": 3.11,
         "div_liq_ebitda": 1.85,
         "liquidez_corrente": 1.41,
-        "liquidez_diaria": 13809900.0
+        "liquidez_diaria": 13635800.0
       }
     },
     {
@@ -5048,7 +5048,7 @@
       "setor": "petróleo e gás",
       "besst": false,
       "preco": 58.68,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 8.089400000000001,
@@ -5070,24 +5070,24 @@
       "margem_graham": 0.3705549049107191,
       "gordon": 153.6986,
       "margem_gordon": 0.6182138288832819,
-      "rank_greenblatt": 3,
+      "rank_greenblatt": 4,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "PETROBRAS PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 10.35,
         "vpa": 37.32,
         "ebit": 234531000000.0,
-        "ev": 1058120000000.0,
+        "ev": 1069080000000.0,
         "capital_investido": 793719000000.0,
         "g_perpetuidade": 0.045,
         "pl": 5.67,
         "pvp": 1.57,
-        "psr": 1.36,
-        "ev_ebit": 4.51,
-        "ev_ebitda": 3.29,
-        "dy_12m": 0.063,
+        "psr": 1.38,
+        "ev_ebit": 4.56,
+        "ev_ebitda": 3.32,
+        "dy_12m": 0.062,
         "payout": 0.285,
         "roe": 0.277,
         "roic": 0.197,
@@ -5099,7 +5099,7 @@
         "div_liq_ebit": 1.33,
         "div_liq_ebitda": 0.97,
         "liquidez_corrente": 0.85,
-        "liquidez_diaria": 2344090000.0
+        "liquidez_diaria": 2369530000.0
       }
     },
     {
@@ -5108,7 +5108,7 @@
       "setor": "petróleo e gás",
       "besst": false,
       "preco": 65.24,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 8.08934,
@@ -5134,19 +5134,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "PETROBRAS ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 10.35,
         "vpa": 37.32,
         "ebit": 234531000000.0,
-        "ev": 1147060000000.0,
+        "ev": 1153630000000.0,
         "capital_investido": 793719000000.0,
         "g_perpetuidade": 0.045,
         "pl": 6.3,
         "pvp": 1.75,
-        "psr": 1.52,
-        "ev_ebit": 4.89,
-        "ev_ebitda": 3.56,
+        "psr": 1.53,
+        "ev_ebit": 4.92,
+        "ev_ebitda": 3.58,
         "dy_12m": 0.056,
         "payout": 0.285,
         "roe": 0.277,
@@ -5159,7 +5159,7 @@
         "div_liq_ebit": 1.33,
         "div_liq_ebitda": 0.97,
         "liquidez_corrente": 0.85,
-        "liquidez_diaria": 673325000.0
+        "liquidez_diaria": 674408000.0
       }
     },
     {
@@ -5168,7 +5168,7 @@
       "setor": "mineração",
       "besst": false,
       "preco": 61.9,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 8.25032,
@@ -5194,19 +5194,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "VALE ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.34,
         "vpa": 44.3,
         "ebit": 72491000000.0,
-        "ev": 341156000000.0,
+        "ev": 342976000000.0,
         "capital_investido": 264827000000.0,
         "g_perpetuidade": 0.025,
         "pl": 26.45,
         "pvp": 1.4,
-        "psr": 1.25,
-        "ev_ebit": 4.71,
-        "ev_ebitda": 3.78,
+        "psr": 1.26,
+        "ev_ebit": 4.73,
+        "ev_ebitda": 3.8,
         "dy_12m": 0.091,
         "payout": 1.5134,
         "roe": 0.053,
@@ -5219,7 +5219,7 @@
         "div_liq_ebit": 0.94,
         "div_liq_ebitda": 0.76,
         "liquidez_corrente": 1.19,
-        "liquidez_diaria": 1775070000.0
+        "liquidez_diaria": 1772650000.0
       }
     },
     {
@@ -5250,7 +5250,7 @@
       "margem_graham": -0.3807281350043576,
       "gordon": 6.819226666666666,
       "margem_gordon": 0.26824547064965326,
-      "rank_greenblatt": 4,
+      "rank_greenblatt": 3,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CSNMINERACAO ON N2",
@@ -5288,7 +5288,7 @@
       "setor": "papel e celulose",
       "besst": false,
       "preco": 18.22,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.180393,
@@ -5314,19 +5314,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "KLABIN UNT N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.45,
         "vpa": 7.6,
         "ebit": 2690600000.0,
-        "ev": 47420000000.0,
+        "ev": 47494900000.0,
         "capital_investido": 34237820000.0,
         "g_perpetuidade": 0.025,
         "pl": 40.49,
         "pvp": 2.4,
         "psr": 1.1,
-        "ev_ebit": 17.62,
-        "ev_ebitda": 6.26,
+        "ev_ebit": 17.65,
+        "ev_ebitda": 6.27,
         "dy_12m": 0.064,
         "payout": 2.6231,
         "roe": 0.059,
@@ -5339,7 +5339,7 @@
         "div_liq_ebit": 9.2,
         "div_liq_ebitda": 3.27,
         "liquidez_corrente": 2.0,
-        "liquidez_diaria": 105784000.0
+        "liquidez_diaria": 106260000.0
       }
     },
     {
@@ -5348,7 +5348,7 @@
       "setor": "papel e celulose",
       "besst": false,
       "preco": 3.62,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.23607999999999998,
@@ -5374,19 +5374,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "KLABIN PN N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.09,
         "vpa": 1.52,
         "ebit": 2690600000.0,
-        "ev": 47282700000.0,
+        "ev": 47345100000.0,
         "capital_investido": 34237820000.0,
         "g_perpetuidade": 0.025,
         "pl": 40.22,
         "pvp": 2.38,
         "psr": 1.09,
-        "ev_ebit": 17.57,
-        "ev_ebitda": 6.24,
+        "ev_ebit": 17.6,
+        "ev_ebitda": 6.25,
         "dy_12m": 0.064,
         "payout": 2.6231,
         "roe": 0.059,
@@ -5399,7 +5399,7 @@
         "div_liq_ebit": 9.2,
         "div_liq_ebitda": 3.27,
         "liquidez_corrente": 2.0,
-        "liquidez_diaria": 14180000.0
+        "liquidez_diaria": 14443500.0
       }
     },
     {
@@ -5408,7 +5408,7 @@
       "setor": "papel e celulose",
       "besst": false,
       "preco": 8.21,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.6214000000000001,
@@ -5430,24 +5430,24 @@
       "margem_graham": 0.07260939438935496,
       "gordon": 7.382581264637002,
       "margem_gordon": -0.11207715915385626,
-      "rank_greenblatt": 28,
+      "rank_greenblatt": 29,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "IRANI ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.56,
         "vpa": 6.22,
         "ebit": 347048000.0,
-        "ev": 2927230000.0,
+        "ev": 2977940000.0,
         "capital_investido": 2518610000.0,
         "g_perpetuidade": 0.0146,
         "pl": 14.66,
         "pvp": 1.32,
-        "psr": 1.09,
-        "ev_ebit": 8.43,
-        "ev_ebitda": 5.1,
-        "dy_12m": 0.05,
+        "psr": 1.12,
+        "ev_ebit": 8.58,
+        "ev_ebitda": 5.18,
+        "dy_12m": 0.049,
         "payout": 0.8379,
         "roe": 0.09,
         "roic": 0.117,
@@ -5459,7 +5459,7 @@
         "div_liq_ebit": 3.13,
         "div_liq_ebitda": 1.89,
         "liquidez_corrente": 2.1,
-        "liquidez_diaria": 5941220.0
+        "liquidez_diaria": 5962260.0
       }
     },
     {
@@ -5468,7 +5468,7 @@
       "setor": "siderurgia",
       "besst": false,
       "preco": 25.22,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.6109044000000001,
@@ -5494,20 +5494,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "GERDAU S.A. PN N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.13,
         "vpa": 27.07,
         "ebit": 7053310000.0,
-        "ev": 58517500000.0,
+        "ev": 58003200000.0,
         "capital_investido": 61662200000.0,
         "g_perpetuidade": 0.0172,
         "pl": 22.32,
         "pvp": 0.93,
         "psr": 0.72,
-        "ev_ebit": 8.3,
-        "ev_ebitda": 5.44,
-        "dy_12m": 0.031,
+        "ev_ebit": 8.22,
+        "ev_ebitda": 5.4,
+        "dy_12m": 0.032,
         "payout": 0.5913,
         "roe": 0.042,
         "roic": 0.1,
@@ -5517,9 +5517,9 @@
         "cresc_receita_5a": -0.051,
         "div_liq_patrim": 0.15,
         "div_liq_ebit": 1.15,
-        "div_liq_ebitda": 0.75,
+        "div_liq_ebitda": 0.76,
         "liquidez_corrente": 2.87,
-        "liquidez_diaria": 247795000.0
+        "liquidez_diaria": 245666000.0
       }
     },
     {
@@ -5528,7 +5528,7 @@
       "setor": "siderurgia",
       "besst": false,
       "preco": 11.4,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.9015232000000001,
@@ -5554,20 +5554,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "METALÚRGICA GERDAU PN N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.6,
         "vpa": 14.54,
         "ebit": 7040710000.0,
-        "ev": 23337500000.0,
+        "ev": 23165500000.0,
         "capital_investido": 27321670000.0,
         "g_perpetuidade": 0.0183,
         "pl": 19.0,
         "pvp": 0.78,
         "psr": 0.22,
-        "ev_ebit": 3.31,
-        "ev_ebitda": 2.17,
-        "dy_12m": 0.033,
+        "ev_ebit": 3.29,
+        "ev_ebitda": 2.16,
+        "dy_12m": 0.034,
         "payout": 0.5542,
         "roe": 0.041,
         "roic": 0.1,
@@ -5579,7 +5579,7 @@
         "div_liq_ebit": 1.15,
         "div_liq_ebitda": 0.75,
         "liquidez_corrente": 2.88,
-        "liquidez_diaria": 117956000.0
+        "liquidez_diaria": 117786000.0
       }
     },
     {
@@ -5588,7 +5588,7 @@
       "setor": "química",
       "besst": false,
       "preco": 58.98,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 8.990129,
@@ -5610,23 +5610,23 @@
       "margem_graham": -0.9260260556807784,
       "gordon": 122.8650963333333,
       "margem_gordon": 0.5199613091094063,
-      "rank_greenblatt": 39,
+      "rank_greenblatt": 40,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "UNIPAR PARTICIPAÇÕES S.A. PNB",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.36,
         "vpa": 17.66,
         "ebit": 690042000.0,
-        "ev": 8980170000.0,
+        "ev": 9006200000.0,
         "capital_investido": 4330070000.0,
         "g_perpetuidade": 0.025,
         "pl": 24.99,
         "pvp": 3.34,
-        "psr": 1.27,
-        "ev_ebit": 13.01,
-        "ev_ebitda": 8.95,
+        "psr": 1.28,
+        "ev_ebit": 13.05,
+        "ev_ebitda": 8.97,
         "dy_12m": 0.11,
         "payout": 3.8094,
         "roe": 0.133,
@@ -5639,7 +5639,7 @@
         "div_liq_ebit": 3.38,
         "div_liq_ebitda": 2.32,
         "liquidez_corrente": 2.39,
-        "liquidez_diaria": 18601300.0
+        "liquidez_diaria": 18833700.0
       }
     },
     {
@@ -5648,7 +5648,7 @@
       "setor": "industrial",
       "besst": false,
       "preco": 37.74,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 4.18648,
@@ -5674,19 +5674,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "MAHLE METAL LEVE ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 5.14,
         "vpa": 7.11,
         "ebit": 936420000.0,
-        "ev": 6195350000.0,
+        "ev": 6214330000.0,
         "capital_investido": 2063244000.0,
         "g_perpetuidade": 0.045,
         "pl": 7.34,
         "pvp": 5.31,
         "psr": 0.95,
-        "ev_ebit": 6.62,
-        "ev_ebitda": 5.83,
+        "ev_ebit": 6.64,
+        "ev_ebitda": 5.85,
         "dy_12m": 0.076,
         "payout": 0.5545,
         "roe": 0.723,
@@ -5699,7 +5699,7 @@
         "div_liq_ebit": 1.17,
         "div_liq_ebitda": 1.03,
         "liquidez_corrente": 1.43,
-        "liquidez_diaria": 10455700.0
+        "liquidez_diaria": 10648500.0
       }
     },
     {
