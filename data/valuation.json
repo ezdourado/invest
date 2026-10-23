@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "gerado_em": "2026-10-23T23:28:23.792502Z",
+  "gerado_em": "2026-10-23T23:38:22.665799Z",
   "ativos": [
     {
       "ticker": "BBAS3",
@@ -8,7 +8,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 24.72,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.84761,
@@ -34,7 +34,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANCO DO BRASIL S.A. ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.53,
         "vpa": 31.64,
@@ -47,7 +47,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.029,
+        "dy_12m": 0.028,
         "payout": 0.115200005,
         "roe": 0.08,
         "roic": null,
@@ -59,7 +59,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 960640000.0
+        "liquidez_diaria": 964385000.0
       }
     },
     {
@@ -188,7 +188,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 20.37,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
         "dpa": 1.1182545999999998,
@@ -214,7 +214,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANCO BRADESCO S.A. PN N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/09/2026",
         "lpa": 2.29,
         "vpa": 16.83,
@@ -227,7 +227,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.076,
+        "dy_12m": 0.075,
         "payout": 0.9498,
         "roe": 0.136,
         "roic": null,
@@ -239,7 +239,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 1038680000.0
+        "liquidez_diaria": 1059570000.0
       }
     },
     {
@@ -248,7 +248,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 18.06,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
         "dpa": 1.0157294000000001,
@@ -274,7 +274,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANCO BRADESCO S.A. ON N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/09/2026",
         "lpa": 2.29,
         "vpa": 16.83,
@@ -287,7 +287,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.078,
+        "dy_12m": 0.077,
         "payout": 0.8634,
         "roe": 0.136,
         "roic": null,
@@ -299,7 +299,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 218398000.0
+        "liquidez_diaria": 219527000.0
       }
     },
     {
@@ -668,7 +668,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 18.16,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.0701399999999999,
@@ -694,7 +694,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANRISUL S/A PNB",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 3.75,
         "vpa": 28.24,
@@ -707,7 +707,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.087,
+        "dy_12m": 0.085,
         "payout": 0.286,
         "roe": 0.133,
         "roic": null,
@@ -719,7 +719,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 40641100.0
+        "liquidez_diaria": 40421900.0
       }
     },
     {
@@ -728,7 +728,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 21.82,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.0701399999999999,
@@ -754,7 +754,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANRISUL S/A ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 3.75,
         "vpa": 28.24,
@@ -767,7 +767,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.073,
+        "dy_12m": 0.07,
         "payout": 0.286,
         "roe": 0.133,
         "roic": null,
@@ -779,7 +779,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 184089.0
+        "liquidez_diaria": 184546.0
       }
     },
     {
@@ -788,7 +788,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 10.15,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.5412078000000001,
@@ -814,7 +814,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANESTES S/A ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.28,
         "vpa": 7.21,
@@ -827,7 +827,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.086,
+        "dy_12m": 0.085,
         "payout": 0.6094,
         "roe": 0.178,
         "roic": null,
@@ -839,7 +839,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 111075.0
+        "liquidez_diaria": 109783.0
       }
     },
     {
@@ -848,7 +848,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 10.27,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.5412078000000001,
@@ -874,7 +874,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANESTES S/A PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.28,
         "vpa": 7.21,
@@ -887,7 +887,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.085,
+        "dy_12m": 0.084,
         "payout": 0.6094,
         "roe": 0.178,
         "roic": null,
@@ -899,7 +899,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 33348.0
+        "liquidez_diaria": 33358.0
       }
     },
     {
@@ -908,7 +908,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 7.21,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.39468000000000003,
@@ -934,7 +934,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANCO BMG PN N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.96,
         "vpa": 6.66,
@@ -947,7 +947,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.072,
+        "dy_12m": 0.071,
         "payout": 0.41509998,
         "roe": 0.145,
         "roic": null,
@@ -959,7 +959,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 9511430.0
+        "liquidez_diaria": 9467520.0
       }
     },
     {
@@ -968,7 +968,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 79.82,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.8167899999999999,
@@ -994,7 +994,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BTGP BANCO UNT",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 4.68,
         "vpa": 20.45,
@@ -1019,7 +1019,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 911220000.0
+        "liquidez_diaria": 922484000.0
       }
     },
     {
@@ -1028,7 +1028,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 26.53,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.272275,
@@ -1054,7 +1054,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BTGP BANCO PNA",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.56,
         "vpa": 6.82,
@@ -1067,7 +1067,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.017,
+        "dy_12m": 0.018,
         "payout": 0.26319999,
         "roe": 0.229,
         "roic": null,
@@ -1079,7 +1079,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 145703.0
+        "liquidez_diaria": 157648.0
       }
     },
     {
@@ -1088,7 +1088,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 29.43,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.272275,
@@ -1114,7 +1114,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BTGP BANCO ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.56,
         "vpa": 6.82,
@@ -1139,7 +1139,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 332568.0
+        "liquidez_diaria": 346490.0
       }
     },
     {
@@ -1148,7 +1148,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 79.97,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.38057,
@@ -1174,7 +1174,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANCO MERCANTIL DO BRASIL S/A PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 6.62,
         "vpa": 25.24,
@@ -1187,7 +1187,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.039,
+        "dy_12m": 0.04,
         "payout": 0.22649999,
         "roe": 0.262,
         "roic": null,
@@ -1199,7 +1199,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 1967960.0
+        "liquidez_diaria": 2001660.0
       }
     },
     {
@@ -1208,7 +1208,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 64.43,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.2550599999999998,
@@ -1234,7 +1234,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANCO MERCANTIL DO BRASIL S/A ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 6.62,
         "vpa": 25.24,
@@ -1247,7 +1247,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.047,
+        "dy_12m": 0.045,
         "payout": 0.2059,
         "roe": 0.262,
         "roic": null,
@@ -1259,7 +1259,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 318764.0
+        "liquidez_diaria": 319611.0
       }
     },
     {
@@ -1268,7 +1268,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 18.67,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.302,
@@ -1294,20 +1294,20 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BR PARTNERS UNT N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.52,
         "vpa": 7.71,
         "ebit": 4868990.0,
-        "ev": 626679000.0,
+        "ev": 672877000.0,
         "capital_investido": 2500092928.0,
         "g_perpetuidade": 0.025,
         "pl": 12.28,
         "pvp": 2.42,
-        "psr": 5.73,
-        "ev_ebit": 128.71,
-        "ev_ebitda": 39.41,
-        "dy_12m": 0.076,
+        "psr": 5.86,
+        "ev_ebit": 138.2,
+        "ev_ebitda": 42.31,
+        "dy_12m": 0.074,
         "payout": 0.8566,
         "roe": 0.197,
         "roic": 0.018,
@@ -1317,9 +1317,9 @@
         "cresc_receita_5a": -0.307,
         "div_liq_patrim": -1.59,
         "div_liq_ebit": -264.41,
-        "div_liq_ebitda": -80.96,
+        "div_liq_ebitda": -80.95,
         "liquidez_corrente": 1.03,
-        "liquidez_diaria": 7679800.0
+        "liquidez_diaria": 8089610.0
       }
     },
     {
@@ -1448,7 +1448,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 37.54,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 2.64442,
@@ -1474,7 +1474,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANESE PN",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 7.34,
         "vpa": 42.6,
@@ -1487,7 +1487,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.096,
+        "dy_12m": 0.091,
         "payout": 0.3444,
         "roe": 0.172,
         "roic": null,
@@ -1499,7 +1499,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 18014.0
+        "liquidez_diaria": 18027.0
       }
     },
     {
@@ -1559,7 +1559,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 13766.0
+        "liquidez_diaria": 13446.0
       }
     },
     {
@@ -1619,7 +1619,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 15181.0
+        "liquidez_diaria": 14828.0
       }
     },
     {
@@ -1628,7 +1628,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 77.2,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 5.72036,
@@ -1654,7 +1654,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BANCO DA AMAZONIA S.A. ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 15.76,
         "vpa": 129.76,
@@ -1667,7 +1667,7 @@
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
-        "dy_12m": 0.158,
+        "dy_12m": 0.155,
         "payout": 0.7599,
         "roe": 0.121,
         "roic": null,
@@ -1679,7 +1679,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 259929.0
+        "liquidez_diaria": 257103.0
       }
     },
     {
@@ -1688,7 +1688,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 2.35,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2025",
       "bazin": {
         "dpa": 0.421045,
@@ -1714,7 +1714,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BRB ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2025",
         "lpa": 1.44,
         "vpa": 8.2,
@@ -1739,7 +1739,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 44589.0
+        "liquidez_diaria": 44940.0
       }
     },
     {
@@ -1748,7 +1748,7 @@
       "setor": "bancos",
       "besst": true,
       "preco": 2.47,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2025",
       "bazin": {
         "dpa": 0.43186,
@@ -1774,7 +1774,7 @@
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
         "empresa": "BRB ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2025",
         "lpa": 1.44,
         "vpa": 8.2,
@@ -1799,7 +1799,7 @@
         "div_liq_ebit": null,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 44877.0
+        "liquidez_diaria": 45132.0
       }
     },
     {
@@ -2310,7 +2310,7 @@
       "margem_graham": -0.03147654316439533,
       "gordon": 9.26955333333333,
       "margem_gordon": -0.5383697020999937,
-      "rank_greenblatt": 50,
+      "rank_greenblatt": 49,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "COPEL PNB",
@@ -2768,7 +2768,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 58.0,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.8249399999999998,
@@ -2794,20 +2794,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "AXIA ENERGIA ON N1",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 4.31,
         "vpa": 43.71,
         "ebit": 8080750000.0,
-        "ev": 209963000000.0,
+        "ev": 206943000000.0,
         "capital_investido": 166987300000.0,
         "g_perpetuidade": 0.0126,
         "pl": 13.46,
         "pvp": 1.33,
-        "psr": 3.71,
-        "ev_ebit": 25.98,
-        "ev_ebitda": 16.28,
-        "dy_12m": 0.026,
+        "psr": 3.64,
+        "ev_ebit": 25.61,
+        "ev_ebitda": 16.05,
+        "dy_12m": 0.027,
         "payout": 0.8725,
         "roe": 0.099,
         "roic": 0.032,
@@ -2819,7 +2819,7 @@
         "div_liq_ebit": 5.54,
         "div_liq_ebitda": 3.47,
         "liquidez_corrente": 2.05,
-        "liquidez_diaria": 939296000.0
+        "liquidez_diaria": 936493000.0
       }
     },
     {
@@ -2828,7 +2828,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 38.68,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 1.2121819999999999,
@@ -2854,19 +2854,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ALUPAR UNT N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 4.21,
         "vpa": 29.25,
         "ebit": 3040210000.0,
-        "ev": 22233100000.0,
+        "ev": 22272700000.0,
         "capital_investido": 19163230000.0,
         "g_perpetuidade": 0.025,
         "pl": 9.19,
         "pvp": 1.32,
         "psr": 2.54,
-        "ev_ebit": 7.31,
-        "ev_ebitda": 6.85,
+        "ev_ebit": 7.33,
+        "ev_ebitda": 6.86,
         "dy_12m": 0.028,
         "payout": 0.2879,
         "roe": 0.144,
@@ -2879,7 +2879,7 @@
         "div_liq_ebit": 3.13,
         "div_liq_ebitda": 2.93,
         "liquidez_corrente": 3.17,
-        "liquidez_diaria": 46252400.0
+        "liquidez_diaria": 46616400.0
       }
     },
     {
@@ -2888,7 +2888,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 12.5,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.40406060000000005,
@@ -2914,19 +2914,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ALUPAR PN N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.4,
         "vpa": 9.75,
         "ebit": 3040210000.0,
-        "ev": 21982600000.0,
+        "ev": 21883700000.0,
         "capital_investido": 19163230000.0,
         "g_perpetuidade": 0.045,
         "pl": 8.93,
         "pvp": 1.28,
-        "psr": 2.49,
-        "ev_ebit": 7.23,
-        "ev_ebitda": 6.77,
+        "psr": 2.47,
+        "ev_ebit": 7.2,
+        "ev_ebitda": 6.74,
         "dy_12m": 0.029,
         "payout": 0.2978,
         "roe": 0.144,
@@ -2939,7 +2939,7 @@
         "div_liq_ebit": 3.13,
         "div_liq_ebitda": 2.93,
         "liquidez_corrente": 3.17,
-        "liquidez_diaria": 154272.0
+        "liquidez_diaria": 155245.0
       }
     },
     {
@@ -2948,7 +2948,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 13.75,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.40406060000000005,
@@ -2974,20 +2974,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ALUPAR ON N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.4,
         "vpa": 9.75,
         "ebit": 3040210000.0,
-        "ev": 22546200000.0,
+        "ev": 23119800000.0,
         "capital_investido": 19163230000.0,
         "g_perpetuidade": 0.045,
         "pl": 9.82,
         "pvp": 1.41,
-        "psr": 2.6,
-        "ev_ebit": 7.42,
-        "ev_ebitda": 6.94,
-        "dy_12m": 0.027,
+        "psr": 2.71,
+        "ev_ebit": 7.6,
+        "ev_ebitda": 7.12,
+        "dy_12m": 0.026,
         "payout": 0.2978,
         "roe": 0.144,
         "roic": 0.102,
@@ -2999,7 +2999,7 @@
         "div_liq_ebit": 3.13,
         "div_liq_ebitda": 2.93,
         "liquidez_corrente": 3.17,
-        "liquidez_diaria": 102797.0
+        "liquidez_diaria": 102401.0
       }
     },
     {
@@ -3008,7 +3008,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 15.24,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.7114,
@@ -3034,19 +3034,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "AUREN ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": -1.04,
         "vpa": 10.96,
         "ebit": 1105140000.0,
-        "ev": 35592500000.0,
+        "ev": 36023200000.0,
         "capital_investido": 31522700000.0,
         "g_perpetuidade": 0.025,
         "pl": -14.65,
         "pvp": 1.39,
-        "psr": 1.16,
-        "ev_ebit": 32.21,
-        "ev_ebitda": 13.39,
+        "psr": 1.19,
+        "ev_ebit": 32.6,
+        "ev_ebitda": 13.55,
         "dy_12m": 0.0,
         "payout": 1.6775,
         "roe": -0.095,
@@ -3059,7 +3059,7 @@
         "div_liq_ebit": 18.11,
         "div_liq_ebitda": 7.53,
         "liquidez_corrente": 1.12,
-        "liquidez_diaria": 58126800.0
+        "liquidez_diaria": 58481400.0
       }
     },
     {
@@ -3239,7 +3239,7 @@
         "div_liq_ebit": 4.4,
         "div_liq_ebitda": 3.27,
         "liquidez_corrente": 1.27,
-        "liquidez_diaria": 18933.0
+        "liquidez_diaria": 18492.0
       }
     },
     {
@@ -3308,7 +3308,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 45.5,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
         "dpa": 5.34948,
@@ -3334,20 +3334,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "COELBA ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/09/2026",
         "lpa": 5.52,
         "vpa": 31.92,
         "ebit": 4460000000.0,
-        "ev": 31462400000.0,
+        "ev": 31538400000.0,
         "capital_investido": 27980000000.0,
         "g_perpetuidade": 0.025,
         "pl": 8.24,
         "pvp": 1.43,
         "psr": 0.62,
-        "ev_ebit": 7.05,
-        "ev_ebitda": 5.61,
-        "dy_12m": 0.129,
+        "ev_ebit": 7.07,
+        "ev_ebitda": 5.62,
+        "dy_12m": 0.128,
         "payout": 1.0852,
         "roe": 0.173,
         "roic": 0.127,
@@ -3357,9 +3357,9 @@
         "cresc_receita_5a": 0.084,
         "div_liq_patrim": 2.34,
         "div_liq_ebit": 4.4,
-        "div_liq_ebitda": 3.5,
+        "div_liq_ebitda": 3.49,
         "liquidez_corrente": 1.64,
-        "liquidez_diaria": 31505.0
+        "liquidez_diaria": 31090.0
       }
     },
     {
@@ -3368,7 +3368,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 27.81,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 6.863916000000001,
@@ -3394,20 +3394,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CEB - COMPANHIA ENERGÉTICA DE BRASÍLIA PNB",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.22,
         "vpa": 13.19,
         "ebit": 127676000.0,
-        "ev": 1746110000.0,
+        "ev": 1717280000.0,
         "capital_investido": 663096000.0,
         "g_perpetuidade": 0.025,
         "pl": 12.53,
         "pvp": 2.11,
-        "psr": 4.45,
-        "ev_ebit": 13.68,
-        "ev_ebitda": 12.85,
-        "dy_12m": 0.128,
+        "psr": 4.39,
+        "ev_ebit": 13.45,
+        "ev_ebitda": 12.64,
+        "dy_12m": 0.13,
         "payout": 2.0238001,
         "roe": 0.168,
         "roic": 0.121,
@@ -3419,7 +3419,7 @@
         "div_liq_ebit": -2.25,
         "div_liq_ebitda": -2.11,
         "liquidez_corrente": 7.99,
-        "liquidez_diaria": 73865.0
+        "liquidez_diaria": 75587.0
       }
     },
     {
@@ -3428,7 +3428,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 24.76,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 6.23992,
@@ -3454,19 +3454,19 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CEB - COMPANHIA ENERGÉTICA DE BRASÍLIA PNA",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.22,
         "vpa": 13.19,
         "ebit": 127676000.0,
-        "ev": 1499590000.0,
+        "ev": 1497430000.0,
         "capital_investido": 663096000.0,
         "g_perpetuidade": 0.025,
         "pl": 11.15,
         "pvp": 1.88,
         "psr": 3.91,
-        "ev_ebit": 11.75,
-        "ev_ebitda": 11.04,
+        "ev_ebit": 11.73,
+        "ev_ebitda": 11.02,
         "dy_12m": 0.132,
         "payout": 1.8398,
         "roe": 0.168,
@@ -3477,9 +3477,9 @@
         "cresc_receita_5a": 0.066,
         "div_liq_patrim": -0.3,
         "div_liq_ebit": -2.25,
-        "div_liq_ebitda": -2.12,
+        "div_liq_ebitda": -2.11,
         "liquidez_corrente": 7.99,
-        "liquidez_diaria": 165259.0
+        "liquidez_diaria": 165160.0
       }
     },
     {
@@ -3488,7 +3488,7 @@
       "setor": "energia",
       "besst": true,
       "preco": 25.58,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 6.23992,
@@ -3514,20 +3514,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CEB - COMPANHIA ENERGÉTICA DE BRASÍLIA ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.22,
         "vpa": 13.19,
         "ebit": 127676000.0,
-        "ev": 1565190000.0,
+        "ev": 1556540000.0,
         "capital_investido": 663096000.0,
         "g_perpetuidade": 0.025,
         "pl": 11.52,
         "pvp": 1.94,
-        "psr": 4.06,
-        "ev_ebit": 12.26,
-        "ev_ebitda": 11.52,
-        "dy_12m": 0.127,
+        "psr": 4.04,
+        "ev_ebit": 12.19,
+        "ev_ebitda": 11.46,
+        "dy_12m": 0.128,
         "payout": 1.8398,
         "roe": 0.168,
         "roic": 0.121,
@@ -3537,9 +3537,9 @@
         "cresc_receita_5a": 0.066,
         "div_liq_patrim": -0.3,
         "div_liq_ebit": -2.25,
-        "div_liq_ebitda": -2.11,
+        "div_liq_ebitda": -2.12,
         "liquidez_corrente": 7.99,
-        "liquidez_diaria": 176054.0
+        "liquidez_diaria": 173640.0
       }
     },
     {
@@ -4388,7 +4388,7 @@
       "setor": "saneamento",
       "besst": true,
       "preco": 0.15,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2025",
       "bazin": {
         "dpa": 0.010631999999999999,
@@ -4414,7 +4414,7 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "AMBIPAR ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2025",
         "lpa": -0.15,
         "vpa": 0.65,
@@ -4439,7 +4439,7 @@
         "div_liq_ebit": 5.64,
         "div_liq_ebitda": 3.19,
         "liquidez_corrente": 2.72,
-        "liquidez_diaria": 815346.0
+        "liquidez_diaria": 799067.0
       }
     },
     {
@@ -4448,7 +4448,7 @@
       "setor": "seguros",
       "besst": true,
       "preco": 43.68,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 2.64872,
@@ -4474,7 +4474,7 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "BBSEGURIDADE ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 4.73,
         "vpa": 5.61,
@@ -4499,7 +4499,7 @@
         "div_liq_ebit": 0.0,
         "div_liq_ebitda": null,
         "liquidez_corrente": null,
-        "liquidez_diaria": 270409000.0
+        "liquidez_diaria": 273427000.0
       }
     },
     {
@@ -4770,7 +4770,7 @@
       "margem_graham": -0.058774041144612356,
       "gordon": 17.17462666666666,
       "margem_gordon": -0.888250651930717,
-      "rank_greenblatt": 49,
+      "rank_greenblatt": 50,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "TELEF BRASIL ON",
@@ -4988,7 +4988,7 @@
       "setor": "telecom",
       "besst": true,
       "preco": 3.48,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.01644,
@@ -5014,20 +5014,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "BRISANET ON NM",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.14,
         "vpa": 3.6,
         "ebit": 278404000.0,
-        "ev": 3112320000.0,
+        "ev": 3213060000.0,
         "capital_investido": 3267650000.0,
         "g_perpetuidade": 0.026,
         "pl": 24.86,
         "pvp": 0.97,
-        "psr": 0.79,
-        "ev_ebit": 11.18,
-        "ev_ebitda": 3.92,
-        "dy_12m": 0.013,
+        "psr": 0.84,
+        "ev_ebit": 11.54,
+        "ev_ebitda": 4.05,
+        "dy_12m": 0.012,
         "payout": 0.3161,
         "roe": 0.038,
         "roic": 0.073,
@@ -5039,7 +5039,7 @@
         "div_liq_ebit": 6.07,
         "div_liq_ebitda": 2.13,
         "liquidez_corrente": 1.51,
-        "liquidez_diaria": 855062.0
+        "liquidez_diaria": 852915.0
       }
     },
     {
@@ -5228,7 +5228,7 @@
       "setor": "mineração",
       "besst": false,
       "preco": 4.99,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.66994,
@@ -5254,20 +5254,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CSNMINERACAO ON N2",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 0.43,
         "vpa": 1.35,
         "ebit": 4831950000.0,
-        "ev": 27859400000.0,
+        "ev": 28131000000.0,
         "capital_investido": 8364510000.0,
         "g_perpetuidade": 0.0016,
         "pl": 11.6,
         "pvp": 3.7,
-        "psr": 1.54,
-        "ev_ebit": 5.77,
-        "ev_ebitda": 4.5,
-        "dy_12m": 0.221,
+        "psr": 1.56,
+        "ev_ebit": 5.82,
+        "ev_ebitda": 4.54,
+        "dy_12m": 0.218,
         "payout": 0.9951,
         "roe": 0.318,
         "roic": 0.203,
@@ -5279,7 +5279,7 @@
         "div_liq_ebit": 0.21,
         "div_liq_ebitda": 0.17,
         "liquidez_corrente": 1.17,
-        "liquidez_diaria": 46661400.0
+        "liquidez_diaria": 46401800.0
       }
     },
     {
@@ -5708,7 +5708,7 @@
       "setor": "serviços financeiros",
       "besst": false,
       "preco": 23.65,
-      "data_ult_cot": "22/10/2026",
+      "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 0.5664266,
@@ -5734,20 +5734,20 @@
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "B3 ON",
-        "data_ult_cot": "22/10/2026",
+        "data_ult_cot": "23/10/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 1.06,
         "vpa": 3.71,
         "ebit": 7119850000.0,
-        "ev": 115762000000.0,
+        "ev": 117780000000.0,
         "capital_investido": 17135660000.0,
         "g_perpetuidade": 0.045,
         "pl": 22.31,
         "pvp": 6.37,
-        "psr": 9.78,
-        "ev_ebit": 16.26,
-        "ev_ebitda": 15.43,
-        "dy_12m": 0.04,
+        "psr": 9.94,
+        "ev_ebit": 16.54,
+        "ev_ebitda": 15.7,
+        "dy_12m": 0.039,
         "payout": 0.7551,
         "roe": 0.285,
         "roic": 0.222,
@@ -5759,7 +5759,7 @@
         "div_liq_ebit": -0.22,
         "div_liq_ebitda": -0.21,
         "liquidez_corrente": 1.92,
-        "liquidez_diaria": 980324000.0
+        "liquidez_diaria": 989254000.0
       }
     }
   ]
