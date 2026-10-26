@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "gerado_em": "2026-10-26T23:21:21.091229Z",
+  "gerado_em": "2026-10-26T23:31:15.673326Z",
   "ativos": [
     {
       "ticker": "BBAS3",
@@ -819,7 +819,7 @@
         "lpa": 1.28,
         "vpa": 7.21,
         "ebit": null,
-        "ev": 10581316608.0,
+        "ev": 10522241024.0,
         "capital_investido": 8886258730.0,
         "g_perpetuidade": 0.045,
         "pl": 7.8,
@@ -879,7 +879,7 @@
         "lpa": 1.28,
         "vpa": 7.21,
         "ebit": null,
-        "ev": 10623017984.0,
+        "ev": 10588267520.0,
         "capital_investido": 7727546450.66,
         "g_perpetuidade": 0.045,
         "pl": 7.93,
@@ -939,7 +939,7 @@
         "lpa": 0.96,
         "vpa": 6.66,
         "ebit": null,
-        "ev": 19503212544.0,
+        "ev": 18826170368.0,
         "capital_investido": 16310969367.18,
         "g_perpetuidade": 0.045,
         "pl": 6.42,
@@ -1179,7 +1179,7 @@
         "lpa": 6.62,
         "vpa": 25.24,
         "ebit": null,
-        "ev": 11036568576.0,
+        "ev": 9066187776.0,
         "capital_investido": 2150178184.6399994,
         "g_perpetuidade": 0.045,
         "pl": 9.67,
@@ -1239,7 +1239,7 @@
         "lpa": 6.62,
         "vpa": 25.24,
         "ebit": null,
-        "ev": 9119241216.0,
+        "ev": 7715175936.0,
         "capital_investido": 3279048643.6000004,
         "g_perpetuidade": 0.045,
         "pl": 8.01,
@@ -1359,7 +1359,7 @@
         "lpa": 2.37,
         "vpa": 7.09,
         "ebit": null,
-        "ev": 12899941376.0,
+        "ev": 11803831296.0,
         "capital_investido": 9568493929.63,
         "g_perpetuidade": 0.045,
         "pl": 5.12,
@@ -1419,7 +1419,7 @@
         "lpa": 2.37,
         "vpa": 7.09,
         "ebit": null,
-        "ev": 12368416768.0,
+        "ev": 11447786496.0,
         "capital_investido": 9639554581.94,
         "g_perpetuidade": 0.045,
         "pl": 4.51,
@@ -1479,7 +1479,7 @@
         "lpa": 7.34,
         "vpa": 42.6,
         "ebit": null,
-        "ev": -1174639488.0,
+        "ev": -1256348800.0,
         "capital_investido": null,
         "g_perpetuidade": 0.045,
         "pl": 4.63,
@@ -1659,7 +1659,7 @@
         "lpa": 15.76,
         "vpa": 129.76,
         "ebit": null,
-        "ev": 3096190976.0,
+        "ev": 2495806464.0,
         "capital_investido": 6042615914.4,
         "g_perpetuidade": 0.0291,
         "pl": 4.22,
@@ -1779,7 +1779,7 @@
         "lpa": 1.44,
         "vpa": 8.2,
         "ebit": null,
-        "ev": 12963133440.0,
+        "ev": 12768660480.0,
         "capital_investido": 14387260484.0,
         "g_perpetuidade": 0.045,
         "pl": 1.46,
@@ -1830,7 +1830,7 @@
       "margem_graham": 0.1880923741427269,
       "gordon": 52.02735999999999,
       "margem_gordon": 0.22156342355253064,
-      "rank_greenblatt": 43,
+      "rank_greenblatt": 44,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "TAESA UNT",
@@ -1890,7 +1890,7 @@
       "margem_graham": 0.1547201707865216,
       "gordon": 24.109859999999998,
       "margem_gordon": 0.417665635553255,
-      "rank_greenblatt": 45,
+      "rank_greenblatt": 46,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "TAESA PN N2",
@@ -1950,7 +1950,7 @@
       "margem_graham": 0.1944555473734799,
       "gordon": 24.109859999999998,
       "margem_gordon": 0.445040327899042,
-      "rank_greenblatt": 42,
+      "rank_greenblatt": 43,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "TAESA N2",
@@ -2070,7 +2070,7 @@
       "margem_graham": 0.31807560417120745,
       "gordon": 38.53845999999999,
       "margem_gordon": 0.05652690844418782,
-      "rank_greenblatt": 47,
+      "rank_greenblatt": 48,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ISA ENERGIA ON",
@@ -2190,7 +2190,7 @@
       "margem_graham": 0.4620817785791454,
       "gordon": 14.18401985901639,
       "margem_gordon": 0.27101060892641465,
-      "rank_greenblatt": 39,
+      "rank_greenblatt": 41,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CEMIG PN N1",
@@ -2250,7 +2250,7 @@
       "margem_graham": 0.11352741847085476,
       "gordon": 12.023342112643675,
       "margem_gordon": -0.41724321244097645,
-      "rank_greenblatt": 52,
+      "rank_greenblatt": 53,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CEMIG ON N1",
@@ -2310,7 +2310,7 @@
       "margem_graham": -0.03147654316439533,
       "gordon": 9.26955333333333,
       "margem_gordon": -0.5383697020999937,
-      "rank_greenblatt": 50,
+      "rank_greenblatt": 51,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "COPEL PNB",
@@ -2370,7 +2370,7 @@
       "margem_graham": -0.0922367322428029,
       "gordon": 7.859002914572864,
       "margem_gordon": -0.9213633286736964,
-      "rank_greenblatt": 54,
+      "rank_greenblatt": 55,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "COPEL ON",
@@ -2490,7 +2490,7 @@
       "margem_graham": 0.07640149449698729,
       "gordon": 30.342984799999993,
       "margem_gordon": -0.5585151003338343,
-      "rank_greenblatt": 25,
+      "rank_greenblatt": 26,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENERGISA UNT N2",
@@ -2610,7 +2610,7 @@
       "margem_graham": -0.12012920860315472,
       "gordon": 7.371007560000001,
       "margem_gordon": -0.5533832935045855,
-      "rank_greenblatt": 30,
+      "rank_greenblatt": 31,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENERGISA ON",
@@ -2670,7 +2670,7 @@
       "margem_graham": -0.8500169825952292,
       "gordon": 12.389106666666665,
       "margem_gordon": -1.8121478761449583,
-      "rank_greenblatt": 55,
+      "rank_greenblatt": 56,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "EQUATORIAL ENERGIA S.A. ON NM",
@@ -2970,7 +2970,7 @@
       "margem_graham": 0.3523531213334851,
       "gordon": 7.677151399999999,
       "margem_gordon": -0.4784129436342758,
-      "rank_greenblatt": 22,
+      "rank_greenblatt": 23,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ALUPAR ON N2",
@@ -3090,7 +3090,7 @@
       "margem_graham": 0.6571640544294889,
       "gordon": 18.093261530054644,
       "margem_gordon": -0.6028066554959268,
-      "rank_greenblatt": 23,
+      "rank_greenblatt": 22,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CIA ENERG CEARA - COELCE PNA",
@@ -3150,7 +3150,7 @@
       "margem_graham": 0.28447207393608515,
       "gordon": 93.52559999999998,
       "margem_gordon": -0.8098787925445016,
-      "rank_greenblatt": 48,
+      "rank_greenblatt": 49,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CELESC PN N2",
@@ -3210,7 +3210,7 @@
       "margem_graham": 0.3869802100916351,
       "gordon": 83.41227999999998,
       "margem_gordon": -0.7385929266050519,
-      "rank_greenblatt": 44,
+      "rank_greenblatt": 45,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CELESC ON N2",
@@ -3450,7 +3450,7 @@
       "margem_graham": 0.08835508612794225,
       "gordon": 85.27890666666664,
       "margem_gordon": 0.7256062382288203,
-      "rank_greenblatt": 31,
+      "rank_greenblatt": 30,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "CEB - COMPANHIA ENERGÉTICA DE BRASÍLIA PNA",
@@ -3810,7 +3810,7 @@
       "margem_graham": -0.14941081048860164,
       "gordon": 55.37514666666666,
       "margem_gordon": 0.3191891621174937,
-      "rank_greenblatt": 33,
+      "rank_greenblatt": 34,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENERGISA MT ON",
@@ -3870,7 +3870,7 @@
       "margem_graham": -0.15215476202557698,
       "gordon": 56.92658666666666,
       "margem_gordon": 0.33616255228371317,
-      "rank_greenblatt": 34,
+      "rank_greenblatt": 35,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENERGISA MT ON",
@@ -3930,7 +3930,7 @@
       "margem_graham": 0.8052542017759409,
       "gordon": 2.6402399999999995,
       "margem_gordon": -0.030209374905311916,
-      "rank_greenblatt": 46,
+      "rank_greenblatt": 47,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "LIGHT SA ON",
@@ -4230,7 +4230,7 @@
       "margem_graham": -0.167035398524466,
       "gordon": 35.25602,
       "margem_gordon": -0.3969245535939678,
-      "rank_greenblatt": 51,
+      "rank_greenblatt": 52,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "COPASA MG ON",
@@ -4290,7 +4290,7 @@
       "margem_graham": 0.01462271474763167,
       "gordon": 7.677341399999999,
       "margem_gordon": -2.2915040094478543,
-      "rank_greenblatt": 35,
+      "rank_greenblatt": 33,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "SABESP ON NM",
@@ -4710,7 +4710,7 @@
       "margem_graham": null,
       "gordon": null,
       "margem_gordon": null,
-      "rank_greenblatt": 56,
+      "rank_greenblatt": 40,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "IRBBRASIL RE ON NM",
@@ -4719,7 +4719,7 @@
         "lpa": -1.8,
         "vpa": 65.1,
         "ebit": 122036000.0,
-        "ev": 1341108736.0,
+        "ev": 854636352.0,
         "capital_investido": 5328370000.0,
         "g_perpetuidade": 0.025,
         "pl": -34.28,
@@ -4770,7 +4770,7 @@
       "margem_graham": -0.001966553275613776,
       "gordon": 17.17462666666666,
       "margem_gordon": -0.786938406036192,
-      "rank_greenblatt": 49,
+      "rank_greenblatt": 50,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "TELEF BRASIL ON",
@@ -4950,7 +4950,7 @@
       "margem_graham": -0.6727945162290695,
       "gordon": 0.5742220599739244,
       "margem_gordon": -32.575860880154124,
-      "rank_greenblatt": 26,
+      "rank_greenblatt": 27,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "DESKTOPSIGMA ON NM",
@@ -5010,7 +5010,7 @@
       "margem_graham": 0.26057723070895916,
       "gordon": 0.22793837837837835,
       "margem_gordon": -9.924005065380404,
-      "rank_greenblatt": 53,
+      "rank_greenblatt": 54,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "BRISANET ON NM",
@@ -5490,7 +5490,7 @@
       "margem_graham": 0.02990743071343426,
       "gordon": 19.7899994647343,
       "margem_gordon": -0.28600306661714653,
-      "rank_greenblatt": 41,
+      "rank_greenblatt": 42,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "GERDAU S.A. PN N1",
@@ -5610,7 +5610,7 @@
       "margem_graham": -0.7620950485679012,
       "gordon": 122.8650963333333,
       "margem_gordon": 0.5608191291885989,
-      "rank_greenblatt": 40,
+      "rank_greenblatt": 39,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "UNIPAR PARTICIPAÇÕES S.A. PNB",
@@ -5730,7 +5730,7 @@
       "margem_graham": -0.6020722790891504,
       "gordon": 10.762105399999998,
       "margem_gordon": -0.4002836285175207,
-      "rank_greenblatt": 27,
+      "rank_greenblatt": 25,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "B3 ON",
