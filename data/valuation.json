@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "gerado_em": "2026-10-26T20:21:16.313177Z",
+  "gerado_em": "2026-10-26T22:51:15.115126Z",
   "ativos": [
     {
       "ticker": "BBAS3",
       "empresa": "BANCO DO BRASIL S.A. ON",
       "setor": "bancos",
       "besst": true,
-      "preco": 17.97,
+      "preco": 17.47,
       "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -16,7 +16,7 @@
         "tem_extraordinario": false,
         "teto": 30.7935,
         "teto_sem_extra": 30.7935,
-        "margem_seguranca": 0.41643528666764096,
+        "margem_seguranca": 0.43267247958173,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.1311,
@@ -27,9 +27,9 @@
         }
       },
       "graham": 42.43945098608133,
-      "margem_graham": 0.5765732217908867,
+      "margem_graham": 0.5883547125590868,
       "gordon": 35.10458999999999,
-      "margem_gordon": 0.4881011286558252,
+      "margem_gordon": 0.5023442803348507,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
@@ -42,8 +42,8 @@
         "ev": 926260068352.0,
         "capital_investido": 961078646912.96,
         "g_perpetuidade": 0.045,
-        "pl": 7.1,
-        "pvp": 0.57,
+        "pl": 6.91,
+        "pvp": 0.55,
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
@@ -187,7 +187,7 @@
       "empresa": "BANCO BRADESCO S.A. PN N1",
       "setor": "bancos",
       "besst": true,
-      "preco": 16.05,
+      "preco": 15.95,
       "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -196,7 +196,7 @@
         "tem_extraordinario": false,
         "teto": 18.637576666666664,
         "teto_sem_extra": 18.637576666666664,
-        "margem_seguranca": 0.13883654044436736,
+        "margem_seguranca": 0.1442020448652748,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.9253,
@@ -207,9 +207,9 @@
         }
       },
       "graham": 29.447678176725578,
-      "margem_graham": 0.45496551871837004,
+      "margem_graham": 0.45836137218429923,
       "gordon": 21.24683739999999,
-      "margem_gordon": 0.24459345653014652,
+      "margem_gordon": 0.24930003935550393,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
@@ -222,7 +222,7 @@
         "ev": 750735523840.0,
         "capital_investido": 627772163423.32,
         "g_perpetuidade": 0.045,
-        "pl": 7.01,
+        "pl": 6.97,
         "pvp": 0.95,
         "psr": null,
         "ev_ebit": null,
@@ -307,7 +307,7 @@
       "empresa": "SANTANDER UNT",
       "setor": "bancos",
       "besst": true,
-      "preco": 26.28,
+      "preco": 26.3,
       "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -316,7 +316,7 @@
         "tem_extraordinario": false,
         "teto": 34.10633333333334,
         "teto_sem_extra": 34.10633333333334,
-        "margem_seguranca": 0.22946862264095633,
+        "margem_seguranca": 0.2288822212883239,
         "veredito": "verde",
         "por_ano": {
           "2021": 2.8359,
@@ -327,9 +327,9 @@
         }
       },
       "graham": 49.46428256833409,
-      "margem_graham": 0.4687075474369892,
+      "margem_graham": 0.46830321528130964,
       "gordon": 27.967193333333327,
-      "margem_gordon": 0.060327588586531734,
+      "margem_gordon": 0.05961246498576046,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
@@ -342,7 +342,7 @@
         "ev": 262207471616.0,
         "capital_investido": 255677281373.25,
         "g_perpetuidade": 0.025,
-        "pl": 6.36,
+        "pl": 6.37,
         "pvp": 1.0,
         "psr": null,
         "ev_ebit": null,
@@ -2010,7 +2010,7 @@
       "margem_graham": 0.5123752945118645,
       "gordon": 38.53845999999999,
       "margem_gordon": 0.3253492744650408,
-      "rank_greenblatt": 37,
+      "rank_greenblatt": 38,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ISA ENERGIA PN",
@@ -2130,7 +2130,7 @@
       "margem_graham": -0.06416626298714431,
       "gordon": 33.1902868,
       "margem_gordon": 0.17144433955298036,
-      "rank_greenblatt": 38,
+      "rank_greenblatt": 37,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
         "empresa": "ENGIE BRASIL ON",
@@ -2647,7 +2647,7 @@
       "empresa": "EQUATORIAL ENERGIA S.A. ON NM",
       "setor": "energia",
       "besst": true,
-      "preco": 35.57,
+      "preco": 34.84,
       "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -2656,7 +2656,7 @@
         "tem_extraordinario": false,
         "teto": 15.10866666666667,
         "teto_sem_extra": 15.10866666666667,
-        "margem_seguranca": -1.3542778978952472,
+        "margem_seguranca": -1.3059612584388647,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.72,
@@ -2667,9 +2667,9 @@
         }
       },
       "graham": 18.83225955641011,
-      "margem_graham": -0.8887802546186078,
+      "margem_graham": -0.8500169825952292,
       "gordon": 12.389106666666665,
-      "margem_gordon": -1.871070607189327,
+      "margem_gordon": -1.8121478761449583,
       "rank_greenblatt": 55,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
@@ -2682,8 +2682,8 @@
         "ev": 115711000000.0,
         "capital_investido": 80276200000.0,
         "g_perpetuidade": 0.025,
-        "pl": 46.8,
-        "pvp": 1.72,
+        "pl": 45.84,
+        "pvp": 1.68,
         "psr": 1.14,
         "ev_ebit": 11.98,
         "ev_ebitda": 9.17,
@@ -3007,7 +3007,7 @@
       "empresa": "AUREN ON NM",
       "setor": "energia",
       "besst": true,
-      "preco": 11.06,
+      "preco": 10.76,
       "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -3016,7 +3016,7 @@
         "tem_extraordinario": false,
         "teto": 11.856666666666667,
         "teto_sem_extra": 11.856666666666667,
-        "margem_seguranca": 0.067191453472027,
+        "margem_seguranca": 0.09249367444475688,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.0,
@@ -3029,7 +3029,7 @@
       "graham": null,
       "margem_graham": null,
       "gordon": 9.722466666666666,
-      "margem_gordon": -0.1375713982048453,
+      "margem_gordon": -0.1067150311649308,
       "rank_greenblatt": 62,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
@@ -3042,8 +3042,8 @@
         "ev": 36023200000.0,
         "capital_investido": 31522700000.0,
         "g_perpetuidade": 0.025,
-        "pl": -10.63,
-        "pvp": 1.01,
+        "pl": -10.35,
+        "pvp": 0.98,
         "psr": 1.19,
         "ev_ebit": 32.6,
         "ev_ebitda": 13.55,
@@ -3067,7 +3067,7 @@
       "empresa": "CIA ENERG CEARA - COELCE PNA",
       "setor": "energia",
       "besst": true,
-      "preco": 28.5,
+      "preco": 29.0,
       "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -3076,8 +3076,8 @@
         "tem_extraordinario": false,
         "teto": 27.35966666666667,
         "teto_sem_extra": 27.35966666666667,
-        "margem_seguranca": -0.04167935769197958,
-        "veredito": "amarelo",
+        "margem_seguranca": -0.05995443414271606,
+        "veredito": "vermelho",
         "por_ano": {
           "2021": 3.6165,
           "2022": 1.9435,
@@ -3087,9 +3087,9 @@
         }
       },
       "graham": 84.5885630567159,
-      "margem_graham": 0.6630750190082908,
+      "margem_graham": 0.6571640544294889,
       "gordon": 18.093261530054644,
-      "margem_gordon": -0.5751720579873764,
+      "margem_gordon": -0.6028066554959268,
       "rank_greenblatt": 23,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
@@ -3102,8 +3102,8 @@
         "ev": 9978870000.0,
         "capital_investido": 12322260000.0,
         "g_perpetuidade": 0.0085,
-        "pl": 5.82,
-        "pvp": 0.44,
+        "pl": 5.92,
+        "pvp": 0.45,
         "psr": 0.34,
         "ev_ebit": 5.9,
         "ev_ebitda": 4.42,
@@ -3907,7 +3907,7 @@
       "empresa": "LIGHT SA ON",
       "setor": "energia",
       "besst": true,
-      "preco": 2.8,
+      "preco": 2.72,
       "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -3916,7 +3916,7 @@
         "tem_extraordinario": false,
         "teto": 2.3160000000000003,
         "teto_sem_extra": 2.3160000000000003,
-        "margem_seguranca": -0.2089810017271155,
+        "margem_seguranca": -0.1744386873920552,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.4411,
@@ -3927,9 +3927,9 @@
         }
       },
       "graham": 13.966925216381737,
-      "margem_graham": 0.7995263841811158,
+      "margem_graham": 0.8052542017759409,
       "gordon": 2.6402399999999995,
-      "margem_gordon": -0.06050965063782095,
+      "margem_gordon": -0.030209374905311916,
       "rank_greenblatt": 46,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
@@ -3942,8 +3942,8 @@
         "ev": 13209400000.0,
         "capital_investido": 16608110000.0,
         "g_perpetuidade": 0.045,
-        "pl": 1.87,
-        "pvp": 0.48,
+        "pl": 1.81,
+        "pvp": 0.47,
         "psr": 0.38,
         "ev_ebit": 8.78,
         "ev_ebitda": 5.38,
@@ -4479,7 +4479,7 @@
         "lpa": 4.73,
         "vpa": 5.61,
         "ebit": 9973970000.0,
-        "ev": 78323105792.0,
+        "ev": 77274824704.0,
         "capital_investido": 10890300000.0,
         "g_perpetuidade": 0.0323,
         "pl": 9.12,
@@ -4627,7 +4627,7 @@
       "empresa": "WIZ CO ON",
       "setor": "seguros",
       "besst": true,
-      "preco": 6.26,
+      "preco": 6.12,
       "data_ult_cot": "23/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -4636,7 +4636,7 @@
         "tem_extraordinario": false,
         "teto": 8.182666666666668,
         "teto_sem_extra": 8.182666666666668,
-        "margem_seguranca": 0.23496822551735388,
+        "margem_seguranca": 0.2520775623268699,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.6088,
@@ -4647,9 +4647,9 @@
         }
       },
       "graham": 11.365606011119688,
-      "margem_graham": 0.44921546692051023,
+      "margem_graham": 0.46153333187755946,
       "gordon": 9.32824,
-      "margem_gordon": 0.32891949606785414,
+      "margem_gordon": 0.3439276862516401,
       "rank_greenblatt": 2,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
@@ -4662,8 +4662,8 @@
         "ev": 1112550000.0,
         "capital_investido": 722948000.0,
         "g_perpetuidade": 0.045,
-        "pl": 5.05,
-        "pvp": 1.35,
+        "pl": 4.94,
+        "pvp": 1.32,
         "psr": 0.89,
         "ev_ebit": 1.8,
         "ev_ebitda": 1.53,
