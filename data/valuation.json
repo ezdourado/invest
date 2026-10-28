@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "gerado_em": "2026-10-28T20:23:29.408567Z",
+  "gerado_em": "2026-10-28T20:33:32.485596Z",
   "ativos": [
     {
       "ticker": "BBAS3",
       "empresa": "BANCO DO BRASIL S.A. ON",
       "setor": "bancos",
       "besst": true,
-      "preco": 16.83,
+      "preco": 16.79,
       "data_ult_cot": "27/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -16,7 +16,7 @@
         "tem_extraordinario": false,
         "teto": 30.7935,
         "teto_sem_extra": 30.7935,
-        "margem_seguranca": 0.45345608651176394,
+        "margem_seguranca": 0.454755061944891,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.1311,
@@ -27,9 +27,9 @@
         }
       },
       "graham": 42.43945098608133,
-      "margem_graham": 0.603435020742383,
+      "margem_graham": 0.6043775400038389,
       "gordon": 35.10458999999999,
-      "margem_gordon": 0.5205755144840033,
+      "margem_gordon": 0.5217149666183253,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
@@ -42,7 +42,7 @@
         "ev": 884356939776.0,
         "capital_investido": 961078646912.96,
         "g_perpetuidade": 0.045,
-        "pl": 6.65,
+        "pl": 6.64,
         "pvp": 0.53,
         "psr": null,
         "ev_ebit": null,
@@ -3847,7 +3847,7 @@
       "empresa": "ENERGISA MT ON",
       "setor": "energia",
       "besst": true,
-      "preco": 32.99,
+      "preco": 31.71,
       "data_ult_cot": "27/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -3856,7 +3856,7 @@
         "tem_extraordinario": false,
         "teto": 69.42266666666669,
         "teto_sem_extra": 69.42266666666669,
-        "margem_seguranca": 0.524794975704381,
+        "margem_seguranca": 0.543232757792844,
         "veredito": "verde",
         "por_ano": {
           "2021": 5.486,
@@ -3867,9 +3867,9 @@
         }
       },
       "graham": 32.79941310450539,
-      "margem_graham": -0.005810680053553523,
+      "margem_graham": 0.033214408472319455,
       "gordon": 56.92658666666666,
-      "margem_gordon": 0.4204816776882693,
+      "margem_gordon": 0.4429667777961509,
       "rank_greenblatt": 36,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
@@ -3882,8 +3882,8 @@
         "ev": 16966200000.0,
         "capital_investido": 12746340000.0,
         "g_perpetuidade": 0.025,
-        "pl": 12.54,
-        "pvp": 1.81,
+        "pl": 12.06,
+        "pvp": 1.74,
         "psr": 0.86,
         "ev_ebit": 9.42,
         "ev_ebitda": 7.65,
@@ -4807,7 +4807,7 @@
       "empresa": "TIM ON NM",
       "setor": "telecom",
       "besst": true,
-      "preco": 18.96,
+      "preco": 19.44,
       "data_ult_cot": "27/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -4816,7 +4816,7 @@
         "tem_extraordinario": false,
         "teto": 17.974333333333337,
         "teto_sem_extra": 17.974333333333337,
-        "margem_seguranca": -0.054837453405782124,
+        "margem_seguranca": -0.08154219906162473,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.4329,
@@ -4827,9 +4827,9 @@
         }
       },
       "graham": 1.5385057685949701,
-      "margem_graham": -11.323645700279103,
+      "margem_graham": -11.635636730665917,
       "gordon": 10.796474934934936,
-      "margem_gordon": -0.7561287470459228,
+      "margem_gordon": -0.8005877026673386,
       "rank_greenblatt": 63,
       "motivo_exclusao_greenblatt": null,
       "fundamentos": {
@@ -4842,8 +4842,8 @@
         "ev": 43342700000.0,
         "capital_investido": 23134710000.0,
         "g_perpetuidade": 0.0001,
-        "pl": 1896.0,
-        "pvp": 1.8,
+        "pl": 1944.0,
+        "pvp": 1.85,
         "psr": 58.12,
         "ev_ebit": 119.75,
         "ev_ebitda": 115.57,
