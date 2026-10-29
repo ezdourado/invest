@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "gerado_em": "2026-10-29T20:24:15.041784Z",
+  "gerado_em": "2026-10-29T20:34:15.170288Z",
   "ativos": [
     {
       "ticker": "BBAS3",
       "empresa": "BANCO DO BRASIL S.A. ON",
       "setor": "bancos",
       "besst": true,
-      "preco": 16.47,
+      "preco": 16.46,
       "data_ult_cot": "28/10/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -16,7 +16,7 @@
         "tem_extraordinario": false,
         "teto": 30.7935,
         "teto_sem_extra": 30.7935,
-        "margem_seguranca": 0.465146865409908,
+        "margem_seguranca": 0.4654716092681897,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.1311,
@@ -27,9 +27,9 @@
         }
       },
       "graham": 42.43945098608133,
-      "margem_graham": 0.611917694095487,
+      "margem_graham": 0.612153323910851,
       "gordon": 35.10458999999999,
-      "margem_gordon": 0.5308305836929016,
+      "margem_gordon": 0.531115446726482,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "fundamentos": {
