@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "gerado_em": "2026-10-29T22:51:52.582805Z",
+  "gerado_em": "2026-10-29T23:01:51.524503Z",
   "ativos": [
     {
       "ticker": "BBAS3",
@@ -99,7 +99,7 @@
         "lpa": 4.23,
         "vpa": 18.83,
         "ebit": null,
-        "ev": 1080426102784.0,
+        "ev": 1077780807680.0,
         "capital_investido": 733491709365.75,
         "g_perpetuidade": 0.0374,
         "pl": 9.35,
@@ -159,7 +159,7 @@
         "lpa": 4.23,
         "vpa": 18.83,
         "ebit": null,
-        "ev": 1127599702016.0,
+        "ev": 1127489470464.0,
         "capital_investido": 737511162144.9099,
         "g_perpetuidade": 0.0374,
         "pl": 10.41,
@@ -219,7 +219,7 @@
         "lpa": 2.29,
         "vpa": 16.83,
         "ebit": null,
-        "ev": 690588155904.0,
+        "ev": 685091389440.0,
         "capital_investido": 627772163423.32,
         "g_perpetuidade": 0.045,
         "pl": 6.18,
@@ -279,7 +279,7 @@
         "lpa": 2.29,
         "vpa": 16.83,
         "ebit": null,
-        "ev": 676846239744.0,
+        "ev": 672300793856.0,
         "capital_investido": 628052039136.91,
         "g_perpetuidade": 0.045,
         "pl": 5.66,
