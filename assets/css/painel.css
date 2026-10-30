@@ -913,7 +913,7 @@ code {
 }
 .vt {
   width: 100%;
-  min-width: 1060px;
+  min-width: 1020px;
   border-collapse: separate;
   border-spacing: 0;
   font-size: var(--fs-body);
@@ -927,10 +927,10 @@ code {
   white-space: nowrap;
   font-size: var(--fs-xs);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--muted);
-  padding: 10px 12px;
+  padding: 9px 9px;
   border-bottom: 1px solid var(--border-strong);
   user-select: none;
 }
@@ -983,13 +983,13 @@ code {
 }
 
 .vt tbody td {
-  padding: 10px 12px;
+  padding: 9px 9px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
   white-space: nowrap;
 }
 .vt.is-compact tbody td {
-  padding: 6px 10px;
+  padding: 5px 8px;
 }
 .vt tbody tr:last-child td {
   border-bottom: none;
@@ -1037,9 +1037,11 @@ code {
   font-size: var(--fs-xs);
   color: var(--muted);
   text-transform: capitalize;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  display: inline-block;
+  max-width: 145px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .spark-svg {
   width: 58px;
@@ -2872,12 +2874,15 @@ code {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
+  min-width: 44px;
+  width: auto;
   height: 22px;
+  padding: 0 6px;
   border-radius: 5px;
   font-family: var(--mono);
   font-size: var(--fs-xs);
   font-weight: 600;
+  white-space: nowrap;
 }
 /* Escala sequencial de UM único matiz (azul de marca) */
 .cal-heat-pill.lvl-high {
@@ -3076,9 +3081,9 @@ body.is-presentation .shell {
     grid-template-areas:
       "ticker  verdict"
       "preco   margem"
-      "teto    sustent"
-      "dpa     gb"
-      "graham  gordon"
+      "teto    falta"
+      "sustent gb"
+      "dpa     graham"
       "actions actions";
     background: var(--bg-elev);
     border: 1px solid var(--border);
@@ -3111,11 +3116,11 @@ body.is-presentation .shell {
   .vt tbody td.c-preco { grid-area: preco; border-right: 1px solid var(--border); }
   .vt tbody td.c-margem { grid-area: margem; }
   .vt tbody td.c-teto { grid-area: teto; border-right: 1px solid var(--border); }
-  .vt tbody td.c-sustent { grid-area: sustent; }
-  .vt tbody td.c-dpa { grid-area: dpa; border-right: 1px solid var(--border); }
+  .vt tbody td.c-falta { grid-area: falta; }
+  .vt tbody td.c-sustent { grid-area: sustent; border-right: 1px solid var(--border); }
   .vt tbody td.c-gb { grid-area: gb; }
-  .vt tbody td.c-graham { grid-area: graham; border-right: 1px solid var(--border); }
-  .vt tbody td.c-gordon { grid-area: gordon; }
+  .vt tbody td.c-dpa { grid-area: dpa; border-right: 1px solid var(--border); }
+  .vt tbody td.c-graham { grid-area: graham; }
   .vt tbody td.c-actions {
     grid-area: actions;
     border-bottom: none;
@@ -3131,11 +3136,11 @@ body.is-presentation .shell {
   }
   /* Colapso opcional dos detalhes secundários no mobile card */
   .vt tbody tr.row:not(.is-expanded) td.c-teto,
+  .vt tbody tr.row:not(.is-expanded) td.c-falta,
   .vt tbody tr.row:not(.is-expanded) td.c-sustent,
   .vt tbody tr.row:not(.is-expanded) td.c-dpa,
   .vt tbody tr.row:not(.is-expanded) td.c-gb,
-  .vt tbody tr.row:not(.is-expanded) td.c-graham,
-  .vt tbody tr.row:not(.is-expanded) td.c-gordon {
+  .vt tbody tr.row:not(.is-expanded) td.c-graham {
     display: none;
   }
   .row-actions {

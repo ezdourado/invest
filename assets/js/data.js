@@ -1351,8 +1351,11 @@ function sincronizarEstadoUrl() {
     if (painelState.filtroVeredito !== 'todos') params.set('veredito', painelState.filtroVeredito);
   } else if (aba === 'visual' && estVis) {
     if (estVis.ativo) params.set('ativo', estVis.ativo);
-    if (estVis.periodo) params.set('periodo', `${estVis.periodo}y`);
-    if (estVis.modo && estVis.modo !== 'price') params.set('modo', estVis.modo);
+    if (estVis.periodo) {
+      const pStr = String(estVis.periodo);
+      params.set('periodo', (pStr.endsWith('y') || pStr.endsWith('m')) ? pStr : `${pStr}y`);
+    }
+    if (estVis.modo && estVis.modo !== 'preco' && estVis.modo !== 'price') params.set('modo', estVis.modo);
     if (Array.isArray(estVis.comparar) && estVis.comparar.length) params.set('comparar', estVis.comparar.join(','));
   } else if (aba === 'matriz' && estMC) {
     if (estMC.matrizX) params.set('x', estMC.matrizX);
