@@ -2,7 +2,7 @@
  * Somente leitura e apresentação dos dados de ./data/valuation.json:
  * - Margens (Bazin/Graham), ROE/ROIC, Score de Sustentabilidade Anti-Cilada e
  *   Agenda de Proventos (próxima data-com, último pago, pagamentos agendados e
- *   sazonalidade 5 anos) vêm prontos do motor Python (engine/build.py).
+ *   sazonalidade 5 anos).
  */
 
 (function () {
@@ -21,28 +21,28 @@
       id: 'ouro',
       titulo: 'Quadrante Ouro',
       sub: 'Descontadas & Alta Qualidade',
-      cor: '#2fbf86',
+      cor: '#10b981',
       classe: 'is-ouro'
     },
     premio: {
       id: 'premio',
       titulo: 'Qualidade Cara',
       sub: 'Alta Rentabilidade · Acima do Teto',
-      cor: '#5b8def',
+      cor: '#3b82f6',
       classe: 'is-premio'
     },
     atencao: {
       id: 'atencao',
       titulo: 'Desconto c/ Atenção',
       sub: 'Abaixo do Teto · Rentab. Modesta',
-      cor: '#e0b341',
+      cor: '#f59e0b',
       classe: 'is-atencao'
     },
     evitar: {
       id: 'evitar',
       titulo: 'Caras & Baixo Retorno',
       sub: 'Acima do Teto · Baixa Rentabilidade',
-      cor: '#e5636b',
+      cor: '#ef4444',
       classe: 'is-evitar'
     }
   };
@@ -100,34 +100,42 @@
   }
 
   function hojeIsoB3() {
-    // Fuso de Brasília (UTC-3)
     const agora = new Date(Date.now() - 3 * 3600 * 1000);
     return agora.toISOString().slice(0, 10);
   }
 
+  function parseIsoLocalDays(isoStr) {
+    if (!isoStr || typeof isoStr !== 'string') return null;
+    const partes = isoStr.slice(0, 10).split('-');
+    if (partes.length !== 3) return null;
+    const dt = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]), 12, 0, 0);
+    if (Number.isNaN(dt.getTime())) return null;
+    return Math.round(dt.getTime() / 86400000);
+  }
+
   function diasEntreIso(isoAlvo, isoBase) {
-    if (!isoAlvo || !isoBase) return null;
-    const tAlvo = Date.parse(isoAlvo.slice(0, 10) + 'T00:00:00Z');
-    const tBase = Date.parse(isoBase.slice(0, 10) + 'T00:00:00Z');
-    if (Number.isNaN(tAlvo) || Number.isNaN(tBase)) return null;
-    return Math.round((tAlvo - tBase) / 86400000);
+    const dAlvo = parseIsoLocalDays(isoAlvo);
+    const dBase = parseIsoLocalDays(isoBase);
+    if (dAlvo === null || dBase === null) return null;
+    return dAlvo - dBase;
   }
 
   function rotuloContagemDias(dias) {
     if (dias === null) return '';
     if (dias === 0) return 'Hoje';
     if (dias === 1) return 'Amanhã';
-    if (dias > 1) return `Em ${dias}d`;
+    if (dias > 1) return `em ${dias} dias`;
     if (dias === -1) return 'Ontem';
-    return `Há ${Math.abs(dias)}d`;
+    return `há ${Math.abs(dias)}d`;
   }
 
   function rotuloTipoEvento(tipo) {
-    if (tipo === 'jcp') return 'JCP';
-    if (tipo === 'dividendo') return 'Dividendo';
-    if (tipo === 'misto') return 'Div. + JCP';
-    if (tipo === 'extraordinario') return 'Extraord.';
-    return 'Provento';
+    const t = String(tipo || '').toLowerCase();
+    if (t === 'jcp') return 'JCP';
+    if (t === 'dividendo') return 'Dividendo';
+    if (t === 'misto') return 'Div. + JCP';
+    if (t === 'extraordinario') return 'Extraord.';
+    return tipo ? String(tipo) : 'Provento';
   }
 
   function obterCat(a) {
@@ -144,11 +152,39 @@
     return String(setor || '').trim().toLowerCase().startsWith('banco');
   }
 
-  function htmlSeloSustentabilidade(a, compacto = false) {
-    if (typeof window.htmlSustentabilidade === 'function') {
-      return window.htmlSustentabilidade(a, compacto);
+  function obterSustentabilidadeAtivo(a) {
+    if (!a) return { nota: 0, score: 0, rotulo: 'Sem Divid.', nivel: 'sem_dividendo', pilares: [] };
+    if (a.sustentabilidade && numOk(a.sustentabilidade.nota)) {
+      return a.sustentabilidade;
     }
-    const s = a?.sustentabilidade;
+    if (typeof window.calcularScoreSustentabilidade === 'function') {
+      const s = window.calcularScoreSustentabilidade(a);
+      if (s) {
+        const dpa5a = a.bazin && numOk(a.bazin.dpa_medio_5a) ? a.bazin.dpa_medio_5a : 0;
+        const temHist = Array.isArray(a.proventos_historico) && a.proventos_historico.length > 0;
+        if (dpa5a <= 0 && !temHist) {
+          return { nota: 0, score: 0, rotulo: 'Sem Divid.', nivel: 'sem_dividendo', pilares: [] };
+        }
+        const nivel = s.score >= 75 ? 'forte' : (s.score >= 50 ? 'moderado' : 'alerta');
+        return {
+          nota: s.score,
+          score: s.score,
+          rotulo: s.rotulo,
+          nivel,
+          pilares: [
+            { nome: 'Regularidade (5a)', detalhe: `${s.pilares.regularidade}/25` },
+            { nome: 'Payout / Cobertura', detalhe: `${s.pilares.cobertura}/25` },
+            { nome: 'ROE & Alavancagem', detalhe: `${s.pilares.alavancagemRoe}/25` },
+            { nome: 'Tendência DPA', detalhe: `${s.pilares.tendenciaDpa}/25` }
+          ]
+        };
+      }
+    }
+    return { nota: 50, score: 50, rotulo: 'Intermediário', nivel: 'moderado', pilares: [] };
+  }
+
+  function htmlSeloSustentabilidade(a, compacto = false) {
+    const s = obterSustentabilidadeAtivo(a);
     if (!s || s.nivel === 'sem_dividendo') {
       return `<span class="sust-badge sust-nd" data-tip="Ativo sem distribuição recorrente nos últimos 5 anos fechados">Sem Divid.</span>`;
     }
@@ -156,6 +192,83 @@
     const resumo = Array.isArray(s.pilares) ? s.pilares.map(p => `${p.nome}: ${p.detalhe}`).join(' · ') : '';
     const txt = compacto ? `${s.nota}` : `${s.nota} · ${s.rotulo}`;
     return `<span class="sust-badge ${cls}" data-tip="${escH(`Score Anti-Cilada ${s.nota}/100 (${s.rotulo}) — ${resumo}`)}">${escH(txt)}</span>`;
+  }
+
+  function enriquecerAgendaAtivo(a, hojeIso) {
+    if (!a) return { agenda_anunciada: [], mapa_sazonal_5a: {}, meses_habituais_dividendo: [], proxima_data_com: null, proximo_pagamento: null, ultimo_provento_pago: null };
+    if (Array.isArray(a.agenda_anunciada) && a.mapa_sazonal_5a) {
+      return a;
+    }
+    const hist = Array.isArray(a.proventos_historico) ? a.proventos_historico : [];
+    const anoAtual = Number(hojeIso.slice(0, 4)) || 2026;
+    const anoMinSazonal = anoAtual - 5;
+    const anosPorMes = {};
+    for (let m = 1; m <= 12; m += 1) anosPorMes[String(m)] = new Set();
+
+    const agenda = [];
+    const pagos = [];
+
+    hist.forEach(ev => {
+      if (!ev || !ev.data_com || !(Number(ev.valor) > 0)) return;
+      const dc = String(ev.data_com).slice(0, 10);
+      const dp = ev.data_pagamento ? String(ev.data_pagamento).slice(0, 10) : null;
+      const anoEv = Number(dc.slice(0, 4));
+      const mesEv = Number(dc.slice(5, 7));
+      if (anoEv >= anoMinSazonal && anoEv < anoAtual && mesEv >= 1 && mesEv <= 12) {
+        anosPorMes[String(mesEv)].add(anoEv);
+      }
+
+      if (dc >= hojeIso) {
+        agenda.push({
+          data_com: dc,
+          data_pagamento: dp,
+          valor: Number(ev.valor),
+          tipo: String(ev.tipo || 'dividendo').toLowerCase(),
+          status: 'anunciado'
+        });
+      } else if (dp && dp >= hojeIso) {
+        agenda.push({
+          data_com: dc,
+          data_pagamento: dp,
+          valor: Number(ev.valor),
+          tipo: String(ev.tipo || 'dividendo').toLowerCase(),
+          status: 'a_pagar'
+        });
+      } else {
+        pagos.push({
+          data_com: dc,
+          data_pagamento: dp,
+          valor: Number(ev.valor),
+          tipo: String(ev.tipo || 'dividendo').toLowerCase(),
+          status: 'pago'
+        });
+      }
+    });
+
+    const mapa_sazonal_5a = {};
+    const meses_habituais_dividendo = [];
+    for (let m = 1; m <= 12; m += 1) {
+      const cnt = Math.min(5, anosPorMes[String(m)].size);
+      mapa_sazonal_5a[String(m)] = cnt;
+      if (cnt >= 2) meses_habituais_dividendo.push(m);
+    }
+
+    agenda.sort((x, y) => x.data_com.localeCompare(y.data_com));
+    pagos.sort((x, y) => (y.data_pagamento || y.data_com).localeCompare(x.data_pagamento || x.data_com));
+
+    const abertas = agenda.filter(e => e.status === 'anunciado' && e.data_com >= hojeIso);
+    const aPagar = agenda.filter(e => e.data_pagamento && e.data_pagamento >= hojeIso)
+      .sort((x, y) => x.data_pagamento.localeCompare(y.data_pagamento));
+
+    return {
+      ...a,
+      agenda_anunciada: agenda,
+      mapa_sazonal_5a,
+      meses_habituais_dividendo,
+      proxima_data_com: abertas[0] || null,
+      proximo_pagamento: aPagar[0] || null,
+      ultimo_provento_pago: pagos[0] || null
+    };
   }
 
   function lerPrefs() {
@@ -199,12 +312,22 @@
   };
 
   function obterUniverso() {
-    return (typeof painelState !== 'undefined' && Array.isArray(painelState.universo))
-      ? painelState.universo
-      : [];
+    if (typeof painelState !== 'undefined' && Array.isArray(painelState.universo) && painelState.universo.length) {
+      return painelState.universo;
+    }
+    if (window.VALUATION_DATA && Array.isArray(window.VALUATION_DATA.ativos)) {
+      return window.VALUATION_DATA.ativos;
+    }
+    return [];
   }
 
   function obterSelecionadosSet() {
+    if (typeof window.obterTickersPainelAtivo === 'function') {
+      const lista = window.obterTickersPainelAtivo();
+      if (Array.isArray(lista) && lista.length) {
+        return new Set(lista.map(t => String(t).toUpperCase()));
+      }
+    }
     const arr = (typeof painelState !== 'undefined' && Array.isArray(painelState.selecionados))
       ? painelState.selecionados
       : [];
@@ -223,16 +346,19 @@
           usouFallbackTodos: false
         };
       }
-      return { lista: univ, usouFallbackTodos: true };
+      return {
+        lista: univ.filter(a => a.painel_padrao !== false),
+        usouFallbackTodos: false
+      };
     }
     if (escopo === 'besst') {
-      return { lista: univ.filter(a => obterCat(a) === 'besst'), usouFallbackTodos: false };
+      return { lista: univ.filter(a => Boolean(a.besst) || obterCat(a) === 'besst'), usouFallbackTodos: false };
     }
     if (escopo === 'dividendos') {
       return { lista: univ.filter(a => obterCat(a) !== 'demais'), usouFallbackTodos: false };
     }
     if (escopo === 'demais') {
-      return { lista: univ.filter(a => obterCat(a) === 'demais'), usouFallbackTodos: false };
+      return { lista: univ.filter(a => obterCat(a) === 'demais' || a.painel_padrao === false), usouFallbackTodos: false };
     }
     return { lista: univ, usouFallbackTodos: false };
   }
@@ -243,8 +369,10 @@
 
   function extrairMetricasMatriz(a) {
     const f = a.fundamentos || {};
-    const valX = state.matrizX === 'graham' ? a.margem_graham : a.bazin?.margem_seguranca;
-    const tetoRef = state.matrizX === 'graham' ? a.graham : a.bazin?.teto;
+    const mBazin = a.bazin ? (numOk(a.bazin.margem) ? a.bazin.margem : a.bazin.margem_seguranca) : null;
+    const tBazin = a.bazin ? (numOk(a.bazin.preco_teto) ? a.bazin.preco_teto : a.bazin.teto) : null;
+    const valX = state.matrizX === 'graham' ? a.margem_graham : mBazin;
+    const tetoRef = state.matrizX === 'graham' ? a.graham : tBazin;
     let valY = null;
     if (state.matrizY === 'roic') {
       valY = ehBancoSetor(a.setor) ? null : f.roic;
@@ -265,52 +393,66 @@
     return 'evitar';
   }
 
+  function vereditoFactualMargem(margem) {
+    if (!numOk(margem)) return '● Sem teto';
+    if (margem >= 0.15) return '▲ Abaixo do teto';
+    if (margem >= 0) return '● Próximo do teto';
+    return '▼ Acima do teto';
+  }
+
   function sincronizarControlesMatriz() {
     document.querySelectorAll('#matriz-scope-group [data-mscope]').forEach(b => {
-      b.classList.toggle('is-active', b.dataset.mscope === state.matrizEscopo);
+      const on = b.dataset.mscope === state.matrizEscopo;
+      b.classList.toggle('is-active', on);
+      b.classList.toggle('active', on);
     });
     document.querySelectorAll('#matriz-xaxis-group [data-mx]').forEach(b => {
-      b.classList.toggle('is-active', b.dataset.mx === state.matrizX);
+      const on = b.dataset.mx === state.matrizX;
+      b.classList.toggle('is-active', on);
+      b.classList.toggle('active', on);
     });
     document.querySelectorAll('#matriz-yaxis-group [data-my]').forEach(b => {
-      b.classList.toggle('is-active', b.dataset.my === state.matrizY);
+      const on = b.dataset.my === state.matrizY;
+      b.classList.toggle('is-active', on);
+      b.classList.toggle('active', on);
     });
     const trapBtn = qs('#matriz-notrap-btn');
     if (trapBtn) {
       trapBtn.classList.toggle('is-on', state.matrizSemCilada);
+      trapBtn.classList.toggle('active', state.matrizSemCilada);
+      trapBtn.setAttribute('aria-pressed', state.matrizSemCilada ? 'true' : 'false');
     }
   }
 
   function renderizarHudMatriz(ponto, totalPlotados, excluidos) {
     const hud = qs('#matriz-hud');
     if (!hud) return;
-    const nomeX = state.matrizX === 'graham' ? 'Margem Graham' : 'Margem Bazin';
+    const nomeX = state.matrizX === 'graham' ? 'Margem vs. Graham' : 'Margem Bazin';
     const nomeY = state.matrizY === 'roic' ? 'ROIC' : 'ROE';
 
     if (!ponto) {
+      hud.classList.remove('vhud-floating');
       const refY = limiarQualidadeY();
       hud.innerHTML = `
         <span class="vhud-date">${totalPlotados} papéis plotados</span>
-        <span class="vhud-metric">Eixo X: <strong>${nomeX}</strong> (Teto = 0%)</span>
-        <span class="vhud-metric">Eixo Y: <strong>${nomeY}</strong> (Ref. = ${fPctSimples(refY, 0)})</span>
-        ${excluidos > 0 ? `<span class="t-dim" style="font-size:11.5px">· ${excluidos} fora (sem ${state.matrizX === 'graham' ? 'teto Graham' : 'DPA/teto Bazin'} ou ${nomeY})</span>` : ''}
-        <span class="t-dim" style="margin-left:auto;font-size:11.5px">Passe o cursor ou clique em um ponto para abrir o Raio-X</span>
+        <span class="vhud-metric">Eixo X: <strong>${nomeX}</strong> (Corte = 0%)</span>
+        <span class="vhud-metric">Eixo Y: <strong>${nomeY}</strong> (Corte = ${fPctSimples(refY, 0)})</span>
+        ${excluidos > 0 ? `<span class="t-dim">· ${excluidos} fora (sem ${state.matrizX === 'graham' ? 'teto Graham' : 'DPA/teto Bazin'} ou ${nomeY})</span>` : ''}
+        <span class="t-dim">Passe o cursor, navegue com Tab ou clique em um ponto para abrir o Raio-X</span>
       `;
       return;
     }
 
     const a = ponto.ativo;
-    const qMeta = QUADRANTES_META[ponto.quadrante];
-    const nota = a.sustentabilidade?.nota;
-    const rotSust = a.sustentabilidade?.rotulo || '—';
+    const sust = ponto.sust || obterSustentabilidadeAtivo(a);
+    const verTxt = vereditoFactualMargem(ponto.valX);
 
     hud.innerHTML = `
-      <span class="vhud-date mono" style="border-color:${qMeta.cor};color:${qMeta.cor}">${escH(a.ticker)}</span>
+      <span class="vhud-date mono">${escH(a.ticker)}</span>
       <span class="vhud-metric"><strong>${escH(a.empresa || a.setor)}</strong></span>
-      <span class="vhud-metric">${nomeX}: <strong class="${ponto.valX >= 0 ? 't-green' : 't-red'} mono">${fPct(ponto.valX)}</strong></span>
+      <span class="vhud-metric">${nomeX}: <strong class="${ponto.valX >= 0 ? 't-green' : 't-red'} mono">${fPct(ponto.valX)}</strong> (${escH(verTxt)})</span>
       <span class="vhud-metric">${nomeY}: <strong class="mono">${fPctSimples(ponto.valY)}</strong></span>
-      <span class="vhud-metric">Preço: <strong class="mono">${fReal(a.preco)}</strong> <span class="t-dim">(Teto ${fReal(ponto.tetoRef)})</span></span>
-      <span class="vhud-metric">Anti-Cilada: <strong class="mono">${numOk(nota) && a.sustentabilidade?.nivel !== 'sem_dividendo' ? `${nota}/100 (${escH(rotSust)})` : escH(rotSust)}</strong></span>
+      <span class="vhud-metric">Anti-Cilada: <strong class="mono">${sust.nota}/100 (${escH(sust.rotulo)})</strong></span>
     `;
   }
 
@@ -330,7 +472,8 @@
     const pontos = [];
 
     baseEscopo.forEach(a => {
-      if (state.matrizSemCilada && a.sustentabilidade?.nivel === 'alerta') {
+      const sust = obterSustentabilidadeAtivo(a);
+      if (state.matrizSemCilada && (sust.nivel === 'alerta' || sust.nota < 50)) {
         return;
       }
       const { valX, valY, tetoRef } = extrairMetricasMatriz(a);
@@ -339,13 +482,15 @@
         return;
       }
       const quadrante = classificarQuadrante(valX, valY, refY);
-      const matchBusca = !qBusca
-        || a.ticker.toLowerCase().includes(qBusca)
+      const matchBusca = Boolean(qBusca) && (
+        a.ticker.toLowerCase().includes(qBusca)
         || (a.empresa || '').toLowerCase().includes(qBusca)
-        || (a.setor || '').toLowerCase().includes(qBusca);
+        || (a.setor || '').toLowerCase().includes(qBusca)
+      );
 
       pontos.push({
         ativo: a,
+        sust,
         ticker: a.ticker,
         valX,
         valY,
@@ -355,7 +500,6 @@
       });
     });
 
-    // Contagem por quadrante
     const contQuad = { ouro: [], premio: [], atencao: [], evitar: [] };
     pontos.forEach(p => {
       if (contQuad[p.quadrante]) contQuad[p.quadrante].push(p);
@@ -364,21 +508,22 @@
       arr.sort((a, b) => (b.valX + b.valY) - (a.valX + a.valY));
     });
 
-    // Renderizar os 4 cartões de quadrante clicáveis
+    // Renderizar os 4 cartões de quadrante clicáveis (contagem e top 3 tickers)
     gridQuad.innerHTML = ['ouro', 'premio', 'atencao', 'evitar'].map(qKey => {
       const meta = QUADRANTES_META[qKey];
       const itens = contQuad[qKey];
       const ativo = state.matrizQuadrante === qKey;
-      const topExemplos = itens.slice(0, 4).map(i => i.ticker).join(', ');
+      const topExemplos = itens.slice(0, 3).map(i => i.ticker).join(', ');
       return `
-        <button type="button" class="mquad-card ${meta.classe} ${ativo ? 'is-active' : ''}" data-mquad="${qKey}" style="--q-color:${meta.cor}"
-          data-tip="Clique para filtrar a tabela abaixo apenas pelos ativos deste quadrante">
+        <button type="button" class="mquad-card ${meta.classe} ${ativo ? 'is-active active' : ''}" data-mquad="${qKey}"
+          aria-pressed="${ativo ? 'true' : 'false'}"
+          data-tip="Clique para filtrar a tabela e o gráfico apenas pelos ativos deste quadrante">
           <div class="mquad-top">
             <span class="mquad-title">${escH(meta.titulo)}</span>
             <span class="mquad-count mono">${itens.length}</span>
           </div>
           <div class="mquad-sub">${escH(meta.sub)}</div>
-          <div class="mquad-tickers mono">${itens.length ? escH(topExemplos + (itens.length > 4 ? '…' : '')) : 'Nenhum ativo'}</div>
+          <div class="mquad-tickers mono">${itens.length ? escH('Top 3: ' + topExemplos) : 'Nenhum ativo'}</div>
         </button>
       `;
     }).join('');
@@ -386,31 +531,29 @@
     if (!pontos.length) {
       state.matrizPontosRender = [];
       renderizarHudMatriz(null, 0, excluidosSemDados);
-      const nomeX = state.matrizX === 'graham' ? 'Margem Graham' : 'Margem Bazin';
+      const nomeX = state.matrizX === 'graham' ? 'Margem vs. Graham' : 'Margem Bazin';
       const nomeY = state.matrizY === 'roic' ? 'ROIC' : 'ROE';
       wrapSvg.innerHTML = `
         <div class="vchart-empty">
           Nenhum ativo no escopo atual possui simultaneamente <strong>${nomeX}</strong> e <strong>${nomeY}</strong> válidos.
-          ${state.matrizX === 'bazin' ? '<br>Dica: para analisar ações sem dividendos ("Demais papéis"), alterne o Eixo X para <strong>Margem Graham</strong>.' : ''}
+          ${state.matrizX === 'bazin' ? '<br>Dica: para analisar ações sem dividendos ("Demais papéis"), alterne o Eixo X para <strong>Margem vs. Graham</strong>.' : ''}
         </div>`;
       wrapTable.innerHTML = '';
       return;
     }
 
-    // Medir largura real do container para SVG nítido 1:1
     const rectW = wrapSvg.getBoundingClientRect().width;
-    const width = Math.max(340, Math.round((rectW > 80 ? rectW : 960) - 20));
+    const width = Math.max(360, Math.round((rectW > 80 ? rectW : 960) - 16));
     const ehCompacto = width < 580;
-    const height = ehCompacto ? 340 : 450;
+    const height = ehCompacto ? 340 : 460;
 
-    const padL = ehCompacto ? 50 : 62;
-    const padR = ehCompacto ? 20 : 28;
-    const padT = 26;
-    const padB = 42;
+    const padL = ehCompacto ? 52 : 66;
+    const padR = ehCompacto ? 22 : 30;
+    const padT = 28;
+    const padB = 44;
     const plotW = width - padL - padR;
     const plotH = height - padT - padB;
 
-    // Domínio inteligente com clamp suave de outliers extremos
     const xs = pontos.map(p => p.valX);
     const ys = pontos.map(p => p.valY);
     const minXRaw = Math.min(...xs, -0.35);
@@ -430,7 +573,6 @@
     const xZero = mapX(0);
     const yRef = mapY(refY);
 
-    // Grade X e Y
     const ticksX = [];
     const stepX = (domMaxX - domMinX) > 1.0 ? 0.20 : 0.15;
     for (let v = Math.ceil(domMinX / stepX) * stepX; v <= domMaxX + 1e-6; v += stepX) {
@@ -445,135 +587,168 @@
       ticksY.push(Number(v.toFixed(2)));
     }
 
-    // Coordenadas de tela de cada ponto
     const renderPts = pontos.map(p => {
       const cx = mapX(p.valX);
       const cy = mapY(p.valY);
       const clamped = p.valX < domMinX || p.valX > domMaxX || p.valY < domMinY || p.valY > domMaxY;
-      const nota = p.ativo.sustentabilidade?.nota ?? 50;
-      const ehCilada = p.ativo.sustentabilidade?.nivel === 'alerta';
-      const r = p.matchBusca && qBusca ? 7.8 : (5.4 + (Math.max(0, nota) / 100) * 2.2);
+      const nota = p.sust?.nota ?? 50;
+      const ehCilada = p.sust?.nivel === 'alerta' || nota < 50;
+      const r = p.matchBusca ? 8.0 : (5.2 + (Math.max(0, nota) / 100) * 2.4);
       return { ...p, cx, cy, r, clamped, ehCilada };
     });
 
     state.matrizPontosRender = renderPts;
 
-    // Seleção gananciosa sem colisão para rótulos diretos nos melhores pontos
+    // Rótulo de ticker visível APENAS nos pontos em destaque (foco/hover ou busca ativa), nunca sobreposto
     const caixasRotulos = [];
-    const candidatosRotulo = [...renderPts]
-      .filter(p => !qBusca || p.matchBusca)
-      .sort((a, b) => {
-        if (qBusca && a.matchBusca !== b.matchBusca) return a.matchBusca ? -1 : 1;
-        const prioQ = { ouro: 0, atencao: 1, premio: 2, evitar: 3 };
-        if (prioQ[a.quadrante] !== prioQ[b.quadrante]) return prioQ[a.quadrante] - prioQ[b.quadrante];
-        return (b.valX + b.valY) - (a.valX + a.valY);
-      });
-
-    const maxLabels = ehCompacto ? 14 : 30;
+    const candidatosRotulo = renderPts.filter(p => p.matchBusca || p.ticker === state.matrizHoverTicker);
     const rotulosEscolhidos = [];
     for (const p of candidatosRotulo) {
-      if (rotulosEscolhidos.length >= maxLabels) break;
-      const wTxt = p.ticker.length * 7.2 + 6;
-      const hTxt = 14;
-      const lx = p.cx + p.r + 5 + wTxt > width - padR ? p.cx - p.r - 5 - wTxt : p.cx + p.r + 5;
-      const ly = clamp(p.cy + 4, padT + 12, padT + plotH - 4);
+      const wTxt = p.ticker.length * 7.5 + 8;
+      const hTxt = 15;
+      const lx = p.cx + p.r + 6 + wTxt > width - padR ? p.cx - p.r - 6 - wTxt : p.cx + p.r + 6;
+      const ly = clamp(p.cy + 4, padT + 14, padT + plotH - 4);
       const box = { x1: lx - 2, y1: ly - hTxt + 2, x2: lx + wTxt + 2, y2: ly + 3 };
-
-      const colideCaixa = caixasRotulos.some(b => !(box.x2 < b.x1 || box.x1 > b.x2 || box.y2 < b.y1 || box.y1 > b.y2));
-      const colidePonto = renderPts.some(o => o.ticker !== p.ticker && o.cx >= box.x1 - 2 && o.cx <= box.x2 + 2 && o.cy >= box.y1 - 2 && o.cy <= box.y2 + 2);
-      if (!colideCaixa && !colidePonto) {
+      const colide = caixasRotulos.some(b => !(box.x2 < b.x1 || box.x1 > b.x2 || box.y2 < b.y1 || box.y1 > b.y2));
+      if (!colide) {
         caixasRotulos.push(box);
         rotulosEscolhidos.push({ p, lx, ly });
       }
     }
 
-    const nomeXCurto = state.matrizX === 'graham' ? 'Margem Graham' : 'Margem Bazin (K=6%)';
+    const nomeXCurto = state.matrizX === 'graham' ? 'Margem vs. Graham' : 'Margem Bazin (K=6%)';
     const nomeYCurto = state.matrizY === 'roic' ? 'ROIC' : 'ROE';
 
-    // Área sombreada do Quadrante Ouro (topo direito: x >= xZero e y <= yRef)
-    const ouroX = clamp(xZero, padL, padL + plotW);
-    const ouroY = clamp(yRef, padT, padT + plotH);
-    const ouroW = Math.max(0, padL + plotW - ouroX);
-    const ouroH = Math.max(0, ouroY - padT);
+    const corteX = clamp(xZero, padL, padL + plotW);
+    const corteY = clamp(yRef, padT, padT + plotH);
+
+    const qOuroW = Math.max(0, padL + plotW - corteX);
+    const qOuroH = Math.max(0, corteY - padT);
+    const qPremioW = Math.max(0, corteX - padL);
+    const qPremioH = Math.max(0, corteY - padT);
+    const qAtencaoW = Math.max(0, padL + plotW - corteX);
+    const qAtencaoH = Math.max(0, padT + plotH - corteY);
+    const qEvitarW = Math.max(0, corteX - padL);
+    const qEvitarH = Math.max(0, padT + plotH - corteY);
 
     const gridLinesSvg = [
       ...ticksX.map(tx => {
         const px = mapX(tx);
         return `
-          <line x1="${px.toFixed(1)}" y1="${padT}" x2="${px.toFixed(1)}" y2="${padT + plotH}" stroke="#1b2430" stroke-width="1"/>
-          <text x="${px.toFixed(1)}" y="${padT + plotH + 18}" text-anchor="middle" class="vsvg-axis-text" stroke="none">${fPct(tx, 0)}</text>
+          <line x1="${px.toFixed(1)}" y1="${padT}" x2="${px.toFixed(1)}" y2="${padT + plotH}" class="vchart-grid-line"/>
+          <text x="${px.toFixed(1)}" y="${padT + plotH + 18}" text-anchor="middle" class="vsvg-axis-text">${fPct(tx, 0)}</text>
         `;
       }),
       ...ticksY.map(ty => {
         const py = mapY(ty);
         return `
-          <line x1="${padL}" y1="${py.toFixed(1)}" x2="${padL + plotW}" y2="${py.toFixed(1)}" stroke="#1b2430" stroke-width="1"/>
-          <text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text" stroke="none">${fPctSimples(ty, 0)}</text>
+          <line x1="${padL}" y1="${py.toFixed(1)}" x2="${padL + plotW}" y2="${py.toFixed(1)}" class="vchart-grid-line"/>
+          <text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text">${fPctSimples(ty, 0)}</text>
         `;
       })
     ].join('');
 
     const watermarksSvg = ehCompacto ? '' : `
-      <text x="${padL + plotW - 10}" y="${padT + 18}" text-anchor="end" class="vsvg-ceil-label" fill="#2fbf86" opacity="0.72" stroke="none">QUADRANTE OURO (DESCONTO + QUALIDADE)</text>
-      <text x="${padL + 10}" y="${padT + 18}" text-anchor="start" class="vsvg-ceil-label" fill="#5b8def" opacity="0.6" stroke="none">QUALIDADE CARA</text>
-      <text x="${padL + plotW - 10}" y="${padT + plotH - 10}" text-anchor="end" class="vsvg-ceil-label" fill="#e0b341" opacity="0.58" stroke="none">DESCONTO · CHECAR ANTI-CILADA</text>
-      <text x="${padL + 10}" y="${padT + plotH - 10}" text-anchor="start" class="vsvg-ceil-label" fill="#e5636b" opacity="0.52" stroke="none">CARAS &amp; BAIXO RETORNO</text>
+      <text x="${padL + plotW - 10}" y="${padT + 18}" text-anchor="end" class="vsvg-ceil-label" fill="#10b981" opacity="0.82">QUADRANTE OURO (DESCONTO + QUALIDADE)</text>
+      <text x="${padL + 10}" y="${padT + 18}" text-anchor="start" class="vsvg-ceil-label" fill="#3b82f6" opacity="0.72">QUALIDADE CARA</text>
+      <text x="${padL + plotW - 10}" y="${padT + plotH - 10}" text-anchor="end" class="vsvg-ceil-label" fill="#f59e0b" opacity="0.72">DESCONTO C/ ATENÇÃO</text>
+      <text x="${padL + 10}" y="${padT + plotH - 10}" text-anchor="start" class="vsvg-ceil-label" fill="#ef4444" opacity="0.65">CARAS &amp; BAIXO RETORNO</text>
     `;
 
     const dotsSvg = renderPts.map(p => {
       if (state.matrizQuadrante !== 'todos' && p.quadrante !== state.matrizQuadrante) {
-        return `<circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="3.5" fill="#3a4659" opacity="0.22"/>`;
+        return `<circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="3.5" fill="#475569" opacity="0.22"/>`;
       }
       const cor = QUADRANTES_META[p.quadrante].cor;
-      const op = qBusca ? (p.matchBusca ? 0.96 : 0.16) : 0.86;
-      const strokeCor = p.ehCilada ? '#e5636b' : '#0b1017';
-      const strokeW = p.ehCilada ? 2.0 : 1.3;
-      const halo = (qBusca && p.matchBusca)
-        ? `<circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${(p.r + 4.5).toFixed(1)}" fill="none" stroke="${cor}" stroke-width="1.6" opacity="0.65"/>`
+      const op = qBusca ? (p.matchBusca ? 0.96 : 0.18) : 0.88;
+      const strokeCor = p.ehCilada ? '#ef4444' : '#0b0f17';
+      const strokeW = p.ehCilada ? 2.2 : 1.4;
+      const dashAttr = p.ehCilada ? 'stroke-dasharray="3 2"' : (p.clamped ? 'stroke-dasharray="2 1.5"' : '');
+      const anelCilada = p.ehCilada
+        ? `<circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${(p.r + 3.2).toFixed(1)}" fill="none" stroke="#ef4444" stroke-width="1" stroke-dasharray="2 2" opacity="0.75" pointer-events="none"/>`
         : '';
+      const halo = p.matchBusca
+        ? `<circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${(p.r + 4.8).toFixed(1)}" fill="none" stroke="${cor}" stroke-width="1.8" opacity="0.75" pointer-events="none"/>`
+        : '';
+      const ariaLbl = `${p.ticker}: ${nomeXCurto} ${fPct(p.valX)}, ${nomeYCurto} ${fPctSimples(p.valY)}, Anti-Cilada ${p.sust.nota}/100`;
       return `
+        ${anelCilada}
         ${halo}
-        <circle class="m-dot" data-mticker="${escH(p.ticker)}" cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${p.r.toFixed(1)}"
-          fill="${cor}" fill-opacity="${op}" stroke="${strokeCor}" stroke-width="${strokeW}" ${p.clamped ? 'stroke-dasharray="2 1.5"' : ''}/>
+        <circle class="m-dot" tabindex="0" role="button" aria-label="${escH(ariaLbl)}"
+          data-mticker="${escH(p.ticker)}" cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${p.r.toFixed(1)}"
+          fill="${cor}" fill-opacity="${op}" stroke="${strokeCor}" stroke-width="${strokeW}" ${dashAttr}/>
       `;
     }).join('');
 
     const labelsSvg = rotulosEscolhidos.map(({ p, lx, ly }) => {
       if (state.matrizQuadrante !== 'todos' && p.quadrante !== state.matrizQuadrante) return '';
-      const op = qBusca && !p.matchBusca ? 0.2 : 0.94;
-      return `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" class="vsvg-ceil-label" fill="#e2e8f0" opacity="${op}" stroke="none">${escH(p.ticker)}</text>`;
+      return `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" class="vsvg-ceil-label" fill="#f8fafc">${escH(p.ticker)}</text>`;
     }).join('');
 
     wrapSvg.innerHTML = `
       <svg class="vsvg" id="matriz-scatter-svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Matriz Desconto versus Qualidade">
         <rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="#0c1118" rx="4"/>
-        ${ouroW > 0 && ouroH > 0 ? `<rect x="${ouroX.toFixed(1)}" y="${padT}" width="${ouroW.toFixed(1)}" height="${ouroH.toFixed(1)}" fill="#2fbf86" opacity="0.055"/>` : ''}
+        ${qOuroW > 0 && qOuroH > 0 ? `<rect x="${corteX.toFixed(1)}" y="${padT}" width="${qOuroW.toFixed(1)}" height="${qOuroH.toFixed(1)}" fill="#10b981" opacity="0.05"/>` : ''}
+        ${qPremioW > 0 && qPremioH > 0 ? `<rect x="${padL}" y="${padT}" width="${qPremioW.toFixed(1)}" height="${qPremioH.toFixed(1)}" fill="#3b82f6" opacity="0.03"/>` : ''}
+        ${qAtencaoW > 0 && qAtencaoH > 0 ? `<rect x="${corteX.toFixed(1)}" y="${corteY.toFixed(1)}" width="${qAtencaoW.toFixed(1)}" height="${qAtencaoH.toFixed(1)}" fill="#f59e0b" opacity="0.035"/>` : ''}
+        ${qEvitarW > 0 && qEvitarH > 0 ? `<rect x="${padL}" y="${corteY.toFixed(1)}" width="${qEvitarW.toFixed(1)}" height="${qEvitarH.toFixed(1)}" fill="#ef4444" opacity="0.035"/>` : ''}
         ${gridLinesSvg}
         ${xZero >= padL && xZero <= padL + plotW ? `
-          <line x1="${xZero.toFixed(1)}" y1="${padT}" x2="${xZero.toFixed(1)}" y2="${padT + plotH}" stroke="#2fbf86" stroke-width="1.6" stroke-dasharray="6 4" opacity="0.75"/>
+          <line x1="${xZero.toFixed(1)}" y1="${padT}" x2="${xZero.toFixed(1)}" y2="${padT + plotH}" stroke="#10b981" stroke-width="1.6" stroke-dasharray="6 4" opacity="0.8"/>
+          <text x="${(xZero + 6).toFixed(1)}" y="${(padT + plotH - 8).toFixed(1)}" class="vsvg-ceil-label" fill="#10b981">Margem = 0% (Teto)</text>
         ` : ''}
         ${yRef >= padT && yRef <= padT + plotH ? `
-          <line x1="${padL}" y1="${yRef.toFixed(1)}" x2="${padL + plotW}" y2="${yRef.toFixed(1)}" stroke="#5b8def" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.75"/>
+          <line x1="${padL}" y1="${yRef.toFixed(1)}" x2="${padL + plotW}" y2="${yRef.toFixed(1)}" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.8"/>
+          <text x="${(padL + 8).toFixed(1)}" y="${(yRef - 6).toFixed(1)}" class="vsvg-ceil-label" fill="#60a5fa">${nomeYCurto} = ${fPctSimples(refY, 0)}</text>
         ` : ''}
         ${watermarksSvg}
+        <rect class="v-hit-area" id="matriz-hit-rect" x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="transparent"/>
         <g id="matriz-dots-layer">${dotsSvg}</g>
         <g id="matriz-labels-layer" pointer-events="none">${labelsSvg}</g>
         <g id="matriz-hover-ring" pointer-events="none"></g>
-        <text x="${(padL + plotW / 2).toFixed(1)}" y="${height - 6}" text-anchor="middle" class="vsvg-axis-text" fill="#64748b" stroke="none">${nomeXCurto} → (direita = mais descontada abaixo do teto)</text>
-        <rect class="v-hit-area" id="matriz-hit-rect" x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="transparent"/>
+        <text x="${(padL + plotW / 2).toFixed(1)}" y="${height - 8}" text-anchor="middle" class="vsvg-axis-text">${nomeXCurto} → (direita = mais descontada abaixo do teto)</text>
       </svg>
     `;
 
     renderizarHudMatriz(null, renderPts.length, excluidosSemDados);
-    conectarInteracaoSvgMatriz();
+    conectarInteracaoSvgMatriz(width, padR);
     renderizarTabelaMatriz(renderPts, usouFallbackTodos);
   }
 
-  function conectarInteracaoSvgMatriz() {
+  function conectarInteracaoSvgMatriz(vbWidth, padR) {
     const svg = qs('#matriz-scatter-svg');
     const hit = qs('#matriz-hit-rect');
     const ringLayer = qs('#matriz-hover-ring');
+    const hud = qs('#matriz-hud');
     if (!svg || !hit || !ringLayer) return;
+
+    const destacarPonto = (p) => {
+      if (!p) {
+        state.matrizHoverTicker = null;
+        ringLayer.innerHTML = '';
+        renderizarHudMatriz(null, state.matrizPontosRender.length, 0);
+        return;
+      }
+      state.matrizHoverTicker = p.ticker;
+      const cor = QUADRANTES_META[p.quadrante].cor;
+      const wTxt = p.ticker.length * 7.6 + 12;
+      const lx = p.cx + p.r + 7 + wTxt > vbWidth - padR ? p.cx - p.r - 7 - wTxt : p.cx + p.r + 7;
+      const ly = Math.max(24, p.cy + 4);
+      ringLayer.innerHTML = `
+        <circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${(p.r + 5).toFixed(1)}" fill="none" stroke="#ffffff" stroke-width="2"/>
+        <circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${(p.r + 8).toFixed(1)}" fill="none" stroke="${cor}" stroke-width="1.5" opacity="0.75"/>
+        <rect x="${(lx - 4).toFixed(1)}" y="${(ly - 13).toFixed(1)}" width="${wTxt.toFixed(1)}" height="18" rx="4" fill="#0b0f17" stroke="${cor}" stroke-width="1"/>
+        <text x="${(lx + 2).toFixed(1)}" y="${ly.toFixed(1)}" class="vsvg-ceil-label" fill="#f8fafc">${escH(p.ticker)}</text>
+      `;
+      if (hud && window.innerWidth > 900) {
+        hud.classList.add('vhud-floating');
+        const leftPct = Math.max(3, Math.min(48, (p.cx / (vbWidth || 960)) * 100));
+        if (typeof window.definirRegraCssDinamica === 'function') {
+          window.definirRegraCssDinamica('#matriz-hud.vhud-floating', `left:${leftPct.toFixed(1)}%;top:10px;`);
+        }
+      }
+      renderizarHudMatriz(p, state.matrizPontosRender.length, 0);
+    };
 
     const localizarPonto = (evt) => {
       const rect = svg.getBoundingClientRect();
@@ -595,36 +770,46 @@
       return melhor;
     };
 
-    hit.addEventListener('pointermove', (evt) => {
-      const p = localizarPonto(evt);
-      if (!p) {
-        state.matrizHoverTicker = null;
-        ringLayer.innerHTML = '';
-        hit.style.cursor = 'crosshair';
-        renderizarHudMatriz(null, state.matrizPontosRender.length, 0);
-        return;
-      }
-      state.matrizHoverTicker = p.ticker;
-      hit.style.cursor = 'pointer';
-      const cor = QUADRANTES_META[p.quadrante].cor;
-      ringLayer.innerHTML = `
-        <circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${(p.r + 5).toFixed(1)}" fill="none" stroke="#ffffff" stroke-width="2"/>
-        <circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${(p.r + 8).toFixed(1)}" fill="none" stroke="${cor}" stroke-width="1.5" opacity="0.7"/>
-      `;
-      renderizarHudMatriz(p, state.matrizPontosRender.length, 0);
+    let rafM = false;
+    svg.addEventListener('pointermove', (evt) => {
+      if (rafM) return;
+      rafM = true;
+      window.requestAnimationFrame(() => {
+        rafM = false;
+        const p = localizarPonto(evt);
+        destacarPonto(p);
+      });
     });
 
-    hit.addEventListener('pointerleave', () => {
-      state.matrizHoverTicker = null;
-      ringLayer.innerHTML = '';
-      renderizarHudMatriz(null, state.matrizPontosRender.length, 0);
+    svg.addEventListener('pointerleave', () => {
+      destacarPonto(null);
     });
 
-    hit.addEventListener('click', (evt) => {
+    svg.addEventListener('click', (evt) => {
       const p = localizarPonto(evt);
-      if (p && typeof window.abrirDetalhe === 'function') {
-        window.abrirDetalhe(p.ticker);
+      if (p) {
+        const fn = window.abrirDetalheAtivo || window.abrirDetalhe;
+        if (typeof fn === 'function') fn(p.ticker);
       }
+    });
+
+    svg.querySelectorAll('.m-dot[tabindex="0"]').forEach(dot => {
+      dot.addEventListener('focus', () => {
+        const tk = dot.getAttribute('data-mticker');
+        const p = state.matrizPontosRender.find(x => x.ticker === tk);
+        if (p) destacarPonto(p);
+      });
+      dot.addEventListener('blur', () => {
+        destacarPonto(null);
+      });
+      dot.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          const tk = dot.getAttribute('data-mticker');
+          const fn = window.abrirDetalheAtivo || window.abrirDetalhe;
+          if (tk && typeof fn === 'function') fn(tk);
+        }
+      });
     });
   }
 
@@ -642,7 +827,7 @@
         return (b.valX + b.valY * 0.8) - (a.valX + a.valY * 0.8);
       });
 
-    const nomeX = state.matrizX === 'graham' ? 'Margem Graham' : 'Margem Bazin';
+    const nomeX = state.matrizX === 'graham' ? 'Margem vs. Graham' : 'Margem Bazin';
     const nomeTeto = state.matrizX === 'graham' ? 'Graham' : 'Teto Bazin';
     const nomeY = state.matrizY === 'roic' ? 'ROIC' : 'ROE';
     const tituloFiltro = state.matrizQuadrante === 'todos'
@@ -650,7 +835,7 @@
       : QUADRANTES_META[state.matrizQuadrante]?.titulo;
 
     wrap.innerHTML = `
-      <div class="vsub-table-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="vsub-table-head">
         <span>Ranking da Matriz · ${escH(tituloFiltro)} (${filtrados.length} ${filtrados.length === 1 ? 'ativo' : 'ativos'})${usouFallbackTodos ? ' · Exibindo base completa' : ''}</span>
         ${state.matrizQuadrante !== 'todos' ? `<button type="button" class="btn-link-dim" data-mclear-quad>Mostrar todos os quadrantes</button>` : ''}
       </div>
@@ -680,7 +865,7 @@
                     </div>
                   </td>
                   <td data-label="Quadrante">
-                    <span class="mquad-pill" style="--q-color:${qm.cor}">${escH(qm.titulo)}</span>
+                    <span class="mquad-pill ${qm.classe}">${escH(qm.titulo)}</span>
                   </td>
                   <td class="num ${p.valX >= 0 ? 't-green' : 't-red'}" data-label="${nomeX}">${fPct(p.valX)}</td>
                   <td class="num ${p.valY >= limiarQualidadeY() ? 't-green' : ''}" data-label="${nomeY}">${fPctSimples(p.valY)}</td>
@@ -692,7 +877,7 @@
                     </div>
                   </td>
                   <td class="c-actions">
-                    <div class="row-actions" style="opacity:1">
+                    <div class="row-actions">
                       <button type="button" class="icon-btn" data-mopen-chart="${escH(a.ticker)}" data-tip="Abrir em Gráficos & Simulador">
                         <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/></svg>
                       </button>
@@ -716,10 +901,14 @@
 
   function sincronizarControlesCalendario() {
     document.querySelectorAll('#cal-scope-group [data-cscope]').forEach(b => {
-      b.classList.toggle('is-active', b.dataset.cscope === state.calEscopo);
+      const on = b.dataset.cscope === state.calEscopo;
+      b.classList.toggle('is-active', on);
+      b.classList.toggle('active', on);
     });
     document.querySelectorAll('#cal-paymode-group [data-cpaymode]').forEach(b => {
-      b.classList.toggle('is-active', b.dataset.cpaymode === state.calModoPgto);
+      const on = b.dataset.cpaymode === state.calModoPgto;
+      b.classList.toggle('is-active', on);
+      b.classList.toggle('active', on);
     });
     const selMes = qs('#cal-month-select');
     if (selMes && String(selMes.value) !== String(state.calMes)) {
@@ -738,7 +927,8 @@
 
     const hoje = hojeIsoB3();
     const mesAtualNum = Number(hoje.slice(5, 7)) || (new Date().getMonth() + 1);
-    const { lista: baseEscopo } = filtrarPorEscopo(state.calEscopo);
+    const { lista: baseEscopoBruta } = filtrarPorEscopo(state.calEscopo);
+    const baseEscopo = baseEscopoBruta.map(a => enriquecerAgendaAtivo(a, hoje));
     const q = state.calBusca.trim().toLowerCase();
 
     const listaFiltrada = baseEscopo.filter(a => {
@@ -759,7 +949,6 @@
       return true;
     });
 
-    // Coletar eventos confirmados de data-com em aberto e pagamentos agendados no escopo filtrado
     const eventosDataComAberta = [];
     const eventosPagamentosAgendados = [];
     const eventosUltimosPagos = [];
@@ -783,7 +972,6 @@
     eventosPagamentosAgendados.sort((x, y) => (x.ev.data_pagamento || '').localeCompare(y.ev.data_pagamento || '') || x.ativo.ticker.localeCompare(y.ativo.ticker));
     eventosUltimosPagos.sort((x, y) => (y.ev.data_pagamento || y.ev.data_com || '').localeCompare(x.ev.data_pagamento || x.ev.data_com || ''));
 
-    // Sazonalidade e cobertura de 12 meses da seleção
     const mesesCobertos = [];
     for (let m = 1; m <= 12; m += 1) {
       const qtdMes = baseEscopo.filter(a => Array.isArray(a.meses_habituais_dividendo) && a.meses_habituais_dividendo.includes(m)).length;
@@ -795,35 +983,34 @@
     const proxCom = eventosDataComAberta[0];
     const proxPgto = eventosPagamentosAgendados[0];
 
-    // 1. Renderizar 4 KPIs executivos do Calendário
     kpiEl.innerHTML = `
-      <div class="kpi" style="--kpi-color: var(--green)" data-tip="Eventos oficiais anunciados à B3 cuja data-com ainda está em aberto (hoje ou futura)">
+      <div class="kpi" data-tip="Eventos oficiais anunciados à B3 cuja data-com ainda está em aberto (hoje ou futura)">
         <div class="kpi-label">Datas-Com em aberto</div>
         <div class="kpi-value t-green">${eventosDataComAberta.length}</div>
         <div class="kpi-foot">${proxCom ? `Próxima: ${escH(proxCom.ativo.ticker)} em ${fDataCurtaIso(proxCom.ev.data_com)} (${rotuloContagemDias(diasEntreIso(proxCom.ev.data_com, hoje))})` : 'Nenhum anúncio em aberto no filtro'}</div>
       </div>
-      <div class="kpi" style="--kpi-color: var(--accent)" data-tip="Proventos já aprovados com depósito agendado para os próximos dias/meses">
+      <div class="kpi" data-tip="Proventos já aprovados com depósito agendado para os próximos dias/meses">
         <div class="kpi-label">Pagamentos agendados</div>
         <div class="kpi-value">${eventosPagamentosAgendados.length}</div>
         <div class="kpi-foot">${proxPgto ? `Próximo: ${escH(proxPgto.ativo.ticker)} em ${fDataCurtaIso(proxPgto.ev.data_pagamento)} (${fRealProvento(proxPgto.ev.valor)})` : 'Sem pagamentos agendados no filtro'}</div>
       </div>
-      <div class="kpi" style="--kpi-color: var(--yellow)" data-tip="Ativos do escopo que historicamente têm data-com recorrente neste mês (${MESES_NOMES[mesAtualNum - 1]})">
+      <div class="kpi" data-tip="Ativos do escopo que historicamente têm data-com recorrente neste mês (${MESES_NOMES[mesAtualNum - 1]})">
         <div class="kpi-label">Sazonais em ${MESES_NOMES[mesAtualNum - 1]}</div>
         <div class="kpi-value">${pagadoresMesAtual.length}</div>
         <div class="kpi-foot">${pagadoresMesAtual.length ? escH(pagadoresMesAtual.slice(0, 4).map(a => a.ticker).join(', ') + (pagadoresMesAtual.length > 4 ? '…' : '')) : 'Sem recorrência habitual neste mês'}</div>
       </div>
-      <div class="kpi" style="--kpi-color: var(--green)" data-tip="Quantos meses do ano possuem pelo menos um ativo com histórico habitual de data-com neste escopo">
+      <div class="kpi" data-tip="Quantos meses do ano possuem pelo menos um ativo com histórico habitual de data-com neste escopo">
         <div class="kpi-label">Cobertura anual de renda</div>
-        <div class="kpi-value">${totalMesesComRenda}<span class="t-dim" style="font-size:14px"> / 12 meses</span></div>
+        <div class="kpi-value">${totalMesesComRenda} <span class="t-dim">/ 12m</span></div>
         <div class="cal-mini-months" aria-hidden="true">
           ${mesesCobertos.map(mc => `<span class="${mc.qtd > 0 ? 'is-on' : ''} ${mc.mes === mesAtualNum ? 'is-now' : ''}" title="${MESES_CURTOS[mc.mes - 1]}: ${mc.qtd} ativos"></span>`).join('')}
         </div>
       </div>
     `;
 
-    // 2. Coluna Esquerda: Próximas Datas-Com Anunciadas (Direito em Aberto)
     if (!eventosDataComAberta.length) {
-      const totalUnivAbertas = obterUniverso().reduce((acc, a) => {
+      const totalUnivAbertas = obterUniverso().reduce((acc, rawA) => {
+        const a = enriquecerAgendaAtivo(rawA, hoje);
         const n = (a.agenda_anunciada || []).filter(ev => ev.status === 'anunciado' && ev.data_com >= hoje).length;
         return acc + n;
       }, 0);
@@ -832,7 +1019,7 @@
           <strong>Nenhuma data-com em aberto neste filtro</strong>
           <span>As empresas da B3 anunciam datas-com alguns dias antes do corte. Consulte o mapa sazonal abaixo para ver os meses habituais de anúncio.</span>
           ${totalUnivAbertas > 0 && state.calEscopo !== 'todos'
-            ? `<button type="button" class="btn btn-ghost" style="margin-top:10px" data-cal-show-all>Ver ${totalUnivAbertas} datas-com abertas em Todos os ativos</button>`
+            ? `<button type="button" class="btn btn-ghost" data-cal-show-all>Ver ${totalUnivAbertas} datas-com abertas em Todos os ativos</button>`
             : ''}
         </div>
       `;
@@ -871,7 +1058,6 @@
       `;
     }
 
-    // 3. Coluna Direita: Pagamentos Agendados (Caixa) OU Últimos Pagos
     const listaDireita = state.calModoPgto === 'pagos' ? eventosUltimosPagos : eventosPagamentosAgendados;
     if (!listaDireita.length) {
       payEl.innerHTML = `
@@ -914,21 +1100,17 @@
       `;
     }
 
-    // 4. Mapa Sazonal 12 Meses (Jan–Dez)
-    const ordenadosMapa = [...listaFiltrada]
-      .filter(a => {
-        // Em "Todos" ou "Painel", coloca pagadoras primeiro e sem dividendos ao final
-        return true;
-      })
-      .sort((a, b) => {
-        const pa = a.proxima_data_com ? 1 : 0;
-        const pb = b.proxima_data_com ? 1 : 0;
-        if (pb !== pa) return pb - pa;
-        const ma = (a.meses_habituais_dividendo || []).length;
-        const mb = (b.meses_habituais_dividendo || []).length;
-        if (mb !== ma) return mb - ma;
-        return (b.bazin?.margem_seguranca ?? -9) - (a.bazin?.margem_seguranca ?? -9);
-      });
+    const ordenadosMapa = [...listaFiltrada].sort((a, b) => {
+      const pa = a.proxima_data_com ? 1 : 0;
+      const pb = b.proxima_data_com ? 1 : 0;
+      if (pb !== pa) return pb - pa;
+      const ma = (a.meses_habituais_dividendo || []).length;
+      const mb = (b.meses_habituais_dividendo || []).length;
+      if (mb !== ma) return mb - ma;
+      const mbzA = a.bazin ? (numOk(a.bazin.margem) ? a.bazin.margem : (a.bazin.margem_seguranca ?? -9)) : -9;
+      const mbzB = b.bazin ? (numOk(b.bazin.margem) ? b.bazin.margem : (b.bazin.margem_seguranca ?? -9)) : -9;
+      return mbzB - mbzA;
+    });
 
     heatEl.innerHTML = `
       <div class="table-wrap cal-heat-scroll">
@@ -967,12 +1149,12 @@
                 <tr class="cal-heat-row" data-copen-detail="${escH(a.ticker)}">
                   <td class="cal-sticky-col">
                     <div class="cal-row-asset">
-                      <span class="mono" style="font-weight:600;color:var(--text-strong)">${escH(a.ticker)}</span>
-                      <span class="t-dim" style="font-size:11px;text-transform:capitalize">${escH(a.setor)}</span>
+                      <span class="mono">${escH(a.ticker)}</span>
+                      <span class="t-dim">${escH(a.setor)}</span>
                     </div>
                   </td>
                   <td>${htmlSeloSustentabilidade(a, false)}</td>
-                  <td style="white-space:nowrap;font-size:12px">${resumoAgenda}</td>
+                  <td>${resumoAgenda}</td>
                   ${MESES_CURTOS.map((mNome, idx) => {
                     const mNum = idx + 1;
                     const freq = Number(mapa[String(mNum)] || 0);
@@ -984,7 +1166,7 @@
                     return `
                       <td class="cal-m-cell ${mNum === mesAtualNum ? 'is-cur-month' : ''}" data-tip="${escH(tip)}">
                         <span class="cal-heat-pill ${lvl} ${anunciado ? 'is-announced' : ''}">
-                          ${anunciado ? '★' : (freq > 0 ? `${freq}/5` : '·')}
+                          ${anunciado ? `★ ${freq}/5` : (freq > 0 ? `${freq}/5` : '0/5')}
                         </span>
                       </td>
                     `;
@@ -999,17 +1181,17 @@
   }
 
   /* ==========================================================================
-   * EVENTOS DAS DUAS NOVAS ABAS
+   * EVENTOS DAS DUAS ABAS
    * ========================================================================== */
 
   function bindEventosMatrizCalendario() {
-    // --- Eventos da Matriz ---
     qs('#matriz-scope-group')?.addEventListener('click', (e) => {
       const b = e.target.closest('[data-mscope]');
       if (!b) return;
       state.matrizEscopo = b.dataset.mscope;
       salvarPrefs();
       renderizarMatrizValuation();
+      if (typeof window.sincronizarEstadoUrl === 'function') window.sincronizarEstadoUrl();
     });
 
     qs('#matriz-xaxis-group')?.addEventListener('click', (e) => {
@@ -1018,6 +1200,7 @@
       state.matrizX = b.dataset.mx;
       salvarPrefs();
       renderizarMatrizValuation();
+      if (typeof window.sincronizarEstadoUrl === 'function') window.sincronizarEstadoUrl();
     });
 
     qs('#matriz-yaxis-group')?.addEventListener('click', (e) => {
@@ -1026,17 +1209,31 @@
       state.matrizY = b.dataset.my;
       salvarPrefs();
       renderizarMatrizValuation();
+      if (typeof window.sincronizarEstadoUrl === 'function') window.sincronizarEstadoUrl();
     });
 
     qs('#matriz-notrap-btn')?.addEventListener('click', () => {
       state.matrizSemCilada = !state.matrizSemCilada;
       salvarPrefs();
       renderizarMatrizValuation();
+      if (typeof window.sincronizarEstadoUrl === 'function') window.sincronizarEstadoUrl();
     });
 
+    let timerBuscaMatriz = null;
     qs('#matriz-search-input')?.addEventListener('input', (e) => {
-      state.matrizBusca = e.target.value || '';
-      renderizarMatrizValuation();
+      const v = e.target.value || '';
+      if (timerBuscaMatriz) clearTimeout(timerBuscaMatriz);
+      timerBuscaMatriz = setTimeout(() => {
+        state.matrizBusca = v;
+        renderizarMatrizValuation();
+      }, 150);
+    });
+
+    qs('#btn-export-matriz-png')?.addEventListener('click', () => {
+      const svg = qs('#matriz-scatter-svg');
+      if (svg && typeof window.exportarSvgComoPng === 'function') {
+        window.exportarSvgComoPng(svg, `matriz-desconto-qualidade-${state.matrizX}-${state.matrizY}.png`);
+      }
     });
 
     qs('#matriz-quadrants-grid')?.addEventListener('click', (e) => {
@@ -1056,14 +1253,16 @@
         return;
       }
       const btnChart = e.target.closest('[data-mopen-chart]');
-      if (btnChart && typeof window.abrirNaVisaoGrafica === 'function') {
+      if (btnChart) {
         e.stopPropagation();
-        window.abrirNaVisaoGrafica(btnChart.dataset.mopenChart);
+        const fnChart = window.abrirAtivoNaVisaoGrafica || window.abrirNaVisaoGrafica;
+        if (typeof fnChart === 'function') fnChart(btnChart.dataset.mopenChart);
         return;
       }
       const row = e.target.closest('[data-mopen-detail]');
-      if (row && typeof window.abrirDetalhe === 'function') {
-        window.abrirDetalhe(row.dataset.mopenDetail);
+      if (row) {
+        const fnDet = window.abrirDetalheAtivo || window.abrirDetalhe;
+        if (typeof fnDet === 'function') fnDet(row.dataset.mopenDetail);
       }
     });
 
@@ -1074,17 +1273,20 @@
       state.calEscopo = b.dataset.cscope;
       salvarPrefs();
       renderizarCalendarioDividendos();
+      if (typeof window.sincronizarEstadoUrl === 'function') window.sincronizarEstadoUrl();
     });
 
     qs('#cal-month-select')?.addEventListener('change', (e) => {
       state.calMes = Number(e.target.value) || 0;
       renderizarCalendarioDividendos();
+      if (typeof window.sincronizarEstadoUrl === 'function') window.sincronizarEstadoUrl();
     });
 
     qs('#cal-cur-month-btn')?.addEventListener('click', () => {
       const mAtual = Number(hojeIsoB3().slice(5, 7)) || (new Date().getMonth() + 1);
       state.calMes = state.calMes === mAtual ? 0 : mAtual;
       renderizarCalendarioDividendos();
+      if (typeof window.sincronizarEstadoUrl === 'function') window.sincronizarEstadoUrl();
     });
 
     qs('#cal-paymode-group')?.addEventListener('click', (e) => {
@@ -1095,9 +1297,14 @@
       renderizarCalendarioDividendos();
     });
 
+    let timerBuscaCal = null;
     qs('#cal-search-input')?.addEventListener('input', (e) => {
-      state.calBusca = e.target.value || '';
-      renderizarCalendarioDividendos();
+      const v = e.target.value || '';
+      if (timerBuscaCal) clearTimeout(timerBuscaCal);
+      timerBuscaCal = setTimeout(() => {
+        state.calBusca = v;
+        renderizarCalendarioDividendos();
+      }, 150);
     });
 
     const tratarCliqueCalendario = (e) => {
@@ -1116,8 +1323,9 @@
         return;
       }
       const alvo = e.target.closest('[data-copen-detail]');
-      if (alvo && typeof window.abrirDetalhe === 'function') {
-        window.abrirDetalhe(alvo.dataset.copenDetail);
+      if (alvo) {
+        const fnDet = window.abrirDetalheAtivo || window.abrirDetalhe;
+        if (typeof fnDet === 'function') fnDet(alvo.dataset.copenDetail);
       }
     };
 
@@ -1135,7 +1343,43 @@
   }
 
   window.renderizarMatrizValuation = renderizarMatrizValuation;
+  window.renderizarAbaMatriz = renderizarMatrizValuation;
   window.renderizarCalendarioDividendos = renderizarCalendarioDividendos;
+  window.renderizarAbaCalendario = renderizarCalendarioDividendos;
 
-  window.addEventListener('DOMContentLoaded', bindEventosMatrizCalendario);
+  window.obterEstadoMatrizCalendario = function () {
+    return {
+      matrizEscopo: state.matrizEscopo,
+      matrizX: state.matrizX,
+      matrizY: state.matrizY,
+      matrizSemCilada: state.matrizSemCilada,
+      matrizQuadrante: state.matrizQuadrante,
+      calEscopo: state.calEscopo,
+      calMes: state.calMes,
+      calModoPgto: state.calModoPgto
+    };
+  };
+
+  window.aplicarEstadoMatrizCalendario = function (params) {
+    if (!params) return;
+    if (params.x && ['bazin', 'graham'].includes(params.x)) state.matrizX = params.x;
+    if (params.y && ['roe', 'roic'].includes(params.y)) state.matrizY = params.y;
+    if (params.escopo && ['painel', 'besst', 'dividendos', 'demais', 'todos'].includes(params.escopo)) {
+      state.matrizEscopo = params.escopo;
+      state.calEscopo = params.escopo;
+    }
+    if (params.quad && ['todos', 'ouro', 'premio', 'atencao', 'evitar'].includes(params.quad)) {
+      state.matrizQuadrante = params.quad;
+    }
+    if (params.mes !== undefined) {
+      const m = Number(params.mes);
+      if (!Number.isNaN(m) && m >= 0 && m <= 12) state.calMes = m;
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', bindEventosMatrizCalendario);
+  } else {
+    bindEventosMatrizCalendario();
+  }
 })();
