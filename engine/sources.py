@@ -10,6 +10,11 @@ Fontes utilizadas:
    de dividendos do Yahoo Finance convertendo a `data-ex` para `data-com` (dia útil anterior).
 2. Indicadores de qualidade, endividamento, múltiplos e datas de referência:
    Fundamentus (`detalhes.php?papel=<TICKER>`) + Yahoo Finance (`yfinance`, sufixo `.SA`).
+3. Histórico semanal de preços de 5 anos (`yf.download(..., period="5y", interval="1wk", auto_adjust=False)`):
+   Usa `Close` ajustado apenas por desdobramentos/grupamentos (`splits`), sem descontar
+   dividendos retroativamente, para permitir comparação fiel com os preços-teto nominais
+   (Bazin, Graham, Gordon) e simulação exata de retorno com reinvestimento de proventos
+   sem dupla contagem.
 """
 
 from __future__ import annotations
@@ -27,11 +32,11 @@ import yfinance as yf
 from bs4 import BeautifulSoup
 from pydantic import ValidationError
 
-from engine.schemas import Ativo, Dividendo, Fundamentos, TipoDividendo
+from engine.schemas import Ativo, CategoriaAtivo, Dividendo, Fundamentos, TipoDividendo
 
 CAMINHO_LOG_ERROS = Path(__file__).resolve().parent / "erros.log"
 CAMINHO_TICKERS_PADRAO = Path(__file__).resolve().parent / "tickers.json"
-MAX_WORKERS_COLETA = 8
+MAX_WORKERS_COLETA = 12
 
 
 def converter_data_ex_para_data_com(data_ex: date) -> date:
@@ -60,7 +65,7 @@ def registrar_erro_log(ticker: str, mensagem: str, caminho_log: Path = CAMINHO_L
 
 
 def carregar_tickers_json(caminho: Path = CAMINHO_TICKERS_PADRAO) -> list[dict[str, str]]:
-    """Lê a lista de dicionários {'ticker': ..., 'setor': ...} de engine/tickers.json."""
+    """Lê a lista de dicionários {'ticker': ..., 'setor': ..., 'categoria': ...} de engine/tickers.json."""
     dados = json.loads(caminho.read_text(encoding="utf-8"))
     if not isinstance(dados, list):
         raise ValueError(f"O arquivo {caminho} deve conter uma lista JSON de objetos ticker/setor.")
@@ -288,6 +293,57 @@ def _coletar_proventos_fundamentus(
     return dividendos
 
 
+def _coletar_historico_5a_lote(tickers_b3: list[str]) -> dict[str, list[tuple[str, float]]]:
+    """Baixa em lote a série semanal de 5 anos (`Close` com `auto_adjust=False`) para os tickers."""
+    if not tickers_b3:
+        return {}
+
+    unicos = list(dict.fromkeys(t.replace(".SA", "").strip().upper() for t in tickers_b3 if t.strip()))
+    yf_symbols = [f"{t}.SA" for t in unicos]
+    resultado: dict[str, list[tuple[str, float]]] = {}
+
+    try:
+        df = yf.download(
+            yf_symbols,
+            period="5y",
+            interval="1wk",
+            auto_adjust=False,
+            progress=False,
+            threads=True,
+        )
+        if df is None or df.empty or "Close" not in df:
+            return {}
+
+        closes = df["Close"]
+        if len(yf_symbols) == 1:
+            t_b3 = unicos[0]
+            serie = closes[yf_symbols[0]] if hasattr(closes, "columns") and yf_symbols[0] in closes.columns else closes
+            pontos: list[tuple[str, float]] = []
+            for idx_dt, val in serie.items():
+                v = _limpar_float(val)
+                if v is not None and v > 0:
+                    dt_iso = idx_dt.date().isoformat() if hasattr(idx_dt, "date") else str(idx_dt)[:10]
+                    pontos.append((dt_iso, round(v, 2)))
+            if pontos:
+                resultado[t_b3] = pontos
+        else:
+            for t_b3, sym in zip(unicos, yf_symbols):
+                if not hasattr(closes, "columns") or sym not in closes.columns:
+                    continue
+                pontos = []
+                for idx_dt, val in closes[sym].items():
+                    v = _limpar_float(val)
+                    if v is not None and v > 0:
+                        dt_iso = idx_dt.date().isoformat() if hasattr(idx_dt, "date") else str(idx_dt)[:10]
+                        pontos.append((dt_iso, round(v, 2)))
+                if pontos:
+                    resultado[t_b3] = pontos
+    except Exception:
+        return {}
+
+    return resultado
+
+
 def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
     """Consulta cotação, múltiplos, indicadores de qualidade/dívida e histórico de proventos."""
     yf_symbol = symbol_b3 if symbol_b3.endswith(".SA") else f"{symbol_b3}.SA"
@@ -418,37 +474,57 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
     }
 
 
+_COLETAR_DADOS_ATIVO_PADRAO = _coletar_dados_ativo
+
+
+def _normalizar_categoria(valor: Optional[str]) -> Optional[CategoriaAtivo]:
+    if not valor:
+        return None
+    v = valor.strip().lower()
+    if v in ("besst", "dividendos", "demais"):
+        return v  # type: ignore[return-value]
+    return None
+
+
 def obter_ativos(
     tickers: Iterable[dict[str, str] | str],
     caminho_log: Path = CAMINHO_LOG_ERROS,
 ) -> list[Ativo]:
     """Obtém e valida uma lista de `Ativo` em paralelo a partir de uma coleção de tickers."""
     mapa_setores_padrao: dict[str, str] = {}
+    mapa_categorias_padrao: dict[str, Optional[CategoriaAtivo]] = {}
     if CAMINHO_TICKERS_PADRAO.exists():
         try:
             for entrada in carregar_tickers_json(CAMINHO_TICKERS_PADRAO):
                 t_key = str(entrada.get("ticker", "")).strip().upper()
                 if t_key:
                     mapa_setores_padrao[t_key] = str(entrada.get("setor", "outros")).strip()
+                    mapa_categorias_padrao[t_key] = _normalizar_categoria(entrada.get("categoria"))
         except Exception:
             pass
 
-    entradas_normalizadas: list[tuple[str, str]] = []
+    entradas_normalizadas: list[tuple[str, str, Optional[CategoriaAtivo]]] = []
     for item in tickers:
         if isinstance(item, dict):
             ticker_raw = str(item.get("ticker", "")).strip().upper()
             setor_raw = str(item.get("setor") or mapa_setores_padrao.get(ticker_raw, "outros")).strip()
+            cat_raw = _normalizar_categoria(item.get("categoria")) or mapa_categorias_padrao.get(ticker_raw)
         else:
             ticker_raw = str(item).strip().upper()
             setor_raw = mapa_setores_padrao.get(ticker_raw, "outros")
+            cat_raw = mapa_categorias_padrao.get(ticker_raw)
 
         if not ticker_raw:
             registrar_erro_log("VAZIO", "Ticker em branco ignorado.", caminho_log=caminho_log)
             continue
-        entradas_normalizadas.append((ticker_raw, setor_raw))
+        entradas_normalizadas.append((ticker_raw, setor_raw, cat_raw))
 
-    def _processar_um(par: tuple[str, str]) -> Optional[Ativo]:
-        ticker_raw, setor_raw = par
+    mapa_historico: dict[str, list[tuple[str, float]]] = {}
+    if _coletar_dados_ativo is _COLETAR_DADOS_ATIVO_PADRAO and entradas_normalizadas:
+        mapa_historico = _coletar_historico_5a_lote([t for t, _, _ in entradas_normalizadas])
+
+    def _processar_um(tripla: tuple[str, str, Optional[CategoriaAtivo]]) -> Optional[Ativo]:
+        ticker_raw, setor_raw, cat_raw = tripla
         try:
             bruto = _coletar_dados_ativo(ticker_raw)
             preco = bruto.get("preco")
@@ -457,13 +533,28 @@ def obter_ativos(
 
             dividendos = bruto.get("dividendos", [])
             fundamentos = Fundamentos.model_validate(bruto.get("fundamentos", {}))
+            pontos_hist = list(bruto.get("pontos_historico") or mapa_historico.get(ticker_raw, []))
+
+            if not pontos_hist and _coletar_dados_ativo is _COLETAR_DADOS_ATIVO_PADRAO:
+                try:
+                    h_ind = yf.Ticker(f"{ticker_raw}.SA").history(period="5y", interval="1wk", auto_adjust=False)
+                    if h_ind is not None and not h_ind.empty and "Close" in h_ind:
+                        for idx_dt, val in h_ind["Close"].items():
+                            v = _limpar_float(val)
+                            if v is not None and v > 0:
+                                dt_iso = idx_dt.date().isoformat() if hasattr(idx_dt, "date") else str(idx_dt)[:10]
+                                pontos_hist.append((dt_iso, round(v, 2)))
+                except Exception:
+                    pass
 
             return Ativo(
                 ticker=ticker_raw,
                 setor=setor_raw,
+                categoria=cat_raw,
                 preco=round(float(preco), 4),
                 dividendos=dividendos,
                 fundamentos=fundamentos,
+                pontos_historico=pontos_hist,
             )
         except (ValidationError, Exception) as exc:
             registrar_erro_log(ticker_raw, f"Falha ao obter/validar ativo: {exc}", caminho_log=caminho_log)
