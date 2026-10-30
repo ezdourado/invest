@@ -1057,8 +1057,8 @@
       const W = medirLarguraGrafico(svgWrap);
       const ehMobile = W < 580;
       const H = ehMobile ? 295 : 390;
-      const padLeft = ehMobile ? 56 : 70;
-      const padRight = modo === 'preco' && linhasTetoAtivas.length ? (ehMobile ? 98 : 138) : (ehMobile ? 16 : 26);
+      const padLeft = ehMobile ? 58 : 74;
+      const padRight = modo === 'preco' && linhasTetoAtivas.length ? (ehMobile ? 108 : 158) : (ehMobile ? 16 : 28);
       const padTop = 18;
       const padBottom = 32;
       const plotW = Math.max(120, W - padLeft - padRight);
@@ -1116,22 +1116,22 @@
 
       const labelsTetos = resolverColisaoVertical(
         linhasTetoAtivas.map(lt => ({ ...lt, y: yDe(lt.valor) })),
-        padTop + 11,
-        yBasePlot - 11,
-        23
+        padTop + 14,
+        yBasePlot - 14,
+        28
       );
 
       const linhasGradeSvg = eixoY.ticks.map(tv => {
         const y = yDe(tv);
         return `
           <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${padLeft + plotW}" y2="${y.toFixed(1)}" stroke="#1d2632" stroke-width="1" />
-          <text x="${padLeft - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text">${escHtml(fmtEixoY(tv))}</text>
+          <text x="${padLeft - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text" fill="#94a3b8" stroke="none" stroke-width="0" font-family="'IBM Plex Sans', system-ui, sans-serif" font-size="${ehMobile ? '11' : '12'}" font-weight="500">${escHtml(fmtEixoY(tv))}</text>
         `;
       }).join('');
 
       const ticksXSvg = ticksX.map(idx => {
         const x = xDe(idx);
-        return `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle" class="vsvg-axis-text">${escHtml(fmtDataCurta(janela.datas[idx], visualState.periodo !== '6m'))}</text>`;
+        return `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle" class="vsvg-axis-text" fill="#94a3b8" stroke="none" stroke-width="0" font-family="'IBM Plex Sans', system-ui, sans-serif" font-size="${ehMobile ? '11' : '12'}" font-weight="500">${escHtml(fmtDataCurta(janela.datas[idx], visualState.periodo !== '6m'))}</text>`;
       }).join('');
 
       // Linhas horizontais tracejadas (Bazin principal, Graham e Gordon)
@@ -1146,9 +1146,9 @@
               <line x1="${padLeft}" y1="${lt.y.toFixed(1)}" x2="${xFim}" y2="${lt.y.toFixed(1)}"
                 stroke="${lt.cor}" stroke-width="${lt.largura}" stroke-dasharray="${lt.dash}" />
               <path d="M${xFim},${lt.y.toFixed(1)} L${xFim + 7},${lt.yLabel.toFixed(1)}" stroke="${lt.cor}" stroke-width="1.2" opacity="0.75" fill="none" />
-              <rect x="${xFim + 7}" y="${(lt.yLabel - 10).toFixed(1)}" width="${padRight - 11}" height="20" rx="4"
-                fill="rgba(16, 22, 31, 0.96)" stroke="${lt.cor}" stroke-opacity="${lt.destaque ? '0.9' : '0.5'}" stroke-width="${lt.destaque ? '1.3' : '1'}" />
-              <text x="${xFim + 13}" y="${(lt.yLabel + 3.8).toFixed(1)}" fill="${lt.cor}" class="vsvg-ceil-label ${lt.destaque ? 'is-bold' : ''}">${escHtml(labelTxt)}</text>
+              <rect x="${xFim + 8}" y="${(lt.yLabel - 12).toFixed(1)}" width="${padRight - 12}" height="24" rx="6"
+                fill="#111823" stroke="${lt.cor}" stroke-opacity="${lt.destaque ? '0.9' : '0.55'}" stroke-width="${lt.destaque ? '1.4' : '1'}" />
+              <text x="${xFim + 15}" y="${(lt.yLabel + 4.2).toFixed(1)}" stroke="none" stroke-width="0" font-family="'IBM Plex Sans', system-ui, sans-serif" font-size="${ehMobile ? '11' : '12'}" class="vsvg-ceil-label ${lt.destaque ? 'is-bold' : ''}"><tspan fill="#cbd5e1" font-weight="500" stroke="none">${escHtml(lt.curto)} </tspan><tspan fill="${lt.cor}" font-weight="700" stroke="none">${escHtml(ehMobile ? textoValor : 'R$ ' + textoValor)}</tspan></text>
             </g>
           `;
         }).join('');
@@ -1158,7 +1158,7 @@
           referenciasSvg = `
             <line x1="${padLeft}" y1="${yZero.toFixed(1)}" x2="${padLeft + plotW}" y2="${yZero.toFixed(1)}"
               stroke="${ESTILO_TETOS.bazin.cor}" stroke-width="2.4" stroke-dasharray="10 5" />
-            <text x="${padLeft + 8}" y="${Math.max(padTop + 13, yZero - 6).toFixed(1)}" fill="${ESTILO_TETOS.bazin.cor}" class="vsvg-ceil-label is-bold">Teto Bazin (0% margem)</text>
+            <text x="${padLeft + 10}" y="${Math.max(padTop + 14, yZero - 7).toFixed(1)}" fill="${ESTILO_TETOS.bazin.cor}" stroke="none" stroke-width="0" font-family="'IBM Plex Sans', system-ui, sans-serif" font-size="12" font-weight="600" class="vsvg-ceil-label is-bold">Teto Bazin (0% margem)</text>
           `;
         }
       } else if (modo === 'variacao') {
@@ -1184,7 +1184,7 @@
       ).join('');
 
       svgWrap.innerHTML = `
-        <svg class="vsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Gráfico histórico de preços e preços-teto">
+        <svg class="vsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" stroke="none" stroke-width="0" role="img" aria-label="Gráfico histórico de preços e preços-teto">
           <defs>
             <linearGradient id="grad-price-main" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="${COR_PRINCIPAL}" stop-opacity="0.22" />
@@ -1199,7 +1199,7 @@
           ${ticksXSvg}
           <line class="v-crosshair" x1="0" y1="${padTop}" x2="0" y2="${yBasePlot}" stroke="#eef2f8" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="3 3" style="display:none" />
           ${pontosCrosshairSvg}
-          <rect class="v-hit-area" x="${padLeft}" y="${padTop}" width="${plotW}" height="${plotH}" fill="transparent" />
+          <rect class="v-hit-area" x="${padLeft}" y="${padTop}" width="${plotW}" height="${plotH}" fill="transparent" stroke="none" stroke-width="0" />
         </svg>
       `;
 
@@ -1500,7 +1500,7 @@
       const y = yDe(tv);
       return `
         <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${padLeft + plotW}" y2="${y.toFixed(1)}" stroke="#1d2632" stroke-width="1" />
-        <text x="${padLeft - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text">${escHtml(fmtMoedaEixo(tv))}</text>
+        <text x="${padLeft - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text" fill="#94a3b8" stroke="none" stroke-width="0" font-family="'IBM Plex Sans', system-ui, sans-serif" font-size="${ehMobile ? '11' : '12'}" font-weight="500">${escHtml(fmtMoedaEixo(tv))}</text>
       `;
     }).join('');
 
@@ -1512,7 +1512,7 @@
     }
     const ticksXSvg = ticksX.map(idx => {
       const x = xDe(idx);
-      return `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle" class="vsvg-axis-text">${escHtml(fmtDataCurta(simMain.curva[idx].data, visualState.periodo !== '6m'))}</text>`;
+      return `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle" class="vsvg-axis-text" fill="#94a3b8" stroke="none" stroke-width="0" font-family="'IBM Plex Sans', system-ui, sans-serif" font-size="${ehMobile ? '11' : '12'}" font-weight="500">${escHtml(fmtDataCurta(simMain.curva[idx].data, visualState.periodo !== '6m'))}</text>`;
     }).join('');
 
     const yAporte = yDe(visualState.simCapital);
@@ -1552,7 +1552,7 @@
     ).join('');
 
     svgWrap.innerHTML = `
-      <svg class="vsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Evolução do patrimônio simulado com dividendos">
+      <svg class="vsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" stroke="none" stroke-width="0" role="img" aria-label="Evolução do patrimônio simulado com dividendos">
         <defs>
           <linearGradient id="grad-sim-total" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="#2fbf86" stop-opacity="0.24" />
@@ -1566,7 +1566,7 @@
         ${ticksXSvg}
         <line class="v-crosshair" x1="0" y1="${padTop}" x2="0" y2="${yBasePlot}" stroke="#eef2f8" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="3 3" style="display:none" />
         ${chDotsSvg}
-        <rect class="v-hit-area" x="${padLeft}" y="${padTop}" width="${plotW}" height="${plotH}" fill="transparent" />
+        <rect class="v-hit-area" x="${padLeft}" y="${padTop}" width="${plotW}" height="${plotH}" fill="transparent" stroke="none" stroke-width="0" />
       </svg>
     `;
 
