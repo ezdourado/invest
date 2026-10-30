@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -13,6 +13,8 @@ from engine.schemas import Ativo, Dividendo, ResultadoAtivo, Saida
 from engine.sources import CAMINHO_TICKERS_PADRAO, carregar_tickers_json, obter_ativos
 from engine.valuation import (
     avaliar_bazin,
+    avaliar_sustentabilidade,
+    consolidar_agenda_proventos,
     eh_setor_besst,
     gordon,
     graham,
@@ -23,6 +25,7 @@ from engine.valuation import (
 )
 
 TAXA_DESCONTO_GORDON_PADRAO: float = 0.10
+FUSO_B3 = timezone(timedelta(hours=-3))
 
 
 def _compactar_vetores_historico(json_str: str) -> str:
@@ -34,13 +37,13 @@ def _compactar_vetores_historico(json_str: str) -> str:
         return f"{prefixo}{itens}{sufixo}"
 
     compactado = re.sub(
-        r'("(?:historico_datas|historico_precos)": \[)\s*([^\[\]\{\}]*?)\s*(\])',
+        r'("(?:historico_datas|historico_precos|meses_habituais_dividendo)": \[)\s*([^\[\]\{\}]*?)\s*(\])',
         _colapsar,
         json_str,
     )
     return re.sub(
-        r'\{\s+("data_com": "[^"]+",)\s+("valor": [0-9.eE+-]+,)\s+("tipo": "[^"]+")\s+\}',
-        r'{ \1 \2 \3 }',
+        r'\{\s+("data_com": "[^"]+",)\s+("valor": [0-9.eE+-]+,)\s+("tipo": "[^"]+",)\s+("data_pagamento": (?:"[^"]+"|null))\s+\}',
+        r'{ \1 \2 \3 \4 }',
         compactado,
     )
 
@@ -49,10 +52,12 @@ def construir_saida(
     ativos: list[Ativo],
     ano_referencia: int | None = None,
     taxa_desconto_gordon: float = TAXA_DESCONTO_GORDON_PADRAO,
+    data_referencia: date | None = None,
 ) -> Saida:
     """Calcula valuation completo para a lista de Ativo e retorna o objeto Saida validado."""
     agora = datetime.now(timezone.utc)
-    ano_ref = ano_referencia if ano_referencia is not None else agora.year
+    hoje_b3 = data_referencia if data_referencia is not None else datetime.now(FUSO_B3).date()
+    ano_ref = ano_referencia if ano_referencia is not None else hoje_b3.year
     data_corte_proventos = date(ano_ref - 5, 1, 1)
 
     conjunto_datas: set[str] = set()
@@ -66,7 +71,7 @@ def construir_saida(
 
     historico_datas = sorted(conjunto_datas)
     if historico_datas:
-        hoje_iso = agora.date().isoformat()
+        hoje_iso = hoje_b3.isoformat()
         ultima_dt = historico_datas[-1]
         if hoje_iso > ultima_dt:
             historico_datas.append(hoje_iso)
@@ -107,6 +112,21 @@ def construir_saida(
         fund_out = f.model_copy(update={"payout": payout_calc})
         categoria_resolvida = resolver_categoria_ativo(ativo.setor, ativo.categoria)
 
+        sustentabilidade = avaliar_sustentabilidade(
+            dividendos=ativo.dividendos,
+            bazin_res=bazin_res,
+            fundamentos=fund_out,
+            setor=ativo.setor,
+            ano_referencia=ano_ref,
+        )
+
+        agenda_res = consolidar_agenda_proventos(
+            dividendos=ativo.dividendos,
+            anuncios_agenda=ativo.anuncios_agenda,
+            data_referencia=hoje_b3,
+            ano_referencia=ano_ref,
+        )
+
         mp_ativo = mapas_pontos.get(ativo.ticker)
         serie_alinhada: list[Optional[float]] = []
         if historico_datas and mp_ativo:
@@ -126,9 +146,10 @@ def construir_saida(
                     data_com=d.data_com,
                     valor=round(float(d.valor), 6),
                     tipo=d.tipo,
+                    data_pagamento=d.data_pagamento,
                 )
                 for d in ativo.dividendos
-                if d.data_com >= data_corte_proventos and round(float(d.valor), 6) > 0
+                if data_corte_proventos <= d.data_com <= hoje_b3 and round(float(d.valor), 6) > 0
             ],
             key=lambda x: x.data_com,
         )
@@ -150,6 +171,13 @@ def construir_saida(
                 margem_gordon=m_gordon,
                 rank_greenblatt=gb_info.rank if gb_info else None,
                 motivo_exclusao_greenblatt=gb_info.motivo_exclusao if gb_info else None,
+                sustentabilidade=sustentabilidade,
+                proxima_data_com=agenda_res.proxima_data_com,
+                ultimo_provento_pago=agenda_res.ultimo_provento_pago,
+                proximo_pagamento=agenda_res.proximo_pagamento,
+                agenda_anunciada=agenda_res.agenda_anunciada,
+                meses_habituais_dividendo=agenda_res.meses_habituais_dividendo,
+                mapa_sazonal_5a=agenda_res.mapa_sazonal_5a,
                 fundamentos=fund_out,
                 pct_abaixo_teto_5a=pct_abaixo,
                 historico_precos=serie_alinhada,

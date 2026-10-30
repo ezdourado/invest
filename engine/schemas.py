@@ -9,6 +9,10 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 TipoDividendo = Literal["dividendo", "jcp", "extraordinario"]
+TipoEventoProvento = Literal["dividendo", "jcp", "extraordinario", "misto"]
+StatusEventoProvento = Literal["anunciado", "a_pagar", "pago", "sem_data_pgto"]
+NivelSustentabilidade = Literal["forte", "moderado", "alerta", "sem_dividendo"]
+StatusPilarSustentabilidade = Literal["ok", "alerta", "risco", "neutro"]
 VereditoCor = Literal["verde", "amarelo", "vermelho"]
 CategoriaAtivo = Literal["besst", "dividendos", "demais"]
 
@@ -21,6 +25,44 @@ class Dividendo(BaseModel):
     data_com: date
     valor: float = Field(..., gt=0, description="Valor bruto por ação em R$ (> 0)")
     tipo: TipoDividendo
+    data_pagamento: Optional[date] = None
+
+
+class EventoProvento(BaseModel):
+    """Evento consolidado de provento (histórico pago, agendado a pagar ou próxima data-com anunciada)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    data_com: date
+    data_pagamento: Optional[date] = None
+    valor: float = Field(..., gt=0, description="Valor bruto consolidado por ação em R$ (> 0)")
+    tipo: TipoEventoProvento
+    status: StatusEventoProvento
+
+
+class PilarSustentabilidade(BaseModel):
+    """Critério individual do Score de Sustentabilidade Anti-Cilada."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    nome: str
+    pontos: int = Field(..., ge=0, le=25)
+    max_pontos: int = Field(default=25, ge=1)
+    status: StatusPilarSustentabilidade
+    detalhe: str
+
+
+class ScoreSustentabilidade(BaseModel):
+    """Avaliação objetiva (0–100) da sustentabilidade dos dividendos para prevenção de value traps."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    nota: int = Field(..., ge=0, le=100)
+    nivel: NivelSustentabilidade
+    rotulo: str
+    anos_pagos_5a: int = Field(..., ge=0, le=5)
+    pilares: list[PilarSustentabilidade] = Field(default_factory=list)
 
 
 class Fundamentos(BaseModel):
@@ -70,6 +112,7 @@ class Ativo(BaseModel):
     categoria: Optional[CategoriaAtivo] = None
     preco: float = Field(..., gt=0, description="Cotação atual em R$ (> 0)")
     dividendos: list[Dividendo] = Field(default_factory=list)
+    anuncios_agenda: list[Dividendo] = Field(default_factory=list)
     fundamentos: Fundamentos = Field(default_factory=Fundamentos)
     pontos_historico: list[tuple[str, float]] = Field(default_factory=list)
 
@@ -109,6 +152,13 @@ class ResultadoAtivo(BaseModel):
     margem_gordon: Optional[float] = None
     rank_greenblatt: Optional[int] = None
     motivo_exclusao_greenblatt: Optional[str] = None
+    sustentabilidade: Optional[ScoreSustentabilidade] = None
+    proxima_data_com: Optional[EventoProvento] = None
+    ultimo_provento_pago: Optional[EventoProvento] = None
+    proximo_pagamento: Optional[EventoProvento] = None
+    agenda_anunciada: list[EventoProvento] = Field(default_factory=list)
+    meses_habituais_dividendo: list[int] = Field(default_factory=list)
+    mapa_sazonal_5a: dict[str, int] = Field(default_factory=dict)
     fundamentos: Optional[Fundamentos] = None
     pct_abaixo_teto_5a: Optional[float] = None
     historico_precos: list[Optional[float]] = Field(default_factory=list)

@@ -25,6 +25,7 @@ const ROTULO_VEREDITO = { verde: 'Compra', amarelo: 'Atenção', vermelho: 'Caro
 
 const OPCOES_ORDENACAO = [
   { key: 'margem', dir: 'desc', label: 'Maior margem Bazin' },
+  { key: 'sustentabilidade', dir: 'desc', label: 'Maior Score Anti-Cilada' },
   { key: 'margem', dir: 'asc', label: 'Menor margem Bazin' },
   { key: 'dy', dir: 'desc', label: 'Maior DPA / preço' },
   { key: 'greenblatt', dir: 'asc', label: 'Melhor Greenblatt' },
@@ -235,6 +236,7 @@ function valorOrdenacao(a, key) {
     case 'teto': return a.bazin?.teto;
     case 'margem': return a.bazin?.margem_seguranca;
     case 'veredito': return ORDEM_VEREDITO[a.bazin?.veredito] ?? 9;
+    case 'sustentabilidade': return a.sustentabilidade?.nivel === 'sem_dividendo' ? -1 : a.sustentabilidade?.nota;
     case 'graham': return a.margem_graham;
     case 'gordon': return a.margem_gordon;
     case 'greenblatt': return a.rank_greenblatt;
@@ -429,6 +431,57 @@ function renderizarBesst() {
 
 /* ---------- Render: tabela ---------- */
 
+const MESES_ABREV_PT = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+function fmtRealProvento(v) {
+  if (!valido(v)) return '—';
+  const casas = v < 0.1 ? 4 : 2;
+  return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: casas });
+}
+
+function fmtDataIso(iso) {
+  if (!iso || typeof iso !== 'string') return '—';
+  const partes = iso.slice(0, 10).split('-');
+  if (partes.length !== 3) return iso;
+  return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function rotuloTipoProvento(tipo) {
+  if (tipo === 'jcp') return 'JCP';
+  if (tipo === 'dividendo') return 'Dividendo';
+  if (tipo === 'misto') return 'Dividendo + JCP';
+  if (tipo === 'extraordinario') return 'Extraordinário';
+  return 'Provento';
+}
+
+function diasAteDataIsoB3(isoAlvo) {
+  if (!isoAlvo) return null;
+  const hojeB3 = new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10);
+  const tAlvo = Date.parse(isoAlvo.slice(0, 10) + 'T00:00:00Z');
+  const tHoje = Date.parse(hojeB3 + 'T00:00:00Z');
+  if (Number.isNaN(tAlvo) || Number.isNaN(tHoje)) return null;
+  return Math.round((tAlvo - tHoje) / 86400000);
+}
+
+function htmlSustentabilidade(a, compacto = false) {
+  const s = a?.sustentabilidade;
+  if (!s || s.nivel === 'sem_dividendo') {
+    return `<span class="sust-badge sust-nd" data-tip="Sem proventos recorrentes nos últimos 5 anos fechados">Sem Divid.</span>`;
+  }
+  const cls = s.nivel === 'forte' ? 'sust-forte' : (s.nivel === 'moderado' ? 'sust-mod' : 'sust-alerta');
+  const resumoPilares = Array.isArray(s.pilares)
+    ? s.pilares.map(p => `${p.nome}: ${p.detalhe}`).join(' · ')
+    : '';
+  const tip = `Score Anti-Cilada: ${s.nota}/100 (${s.rotulo}) — ${resumoPilares}`;
+  const label = compacto ? `${s.nota}` : `${s.nota} · ${s.rotulo}`;
+  return `<span class="sust-badge ${cls}" data-tip="${esc(tip)}">${esc(label)}</span>`;
+}
+window.htmlSustentabilidade = htmlSustentabilidade;
+window.esc = esc;
+window.categoriaDoAtivo = categoriaDoAtivo;
+window.htmlVeredito = htmlVeredito;
+window.urlInvestidor10 = urlInvestidor10;
+
 function htmlVeredito(v) {
   const k = ORDEM_VEREDITO[v] !== undefined ? v : 'vermelho';
   return `<span class="verdict verdict-${k}">${ROTULO_VEREDITO[k]}</span>`;
@@ -508,7 +561,7 @@ function renderizarTabela() {
 
   if (totalSel === 0) {
     tbody.innerHTML = `
-      <tr class="row-empty"><td colspan="10" class="empty">
+      <tr class="row-empty"><td colspan="11" class="empty">
         <strong>Seu painel está vazio</strong>
         Escolha os ativos que deseja acompanhar (BESST, pagadoras de dividendos ou Demais papéis). A seleção fica salva neste navegador.
         <div class="empty-actions">
@@ -523,7 +576,7 @@ function renderizarTabela() {
 
   if (lista.length === 0) {
     tbody.innerHTML = `
-      <tr class="row-empty"><td colspan="10" class="empty">
+      <tr class="row-empty"><td colspan="11" class="empty">
         <strong>Nenhum ativo com os filtros atuais</strong>
         Ajuste a busca, a categoria/setor ou o veredito.
         <div class="empty-actions"><button type="button" class="btn btn-ghost" data-empty-action="limpar-filtros">Limpar filtros</button></div>
@@ -563,6 +616,7 @@ function renderizarTabela() {
           </div>
         </td>
         <td class="c-verdict" data-label="Veredito">${htmlVeredito(b.veredito)}</td>
+        <td class="c-sustent" data-label="Anti-Cilada">${htmlSustentabilidade(a)}</td>
         <td class="num c-graham" data-label="Graham">${htmlModelo(a.graham, a.margem_graham, 'Graham')}</td>
         <td class="num c-gordon" data-label="Gordon">${htmlModelo(a.gordon, a.margem_gordon, 'Gordon')}</td>
         <td class="num c-gb" data-label="Greenblatt">${htmlGreenblatt(a)}</td>
@@ -686,6 +740,121 @@ function htmlHistoricoDpaAnual(porAno) {
     </div>`;
 }
 
+function htmlBlocoAgendaProventos(a) {
+  const prox = a.proxima_data_com;
+  const ult = a.ultimo_provento_pago;
+  const pgtoPend = a.proximo_pagamento;
+  const habituais = Array.isArray(a.meses_habituais_dividendo)
+    ? a.meses_habituais_dividendo.map(m => MESES_ABREV_PT[m - 1]).filter(Boolean)
+    : [];
+
+  let htmlProx = '';
+  if (prox) {
+    const dias = diasAteDataIsoB3(prox.data_com);
+    const prazoTxt = dias === 0 ? 'Hoje!' : (dias === 1 ? 'Amanhã' : (dias !== null && dias > 1 ? `Em ${dias} dias` : 'Em aberto'));
+    const dyEv = a.preco > 0 ? prox.valor / a.preco : null;
+    htmlProx = `
+      <div class="d-agenda-card is-open">
+        <div class="d-agenda-head">
+          <span class="d-agenda-label">Próxima Data-Com</span>
+          <span class="d-agenda-pill is-green">${esc(prazoTxt)}</span>
+        </div>
+        <div class="d-agenda-main mono">${fmtDataIso(prox.data_com)}</div>
+        <div class="d-agenda-meta">
+          <strong class="t-green mono">${fmtRealProvento(prox.valor)}</strong> (${esc(rotuloTipoProvento(prox.tipo))}${valido(dyEv) ? ` · ${fmtPctSimples(dyEv, 2)}` : ''})
+        </div>
+        <div class="d-agenda-foot">Pagamento: <strong class="mono">${prox.data_pagamento ? fmtDataIso(prox.data_pagamento) : 'A definir'}</strong></div>
+      </div>`;
+  } else {
+    htmlProx = `
+      <div class="d-agenda-card">
+        <div class="d-agenda-head">
+          <span class="d-agenda-label">Próxima Data-Com</span>
+          <span class="d-agenda-pill">Aguardando anúncio</span>
+        </div>
+        <div class="d-agenda-main" style="font-size:13.5px;color:var(--muted)">Nenhuma data-com em aberto</div>
+        <div class="d-agenda-foot">${habituais.length ? `Meses habituais (5a): <strong class="mono" style="color:var(--text)">${esc(habituais.join(', '))}</strong>` : 'Sem sazonalidade recorrente nos 5a'}</div>
+      </div>`;
+  }
+
+  let htmlUlt = '';
+  if (ult) {
+    const dyUlt = a.preco > 0 ? ult.valor / a.preco : null;
+    const textoPgto = ult.data_pagamento
+      ? `Pago em <strong class="mono">${fmtDataIso(ult.data_pagamento)}</strong>`
+      : `Ex-dividendo (data de pgto não informada)`;
+    htmlUlt = `
+      <div class="d-agenda-card">
+        <div class="d-agenda-head">
+          <span class="d-agenda-label">Último Dividendo / JCP Pago</span>
+          <span class="d-agenda-pill">${esc(rotuloTipoProvento(ult.tipo))}</span>
+        </div>
+        <div class="d-agenda-main mono">${fmtRealProvento(ult.valor)} <small class="t-muted" style="font-size:12px;font-weight:400">${valido(dyUlt) ? `(${fmtPctSimples(dyUlt, 2)})` : ''}</small></div>
+        <div class="d-agenda-meta">${textoPgto}</div>
+        <div class="d-agenda-foot">Data-com: <span class="mono">${fmtDataIso(ult.data_com)}</span></div>
+      </div>`;
+  } else {
+    htmlUlt = `
+      <div class="d-agenda-card">
+        <div class="d-agenda-head"><span class="d-agenda-label">Último Dividendo / JCP Pago</span></div>
+        <div class="d-agenda-main" style="font-size:13.5px;color:var(--muted)">Sem registro de pagamento</div>
+        <div class="d-agenda-foot">Ativo sem proventos históricos em caixa</div>
+      </div>`;
+  }
+
+  const htmlPendente = pgtoPend ? `
+    <div class="d-agenda-pending">
+      <span>Pagamento já aprovado a caminho (ex-dividendo em <span class="mono">${fmtDataIso(pgtoPend.data_com)}</span>):</span>
+      <strong class="mono t-accent">${fmtRealProvento(pgtoPend.valor)} (${esc(rotuloTipoProvento(pgtoPend.tipo))}) em ${fmtDataIso(pgtoPend.data_pagamento)}</strong>
+    </div>` : '';
+
+  return `
+    <div class="d-block">
+      <div class="d-section-head-row">
+        <div class="d-section-title" style="margin-bottom:0">Agenda de Dividendos &amp; JCP</div>
+        <button type="button" class="btn-inline-link" data-detail-calendar="${esc(a.ticker)}" style="font-size:11.5px">Abrir Calendário →</button>
+      </div>
+      <div class="d-agenda-grid" style="margin-top:10px">
+        ${htmlProx}
+        ${htmlUlt}
+      </div>
+      ${htmlPendente}
+    </div>`;
+}
+
+function htmlBlocoSustentabilidade(a) {
+  const s = a.sustentabilidade;
+  if (!s) return '';
+  const corBarra = s.nivel === 'forte'
+    ? 'var(--green)'
+    : (s.nivel === 'moderado' ? 'var(--yellow)' : (s.nivel === 'alerta' ? 'var(--red)' : 'var(--dim)'));
+  const iconeStatus = { ok: '✓', alerta: '!', risco: '✕', neutro: '·' };
+
+  return `
+    <div class="d-block">
+      <div class="d-section-head-row">
+        <div class="d-section-title" style="margin-bottom:0">Score de Sustentabilidade Anti-Cilada</div>
+        ${htmlSustentabilidade(a)}
+      </div>
+      <div class="d-sust-bar-wrap">
+        <div class="d-sust-bar"><span style="width:${Math.max(0, Math.min(100, s.nota))}%;background:${corBarra}"></span></div>
+        <span class="mono d-sust-score">${s.nivel === 'sem_dividendo' ? 'N/A' : `${s.nota}/100`}</span>
+      </div>
+      <div class="d-pilar-list">
+        ${(s.pilares || []).map(p => `
+          <div class="d-pilar-row is-${esc(p.status)}">
+            <span class="d-pilar-icon" aria-hidden="true">${iconeStatus[p.status] || '·'}</span>
+            <div class="d-pilar-text">
+              <strong>${esc(p.nome)}</strong>
+              <span>${esc(p.detalhe)}</span>
+            </div>
+            <span class="d-pilar-pts mono">${p.pontos}/${p.max_pontos}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
 function renderizarDetalhe(ticker) {
   const a = mapaUniverso().get(String(ticker).toUpperCase());
   if (!a) return;
@@ -730,6 +899,10 @@ function renderizarDetalhe(ticker) {
     </div>
 
     ${htmlComparativoModelos(a)}
+
+    ${htmlBlocoAgendaProventos(a)}
+
+    ${htmlBlocoSustentabilidade(a)}
 
     <div class="d-block">
       <div class="d-section-title">Bazin · K = 6%</div>
@@ -913,6 +1086,8 @@ function renderizarTudo() {
   if (!$('#selector-drawer').classList.contains('is-hidden')) renderizarUniverso();
   if (painelState.detalheTicker) renderizarDetalhe(painelState.detalheTicker);
   if (typeof window.atualizarVisaoGrafica === 'function') window.atualizarVisaoGrafica();
+  if (!$('#view-matriz')?.classList.contains('is-hidden') && typeof window.renderizarMatrizValuation === 'function') window.renderizarMatrizValuation();
+  if (!$('#view-calendario')?.classList.contains('is-hidden') && typeof window.renderizarCalendarioDividendos === 'function') window.renderizarCalendarioDividendos();
 }
 
 function alternarTicker(ticker) {
@@ -1012,7 +1187,7 @@ function exibirErro(msg) {
   }
   renderizarStatus('is-error', 'Base indisponível');
   const tbody = $('#engine-valuation-tbody');
-  if (tbody) tbody.innerHTML = `<tr class="row-empty"><td colspan="10" class="empty"><strong>Dados indisponíveis</strong>${esc(msg)}</td></tr>`;
+  if (tbody) tbody.innerHTML = `<tr class="row-empty"><td colspan="11" class="empty"><strong>Dados indisponíveis</strong>${esc(msg)}</td></tr>`;
 }
 
 const URL_VALUATION_REMOTO = 'https://raw.githubusercontent.com/ezdourado/invest/main/data/valuation.json';
@@ -1048,6 +1223,9 @@ async function obterPayloadMaisRecente() {
     const ha = Array.isArray(a.historico_datas) && a.historico_datas.length > 0 ? 1 : 0;
     const hb = Array.isArray(b.historico_datas) && b.historico_datas.length > 0 ? 1 : 0;
     if (hb !== ha) return hb - ha;
+    const sa = a.ativos?.[0]?.sustentabilidade ? 1 : 0;
+    const sb = b.ativos?.[0]?.sustentabilidade ? 1 : 0;
+    if (sb !== sa) return sb - sa;
     const ta = new Date(a.gerado_em || 0).getTime() || 0;
     const tb = new Date(b.gerado_em || 0).getTime() || 0;
     return tb - ta;
@@ -1075,8 +1253,9 @@ async function carregarValuationJson(silencioso = false) {
       }
       atualizarStatusBase();
       renderizarTudo();
-      if (hash.get('tab') === 'visual' && typeof window.definirAbaPainel === 'function') {
-        window.definirAbaPainel('visual', hash.get('p') || undefined);
+      if (['visual', 'matriz', 'calendario'].includes(hash.get('tab')) && typeof window.definirAbaPainel === 'function') {
+        window.definirAbaPainel(hash.get('tab'), hash.get('p') || undefined);
+
       }
       if (hash.get('d') && mapa.has(hash.get('d').toUpperCase())) abrirDetalhe(hash.get('d'));
     } else {
@@ -1203,6 +1382,12 @@ function bindEventos() {
   });
 
   $('#detail-body')?.addEventListener('click', (e) => {
+    const bCal = e.target.closest('[data-detail-calendar]');
+    if (bCal) {
+      fecharGavetas();
+      if (typeof window.definirAbaPainel === 'function') window.definirAbaPainel('calendario');
+      return;
+    }
     const bChart = e.target.closest('[data-detail-chart]');
     if (bChart) {
       const t = bChart.dataset.detailChart;

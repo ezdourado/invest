@@ -3,14 +3,17 @@
 Fontes utilizadas:
 1. Proventos históricos: Fundamentus (`proventos.php?papel=<TICKER>&tipo=2`), que fornece
    a série histórica completa da B3 já indexada pela `data-com` oficial e com o tipo de
-   provento explícito (`DIVIDENDO`, `JRS CAP PROPRIO`, `REST CAP DIN`, etc.), ajustada
-   pelos fatores de desdobramento/bonificação (`splits`) da ação para manter a base
+   provento explícito (`DIVIDENDO`, `JRS CAP PROPRIO`, `REST CAP DIN`, etc.) e `Data de Pagamento`,
+   ajustada pelos fatores de desdobramento/bonificação (`splits`) da ação para manter a base
    comparável com a cotação atual.
    Caso o Fundamentus esteja indisponível para algum ativo, utiliza como fallback a série
    de dividendos do Yahoo Finance convertendo a `data-ex` para `data-com` (dia útil anterior).
-2. Indicadores de qualidade, endividamento, múltiplos e datas de referência:
+2. Agenda futura de proventos anunciados (`próxima data-com` e `data de pagamento`):
+   Agenda mensal pública de ações do Investidor10 (`investidor10.com.br/acoes/dividendos/<ano>/<mes>/`)
+   com fallback para `exDividendDate` do Yahoo Finance.
+3. Indicadores de qualidade, endividamento, múltiplos e datas de referência:
    Fundamentus (`detalhes.php?papel=<TICKER>`) + Yahoo Finance (`yfinance`, sufixo `.SA`).
-3. Histórico semanal de preços de 5 anos (`yf.download(..., period="5y", interval="1wk", auto_adjust=False)`):
+4. Histórico semanal de preços de 5 anos (`yf.download(..., period="5y", interval="1wk", auto_adjust=False)`):
    Usa `Close` ajustado apenas por desdobramentos/grupamentos (`splits`), sem descontar
    dividendos retroativamente, para permitir comparação fiel com os preços-teto nominais
    (Bazin, Graham, Gordon) e simulação exata de retorno com reinvestimento de proventos
@@ -21,8 +24,10 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import unicodedata
 import urllib.request
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -37,6 +42,22 @@ from engine.schemas import Ativo, CategoriaAtivo, Dividendo, Fundamentos, TipoDi
 CAMINHO_LOG_ERROS = Path(__file__).resolve().parent / "erros.log"
 CAMINHO_TICKERS_PADRAO = Path(__file__).resolve().parent / "tickers.json"
 MAX_WORKERS_COLETA = 12
+FUSO_B3 = timezone(timedelta(hours=-3))
+
+MESES_SLUG_PT: dict[int, str] = {
+    1: "janeiro",
+    2: "fevereiro",
+    3: "marco",
+    4: "abril",
+    5: "maio",
+    6: "junho",
+    7: "julho",
+    8: "agosto",
+    9: "setembro",
+    10: "outubro",
+    11: "novembro",
+    12: "dezembro",
+}
 
 
 def converter_data_ex_para_data_com(data_ex: date) -> date:
@@ -110,6 +131,27 @@ def _parse_numero_br(val_str: Optional[str]) -> Optional[float]:
         return None
 
 
+def _parse_data_br(dt_str: Optional[str]) -> Optional[date]:
+    """Converte data nos formatos 'DD/MM/AAAA' ou 'DD/MM/AA' para `datetime.date`."""
+    if not dt_str:
+        return None
+    limpo = dt_str.strip()
+    if not limpo or limpo == "-":
+        return None
+    m = re.search(r"(\d{1,2})/(\d{1,2})/(\d{2,4})", limpo)
+    if not m:
+        return None
+    try:
+        dia, mes, ano = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        if ano < 100:
+            ano += 2000
+        if ano < 1990 or ano > 2100:
+            return None
+        return date(ano, mes, dia)
+    except ValueError:
+        return None
+
+
 def _mapear_tipo_provento(tipo_str: str) -> Optional[TipoDividendo]:
     """Classifica o tipo textual do provento em 'dividendo', 'jcp' ou 'extraordinario'.
 
@@ -122,7 +164,7 @@ def _mapear_tipo_provento(tipo_str: str) -> Optional[TipoDividendo]:
         return None
     if "REST" in t or "EXTRA" in t or "ESPECIAL" in t:
         return "extraordinario"
-    if "JRS" in t or "JUROS" in t or "JCP" in t:
+    if "JRS" in t or "JUROS" in t or "JCP" in t or "JSCP" in t:
         return "jcp"
     return "dividendo"
 
@@ -257,14 +299,17 @@ def _coletar_proventos_fundamentus(
         if len(cols) < 5:
             continue
 
-        dt_str, val_str, tipo_str, _, qtd_str = cols[:5]
+        dt_str, val_str, tipo_str, pgto_str, qtd_str = cols[:5]
         tipo_mapeado = _mapear_tipo_provento(tipo_str)
         if tipo_mapeado is None:
             continue
 
+        dt_com = _parse_data_br(dt_str)
+        if dt_com is None:
+            continue
+        dt_pgto = _parse_data_br(pgto_str)
+
         try:
-            dia, mes, ano = map(int, dt_str.split("/"))
-            dt_com = date(ano, mes, dia)
             valor_bruto = float(val_str.replace(".", "").replace(",", "."))
             lote = float(qtd_str.replace(".", "").replace(",", "."))
             if lote <= 0 or valor_bruto <= 0:
@@ -287,10 +332,86 @@ def _coletar_proventos_fundamentus(
                 data_com=dt_com,
                 valor=round(valor_ajustado, 6),
                 tipo=tipo_mapeado,
+                data_pagamento=dt_pgto,
             )
         )
 
     return dividendos
+
+
+def _coletar_agenda_investidor10(
+    data_base: Optional[date] = None,
+    meses_ahead: int = 3,
+) -> dict[str, list[Dividendo]]:
+    """Coleta a agenda mensal de dividendos anunciados no Investidor10 em 4 requisições rápidas.
+
+    Cobre o mês corrente e os próximos `meses_ahead` meses para capturar próximas datas-com
+    anunciadas à B3 e datas de pagamento agendadas. Em caso de falha de rede, retorna dict vazio.
+    """
+    ref = data_base or datetime.now(FUSO_B3).date()
+    resultado: dict[str, list[Dividendo]] = defaultdict(list)
+    vistos: set[tuple[str, date, Optional[date], str, float]] = set()
+
+    ano_iter, mes_iter = ref.year, ref.month
+    for _ in range(meses_ahead + 1):
+        slug_mes = MESES_SLUG_PT.get(mes_iter)
+        if slug_mes:
+            url = f"https://investidor10.com.br/acoes/dividendos/{ano_iter}/{slug_mes}/"
+            try:
+                req = urllib.request.Request(
+                    url,
+                    headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                    },
+                )
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    html = resp.read().decode("utf-8", errors="ignore")
+
+                soup = BeautifulSoup(html, "lxml")
+                tabelas = soup.find_all("table")
+                if tabelas:
+                    for tr in tabelas[0].find_all("tr"):
+                        ticker = (tr.get("ticker-name") or "").strip().upper()
+                        tds = tr.find_all("td")
+                        if not ticker and tds:
+                            m_tk = re.match(r"^([A-Z]{4}\d{1,2})\b", tds[0].get_text(" ", strip=True).upper())
+                            if m_tk:
+                                ticker = m_tk.group(1)
+                        if not ticker or len(tds) < 5:
+                            continue
+
+                        dt_com = _parse_data_br(tds[1].get_text(" ", strip=True))
+                        dt_pgto = _parse_data_br(tds[2].get_text(" ", strip=True))
+                        tipo_txt = tds[3].get_text(" ", strip=True)
+                        val_txt = tds[4].get_text(" ", strip=True)
+                        m_val = re.search(r"(\d+(?:\.\d{3})*,\d+)", val_txt)
+                        valor = _parse_numero_br(m_val.group(1)) if m_val else None
+                        tipo_map = _mapear_tipo_provento(tipo_txt)
+
+                        if dt_com is None or valor is None or valor <= 0 or tipo_map is None:
+                            continue
+
+                        chave = (ticker, dt_com, dt_pgto, tipo_map, round(valor, 6))
+                        if chave in vistos:
+                            continue
+                        vistos.add(chave)
+                        resultado[ticker].append(
+                            Dividendo(
+                                data_com=dt_com,
+                                valor=round(valor, 6),
+                                tipo=tipo_map,
+                                data_pagamento=dt_pgto,
+                            )
+                        )
+            except Exception:
+                pass
+
+        mes_iter += 1
+        if mes_iter > 12:
+            mes_iter = 1
+            ano_iter += 1
+
+    return dict(resultado)
 
 
 def _coletar_historico_5a_lote(tickers_b3: list[str]) -> dict[str, list[tuple[str, float]]]:
@@ -414,6 +535,33 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
         except Exception:
             pass
 
+    # Fallback Yahoo Finance para próxima data-com anunciada (caso a agenda mensal esteja indisponível)
+    anuncios_yf: list[Dividendo] = []
+    try:
+        ex_ts = info.get("exDividendDate")
+        last_val = _limpar_float(info.get("lastDividendValue"))
+        if isinstance(ex_ts, (int, float)) and ex_ts > 0 and last_val and last_val > 0:
+            dt_ex_yf = datetime.fromtimestamp(int(ex_ts), tz=timezone.utc).date()
+            dt_com_yf = converter_data_ex_para_data_com(dt_ex_yf)
+            hoje_b3 = datetime.now(FUSO_B3).date()
+            if dt_com_yf >= hoje_b3:
+                div_ts = info.get("dividendDate")
+                dt_pgto_yf = (
+                    datetime.fromtimestamp(int(div_ts), tz=timezone.utc).date()
+                    if isinstance(div_ts, (int, float)) and div_ts > 0
+                    else None
+                )
+                anuncios_yf.append(
+                    Dividendo(
+                        data_com=dt_com_yf,
+                        valor=round(last_val, 6),
+                        tipo="dividendo",
+                        data_pagamento=dt_pgto_yf,
+                    )
+                )
+    except Exception:
+        pass
+
     lpa = detalhes_fund.get("lpa") if detalhes_fund.get("lpa") is not None else _limpar_float(info.get("trailingEps") or info.get("forwardEps"))
     vpa = detalhes_fund.get("vpa") if detalhes_fund.get("vpa") is not None else _limpar_float(info.get("bookValue"))
     ebit = detalhes_fund.get("ebit") if detalhes_fund.get("ebit") is not None else _limpar_float(info.get("ebitda"))
@@ -442,6 +590,7 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
     return {
         "preco": preco,
         "dividendos": dividendos,
+        "anuncios_agenda": anuncios_yf,
         "fundamentos": {
             "empresa": detalhes_fund.get("empresa") or info.get("shortName"),
             "data_ult_cot": detalhes_fund.get("data_ult_cot"),
@@ -520,8 +669,12 @@ def obter_ativos(
         entradas_normalizadas.append((ticker_raw, setor_raw, cat_raw))
 
     mapa_historico: dict[str, list[tuple[str, float]]] = {}
+    mapa_agenda_inv10: dict[str, list[Dividendo]] = {}
     if _coletar_dados_ativo is _COLETAR_DADOS_ATIVO_PADRAO and entradas_normalizadas:
         mapa_historico = _coletar_historico_5a_lote([t for t, _, _ in entradas_normalizadas])
+        mapa_agenda_inv10 = _coletar_agenda_investidor10()
+
+    hoje_ref = datetime.now(FUSO_B3).date()
 
     def _processar_um(tripla: tuple[str, str, Optional[CategoriaAtivo]]) -> Optional[Ativo]:
         ticker_raw, setor_raw, cat_raw = tripla
@@ -532,6 +685,11 @@ def obter_ativos(
                 raise ValueError(f"Cotação inválida ou ausente retornada pela fonte: {preco}")
 
             dividendos = bruto.get("dividendos", [])
+            anuncios_inv = list(mapa_agenda_inv10.get(ticker_raw, []))
+            anuncios_yf = list(bruto.get("anuncios_agenda") or [])
+            tem_futuro_inv = any(a.data_com >= hoje_ref for a in anuncios_inv)
+            anuncios_finais = anuncios_inv if tem_futuro_inv else (anuncios_inv + anuncios_yf)
+
             fundamentos = Fundamentos.model_validate(bruto.get("fundamentos", {}))
             pontos_hist = list(bruto.get("pontos_historico") or mapa_historico.get(ticker_raw, []))
 
@@ -553,6 +711,7 @@ def obter_ativos(
                 categoria=cat_raw,
                 preco=round(float(preco), 4),
                 dividendos=dividendos,
+                anuncios_agenda=anuncios_finais,
                 fundamentos=fundamentos,
                 pontos_historico=pontos_hist,
             )
