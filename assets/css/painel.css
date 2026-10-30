@@ -48,7 +48,7 @@ body {
 
 body.no-scroll { overflow: hidden; }
 
-svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+svg:not(.vsvg) { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
 button { font: inherit; color: inherit; cursor: pointer; background: none; border: none; }
 input, select { font: inherit; color: inherit; }
@@ -747,10 +747,11 @@ code { font-family: var(--mono); font-size: 0.92em; color: var(--muted); }
   stroke: none; stroke-width: 0; fill: none;
   touch-action: pan-y; user-select: none; -webkit-user-select: none;
 }
-.vsvg-axis-text { font-family: var(--mono); font-size: 11px; fill: #7f8b9e; stroke: none; }
-.vsvg-ceil-label { font-family: var(--mono); font-size: 11px; font-weight: 500; stroke: none; }
+.vsvg-axis-text { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.025em; font-variant-numeric: tabular-nums; fill: #94a3b8; stroke: none !important; stroke-width: 0 !important; }
+.vsvg-ceil-label { font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; stroke: none !important; stroke-width: 0 !important; }
 .vsvg-ceil-label.is-bold { font-weight: 600; }
-.v-hit-area { cursor: crosshair; stroke: none; }
+.v-hit-area { cursor: crosshair; stroke: none !important; stroke-width: 0 !important; }
+.vsvg text, .vsvg tspan { stroke: none !important; stroke-width: 0 !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
 .vchart-empty { padding: 48px 20px; text-align: center; color: var(--muted); font-size: 13px; }
 
 /* Diagnóstico 3 Colunas Desktop ("Barato há muito tempo?") */
