@@ -33,10 +33,15 @@ def _compactar_vetores_historico(json_str: str) -> str:
         itens = "".join(linha.strip() for linha in miolo.splitlines())
         return f"{prefixo}{itens}{sufixo}"
 
-    return re.sub(
+    compactado = re.sub(
         r'("(?:historico_datas|historico_precos)": \[)\s*([^\[\]\{\}]*?)\s*(\])',
         _colapsar,
         json_str,
+    )
+    return re.sub(
+        r'\{\s+("data_com": "[^"]+",)\s+("valor": [0-9.eE+-]+,)\s+("tipo": "[^"]+")\s+\}',
+        r'{ \1 \2 \3 }',
+        compactado,
     )
 
 
