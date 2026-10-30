@@ -6,7 +6,7 @@ import math
 from dataclasses import dataclass
 from typing import Iterable, Optional
 
-from engine.schemas import Ativo, Dividendo, ResultadoBazin, VereditoCor
+from engine.schemas import Ativo, CategoriaAtivo, Dividendo, ResultadoBazin, VereditoCor
 
 TAXA_BAZIN_FIXA: float = 0.06
 JANELA_ANOS_DPA: int = 5
@@ -53,6 +53,34 @@ def eh_setor_besst(setor: str) -> bool:
         return True
     mapeamento_prefixos = ("banco", "energia", "eletric", "saneamento", "segur", "telecom")
     return any(s.startswith(p) for p in mapeamento_prefixos)
+
+
+def resolver_categoria_ativo(
+    setor: str,
+    categoria_declarada: Optional[CategoriaAtivo] = None,
+) -> CategoriaAtivo:
+    """Resolve a categoria do ativo ('besst', 'dividendos' ou 'demais')."""
+    if categoria_declarada == "demais":
+        return "demais"
+    if eh_setor_besst(setor):
+        return "besst"
+    if categoria_declarada in ("besst", "dividendos"):
+        return categoria_declarada
+    return "dividendos"
+
+
+def proporcao_abaixo_teto(
+    precos: Iterable[Optional[float]],
+    teto: Optional[float],
+) -> Optional[float]:
+    """Calcula a proporção (0.0 a 1.0) de cotações históricas abaixo ou iguais ao preço-teto."""
+    if teto is None or teto <= 0 or math.isnan(teto):
+        return None
+    validos = [p for p in precos if p is not None and p > 0 and not math.isnan(p)]
+    if not validos:
+        return None
+    abaixo = sum(1 for p in validos if p <= teto)
+    return round(abaixo / len(validos), 4)
 
 
 def _eh_banco(setor: str) -> bool:

@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 TipoDividendo = Literal["dividendo", "jcp", "extraordinario"]
 VereditoCor = Literal["verde", "amarelo", "vermelho"]
+CategoriaAtivo = Literal["besst", "dividendos", "demais"]
 
 
 class Dividendo(BaseModel):
@@ -66,9 +67,11 @@ class Ativo(BaseModel):
 
     ticker: str = Field(..., min_length=1)
     setor: str = Field(..., min_length=1)
+    categoria: Optional[CategoriaAtivo] = None
     preco: float = Field(..., gt=0, description="Cotação atual em R$ (> 0)")
     dividendos: list[Dividendo] = Field(default_factory=list)
     fundamentos: Fundamentos = Field(default_factory=Fundamentos)
+    pontos_historico: list[tuple[str, float]] = Field(default_factory=list)
 
 
 class ResultadoBazin(BaseModel):
@@ -94,6 +97,7 @@ class ResultadoAtivo(BaseModel):
     ticker: str
     empresa: Optional[str] = None
     setor: str
+    categoria: CategoriaAtivo = "dividendos"
     besst: bool = False
     preco: float = Field(..., gt=0)
     data_ult_cot: Optional[str] = None
@@ -106,6 +110,9 @@ class ResultadoAtivo(BaseModel):
     rank_greenblatt: Optional[int] = None
     motivo_exclusao_greenblatt: Optional[str] = None
     fundamentos: Optional[Fundamentos] = None
+    pct_abaixo_teto_5a: Optional[float] = None
+    historico_precos: list[Optional[float]] = Field(default_factory=list)
+    proventos_historico: list[Dividendo] = Field(default_factory=list)
 
 
 class Saida(BaseModel):
@@ -115,4 +122,5 @@ class Saida(BaseModel):
 
     schema_version: str = "1.0"
     gerado_em: datetime
+    historico_datas: list[str] = Field(default_factory=list)
     ativos: list[ResultadoAtivo] = Field(default_factory=list)

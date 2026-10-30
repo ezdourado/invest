@@ -253,3 +253,70 @@ def test_obter_ativos_isola_falha_e_registra_erros_log(tmp_path, monkeypatch):
     assert log_file.exists()
     conteudo_log = log_file.read_text(encoding="utf-8")
     assert "FALHA3" in conteudo_log
+
+
+def test_categoria_demais_papeis_e_tempo_abaixo_teto():
+    """Valida classificação 'demais', cálculo de tempo abaixo do teto e alinhamento histórico na Saida."""
+    from engine.build import construir_saida
+    from engine.valuation import proporcao_abaixo_teto, resolver_categoria_ativo
+
+    assert resolver_categoria_ativo("bancos", None) == "besst"
+    assert resolver_categoria_ativo("mineração", None) == "dividendos"
+    assert resolver_categoria_ativo("tecnologia e software", "demais") == "demais"
+
+    assert proporcao_abaixo_teto([20.0, 25.0, 30.0, 40.0], 30.0) == pytest.approx(0.75)
+    assert proporcao_abaixo_teto([20.0, 25.0], 0.0) is None
+    assert proporcao_abaixo_teto([], 30.0) is None
+
+    ativos = [
+        Ativo(
+            ticker="BBAS3",
+            setor="bancos",
+            categoria="besst",
+            preco=22.0,
+            dividendos=[
+                Dividendo(data_com=date(2021, 6, 10), valor=2.40, tipo="dividendo"),
+                Dividendo(data_com=date(2022, 6, 10), valor=2.40, tipo="dividendo"),
+                Dividendo(data_com=date(2023, 6, 10), valor=2.40, tipo="jcp"),
+                Dividendo(data_com=date(2024, 6, 10), valor=2.40, tipo="dividendo"),
+                Dividendo(data_com=date(2025, 6, 10), valor=2.40, tipo="dividendo"),
+            ],
+            fundamentos=Fundamentos(lpa=4.5, vpa=28.0, g_perpetuidade=0.03),
+            pontos_historico=[
+                ("2023-01-02", 18.50),
+                ("2024-01-02", 27.00),
+                ("2025-01-02", 42.00),
+            ],
+        ),
+        Ativo(
+            ticker="PRIO3",
+            setor="petróleo e gás",
+            categoria="demais",
+            preco=41.0,
+            dividendos=[],
+            fundamentos=Fundamentos(lpa=5.0, vpa=18.0, ebit=800.0, ev=4000.0, capital_investido=3200.0),
+            pontos_historico=[
+                ("2023-01-02", 35.00),
+                ("2025-01-02", 39.50),
+            ],
+        ),
+    ]
+
+    saida = construir_saida(ativos, ano_referencia=2026)
+    assert len(saida.historico_datas) >= 3
+    bbas = next(a for a in saida.ativos if a.ticker == "BBAS3")
+    prio = next(a for a in saida.ativos if a.ticker == "PRIO3")
+
+    assert bbas.categoria == "besst"
+    assert prio.categoria == "demais"
+    assert len(bbas.historico_precos) == len(saida.historico_datas)
+    assert len(prio.historico_precos) == len(saida.historico_datas)
+    assert bbas.historico_precos[-1] == pytest.approx(22.0)
+    assert prio.historico_precos[-1] == pytest.approx(41.0)
+    assert len(bbas.proventos_historico) == 5
+    assert bbas.pct_abaixo_teto_5a is not None
+    # PRIO3 sem dividendos tem teto Bazin 0, mas Graham e Greenblatt calculados normalmente
+    assert prio.bazin.teto == 0.0
+    assert prio.pct_abaixo_teto_5a is None
+    assert prio.graham is not None and prio.graham > 0
+    assert prio.rank_greenblatt == 1

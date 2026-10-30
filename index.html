@@ -41,7 +41,7 @@
     <div>
       <p class="eyebrow">Painel de Valuation</p>
       <h1>Ações da B3 · visão analítica</h1>
-      <p class="page-lede">Bazin com K fixo de 6%, DPA retroativo de 5 anos civis fechados pela data-com. Use o painel para triar papéis e priorizar estudos.</p>
+      <p class="page-lede">Bazin com K fixo de 6%, DPA retroativo de 5 anos civis fechados pela data-com. Use o painel para triar papéis, comparar histórico vs. preços-teto e simular retornos.</p>
     </div>
     <div class="page-head-actions">
       <button type="button" class="btn btn-primary" id="btn-open-selector">
@@ -53,68 +53,223 @@
 
   <div class="alert alert-error is-hidden" id="engine-error-banner" role="alert"></div>
 
-  <section class="kpi-grid" id="kpi-grid" aria-label="Indicadores do painel"></section>
-
-  <section class="card">
-    <div class="card-head">
-      <div>
-        <h2 class="card-title">Cobertura setorial BESST</h2>
-        <p class="card-sub">Bancos · Energia · Saneamento · Seguros · Telecom — clique em um setor para filtrar</p>
+  <!-- Abas principais do painel -->
+  <div class="view-tabs" id="main-view-tabs" role="tablist" aria-label="Modo de visualização do painel">
+    <button type="button" class="view-tab is-active" role="tab" aria-selected="true" aria-controls="view-tabela" id="tab-btn-tabela" data-view-tab="tabela">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>
+      <div class="view-tab-text">
+        <span class="view-tab-title">Tabela &amp; Triagem</span>
+        <span class="view-tab-sub">KPIs, setores BESST, Demais papéis e ranking</span>
       </div>
-    </div>
-    <div class="besst-grid" id="besst-coverage-grid"></div>
-  </section>
-
-  <section class="card card-table">
-    <div class="card-head card-head-wrap">
-      <div>
-        <h2 class="card-title">Tabela de valuation</h2>
-        <p class="card-sub" id="engine-count-badge">0 ativos exibidos</p>
+    </button>
+    <button type="button" class="view-tab" role="tab" aria-selected="false" aria-controls="view-visual" id="tab-btn-visual" data-view-tab="visual">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/><path d="M7 9h13" stroke-dasharray="2 2"/></svg>
+      <div class="view-tab-text">
+        <span class="view-tab-title">Visão Gráfica &amp; Simulador</span>
+        <span class="view-tab-sub">Histórico vs. Tetos (Bazin/Graham/Gordon) e Retorno c/ Dividendos</span>
       </div>
-      <div class="toolbar">
-        <label class="search">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          <input type="search" id="input-filter-table" placeholder="Filtrar por ticker ou setor" autocomplete="off">
-        </label>
-        <div class="segmented" role="group" aria-label="Filtrar por veredito" id="verdict-filter">
-          <button type="button" class="seg-btn is-active" data-verdict="todos">Todos</button>
-          <button type="button" class="seg-btn" data-verdict="verde"><i class="dot dot-green"></i>Compra</button>
-          <button type="button" class="seg-btn" data-verdict="amarelo"><i class="dot dot-yellow"></i>Atenção</button>
-          <button type="button" class="seg-btn" data-verdict="vermelho"><i class="dot dot-red"></i>Caro</button>
+    </button>
+  </div>
+
+  <!-- ==================== ABA 1: TABELA & TRIAGEM ==================== -->
+  <div class="view-pane" id="view-tabela" role="tabpanel" aria-labelledby="tab-btn-tabela">
+
+    <section class="kpi-grid" id="kpi-grid" aria-label="Indicadores do painel"></section>
+
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2 class="card-title">Cobertura setorial BESST &amp; Categorias</h2>
+          <p class="card-sub">Bancos · Energia · Saneamento · Seguros · Telecom · Outras Dividendos · Demais papéis — clique para filtrar</p>
         </div>
-        <label class="select-wrap mobile-only">
-          <span class="sr-only">Ordenar por</span>
-          <select id="select-sort-mobile" aria-label="Ordenar por"></select>
-        </label>
       </div>
-    </div>
+      <div class="besst-grid" id="besst-coverage-grid"></div>
+      <div class="cat-extra-grid" id="extra-categories-grid"></div>
+    </section>
 
-    <div class="filter-chips" id="active-filters"></div>
+    <section class="card card-table">
+      <div class="card-head card-head-wrap">
+        <div>
+          <h2 class="card-title">Tabela de valuation</h2>
+          <p class="card-sub" id="engine-count-badge">0 ativos exibidos</p>
+        </div>
+        <div class="toolbar">
+          <label class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="input-filter-table" placeholder="Filtrar por ticker, empresa ou setor" autocomplete="off">
+          </label>
+          <div class="segmented" role="group" aria-label="Filtrar por veredito" id="verdict-filter">
+            <button type="button" class="seg-btn is-active" data-verdict="todos">Todos</button>
+            <button type="button" class="seg-btn" data-verdict="verde"><i class="dot dot-green"></i>Compra</button>
+            <button type="button" class="seg-btn" data-verdict="amarelo"><i class="dot dot-yellow"></i>Atenção</button>
+            <button type="button" class="seg-btn" data-verdict="vermelho"><i class="dot dot-red"></i>Caro</button>
+          </div>
+          <label class="select-wrap mobile-only">
+            <span class="sr-only">Ordenar por</span>
+            <select id="select-sort-mobile" aria-label="Ordenar por"></select>
+          </label>
+        </div>
+      </div>
 
-    <div class="table-wrap">
-      <table class="vt" id="engine-valuation-table">
-        <thead>
-          <tr>
-            <th data-sort="ticker" data-tip="Código de negociação e setor do ativo">Ativo</th>
-            <th data-sort="preco" class="num" data-tip="Cotação de fechamento usada pelo motor">Preço</th>
-            <th data-sort="dpa" class="num" data-tip="Média dos dividendos + JCP por ação nos últimos 5 anos civis fechados, agrupados pela data-com. Sem extraordinários.">DPA 5a</th>
-            <th data-sort="teto" class="num" data-tip="Preço-teto Bazin = DPA ÷ 6%">Teto Bazin</th>
-            <th data-sort="margem" class="num" data-tip="Margem de segurança = (Teto − Preço) ÷ Teto">Margem Bazin</th>
-            <th data-sort="veredito" data-tip="Veredito do motor com base na margem Bazin">Veredito</th>
-            <th data-sort="graham" class="num" data-tip="Valor intrínseco de Graham = √(22,5 × LPA × VPA). Referência secundária.">Graham</th>
-            <th data-sort="gordon" class="num" data-tip="Modelo de Gordon: DPA × (1+g) ÷ (k − g)">Gordon</th>
-            <th data-sort="greenblatt" class="num" data-tip="Posição no ranking Greenblatt (EBIT/EV + ROIC). Bancos ficam fora.">Greenblatt</th>
-            <th class="col-actions"><span class="sr-only">Ações</span></th>
-          </tr>
-        </thead>
-        <tbody id="engine-valuation-tbody">
-          <tr class="row-skeleton"><td colspan="10"><div class="skeleton"></div></td></tr>
-          <tr class="row-skeleton"><td colspan="10"><div class="skeleton"></div></td></tr>
-          <tr class="row-skeleton"><td colspan="10"><div class="skeleton"></div></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+      <div class="filter-chips" id="active-filters"></div>
+
+      <div class="table-wrap">
+        <table class="vt" id="engine-valuation-table">
+          <thead>
+            <tr>
+              <th data-sort="ticker" data-tip="Código de negociação, categoria e setor do ativo">Ativo</th>
+              <th data-sort="preco" class="num" data-tip="Cotação usada pelo motor">Preço</th>
+              <th data-sort="dpa" class="num" data-tip="Média dos dividendos + JCP por ação nos últimos 5 anos civis fechados, agrupados pela data-com. Sem extraordinários.">DPA 5a</th>
+              <th data-sort="teto" class="num" data-tip="Preço-teto Bazin = DPA ÷ 6%">Teto Bazin</th>
+              <th data-sort="margem" class="num" data-tip="Margem de segurança = (Teto − Preço) ÷ Teto">Margem Bazin</th>
+              <th data-sort="veredito" data-tip="Veredito do motor com base na margem Bazin">Veredito</th>
+              <th data-sort="graham" class="num" data-tip="Valor intrínseco de Graham = √(22,5 × LPA × VPA). Referência secundária.">Graham</th>
+              <th data-sort="gordon" class="num" data-tip="Modelo de Gordon: DPA × (1+g) ÷ (k − g)">Gordon</th>
+              <th data-sort="greenblatt" class="num" data-tip="Posição no ranking Greenblatt (EBIT/EV + ROIC). Bancos ficam fora.">Greenblatt</th>
+              <th class="col-actions"><span class="sr-only">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody id="engine-valuation-tbody">
+            <tr class="row-skeleton"><td colspan="10"><div class="skeleton"></div></td></tr>
+            <tr class="row-skeleton"><td colspan="10"><div class="skeleton"></div></td></tr>
+            <tr class="row-skeleton"><td colspan="10"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ==================== ABA 2: VISÃO GRÁFICA & SIMULADOR ==================== -->
+  <div class="view-pane is-hidden" id="view-visual" role="tabpanel" aria-labelledby="tab-btn-visual">
+
+    <!-- Barra executiva de seleção de papel, comparação e janela -->
+    <section class="card vcard-controls">
+      <div class="vctrl-top">
+        <div class="vctrl-primary">
+          <label class="vctrl-label" for="visual-main-select">Papel em foco</label>
+          <div class="vctrl-picker-row">
+            <label class="select-wrap vctrl-select-main">
+              <select id="visual-main-select" aria-label="Selecionar papel principal"></select>
+            </label>
+            <label class="search vctrl-quick-search">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input type="search" id="visual-search-input" placeholder="Ir p/ ticker (Enter)" autocomplete="off">
+            </label>
+          </div>
+        </div>
+
+        <div class="vctrl-period">
+          <span class="vctrl-label">Período analisado</span>
+          <div class="segmented vperiod-seg" role="group" aria-label="Período do gráfico e simulação" id="visual-period-group">
+            <button type="button" class="seg-btn" data-vperiod="6m">6M</button>
+            <button type="button" class="seg-btn" data-vperiod="1y">1A</button>
+            <button type="button" class="seg-btn" data-vperiod="2y">2A</button>
+            <button type="button" class="seg-btn" data-vperiod="3y">3A</button>
+            <button type="button" class="seg-btn is-active" data-vperiod="5y">5A</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pílulas rápidas dos papéis do painel / categorias -->
+      <div class="vctrl-pills-bar">
+        <span class="vctrl-mini-label">Acesso rápido:</span>
+        <div class="vpills-scroll" id="visual-quick-pills"></div>
+      </div>
+
+      <!-- Comparador multi-ativos -->
+      <div class="vctrl-compare-bar">
+        <div class="vctrl-compare-left">
+          <span class="vctrl-mini-label">Comparar com (até 4):</span>
+          <div class="vcompare-chips" id="visual-compare-chips"></div>
+          <label class="select-wrap vcompare-select-wrap">
+            <select id="visual-compare-select" aria-label="Adicionar papel para comparação">
+              <option value="">+ Comparar papel…</option>
+            </select>
+          </label>
+        </div>
+        <div class="vctrl-peers" id="visual-peer-suggestions"></div>
+      </div>
+    </section>
+
+    <!-- CARD 1: HISTÓRICO DE PREÇOS VS PREÇOS-TETO TRACEJADOS -->
+    <section class="card vcard-chart" id="visual-ceiling-card">
+      <div class="card-head card-head-wrap">
+        <div id="visual-asset-header">
+          <h2 class="card-title">Histórico de Preços vs. Preços-Teto</h2>
+          <p class="card-sub">Avalie há quanto tempo o papel negocia abaixo ou acima dos tetos Bazin (K=6%), Graham e Gordon</p>
+        </div>
+        <div class="vchart-head-actions">
+          <div class="segmented vmode-seg" role="group" aria-label="Escala do gráfico" id="visual-chart-mode">
+            <button type="button" class="seg-btn is-active" data-vmode="preco" data-tip="Cotação em R$ com linhas horizontais tracejadas dos preços-teto">Preço (R$) &amp; Tetos</button>
+            <button type="button" class="seg-btn" data-vmode="margem_bazin" data-tip="Compara a margem histórica em relação ao Teto Bazin (0% = linha do teto) entre vários papéis">Desconto vs. Bazin (%)</button>
+            <button type="button" class="seg-btn" data-vmode="variacao" data-tip="Variação percentual acumulada da cotação desde o início da janela">Variação (%)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legenda clicável com estilo tracejado distinto para Bazin, Graham e Gordon -->
+      <div class="vlegend-bar" id="visual-ceiling-legend"></div>
+
+      <!-- HUD dinâmico ao passar o cursor ou arrastar o dedo -->
+      <div class="vhud" id="visual-price-hud" aria-live="polite"></div>
+
+      <!-- Área do Gráfico SVG Interativo -->
+      <div class="vsvg-container" id="visual-price-svg-wrap"></div>
+
+      <!-- Diagnóstico de Desconto Prolongado (Alerta de possível Value Trap) -->
+      <div class="vtrap-panel" id="visual-valuetrap-box"></div>
+
+      <!-- Comparativo de Tetos e Tempo Barato entre os papéis ativos -->
+      <div class="vcompare-table-wrap" id="visual-compare-ceilings-wrap"></div>
+    </section>
+
+    <!-- CARD 2: SIMULADOR DE RENDIMENTO NO PERÍODO COM DIVIDENDOS -->
+    <section class="card vcard-sim" id="visual-sim-card">
+      <div class="card-head card-head-wrap">
+        <div>
+          <h2 class="card-title">Simulador de Rendimento Total (Cotação + Dividendos)</h2>
+          <p class="card-sub" id="sim-subtitle">Quanto teria rendido um aporte inicial no período selecionado considerando os proventos distribuídos</p>
+        </div>
+        <div class="vsim-controls">
+          <div class="vsim-capital-group">
+            <label class="vsim-input-wrap" for="sim-capital-input">
+              <span class="vsim-prefix">R$</span>
+              <input type="number" id="sim-capital-input" value="10000" min="100" step="500" aria-label="Valor inicial investido em reais">
+            </label>
+            <div class="vsim-presets" id="sim-capital-presets">
+              <button type="button" class="chip-mini" data-capital="1000">1 mil</button>
+              <button type="button" class="chip-mini" data-capital="5000">5 mil</button>
+              <button type="button" class="chip-mini is-on" data-capital="10000">10 mil</button>
+              <button type="button" class="chip-mini" data-capital="50000">50 mil</button>
+            </div>
+          </div>
+
+          <div class="segmented" role="group" aria-label="Modo de tratamento dos dividendos" id="sim-reinvest-group">
+            <button type="button" class="seg-btn is-active" data-reinvest="1" data-tip="Recompra ações automaticamente na data-com de cada provento">Reinvestindo</button>
+            <button type="button" class="seg-btn" data-reinvest="0" data-tip="Mantém quantidade fixa de ações e acumula os dividendos em caixa">No bolso</button>
+          </div>
+
+          <button type="button" class="chip vsim-tax-btn is-on" id="sim-net-jcp-btn" data-tip="Desconta 15% de Imposto de Renda retido na fonte apenas sobre JCP (Dividendos permanecem isentos)">
+            <i style="background:var(--green)"></i>JCP líq. IR (15%)
+          </button>
+        </div>
+      </div>
+
+      <!-- KPIs do Simulador -->
+      <div class="vsim-kpis" id="sim-kpi-grid"></div>
+
+      <!-- HUD do Gráfico do Simulador -->
+      <div class="vhud" id="sim-chart-hud" aria-live="polite"></div>
+
+      <!-- Gráfico SVG de Evolução do Patrimônio -->
+      <div class="vsvg-container" id="sim-svg-wrap"></div>
+
+      <!-- Tabela / Cartões de Decomposição & Comparação de Retorno -->
+      <div class="vcompare-table-wrap" id="sim-breakdown-wrap"></div>
+    </section>
+
+  </div>
 
   <section class="card card-notes">
     <h2 class="card-title">Metodologia (PROJETO.md)</h2>
@@ -122,7 +277,7 @@
       <div><dt>Bazin</dt><dd>K = 6% fixo. DPA retroativo = média de dividendos reais por ano civil da data-com nos últimos 5 anos fechados. Extraordinários calculados à parte e sinalizados.</dd></div>
       <div><dt>Margem</dt><dd>(Teto − Preço) ÷ Teto, com o teto no denominador.</dd></div>
       <div><dt>Graham &amp; Gordon</dt><dd>√(22,5 × LPA × VPA) e DPA × (1+g) ÷ (k − g). Graham é referência secundária para financeiras e holdings.</dd></div>
-      <div><dt>Greenblatt &amp; BESST</dt><dd>Ranking no universo operacional; bancos ficam fora com motivo registrado. BESST é atributo de cobertura e não descarta ativos.</dd></div>
+      <div><dt>Greenblatt, BESST &amp; Demais</dt><dd>Ranking no universo operacional; bancos ficam fora com motivo registrado. BESST agrupa os 5 setores perenes; Demais papéis reúne ações de crescimento, cíclicas e outros setores.</dd></div>
     </dl>
   </section>
 
@@ -145,12 +300,14 @@
   <div class="drawer-body">
     <label class="search search-block">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input type="search" id="input-search-universe" placeholder="Buscar ticker ou setor · Enter adiciona" autocomplete="off">
+      <input type="search" id="input-search-universe" placeholder="Buscar ticker, empresa ou setor · Enter adiciona" autocomplete="off">
     </label>
     <div class="feedback" id="search-universe-feedback" aria-live="polite"></div>
     <div class="quick-actions">
       <button type="button" class="btn btn-ghost" id="btn-select-besst-universe">Somente BESST</button>
-      <button type="button" class="btn btn-ghost" id="btn-select-green-universe">Somente veredito verde</button>
+      <button type="button" class="btn btn-ghost" id="btn-select-dividendos-universe">Outras Dividendos</button>
+      <button type="button" class="btn btn-ghost" id="btn-select-demais-universe">Demais papéis</button>
+      <button type="button" class="btn btn-ghost" id="btn-select-green-universe">Veredito verde</button>
       <button type="button" class="btn btn-ghost" id="btn-select-all-universe">Selecionar todos</button>
       <button type="button" class="btn btn-ghost btn-danger" id="btn-clear-universe">Limpar</button>
     </div>
@@ -175,5 +332,6 @@
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
 <script src="./assets/js/data.js"></script>
+<script src="./assets/js/visao_grafica.js"></script>
 </body>
 </html>

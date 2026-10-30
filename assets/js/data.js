@@ -15,6 +15,11 @@ const SETORES_BESST = [
   { id: 'telecom', letra: 'T', nome: 'Telecom' }
 ];
 
+const CATEGORIAS_EXTRAS = [
+  { id: 'dividendos', letra: 'D', nome: 'Outras Pagadoras de Dividendos', desc: 'Commodities, indústria e finanças fora do BESST' },
+  { id: 'demais', letra: '+', nome: 'Demais papéis', desc: 'Crescimento, consumo, saúde, tecnologia e outros setores' }
+];
+
 const ORDEM_VEREDITO = { verde: 0, amarelo: 1, vermelho: 2 };
 const ROTULO_VEREDITO = { verde: 'Compra', amarelo: 'Atenção', vermelho: 'Caro' };
 
@@ -153,8 +158,17 @@ function mapearSetorBesst(setor) {
   return null;
 }
 
+function categoriaDoAtivo(a) {
+  if (!a) return 'dividendos';
+  if (a.categoria === 'demais') return 'demais';
+  if (a.besst || mapearSetorBesst(a.setor)) return 'besst';
+  return a.categoria === 'dividendos' ? 'dividendos' : 'dividendos';
+}
+
 function nomeSetor(id) {
   if (id === 'besst') return 'Somente BESST';
+  if (id === 'dividendos') return 'Outras Pagadoras de Dividendos';
+  if (id === 'demais') return 'Demais papéis';
   if (id === 'outros') return 'Fora do BESST';
   return SETORES_BESST.find(s => s.id === id)?.nome || id;
 }
@@ -206,8 +220,10 @@ function ativosSelecionados() {
 function passaFiltroSetor(a) {
   const f = painelState.filtroSetor;
   if (f === 'todos') return true;
-  if (f === 'besst') return !!a.besst;
-  if (f === 'outros') return !mapearSetorBesst(a.setor);
+  if (f === 'besst') return categoriaDoAtivo(a) === 'besst';
+  if (f === 'dividendos') return categoriaDoAtivo(a) === 'dividendos';
+  if (f === 'demais') return categoriaDoAtivo(a) === 'demais';
+  if (f === 'outros') return categoriaDoAtivo(a) !== 'besst';
   return mapearSetorBesst(a.setor) === f;
 }
 
@@ -248,7 +264,7 @@ function ativosVisiveis() {
   const lista = ativosSelecionados().filter(a => {
     if (!passaFiltroSetor(a)) return false;
     if (painelState.filtroVeredito !== 'todos' && a.bazin?.veredito !== painelState.filtroVeredito) return false;
-    if (q && !a.ticker.toLowerCase().includes(q) && !a.setor.toLowerCase().includes(q)) return false;
+    if (q && !a.ticker.toLowerCase().includes(q) && !a.setor.toLowerCase().includes(q) && !(a.empresa || '').toLowerCase().includes(q)) return false;
     return true;
   });
   return ordenar(lista);
@@ -294,6 +310,7 @@ function renderizarKpis() {
     .filter(a => valido(a.bazin?.margem_seguranca))
     .sort((a, b) => b.bazin.margem_seguranca - a.bazin.margem_seguranca)[0];
   const cobertos = SETORES_BESST.filter(s => sel.some(a => mapearSetorBesst(a.setor) === s.id)).length;
+  const qtdDemais = sel.filter(a => categoriaDoAtivo(a) === 'demais').length;
   const melhorGb = sel.filter(a => valido(a.rank_greenblatt)).sort((a, b) => a.rank_greenblatt - b.rank_greenblatt)[0];
 
   el.innerHTML = `
@@ -321,49 +338,93 @@ function renderizarKpis() {
       <div class="kpi-value">${melhor ? esc(melhor.ticker) : '—'}</div>
       <div class="kpi-foot ${melhor ? classeMargem(melhor.bazin.margem_seguranca) : ''}">${melhor ? `${fmtPct(melhor.bazin.margem_seguranca)} · teto ${fmtReal(melhor.bazin.teto)}` : 'Sem dados'}</div>
     </div>
-    <div class="kpi ${melhorGb ? 'is-clickable' : ''}" style="--kpi-color: var(--accent)" ${melhorGb ? `data-kpi-detail="${esc(melhorGb.ticker)}"` : ''} data-tip="Cobertura dos 5 setores BESST e o melhor colocado no ranking Greenblatt dentro do painel">
-      <div class="kpi-label">Cobertura BESST</div>
-      <div class="kpi-value">${cobertos}<span class="t-dim" style="font-size:14px"> / 5</span></div>
+    <div class="kpi ${melhorGb ? 'is-clickable' : ''}" style="--kpi-color: var(--accent)" ${melhorGb ? `data-kpi-detail="${esc(melhorGb.ticker)}"` : ''} data-tip="Cobertura dos 5 setores BESST, contagem de Demais papéis e o melhor colocado no ranking Greenblatt">
+      <div class="kpi-label">BESST &amp; Demais</div>
+      <div class="kpi-value">${cobertos}<span class="t-dim" style="font-size:14px"> / 5 · +${qtdDemais}</span></div>
       <div class="kpi-foot">${melhorGb ? `Top Greenblatt: ${esc(melhorGb.ticker)} (#${melhorGb.rank_greenblatt})` : 'Sem ranking Greenblatt'}</div>
     </div>
   `;
 }
 
-/* ---------- Render: BESST ---------- */
+/* ---------- Render: BESST & Categorias Extras ---------- */
 
 function renderizarBesst() {
   const el = $('#besst-coverage-grid');
-  if (!el) return;
+  const elExtra = $('#extra-categories-grid');
   const sel = ativosSelecionados();
 
-  el.innerHTML = SETORES_BESST.map(setor => {
-    const itens = sel.filter(a => mapearSetorBesst(a.setor) === setor.id);
-    const n = itens.length;
-    const cont = { verde: 0, amarelo: 0, vermelho: 0 };
-    itens.forEach(a => { if (cont[a.bazin?.veredito] !== undefined) cont[a.bazin.veredito] += 1; });
-    const med = mediana(itens.map(a => a.bazin?.margem_seguranca));
-    const ativo = painelState.filtroSetor === setor.id;
-    const w = (k) => n ? (cont[k] / n) * 100 : 0;
-    const tip = n ? `${itens.map(a => a.ticker).join(', ')}` : `Nenhum ativo de ${setor.nome} no painel`;
+  if (el) {
+    el.innerHTML = SETORES_BESST.map(setor => {
+      const itens = sel.filter(a => mapearSetorBesst(a.setor) === setor.id && categoriaDoAtivo(a) === 'besst');
+      const n = itens.length;
+      const cont = { verde: 0, amarelo: 0, vermelho: 0 };
+      itens.forEach(a => { if (cont[a.bazin?.veredito] !== undefined) cont[a.bazin.veredito] += 1; });
+      const med = mediana(itens.map(a => a.bazin?.margem_seguranca));
+      const ativo = painelState.filtroSetor === setor.id;
+      const w = (k) => n ? (cont[k] / n) * 100 : 0;
+      const tip = n ? `${itens.map(a => a.ticker).join(', ')}` : `Nenhum ativo de ${setor.nome} no painel`;
 
-    return `
-      <button type="button" class="besst-item ${n ? '' : 'is-empty'} ${ativo ? 'is-active' : ''}" data-sector="${setor.id}" data-tip="${esc(tip)}">
-        <div class="besst-top">
-          <span class="besst-name"><span class="besst-letter">${setor.letra}</span>${setor.nome}</span>
-          <span class="besst-count">${n}</span>
-        </div>
-        <div class="besst-mix" aria-hidden="true">
-          <span style="width:${w('verde')}%;background:var(--green)"></span>
-          <span style="width:${w('amarelo')}%;background:var(--yellow)"></span>
-          <span style="width:${w('vermelho')}%;background:var(--red)"></span>
-        </div>
-        <div class="besst-meta">
-          <span>${n ? `${cont.verde} em compra` : 'Sem cobertura'}</span>
-          <span class="mono ${classeMargem(med)}">${n ? fmtPct(med) : ''}</span>
-        </div>
-      </button>
-    `;
-  }).join('');
+      return `
+        <button type="button" class="besst-item ${n ? '' : 'is-empty'} ${ativo ? 'is-active' : ''}" data-sector="${setor.id}" data-tip="${esc(tip)}">
+          <div class="besst-top">
+            <span class="besst-name"><span class="besst-letter">${setor.letra}</span>${setor.nome}</span>
+            <span class="besst-count">${n}</span>
+          </div>
+          <div class="besst-mix" aria-hidden="true">
+            <span style="width:${w('verde')}%;background:var(--green)"></span>
+            <span style="width:${w('amarelo')}%;background:var(--yellow)"></span>
+            <span style="width:${w('vermelho')}%;background:var(--red)"></span>
+          </div>
+          <div class="besst-meta">
+            <span>${n ? `${cont.verde} em compra` : 'Sem cobertura'}</span>
+            <span class="mono ${classeMargem(med)}">${n ? fmtPct(med) : ''}</span>
+          </div>
+        </button>
+      `;
+    }).join('');
+  }
+
+  if (elExtra) {
+    elExtra.innerHTML = CATEGORIAS_EXTRAS.map(cat => {
+      const itens = sel.filter(a => categoriaDoAtivo(a) === cat.id);
+      const totalBaseCat = painelState.universo.filter(a => categoriaDoAtivo(a) === cat.id).length;
+      const n = itens.length;
+      const cont = { verde: 0, amarelo: 0, vermelho: 0 };
+      itens.forEach(a => { if (cont[a.bazin?.veredito] !== undefined) cont[a.bazin.veredito] += 1; });
+      const med = mediana(itens.map(a => a.bazin?.margem_seguranca));
+      const topGb = itens.filter(a => valido(a.rank_greenblatt)).sort((a, b) => a.rank_greenblatt - b.rank_greenblatt)[0];
+      const ativo = painelState.filtroSetor === cat.id;
+      const w = (k) => n ? (cont[k] / n) * 100 : 0;
+      const tip = n
+        ? `${cat.nome} no painel: ${itens.slice(0, 14).map(a => a.ticker).join(', ')}${itens.length > 14 ? '…' : ''}`
+        : `Nenhum ativo de "${cat.nome}" selecionado (${totalBaseCat} disponíveis em Gerenciar ativos)`;
+
+      const metaDir = cat.id === 'demais'
+        ? (topGb ? `Top GB: ${esc(topGb.ticker)} (#${topGb.rank_greenblatt})` : (n ? fmtPct(med) : `${totalBaseCat} na base`))
+        : (n ? fmtPct(med) : `${totalBaseCat} na base`);
+
+      return `
+        <button type="button" class="besst-item cat-extra-item ${n ? '' : 'is-empty'} ${ativo ? 'is-active' : ''}" data-sector="${cat.id}" data-tip="${esc(tip)}">
+          <div class="besst-top">
+            <span class="besst-name">
+              <span class="besst-letter ${cat.id === 'demais' ? 'is-demais' : ''}">${cat.letra}</span>
+              <span>${cat.nome} <small class="cat-extra-desc">· ${esc(cat.desc)}</small></span>
+            </span>
+            <span class="besst-count">${n}<span class="t-dim">/${totalBaseCat}</span></span>
+          </div>
+          <div class="besst-mix" aria-hidden="true">
+            <span style="width:${w('verde')}%;background:var(--green)"></span>
+            <span style="width:${w('amarelo')}%;background:var(--yellow)"></span>
+            <span style="width:${w('vermelho')}%;background:var(--red)"></span>
+          </div>
+          <div class="besst-meta">
+            <span>${n ? `${cont.verde} em compra Bazin` : 'Clique em Gerenciar ativos p/ incluir'}</span>
+            <span class="mono ${cat.id === 'demais' && topGb ? 't-accent' : classeMargem(med)}">${metaDir}</span>
+          </div>
+        </button>
+      `;
+    }).join('');
+  }
 }
 
 /* ---------- Render: tabela ---------- */
@@ -418,7 +479,7 @@ function renderizarChipsFiltro() {
   const el = $('#active-filters');
   if (!el) return;
   const chips = [];
-  if (painelState.filtroSetor !== 'todos') chips.push({ tipo: 'setor', label: `Setor: ${nomeSetor(painelState.filtroSetor)}` });
+  if (painelState.filtroSetor !== 'todos') chips.push({ tipo: 'setor', label: `Filtro: ${nomeSetor(painelState.filtroSetor)}` });
   if (painelState.filtroVeredito !== 'todos') chips.push({ tipo: 'veredito', label: `Veredito: ${ROTULO_VEREDITO[painelState.filtroVeredito]}` });
   if (painelState.termo.trim()) chips.push({ tipo: 'termo', label: `Busca: "${painelState.termo.trim()}"` });
   el.innerHTML = chips.map(c => `
@@ -449,10 +510,11 @@ function renderizarTabela() {
     tbody.innerHTML = `
       <tr class="row-empty"><td colspan="10" class="empty">
         <strong>Seu painel está vazio</strong>
-        Escolha os ativos que deseja acompanhar. A seleção fica salva neste navegador.
+        Escolha os ativos que deseja acompanhar (BESST, pagadoras de dividendos ou Demais papéis). A seleção fica salva neste navegador.
         <div class="empty-actions">
           <button type="button" class="btn btn-primary" data-empty-action="open">Gerenciar ativos</button>
           <button type="button" class="btn btn-ghost" data-empty-action="besst">Carregar setores BESST</button>
+          <button type="button" class="btn btn-ghost" data-empty-action="demais">Carregar Demais papéis</button>
           <button type="button" class="btn btn-ghost" data-empty-action="todos">Carregar todos</button>
         </div>
       </td></tr>`;
@@ -463,7 +525,7 @@ function renderizarTabela() {
     tbody.innerHTML = `
       <tr class="row-empty"><td colspan="10" class="empty">
         <strong>Nenhum ativo com os filtros atuais</strong>
-        Ajuste a busca, o setor ou o veredito.
+        Ajuste a busca, a categoria/setor ou o veredito.
         <div class="empty-actions"><button type="button" class="btn btn-ghost" data-empty-action="limpar-filtros">Limpar filtros</button></div>
       </td></tr>`;
     return;
@@ -472,10 +534,13 @@ function renderizarTabela() {
   tbody.innerHTML = lista.map(a => {
     const b = a.bazin || {};
     const m = b.margem_seguranca;
+    const cat = categoriaDoAtivo(a);
     const extra = b.tem_extraordinario
       ? `<span class="tag tag-extra" data-tip="Há dividendos extraordinários na janela de 5 anos. DPA c/ extra: ${fmtReal(b.dpa)} · s/ extra: ${fmtReal(b.dpa_sem_extra)}">Extra</span>`
       : '';
-    const besst = a.besst ? `<span class="tag tag-besst">BESST</span>` : '';
+    const catTag = cat === 'besst'
+      ? `<span class="tag tag-besst">BESST</span>`
+      : (cat === 'demais' ? `<span class="tag tag-demais">Demais</span>` : '');
     const dpaCell = b.tem_extraordinario
       ? `<div class="cell-stack"><span>${fmtReal(b.dpa_sem_extra)}</span><span class="cell-sub">c/ extra ${fmtReal(b.dpa)}</span></div>`
       : fmtReal(b.dpa_sem_extra);
@@ -485,12 +550,12 @@ function renderizarTabela() {
         <td class="c-ticker" data-label="Ativo">
           <div class="asset">
             <span class="asset-ticker" ${a.empresa ? `data-tip="${esc(a.empresa)}"` : ''}>${esc(a.ticker)} ${extra}</span>
-            <span class="asset-sector">${esc(a.setor)} ${besst}</span>
+            <span class="asset-sector">${esc(a.setor)} ${catTag}</span>
           </div>
         </td>
         <td class="num c-preco" data-label="Preço">${fmtReal(a.preco)}</td>
         <td class="num c-dpa" data-label="DPA 5a">${dpaCell}</td>
-        <td class="num c-teto" data-label="Teto Bazin">${fmtReal(b.teto)}</td>
+        <td class="num c-teto" data-label="Teto Bazin">${b.teto > 0 ? fmtReal(b.teto) : '<span class="t-dim" data-tip="Sem DPA recorrente nos últimos 5 anos fechados">—</span>'}</td>
         <td class="num c-margem" data-label="Margem Bazin">
           <div class="margin-cell" data-tip="Preço ${fmtReal(a.preco)} vs teto ${fmtReal(b.teto)}">
             <span class="margin-val ${classeMargem(m)}">${fmtPct(m)}</span>
@@ -503,6 +568,9 @@ function renderizarTabela() {
         <td class="num c-gb" data-label="Greenblatt">${htmlGreenblatt(a)}</td>
         <td class="c-actions">
           <div class="row-actions">
+            <button type="button" class="icon-btn" data-row-action="chart" data-tip="Ver histórico de preços vs. tetos e simulador de dividendos" aria-label="Abrir gráfico e simulador de ${esc(a.ticker)}">
+              <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/></svg>
+            </button>
             <a href="${urlInvestidor10(a.ticker)}" target="_blank" rel="noopener noreferrer" class="icon-btn" data-row-action="ext" data-tip="Abrir ${esc(a.ticker)} no Investidor10" aria-label="Abrir ${esc(a.ticker)} no Investidor10">
               <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             </a>
@@ -529,15 +597,16 @@ function renderizarUniverso() {
   const q = ($('#input-search-universe')?.value || '').trim().toLowerCase();
   const sel = new Set(painelState.selecionados.map(t => t.toUpperCase()));
   const grupos = [
-    ...SETORES_BESST.map(s => ({ id: s.id, titulo: s.nome, filtro: a => mapearSetorBesst(a.setor) === s.id })),
-    { id: 'outros', titulo: 'Outras pagadoras de dividendos', filtro: a => !mapearSetorBesst(a.setor) }
+    ...SETORES_BESST.map(s => ({ id: s.id, titulo: `${s.nome} (BESST)`, filtro: a => categoriaDoAtivo(a) === 'besst' && mapearSetorBesst(a.setor) === s.id })),
+    { id: 'dividendos', titulo: 'Outras pagadoras de dividendos', filtro: a => categoriaDoAtivo(a) === 'dividendos' },
+    { id: 'demais', titulo: 'Demais papéis (crescimento, consumo, saúde e outros)', filtro: a => categoriaDoAtivo(a) === 'demais' }
   ];
   const corVeredito = { verde: 'var(--green)', amarelo: 'var(--yellow)', vermelho: 'var(--red)' };
 
   const html = grupos.map(g => {
     const itens = painelState.universo
       .filter(g.filtro)
-      .filter(a => !q || a.ticker.toLowerCase().includes(q) || a.setor.toLowerCase().includes(q))
+      .filter(a => !q || a.ticker.toLowerCase().includes(q) || a.setor.toLowerCase().includes(q) || (a.empresa || '').toLowerCase().includes(q))
       .sort((a, b) => a.ticker.localeCompare(b.ticker));
     if (!itens.length) return '';
     const todosOn = itens.every(a => sel.has(a.ticker.toUpperCase()));
@@ -550,7 +619,7 @@ function renderizarUniverso() {
         <div class="u-chips">
           ${itens.map(a => `
             <button type="button" class="chip ${sel.has(a.ticker.toUpperCase()) ? 'is-on' : ''}" data-toggle-ticker="${esc(a.ticker)}"
-              data-tip="${esc(a.setor)} · ${fmtReal(a.preco)} · Teto ${fmtReal(a.bazin?.teto)} · Margem ${fmtPct(a.bazin?.margem_seguranca)}">
+              data-tip="${esc(a.empresa ? a.empresa + ' · ' : '')}${esc(a.setor)} · ${fmtReal(a.preco)} · Teto Bazin ${fmtReal(a.bazin?.teto)} · Graham ${fmtReal(a.graham)}">
               <i style="background:${corVeredito[a.bazin?.veredito] || 'var(--dim)'}"></i>${esc(a.ticker)}
             </button>`).join('')}
         </div>
@@ -564,9 +633,9 @@ function renderizarUniverso() {
 
 function htmlComparativoModelos(a) {
   const modelos = [
-    { nome: 'Teto Bazin', valor: a.bazin?.teto, cor: 'var(--green)' },
-    { nome: 'Graham', valor: a.graham, cor: 'var(--accent)' },
-    { nome: 'Gordon', valor: a.gordon, cor: '#9b8cf0' }
+    { nome: 'Teto Bazin', valor: a.bazin?.teto > 0 ? a.bazin.teto : null, cor: 'var(--green)' },
+    { nome: 'Graham', valor: a.graham, cor: '#e0b341' },
+    { nome: 'Gordon', valor: a.gordon, cor: '#a78bfa' }
   ];
   const valores = [a.preco, ...modelos.map(m => m.valor)].filter(valido);
   const max = Math.max(...valores) * 1.08;
@@ -624,9 +693,11 @@ function renderizarDetalhe(ticker) {
   const b = a.bazin || {};
   const f = a.fundamentos || {};
   const ehBanco = mapearSetorBesst(a.setor) === 'bancos';
+  const cat = categoriaDoAtivo(a);
+  const rotuloCat = cat === 'besst' ? 'BESST' : (cat === 'demais' ? 'Demais papéis' : 'Dividendos');
 
   $('#detail-title').textContent = a.empresa ? `${a.ticker} · ${a.empresa}` : a.ticker;
-  $('#detail-sub').innerHTML = `${esc(a.setor)}${a.besst ? ' · BESST' : ''} · ${htmlVeredito(b.veredito)}`;
+  $('#detail-sub').innerHTML = `${esc(a.setor)} · ${esc(rotuloCat)} · ${htmlVeredito(b.veredito)}`;
 
   const noPainel = painelState.selecionados.some(t => t.toUpperCase() === a.ticker.toUpperCase());
   const greenblatt = valido(a.rank_greenblatt)
@@ -643,13 +714,17 @@ function renderizarDetalhe(ticker) {
   $('#detail-body').innerHTML = `
     <div class="d-hero">
       <div class="d-stat"><div class="d-stat-label">Preço</div><div class="d-stat-value">${fmtReal(a.preco)}</div></div>
-      <div class="d-stat"><div class="d-stat-label">Teto Bazin</div><div class="d-stat-value">${fmtReal(b.teto)}</div></div>
+      <div class="d-stat"><div class="d-stat-label">Teto Bazin</div><div class="d-stat-value">${b.teto > 0 ? fmtReal(b.teto) : '—'}</div></div>
       <div class="d-stat"><div class="d-stat-label">Margem</div><div class="d-stat-value ${classeMargem(b.margem_seguranca)}">${fmtPct(b.margem_seguranca)}</div></div>
     </div>
 
-    <div class="d-ext-bar">
-      <a class="btn btn-primary btn-inv10" href="${linkInv10}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">
-        <span>Analisar ${esc(a.ticker)} no Investidor10</span>
+    <div class="d-ext-bar" style="gap:8px;flex-wrap:wrap">
+      <button type="button" class="btn btn-ghost" style="flex:1" data-detail-chart="${esc(a.ticker)}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/></svg>
+        <span>Gráfico de Tetos &amp; Simulador</span>
+      </button>
+      <a class="btn btn-primary" style="flex:1;text-decoration:none" href="${linkInv10}" target="_blank" rel="noopener noreferrer">
+        <span>Investidor10</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
       </a>
     </div>
@@ -663,9 +738,10 @@ function renderizarDetalhe(ticker) {
         <dt>DPA 5a com extraordinários</dt><dd>${fmtReal(b.dpa)}</dd>
         <dt>Yield implícito (DPA 5a / Preço)</dt><dd class="${razaoDpaPreco(a) >= 0.06 ? 't-green' : ''}">${fmtPctSimples(razaoDpaPreco(a), 2)}</dd>
         <div class="sep"></div>
-        <dt>Teto (DPA ÷ 6%)</dt><dd>${fmtReal(b.teto)}</dd>
+        <dt>Teto (DPA ÷ 6%)</dt><dd>${b.teto > 0 ? fmtReal(b.teto) : '—'}</dd>
         ${valido(b.teto_sem_extra) && b.teto_sem_extra !== b.teto ? `<dt>Teto sem extraordinários</dt><dd>${fmtReal(b.teto_sem_extra)}</dd>` : ''}
         <dt>Margem de segurança</dt><dd class="${classeMargem(b.margem_seguranca)}">${fmtPct(b.margem_seguranca)}</dd>
+        <dt>Tempo abaixo do Teto (5a)</dt><dd>${valido(a.pct_abaixo_teto_5a) ? fmtPctSimples(a.pct_abaixo_teto_5a, 0) : '—'}</dd>
         <dt>Dividendos extraordinários</dt><dd>${b.tem_extraordinario ? '<span class="t-yellow">Sim</span>' : 'Não'}</dd>
       </dl>
       ${htmlHistoricoDpaAnual(b.por_ano)}
@@ -763,9 +839,9 @@ function renderizarDetalhe(ticker) {
     <p class="d-note">Graham é referência secundária para financeiras e holdings. O veredito considera somente a margem Bazin, calculada pelo motor com o teto no denominador.</p>
 
     <div class="d-actions">
-      <a class="btn btn-primary" href="${linkInv10}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">
-        Investidor10 ↗
-      </a>
+      <button type="button" class="btn btn-primary" data-detail-chart="${esc(a.ticker)}">
+        Gráfico &amp; Simulador
+      </button>
       <button type="button" class="btn ${noPainel ? 'btn-ghost btn-danger' : 'btn-ghost'}" data-detail-toggle="${esc(a.ticker)}">
         ${noPainel ? 'Remover do painel' : 'Adicionar ao painel'}
       </button>
@@ -836,6 +912,7 @@ function renderizarTudo() {
   renderizarTabela();
   if (!$('#selector-drawer').classList.contains('is-hidden')) renderizarUniverso();
   if (painelState.detalheTicker) renderizarDetalhe(painelState.detalheTicker);
+  if (typeof window.atualizarVisaoGrafica === 'function') window.atualizarVisaoGrafica();
 }
 
 function alternarTicker(ticker) {
@@ -880,7 +957,12 @@ function selecionarPor(filtro) {
 }
 
 function alternarGrupo(grupoId, remover) {
-  const filtro = grupoId === 'outros' ? (a => !mapearSetorBesst(a.setor)) : (a => mapearSetorBesst(a.setor) === grupoId);
+  let filtro;
+  if (grupoId === 'dividendos') filtro = a => categoriaDoAtivo(a) === 'dividendos';
+  else if (grupoId === 'demais') filtro = a => categoriaDoAtivo(a) === 'demais';
+  else if (grupoId === 'outros') filtro = a => categoriaDoAtivo(a) !== 'besst';
+  else filtro = a => categoriaDoAtivo(a) === 'besst' && mapearSetorBesst(a.setor) === grupoId;
+
   const tickers = painelState.universo.filter(filtro).map(a => a.ticker.toUpperCase());
   const atual = new Set(painelState.selecionados.map(t => t.toUpperCase()));
   tickers.forEach(t => remover ? atual.delete(t) : atual.add(t));
@@ -963,6 +1045,9 @@ async function obterPayloadMaisRecente() {
   }
 
   validos.sort((a, b) => {
+    const ha = Array.isArray(a.historico_datas) && a.historico_datas.length > 0 ? 1 : 0;
+    const hb = Array.isArray(b.historico_datas) && b.historico_datas.length > 0 ? 1 : 0;
+    if (hb !== ha) return hb - ha;
     const ta = new Date(a.gerado_em || 0).getTime() || 0;
     const tb = new Date(b.gerado_em || 0).getTime() || 0;
     return tb - ta;
@@ -990,6 +1075,9 @@ async function carregarValuationJson(silencioso = false) {
       }
       atualizarStatusBase();
       renderizarTudo();
+      if (hash.get('tab') === 'visual' && typeof window.definirAbaPainel === 'function') {
+        window.definirAbaPainel('visual', hash.get('p') || undefined);
+      }
       if (hash.get('d') && mapa.has(hash.get('d').toUpperCase())) abrirDetalhe(hash.get('d'));
     } else {
       atualizarStatusBase();
@@ -1038,6 +1126,11 @@ function bindEventos() {
     if (b) definirFiltroSetor(b.dataset.sector);
   });
 
+  $('#extra-categories-grid')?.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-sector]');
+    if (b) definirFiltroSetor(b.dataset.sector);
+  });
+
   $('#kpi-grid')?.addEventListener('click', (e) => {
     const v = e.target.closest('[data-kpi-verdict]');
     if (v) {
@@ -1071,13 +1164,18 @@ function bindEventos() {
     if (vazio) {
       const t = vazio.dataset.emptyAction;
       if (t === 'open') abrirSeletor();
-      if (t === 'besst') selecionarPor(a => !!a.besst);
+      if (t === 'besst') selecionarPor(a => categoriaDoAtivo(a) === 'besst');
+      if (t === 'demais') selecionarPor(a => categoriaDoAtivo(a) === 'demais');
       if (t === 'todos') selecionarPor(() => true);
       if (t === 'limpar-filtros') limparFiltros();
       return;
     }
     if (!linha) return;
     if (acao?.dataset.rowAction === 'ext') return;
+    if (acao?.dataset.rowAction === 'chart') {
+      if (typeof window.abrirNaVisaoGrafica === 'function') window.abrirNaVisaoGrafica(linha.dataset.ticker);
+      return;
+    }
     if (acao?.dataset.rowAction === 'remove') { alternarTicker(linha.dataset.ticker); return; }
     abrirDetalhe(linha.dataset.ticker);
   });
@@ -1091,7 +1189,9 @@ function bindEventos() {
   busca?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') { e.preventDefault(); adicionarPorBusca(); }
   });
-  $('#btn-select-besst-universe')?.addEventListener('click', () => selecionarPor(a => !!a.besst));
+  $('#btn-select-besst-universe')?.addEventListener('click', () => selecionarPor(a => categoriaDoAtivo(a) === 'besst'));
+  $('#btn-select-dividendos-universe')?.addEventListener('click', () => selecionarPor(a => categoriaDoAtivo(a) === 'dividendos'));
+  $('#btn-select-demais-universe')?.addEventListener('click', () => selecionarPor(a => categoriaDoAtivo(a) === 'demais'));
   $('#btn-select-green-universe')?.addEventListener('click', () => selecionarPor(a => a.bazin?.veredito === 'verde'));
   $('#btn-select-all-universe')?.addEventListener('click', () => selecionarPor(() => true));
   $('#btn-clear-universe')?.addEventListener('click', () => { salvarSelecionados([]); renderizarTudo(); });
@@ -1103,6 +1203,13 @@ function bindEventos() {
   });
 
   $('#detail-body')?.addEventListener('click', (e) => {
+    const bChart = e.target.closest('[data-detail-chart]');
+    if (bChart) {
+      const t = bChart.dataset.detailChart;
+      fecharGavetas();
+      if (typeof window.abrirNaVisaoGrafica === 'function') window.abrirNaVisaoGrafica(t);
+      return;
+    }
     const b = e.target.closest('[data-detail-toggle]');
     if (b) alternarTicker(b.dataset.detailToggle);
   });
