@@ -99,9 +99,35 @@
     return `${p[2]}/${p[1]}/${p[0].slice(2)}`;
   }
 
+  function fDiaMesIso(iso) {
+    if (!iso || typeof iso !== 'string') return '—';
+    const p = iso.slice(0, 10).split('-');
+    if (p.length !== 3) return iso;
+    return `${p[2]}/${p[1]}`;
+  }
+
+  function fGrupoMesAnoIso(iso) {
+    if (!iso || typeof iso !== 'string') return 'Sem data definida';
+    const p = iso.slice(0, 10).split('-');
+    if (p.length !== 3) return iso;
+    const mIdx = Number(p[1]) - 1;
+    const mNome = MESES_NOMES[mIdx] || p[1];
+    return `${mNome} de ${p[0]}`;
+  }
+
   function hojeIsoB3() {
-    const agora = new Date(Date.now() - 3 * 3600 * 1000);
-    return agora.toISOString().slice(0, 10);
+    try {
+      const fmt = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+      return fmt.format(new Date());
+    } catch (_) {
+      const agora = new Date(Date.now() - 3 * 3600 * 1000);
+      return agora.toISOString().slice(0, 10);
+    }
   }
 
   function parseIsoLocalDays(isoStr) {
@@ -122,11 +148,11 @@
 
   function rotuloContagemDias(dias) {
     if (dias === null) return '';
-    if (dias === 0) return 'Hoje';
-    if (dias === 1) return 'Amanhã';
+    if (dias === 0) return 'hoje';
+    if (dias === 1) return 'em 1 dia';
     if (dias > 1) return `em ${dias} dias`;
-    if (dias === -1) return 'Ontem';
-    return `há ${Math.abs(dias)}d`;
+    if (dias === -1) return 'há 1 dia';
+    return `há ${Math.abs(dias)} dias`;
   }
 
   function rotuloTipoEvento(tipo) {
@@ -308,7 +334,8 @@
     calEscopo: prefsSalvas.calEscopo || 'painel',
     calMes: 0, // 0 = Todos os meses, 1..12 = Jan..Dez
     calModoPgto: prefsSalvas.calModoPgto || 'agendados', // 'agendados' | 'pagos'
-    calBusca: ''
+    calBusca: '',
+    calUltimaListaMapa: []
   };
 
   function obterUniverso() {
@@ -508,7 +535,6 @@
       arr.sort((a, b) => (b.valX + b.valY) - (a.valX + a.valY));
     });
 
-    // Renderizar os 4 cartões de quadrante clicáveis (contagem e top 3 tickers)
     gridQuad.innerHTML = ['ouro', 'premio', 'atencao', 'evitar'].map(qKey => {
       const meta = QUADRANTES_META[qKey];
       const itens = contQuad[qKey];
@@ -599,7 +625,6 @@
 
     state.matrizPontosRender = renderPts;
 
-    // Rótulo de ticker visível APENAS nos pontos em destaque (foco/hover ou busca ativa), nunca sobreposto
     const caixasRotulos = [];
     const candidatosRotulo = renderPts.filter(p => p.matchBusca || p.ticker === state.matrizHoverTicker);
     const rotulosEscolhidos = [];
@@ -914,6 +939,61 @@
     if (selMes && String(selMes.value) !== String(state.calMes)) {
       selMes.value = String(state.calMes);
     }
+    const btnMesAtual = qs('#cal-cur-month-btn');
+    if (btnMesAtual) {
+      const mAtual = Number(hojeIsoB3().slice(5, 7)) || (new Date().getMonth() + 1);
+      const isCur = state.calMes === mAtual;
+      btnMesAtual.classList.toggle('active', isCur);
+      btnMesAtual.setAttribute('aria-pressed', isCur ? 'true' : 'false');
+    }
+  }
+
+  function renderizarListaEventosAgrupada(eventos, modoData, hoje, ehPagos) {
+    let ultimoGrupo = '';
+    const htmlPartes = [];
+
+    eventos.slice(0, 24).forEach(({ ativo: a, ev }) => {
+      const dtRef = modoData === 'com' ? ev.data_com : (ev.data_pagamento || ev.data_com);
+      const nomeGrupo = fGrupoMesAnoIso(dtRef);
+      if (nomeGrupo !== ultimoGrupo) {
+        ultimoGrupo = nomeGrupo;
+        htmlPartes.push(`<div class="cal-group-header">${escH(nomeGrupo)}</div>`);
+      }
+
+      const dias = diasEntreIso(dtRef, hoje);
+      const dyEv = a.preco > 0 ? ev.valor / a.preco : null;
+      const urgente = modoData === 'com' && dias !== null && dias >= 0 && dias <= 3;
+      const boxCls = modoData === 'com'
+        ? (urgente ? 'is-urgent' : '')
+        : (ehPagos ? 'is-paid' : 'is-pay');
+
+      const subLinha = modoData === 'com'
+        ? `Pgto: <strong class="mono">${ev.data_pagamento ? fDataIso(ev.data_pagamento) : 'A definir'}</strong> · ${escH(a.setor)}`
+        : `Data-com: <span class="mono">${fDataIso(ev.data_com)}</span>${ev.status === 'anunciado' ? ' · <span class="t-green">Em aberto</span>' : (ev.status === 'a_pagar' ? ' · <span class="t-accent">Já ex</span>' : '')}`;
+
+      htmlPartes.push(`
+        <div class="cal-event-row" data-copen-detail="${escH(a.ticker)}">
+          <div class="cal-ev-datebox ${boxCls}">
+            <span class="cal-ev-countdown">${escH(dtRef ? rotuloContagemDias(dias) : 'Sem data')}</span>
+            <strong class="mono">${fDiaMesIso(dtRef)}</strong>
+          </div>
+          <div class="cal-ev-main">
+            <div class="cal-ev-top">
+              <span class="cal-ev-ticker mono">${escH(a.ticker)}</span>
+              <span class="cal-ev-type">${escH(rotuloTipoEvento(ev.tipo))}</span>
+              ${modoData === 'com' ? htmlSeloSustentabilidade(a, true) : ''}
+            </div>
+            <div class="cal-ev-sub">${subLinha}</div>
+          </div>
+          <div class="cal-ev-val">
+            <strong class="mono ${modoData === 'com' ? 't-green' : ''}">${fRealProvento(ev.valor)}</strong>
+            <span class="mono t-muted">${numOk(dyEv) ? fPctSimples(dyEv, 2) : ''}</span>
+          </div>
+        </div>
+      `);
+    });
+
+    return `<div class="cal-event-list">${htmlPartes.join('')}</div>`;
   }
 
   function renderizarCalendarioDividendos() {
@@ -987,12 +1067,12 @@
       <div class="kpi" data-tip="Eventos oficiais anunciados à B3 cuja data-com ainda está em aberto (hoje ou futura)">
         <div class="kpi-label">Datas-Com em aberto</div>
         <div class="kpi-value t-green">${eventosDataComAberta.length}</div>
-        <div class="kpi-foot">${proxCom ? `Próxima: ${escH(proxCom.ativo.ticker)} em ${fDataCurtaIso(proxCom.ev.data_com)} (${rotuloContagemDias(diasEntreIso(proxCom.ev.data_com, hoje))})` : 'Nenhum anúncio em aberto no filtro'}</div>
+        <div class="kpi-foot">${proxCom ? `Próxima: ${escH(proxCom.ativo.ticker)} em ${fDiaMesIso(proxCom.ev.data_com)} (${rotuloContagemDias(diasEntreIso(proxCom.ev.data_com, hoje))})` : 'Nenhum anúncio em aberto no filtro'}</div>
       </div>
       <div class="kpi" data-tip="Proventos já aprovados com depósito agendado para os próximos dias/meses">
         <div class="kpi-label">Pagamentos agendados</div>
         <div class="kpi-value">${eventosPagamentosAgendados.length}</div>
-        <div class="kpi-foot">${proxPgto ? `Próximo: ${escH(proxPgto.ativo.ticker)} em ${fDataCurtaIso(proxPgto.ev.data_pagamento)} (${fRealProvento(proxPgto.ev.valor)})` : 'Sem pagamentos agendados no filtro'}</div>
+        <div class="kpi-foot">${proxPgto ? `Próximo: ${escH(proxPgto.ativo.ticker)} em ${fDiaMesIso(proxPgto.ev.data_pagamento)} (${fRealProvento(proxPgto.ev.valor)})` : 'Sem pagamentos agendados no filtro'}</div>
       </div>
       <div class="kpi" data-tip="Ativos do escopo que historicamente têm data-com recorrente neste mês (${MESES_NOMES[mesAtualNum - 1]})">
         <div class="kpi-label">Sazonais em ${MESES_NOMES[mesAtualNum - 1]}</div>
@@ -1024,80 +1104,20 @@
         </div>
       `;
     } else {
-      upComEl.innerHTML = `
-        <div class="cal-event-list">
-          ${eventosDataComAberta.slice(0, 24).map(({ ativo: a, ev }) => {
-            const dias = diasEntreIso(ev.data_com, hoje);
-            const dyEv = a.preco > 0 ? ev.valor / a.preco : null;
-            const urgente = dias !== null && dias <= 3;
-            return `
-              <div class="cal-event-row" data-copen-detail="${escH(a.ticker)}">
-                <div class="cal-ev-datebox ${urgente ? 'is-urgent' : ''}">
-                  <span class="cal-ev-countdown">${escH(rotuloContagemDias(dias))}</span>
-                  <strong class="mono">${fDataCurtaIso(ev.data_com)}</strong>
-                </div>
-                <div class="cal-ev-main">
-                  <div class="cal-ev-top">
-                    <span class="cal-ev-ticker mono">${escH(a.ticker)}</span>
-                    <span class="cal-ev-type">${escH(rotuloTipoEvento(ev.tipo))}</span>
-                    ${htmlSeloSustentabilidade(a, true)}
-                  </div>
-                  <div class="cal-ev-sub">
-                    Pgto: <strong class="mono">${ev.data_pagamento ? fDataIso(ev.data_pagamento) : 'A definir'}</strong>
-                    · ${escH(a.setor)}
-                  </div>
-                </div>
-                <div class="cal-ev-val">
-                  <strong class="mono t-green">${fRealProvento(ev.valor)}</strong>
-                  <span class="mono t-muted">${numOk(dyEv) ? fPctSimples(dyEv, 2) : ''}</span>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      `;
+      upComEl.innerHTML = renderizarListaEventosAgrupada(eventosDataComAberta, 'com', hoje, false);
     }
 
-    const listaDireita = state.calModoPgto === 'pagos' ? eventosUltimosPagos : eventosPagamentosAgendados;
+    const ehPagos = state.calModoPgto === 'pagos';
+    const listaDireita = ehPagos ? eventosUltimosPagos : eventosPagamentosAgendados;
     if (!listaDireita.length) {
       payEl.innerHTML = `
         <div class="cal-empty">
-          <strong>${state.calModoPgto === 'pagos' ? 'Sem histórico de pagamentos neste filtro' : 'Nenhum pagamento futuro agendado neste filtro'}</strong>
-          <span>Altere o escopo ou alterne para "${state.calModoPgto === 'pagos' ? 'A Receber' : 'Últimos Pagos'}".</span>
+          <strong>${ehPagos ? 'Sem histórico de pagamentos neste filtro' : 'Nenhum pagamento futuro agendado neste filtro'}</strong>
+          <span>Altere o escopo ou alterne para "${ehPagos ? 'A Receber' : 'Últimos Pagos'}".</span>
         </div>
       `;
     } else {
-      payEl.innerHTML = `
-        <div class="cal-event-list">
-          ${listaDireita.slice(0, 24).map(({ ativo: a, ev }) => {
-            const dtRef = ev.data_pagamento || ev.data_com;
-            const dias = diasEntreIso(dtRef, hoje);
-            const dyEv = a.preco > 0 ? ev.valor / a.preco : null;
-            return `
-              <div class="cal-event-row" data-copen-detail="${escH(a.ticker)}">
-                <div class="cal-ev-datebox ${state.calModoPgto === 'pagos' ? 'is-paid' : 'is-pay'}">
-                  <span class="cal-ev-countdown">${escH(ev.data_pagamento ? rotuloContagemDias(dias) : 'Sem data')}</span>
-                  <strong class="mono">${ev.data_pagamento ? fDataCurtaIso(ev.data_pagamento) : fDataCurtaIso(ev.data_com)}</strong>
-                </div>
-                <div class="cal-ev-main">
-                  <div class="cal-ev-top">
-                    <span class="cal-ev-ticker mono">${escH(a.ticker)}</span>
-                    <span class="cal-ev-type">${escH(rotuloTipoEvento(ev.tipo))}</span>
-                  </div>
-                  <div class="cal-ev-sub">
-                    Data-com: <span class="mono">${fDataIso(ev.data_com)}</span>
-                    ${ev.status === 'anunciado' ? ' · <span class="t-green">Em aberto</span>' : (ev.status === 'a_pagar' ? ' · <span class="t-accent">Já ex</span>' : '')}
-                  </div>
-                </div>
-                <div class="cal-ev-val">
-                  <strong class="mono">${fRealProvento(ev.valor)}</strong>
-                  <span class="mono t-muted">${numOk(dyEv) ? fPctSimples(dyEv, 2) : ''}</span>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      `;
+      payEl.innerHTML = renderizarListaEventosAgrupada(listaDireita, 'pgto', hoje, ehPagos);
     }
 
     const ordenadosMapa = [...listaFiltrada].sort((a, b) => {
@@ -1112,7 +1132,13 @@
       return mbzB - mbzA;
     });
 
+    state.calUltimaListaMapa = ordenadosMapa;
+
     heatEl.innerHTML = `
+      <div class="vsub-table-head">
+        <span>Escala sequencial (últimos 5 anos fechados): <span class="cal-heat-pill lvl-high">4–5/5</span> alta recorrência · <span class="cal-heat-pill lvl-mid">2–3/5</span> moderada · <span class="cal-heat-pill lvl-low">1/5</span> ocasional · <span class="cal-heat-pill lvl-zero">0/5</span> sem registro</span>
+        <span><span class="cal-heat-pill lvl-high is-announced">★</span> = Data-com oficial aberta no mês</span>
+      </div>
       <div class="table-wrap cal-heat-scroll">
         <table class="cal-heat-table">
           <thead>
@@ -1137,9 +1163,9 @@
 
               let resumoAgenda = '<span class="t-dim">Sem proventos recentes</span>';
               if (a.proxima_data_com) {
-                resumoAgenda = `<span class="t-green mono" data-tip="Data-Com aberta em ${fDataIso(a.proxima_data_com.data_com)} · Pgto ${fDataIso(a.proxima_data_com.data_pagamento)}">★ Com ${fDataCurtaIso(a.proxima_data_com.data_com)} (${fRealProvento(a.proxima_data_com.valor)})</span>`;
+                resumoAgenda = `<span class="t-green mono" data-tip="Data-Com aberta em ${fDataIso(a.proxima_data_com.data_com)} · Pgto ${fDataIso(a.proxima_data_com.data_pagamento)}">★ Com ${fDiaMesIso(a.proxima_data_com.data_com)} (${fRealProvento(a.proxima_data_com.valor)})</span>`;
               } else if (a.proximo_pagamento) {
-                resumoAgenda = `<span class="t-accent mono" data-tip="Já ex-dividendo (Data-com ${fDataIso(a.proximo_pagamento.data_com)}) · Pagamento agendado">Pgto ${fDataCurtaIso(a.proximo_pagamento.data_pagamento)} (${fRealProvento(a.proximo_pagamento.valor)})</span>`;
+                resumoAgenda = `<span class="t-accent mono" data-tip="Já ex-dividendo (Data-com ${fDataIso(a.proximo_pagamento.data_com)}) · Pagamento agendado">Pgto ${fDiaMesIso(a.proximo_pagamento.data_pagamento)} (${fRealProvento(a.proximo_pagamento.valor)})</span>`;
               } else if (a.ultimo_provento_pago) {
                 const dtUlt = a.ultimo_provento_pago.data_pagamento || a.ultimo_provento_pago.data_com;
                 resumoAgenda = `<span class="t-muted mono" data-tip="Último provento (${rotuloTipoEvento(a.ultimo_provento_pago.tipo)}) · Data-com ${fDataIso(a.ultimo_provento_pago.data_com)}">Pago ${fDataCurtaIso(dtUlt)} (${fRealProvento(a.ultimo_provento_pago.valor)})</span>`;
@@ -1166,7 +1192,7 @@
                     return `
                       <td class="cal-m-cell ${mNum === mesAtualNum ? 'is-cur-month' : ''}" data-tip="${escH(tip)}">
                         <span class="cal-heat-pill ${lvl} ${anunciado ? 'is-announced' : ''}">
-                          ${anunciado ? `★ ${freq}/5` : (freq > 0 ? `${freq}/5` : '0/5')}
+                          ${anunciado ? `★ ${freq}/5` : `${freq}/5`}
                         </span>
                       </td>
                     `;
@@ -1178,6 +1204,39 @@
         </table>
       </div>
     `;
+  }
+
+  function exportarCalendarioCsv() {
+    const lista = state.calUltimaListaMapa || [];
+    if (!lista.length || typeof window.baixarArquivoTexto !== 'function') return;
+
+    const cabecalho = [
+      'Ticker', 'Empresa', 'Setor', 'Score Anti-Cilada', 'Classificacao Anti-Cilada',
+      'Proxima Data-Com', 'Valor Proxima Data-Com', 'Ultimo Pago Data', 'Ultimo Pago Valor',
+      ...MESES_CURTOS.map(m => `${m} (anos/5)`)
+    ];
+    const linhas = [cabecalho.join(';')];
+
+    lista.forEach(a => {
+      const sust = obterSustentabilidadeAtivo(a);
+      const mapa = a.mapa_sazonal_5a || {};
+      const dtUlt = a.ultimo_provento_pago ? (a.ultimo_provento_pago.data_pagamento || a.ultimo_provento_pago.data_com || '') : '';
+      const cols = [
+        a.ticker || '',
+        '"' + String(a.empresa || '').replace(/"/g, '""') + '"',
+        '"' + String(a.setor || '').replace(/"/g, '""') + '"',
+        sust.nota,
+        '"' + String(sust.rotulo || '').replace(/"/g, '""') + '"',
+        a.proxima_data_com ? a.proxima_data_com.data_com : '',
+        a.proxima_data_com ? Number(a.proxima_data_com.valor).toFixed(4).replace('.', ',') : '',
+        dtUlt,
+        a.ultimo_provento_pago ? Number(a.ultimo_provento_pago.valor).toFixed(4).replace('.', ',') : '',
+        ...MESES_CURTOS.map((_, idx) => `${Number(mapa[String(idx + 1)] || 0)}/5`)
+      ];
+      linhas.push(cols.join(';'));
+    });
+
+    window.baixarArquivoTexto('calendario-dividendos-b3.csv', '\uFEFF' + linhas.join('\r\n'), 'text/csv;charset=utf-8');
   }
 
   /* ==========================================================================
@@ -1307,6 +1366,8 @@
       }, 150);
     });
 
+    qs('#btn-export-cal-csv')?.addEventListener('click', exportarCalendarioCsv);
+
     const tratarCliqueCalendario = (e) => {
       if (e.target.closest('[data-cal-show-all]')) {
         state.calEscopo = 'todos';
@@ -1320,6 +1381,7 @@
         const m = Number(thMes.dataset.cselectMonth) || 0;
         state.calMes = state.calMes === m ? 0 : m;
         renderizarCalendarioDividendos();
+        if (typeof window.sincronizarEstadoUrl === 'function') window.sincronizarEstadoUrl();
         return;
       }
       const alvo = e.target.closest('[data-copen-detail]');
