@@ -1007,3 +1007,599 @@ code { font-family: var(--mono); font-size: 0.92em; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+
+/* ==================== SCORE ANTI-CILADA, AGENDA RAIO-X, MATRIZ & CALENDÁRIO ==================== */
+
+/* Selo Score de Sustentabilidade Anti-Cilada */
+.sust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  font-variant-numeric: tabular-nums;
+}
+.sust-forte {
+  color: var(--green);
+  background: var(--green-soft);
+  border-color: rgba(47, 191, 134, 0.32);
+}
+.sust-mod {
+  color: var(--yellow);
+  background: var(--yellow-soft);
+  border-color: rgba(224, 179, 65, 0.34);
+}
+.sust-alerta {
+  color: var(--red);
+  background: var(--red-soft);
+  border-color: rgba(229, 99, 107, 0.38);
+}
+.sust-nd {
+  color: var(--dim);
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  font-family: var(--sans);
+  font-weight: 500;
+}
+
+/* Raio-X: Cabeçalho de seção com link / selo */
+.d-section-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Raio-X: Cartões de Próxima Data-Com e Último Dividendo/JCP Pago */
+.d-agenda-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.d-agenda-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.d-agenda-card.is-open {
+  border-color: rgba(47, 191, 134, 0.45);
+  background: linear-gradient(180deg, rgba(47, 191, 134, 0.08), var(--bg-elev));
+}
+.d-agenda-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.d-agenda-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.d-agenda-pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--border-strong);
+  white-space: nowrap;
+}
+.d-agenda-pill.is-green {
+  color: var(--green);
+  background: var(--green-soft);
+  border-color: rgba(47, 191, 134, 0.35);
+}
+.d-agenda-main {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-top: 2px;
+}
+.d-agenda-meta {
+  font-size: 12px;
+  color: var(--text);
+}
+.d-agenda-foot {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.d-agenda-pending {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  font-size: 11.5px;
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Raio-X: Barra e Checklist de 4 Pilares Anti-Cilada */
+.d-sust-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 12px;
+}
+.d-sust-bar {
+  flex: 1;
+  height: 7px;
+  border-radius: 4px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.d-sust-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  transition: width .35s var(--ease);
+}
+.d-sust-score {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.d-pilar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.d-pilar-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+}
+.d-pilar-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: var(--surface-2);
+  color: var(--dim);
+}
+.d-pilar-row.is-ok .d-pilar-icon { background: var(--green-soft); color: var(--green); }
+.d-pilar-row.is-alerta .d-pilar-icon { background: var(--yellow-soft); color: var(--yellow); }
+.d-pilar-row.is-risco .d-pilar-icon { background: var(--red-soft); color: var(--red); }
+.d-pilar-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.d-pilar-text strong {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.d-pilar-text span {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.d-pilar-pts {
+  font-size: 11.5px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* ==================== ABA 3: MATRIZ DESCONTO × QUALIDADE ==================== */
+
+.mctrl-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mctrl-search {
+  min-width: 190px;
+  height: 34px;
+}
+
+.mquad-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.mquad-card {
+  background: var(--surface);
+  padding: 13px 16px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  transition: background-color .18s;
+}
+.mquad-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: var(--q-color, var(--border-strong));
+  opacity: 0.7;
+}
+.mquad-card:hover { background: var(--surface-hover); }
+.mquad-card.is-active {
+  background: rgba(91, 141, 239, 0.09);
+  box-shadow: inset 0 -2px 0 var(--q-color, var(--accent));
+}
+.mquad-card.is-active::before { opacity: 1; height: 3px; }
+.mquad-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mquad-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.mquad-count {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--q-color, var(--text-strong));
+}
+.mquad-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.mquad-tickers {
+  font-size: 11px;
+  color: var(--dim);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mquad-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--q-color, var(--text));
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-strong);
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+.mquad-pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--q-color, var(--dim));
+}
+
+/* ==================== ABA 4: CALENDÁRIO DE DIVIDENDOS ==================== */
+
+.cal-toolbar-card { padding: 12px 16px; }
+.cal-toolbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cal-month-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cal-month-controls .select-wrap { min-width: 175px; }
+.cal-search { min-width: 220px; }
+
+.cal-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.cal-mini-months {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 3px;
+  margin-top: 10px;
+}
+.cal-mini-months span {
+  height: 5px;
+  border-radius: 2px;
+  background: var(--surface-2);
+}
+.cal-mini-months span.is-on { background: var(--green); }
+.cal-mini-months span.is-now { box-shadow: 0 0 0 1px var(--accent); }
+
+.cal-events-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.cal-event-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 410px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.cal-event-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background-color .15s;
+}
+.cal-event-row:last-child { border-bottom: none; }
+.cal-event-row:hover { background: var(--surface-hover); }
+
+.cal-ev-datebox {
+  min-width: 78px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  border: 1px solid rgba(47, 191, 134, 0.38);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  flex-shrink: 0;
+}
+.cal-ev-datebox.is-urgent {
+  background: var(--green-soft);
+  border-color: var(--green);
+}
+.cal-ev-datebox.is-pay {
+  border-color: var(--accent-line);
+}
+.cal-ev-datebox.is-paid {
+  border-color: var(--border-strong);
+  opacity: 0.9;
+}
+.cal-ev-countdown {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--green);
+}
+.cal-ev-datebox.is-pay .cal-ev-countdown { color: var(--accent); }
+.cal-ev-datebox.is-paid .cal-ev-countdown { color: var(--muted); }
+.cal-ev-datebox strong {
+  font-size: 12px;
+  color: var(--text-strong);
+}
+
+.cal-ev-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cal-ev-top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.cal-ev-ticker {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.cal-ev-type {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.cal-ev-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal-ev-val {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  flex-shrink: 0;
+}
+.cal-ev-val strong { font-size: 13.5px; color: var(--text-strong); }
+.cal-ev-val span { font-size: 11px; }
+
+.cal-empty {
+  padding: 36px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.cal-empty strong { color: var(--text-strong); font-size: 13.5px; }
+
+/* Mapa Sazonal 12 Meses */
+.cal-heat-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.cal-heat-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12.5px;
+}
+.cal-heat-table thead th {
+  background: var(--bg-elev);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--dim);
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+.cal-heat-table thead th.cal-m-head {
+  text-align: center;
+  cursor: pointer;
+  min-width: 48px;
+  transition: color .15s, background-color .15s;
+}
+.cal-heat-table thead th.cal-m-head:hover { color: var(--text-strong); background: var(--surface-hover); }
+.cal-heat-table thead th.is-cur-month {
+  color: var(--accent);
+  background: rgba(91, 141, 239, 0.1);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+.cal-heat-table thead th.is-sel-month {
+  color: var(--green);
+  box-shadow: inset 0 -2px 0 var(--green);
+}
+.cal-heat-row { cursor: pointer; transition: background-color .14s; }
+.cal-heat-row:hover { background: var(--surface-hover); }
+.cal-heat-table tbody td {
+  padding: 8px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.cal-heat-table tbody tr:last-child td { border-bottom: none; }
+.cal-sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+  padding-left: 16px !important;
+  min-width: 128px;
+}
+.cal-heat-row:hover .cal-sticky-col { background: var(--surface-hover); }
+.cal-heat-table thead th.cal-sticky-col { z-index: 3; background: var(--bg-elev); }
+.cal-row-asset { display: flex; flex-direction: column; line-height: 1.25; }
+
+.cal-m-cell { text-align: center; }
+.cal-m-cell.is-cur-month { background: rgba(91, 141, 239, 0.045); }
+.cal-heat-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 22px;
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.cal-heat-pill.lvl-high {
+  background: rgba(47, 191, 134, 0.24);
+  color: #5eead4;
+  border: 1px solid rgba(47, 191, 134, 0.45);
+}
+.cal-heat-pill.lvl-mid {
+  background: rgba(47, 191, 134, 0.11);
+  color: var(--green);
+  border: 1px solid rgba(47, 191, 134, 0.25);
+}
+.cal-heat-pill.lvl-low {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.cal-heat-pill.lvl-zero {
+  color: var(--border-strong);
+}
+.cal-heat-pill.is-announced {
+  background: linear-gradient(135deg, rgba(47, 191, 134, 0.35), rgba(91, 141, 239, 0.35));
+  color: #ffffff;
+  border: 1px solid var(--green);
+  box-shadow: 0 0 8px rgba(47, 191, 134, 0.28);
+  font-size: 12px;
+}
+
+/* Responsividade das 4 abas, Matriz, Calendário e Tabela Mobile */
+@media (max-width: 1280px) {
+  .view-nav-hint { display: none; }
+}
+
+@media (max-width: 1080px) {
+  .mquad-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cal-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cal-events-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 860px) {
+  .d-agenda-grid { grid-template-columns: 1fr; }
+  .mctrl-bar { width: 100%; }
+  .mctrl-search, .cal-search { min-width: 0; flex: 1 1 100%; }
+  .cal-month-controls { width: 100%; }
+  .cal-month-controls .select-wrap { flex: 1; min-width: 0; }
+  #matriz-scope-group { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  #matriz-xaxis-group, #matriz-yaxis-group, #cal-paymode-group { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #matriz-notrap-btn { width: 100%; justify-content: center; height: 34px; }
+  .cal-heat-scroll { overflow-x: auto !important; }
+
+  #engine-valuation-table tbody tr.row {
+    grid-template-areas:
+      "ticker  verdict"
+      "margem  margem"
+      "sustent sustent"
+      "preco   teto"
+      "dpa     gb"
+      "graham  gordon"
+      "actions actions";
+  }
+  .vt tbody td.c-sustent {
+    grid-area: sustent;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .mquad-grid { grid-template-columns: 1fr; }
+  .cal-kpi-grid { grid-template-columns: 1fr; }
+}

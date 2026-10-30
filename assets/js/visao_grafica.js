@@ -891,6 +891,7 @@
           <span class="vhero-price">${formataReal(principal.preco)}</span>
           ${catBadge}
           ${temBazin ? badgeVereditoHtml(principal.bazin?.veredito) : `<span class="tag" style="color:var(--muted);border:1px solid var(--border-strong)">Sem DPA 5a</span>`}
+          ${typeof window.htmlSustentabilidade === 'function' ? window.htmlSustentabilidade(principal) : ''}
         </div>
         <div class="vhero-meta">
           ${principal.empresa ? `<strong style="color:var(--text-strong)">${escHtml(principal.empresa)}</strong><span class="vhero-sep">·</span>` : ''}
@@ -1695,7 +1696,7 @@
   }
 
   function definirAbaPainel(aba, tickerFoco) {
-    visualState.aba = aba === 'visual' ? 'visual' : 'tabela';
+    visualState.aba = ['tabela', 'visual', 'matriz', 'calendario'].includes(aba) ? aba : 'tabela';
     const mapa = construirMapaUniverso();
 
     if (tickerFoco) {
@@ -1720,21 +1721,35 @@
     }
     salvarPrefsVisual();
 
-    const ehVisual = visualState.aba === 'visual';
-    qSel('#tab-btn-tabela')?.classList.toggle('is-active', !ehVisual);
-    qSel('#tab-btn-tabela')?.setAttribute('aria-selected', String(!ehVisual));
-    qSel('#tab-btn-visual')?.classList.toggle('is-active', ehVisual);
-    qSel('#tab-btn-visual')?.setAttribute('aria-selected', String(ehVisual));
+    const abaAtiva = visualState.aba;
+    const ehVisual = abaAtiva === 'visual';
+    ['tabela', 'visual', 'matriz', 'calendario'].forEach(id => {
+      const btn = qSel(`#tab-btn-${id}`);
+      const on = abaAtiva === id;
+      btn?.classList.toggle('is-active', on);
+      btn?.setAttribute('aria-selected', String(on));
+      qSel(`#view-${id}`)?.classList.toggle('is-hidden', !on);
+    });
+
+
+
+
 
     const hintEl = qSel('#view-nav-hint');
     if (hintEl) {
-      hintEl.textContent = ehVisual
-        ? 'Histórico 5 anos vs. Preços-Teto tracejados (Bazin 6%, Graham, Gordon) e Simulador com Dividendos'
-        : 'KPIs, cobertura BESST, Demais papéis e tabela comparativa de valuation';
+      const mapaHints = {
+        tabela: 'KPIs, cobertura BESST, Score Anti-Cilada e tabela comparativa de valuation',
+        visual: 'Histórico 5 anos vs. Preços-Teto tracejados (Bazin 6%, Graham, Gordon) e Simulador com Dividendos',
+        matriz: 'Quadrantes cruzando Margem de Segurança (Bazin/Graham) vs. Rentabilidade (ROE/ROIC) e filtro Anti-Cilada',
+        calendario: 'Próximas datas-com abertas, pagamentos agendados, últimos pagos e sazonalidade de 12 meses'
+      };
+      hintEl.textContent = mapaHints[abaAtiva] || mapaHints.tabela;
+
+
     }
 
-    qSel('#view-tabela')?.classList.toggle('is-hidden', ehVisual);
-    qSel('#view-visual')?.classList.toggle('is-hidden', !ehVisual);
+
+
 
     if (ehVisual) {
       renderizarVisaoGrafica();
@@ -1754,6 +1769,11 @@
         }
       });
       if (tickerFoco) window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (abaAtiva === 'matriz' && typeof window.renderizarMatrizValuation === 'function') {
+      window.renderizarMatrizValuation();
+      requestAnimationFrame(() => window.renderizarMatrizValuation());
+    } else if (abaAtiva === 'calendario' && typeof window.renderizarCalendarioDividendos === 'function') {
+      window.renderizarCalendarioDividendos();
     }
   }
 
