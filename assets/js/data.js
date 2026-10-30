@@ -1336,6 +1336,63 @@ function abrirDetalhe(ticker) {
   abrirGaveta('#detail-drawer');
 }
 window.abrirDetalhe = abrirDetalhe;
+window.abrirDetalheAtivo = abrirDetalhe;
+window.obterTickersPainelAtivo = () => [...painelState.selecionados];
+
+function sincronizarEstadoUrl() {
+  if (!painelState.payload) return;
+  const params = new URLSearchParams();
+  const estVis = typeof window.obterEstadoVisaoGrafica === 'function' ? window.obterEstadoVisaoGrafica() : null;
+  const estMC = typeof window.obterEstadoMatrizCalendario === 'function' ? window.obterEstadoMatrizCalendario() : null;
+  const aba = estVis?.aba || 'tabela';
+  if (aba !== 'tabela') params.set('aba', aba);
+  if (aba === 'tabela') {
+    if (painelState.filtroSetor !== 'todos') params.set('setor', painelState.filtroSetor);
+    if (painelState.filtroVeredito !== 'todos') params.set('veredito', painelState.filtroVeredito);
+  } else if (aba === 'visual' && estVis) {
+    if (estVis.ativo) params.set('ativo', estVis.ativo);
+    if (estVis.periodo) params.set('periodo', `${estVis.periodo}y`);
+    if (estVis.modo && estVis.modo !== 'price') params.set('modo', estVis.modo);
+    if (Array.isArray(estVis.comparar) && estVis.comparar.length) params.set('comparar', estVis.comparar.join(','));
+  } else if (aba === 'matriz' && estMC) {
+    if (estMC.matrizX) params.set('x', estMC.matrizX);
+    if (estMC.matrizY) params.set('y', estMC.matrizY);
+    if (estMC.matrizEscopo && estMC.matrizEscopo !== 'painel') params.set('escopo', estMC.matrizEscopo);
+    if (estMC.matrizQuadrante && estMC.matrizQuadrante !== 'todos') params.set('quad', estMC.matrizQuadrante);
+  } else if (aba === 'calendario' && estMC) {
+    if (estMC.calEscopo && estMC.calEscopo !== 'painel') params.set('escopo', estMC.calEscopo);
+    if (estMC.calMes > 0) params.set('mes', String(estMC.calMes));
+  }
+  const str = params.toString();
+  const novoHash = str ? `#${str}` : location.pathname + location.search;
+  try { history.replaceState(null, '', novoHash); } catch (_) { /* ignore */ }
+}
+window.sincronizarEstadoUrl = sincronizarEstadoUrl;
+
+function aplicarEstadoUrl() {
+  const raw = location.hash.replace(/^#/, '');
+  if (!raw) return;
+  const hash = new URLSearchParams(raw);
+  const obj = {};
+  hash.forEach((v, k) => { obj[k] = v; });
+  if (obj.tab && !obj.aba) obj.aba = obj.tab;
+  if (obj.p && !obj.ativo) obj.ativo = obj.p;
+  if (obj.setor) painelState.filtroSetor = obj.setor;
+  if (obj.veredito && ['todos', 'verde', 'amarelo', 'vermelho'].includes(obj.veredito)) {
+    painelState.filtroVeredito = obj.veredito;
+    document.querySelectorAll('#verdict-filter .seg-btn').forEach(b => b.classList.toggle('is-active', b.dataset.verdict === obj.veredito));
+  }
+  if (typeof window.aplicarEstadoMatrizCalendario === 'function') {
+    window.aplicarEstadoMatrizCalendario(obj);
+  }
+  if (typeof window.aplicarEstadoVisaoGrafica === 'function') {
+    window.aplicarEstadoVisaoGrafica(obj);
+  }
+  renderizarBesst();
+  renderizarTabela();
+}
+window.aplicarEstadoUrl = aplicarEstadoUrl;
+window.addEventListener('hashchange', aplicarEstadoUrl);
 
 /* ---------- Tooltip & Popover Acessível (sem inline style) ---------- */
 
@@ -1647,6 +1704,7 @@ async function carregarValuationJson(silencioso = false) {
   try {
     const payload = await obterPayloadMaisRecente();
     painelState.payload = payload;
+    window.VALUATION_DATA = payload;
     painelState.universo = payload.ativos;
     const mapa = mapaUniverso();
 
@@ -1673,6 +1731,7 @@ async function carregarValuationJson(silencioso = false) {
       }
       atualizarStatusBase();
       renderizarTudo();
+      aplicarEstadoUrl();
 
       const abaHash = hash.get('aba') || hash.get('tab');
       const ativoHash = hash.get('ativo') || hash.get('p') || undefined;
@@ -1685,6 +1744,7 @@ async function carregarValuationJson(silencioso = false) {
     } else {
       atualizarStatusBase();
       renderizarTudo();
+      aplicarEstadoUrl();
     }
   } catch (err) {
     if (!silencioso) {

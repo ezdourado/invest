@@ -1,7 +1,7 @@
 /**
  * Visão Gráfica & Simulador de Dividendos (index.html)
  * ---------------------------------------------------------------------------
- * Consome o objeto global `window.VALUATION_DATA` (carregado por data.js) e:
+ * Consome os dados carregados por data.js (`painelState.payload` / `window.VALUATION_DATA`) e:
  *  1. Popula a seção "Demais Papéis Fora do Painel" na aba de Tabela.
  *  2. Gerencia a navegação por abas (Tabela / Gráficos / Matriz / Calendário).
  *  3. Renderiza a aba Gráficos & Simulador:
@@ -85,17 +85,22 @@
     }) + '%';
   }
 
-  function fmtDataCurta(isoStr) {
-    if (!isoStr) return '—';
-    var partes = String(isoStr).split('-');
-    if (partes.length !== 3) return isoStr;
+  function fmtDataCurta(str) {
+    if (!str) return '—';
+    var s = String(str).trim();
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+    var partes = s.slice(0, 10).split('-');
+    if (partes.length !== 3) return s;
     return partes[2] + '/' + partes[1] + '/' + partes[0];
   }
 
-  function fmtDiaMes(isoStr) {
-    if (!isoStr) return '—';
-    var partes = String(isoStr).split('-');
-    if (partes.length !== 3) return isoStr;
+  function fmtDiaMes(str) {
+    if (!str) return '—';
+    var s = String(str).trim();
+    var mBr = s.match(/^(\d{2})\/(\d{2})(?:\/\d{2,4})?$/);
+    if (mBr) return mBr[1] + '/' + mBr[2];
+    var partes = s.slice(0, 10).split('-');
+    if (partes.length !== 3) return s;
     return partes[2] + '/' + partes[1];
   }
 
@@ -108,18 +113,33 @@
     return (meses[m] || partes[1]) + '/' + partes[0].slice(2);
   }
 
-  function obterAtivos() {
-    if (!window.VALUATION_DATA || !Array.isArray(window.VALUATION_DATA.ativos)) {
-      return [];
+  function obterPayload() {
+    if (typeof painelState !== 'undefined' && painelState.payload) {
+      return painelState.payload;
     }
-    return window.VALUATION_DATA.ativos;
+    if (window.VALUATION_DATA) {
+      return window.VALUATION_DATA;
+    }
+    return null;
+  }
+
+  function obterAtivos() {
+    if (typeof painelState !== 'undefined' && Array.isArray(painelState.universo) && painelState.universo.length > 0) {
+      return painelState.universo;
+    }
+    var p = obterPayload();
+    if (p && Array.isArray(p.ativos)) {
+      return p.ativos;
+    }
+    return [];
   }
 
   function obterDatasHistorico() {
-    if (!window.VALUATION_DATA || !Array.isArray(window.VALUATION_DATA.historico_datas)) {
-      return [];
+    var p = obterPayload();
+    if (p && Array.isArray(p.historico_datas)) {
+      return p.historico_datas;
     }
-    return window.VALUATION_DATA.historico_datas;
+    return [];
   }
 
   function buscarAtivo(ticker) {
@@ -133,28 +153,37 @@
   }
 
   function ativoEstaNoPainelPadrao(a) {
-    if (typeof window.obterTickersPainelAtivo === 'function') {
-      var lista = window.obterTickersPainelAtivo();
-      if (Array.isArray(lista) && lista.length > 0) {
-        return lista.indexOf(a.ticker) !== -1;
+    if (!a) return false;
+    if (typeof painelState !== 'undefined' && Array.isArray(painelState.selecionados) && painelState.selecionados.length > 0) {
+      var tk = String(a.ticker).toUpperCase();
+      for (var i = 0; i < painelState.selecionados.length; i++) {
+        if (String(painelState.selecionados[i]).toUpperCase() === tk) return true;
       }
+      return false;
     }
-    return a.painel_padrao !== false;
+    return a.categoria !== 'demais' && a.painel_padrao !== false;
   }
 
   function obterMargemBazin(a) {
-    if (!a || !a.bazin || a.bazin.margem === null || a.bazin.margem === undefined) return null;
-    return Number(a.bazin.margem);
+    if (!a || !a.bazin) return null;
+    var m = a.bazin.margem_seguranca !== undefined ? a.bazin.margem_seguranca : a.bazin.margem;
+    var t = obterTetoBazin(a);
+    if (m === null || m === undefined || isNaN(m) || !t || t <= 0) return null;
+    return Number(m);
   }
 
   function obterTetoBazin(a) {
-    if (!a || !a.bazin || a.bazin.preco_teto === null || a.bazin.preco_teto === undefined) return null;
-    return Number(a.bazin.preco_teto);
+    if (!a || !a.bazin) return null;
+    var t = a.bazin.teto !== undefined ? a.bazin.teto : a.bazin.preco_teto;
+    if (t === null || t === undefined || isNaN(t) || Number(t) <= 0) return null;
+    return Number(t);
   }
 
   function obterDpaMedio(a) {
-    if (!a || !a.bazin || a.bazin.dpa_medio_5a === null || a.bazin.dpa_medio_5a === undefined) return 0;
-    return Number(a.bazin.dpa_medio_5a);
+    if (!a || !a.bazin) return 0;
+    var d = a.bazin.dpa_sem_extra !== undefined ? a.bazin.dpa_sem_extra : (a.bazin.dpa !== undefined ? a.bazin.dpa : a.bazin.dpa_medio_5a);
+    if (d === null || d === undefined || isNaN(d)) return 0;
+    return Number(d);
   }
 
   function obterDyAtual(a) {
@@ -167,14 +196,32 @@
     return null;
   }
 
+  function obterSustentabilidade(a) {
+    if (!a) return null;
+    if (a.sustentabilidade && a.sustentabilidade.nota !== undefined) {
+      return {
+        score: a.sustentabilidade.nota,
+        rotulo: a.sustentabilidade.rotulo || '—',
+        nivel: a.sustentabilidade.nivel || 'moderado'
+      };
+    }
+    if (typeof window.calcularScoreSustentabilidade === 'function') {
+      return window.calcularScoreSustentabilidade(a);
+    }
+    return null;
+  }
+
   function classificarVereditoBazin(a) {
     var m = obterMargemBazin(a);
     var teto = obterTetoBazin(a);
     if (teto === null || teto <= 0 || m === null) {
       return { classe: 'tag-warn', rotulo: '● Sem teto Bazin' };
     }
-    if (m >= 0.15) return { classe: 'tag-ok', rotulo: '▲ Abaixo do teto' };
-    if (m >= 0) return { classe: 'tag-warn', rotulo: '● Próximo do teto' };
+    if (a.bazin && a.bazin.veredito === 'verde') return { classe: 'tag-ok', rotulo: '▲ Abaixo do teto' };
+    if (a.bazin && a.bazin.veredito === 'amarelo') return { classe: 'tag-warn', rotulo: '● Próximo do teto' };
+    if (a.bazin && a.bazin.veredito === 'vermelho') return { classe: 'tag-bad', rotulo: '▼ Acima do teto' };
+    if (m >= 0) return { classe: 'tag-ok', rotulo: '▲ Abaixo do teto' };
+    if (m >= -0.05) return { classe: 'tag-warn', rotulo: '● Próximo do teto' };
     return { classe: 'tag-bad', rotulo: '▼ Acima do teto' };
   }
 
@@ -187,8 +234,10 @@
     if (!container) return;
 
     var todos = obterAtivos();
+    if (!todos.length) return;
+
     var extras = todos.filter(function (a) {
-      return !ativoEstaNoPainelPadrao(a);
+      return a.categoria === 'demais' || !ativoEstaNoPainelPadrao(a);
     });
 
     if (extras.length === 0) {
@@ -210,9 +259,9 @@
       return m !== null && m >= 0;
     }).length;
 
-    var chipsHtml = extras.slice(0, 14).map(function (a) {
+    var chipsHtml = extras.slice(0, 12).map(function (a) {
       var m = obterMargemBazin(a);
-      var corCls = m === null ? '' : (m >= 0.15 ? 'pos' : (m >= 0 ? 'warn' : 'neg'));
+      var corCls = m === null ? '' : (m >= 0 ? 'pos' : (m >= -0.05 ? 'warn' : 'neg'));
       var mTxt = m !== null ? fmtPct(m, 0, true) : (a.margem_graham !== null ? 'Gr ' + fmtPct(a.margem_graham, 0, true) : '—');
       return (
         '<button type="button" class="extra-ticker-chip" data-open-visual="' + esc(a.ticker) + '" ' +
@@ -224,7 +273,7 @@
       );
     }).join('');
 
-    var restantes = extras.length > 14 ? extras.length - 14 : 0;
+    var restantes = extras.length > 12 ? extras.length - 12 : 0;
 
     container.innerHTML =
       '<div class="extra-category-banner">' +
@@ -294,9 +343,11 @@
       var t = btn.getAttribute('data-view-tab');
       if (t === escolhida) {
         btn.classList.add('active');
+        btn.classList.add('is-active');
         btn.setAttribute('aria-selected', 'true');
       } else {
         btn.classList.remove('active');
+        btn.classList.remove('is-active');
         btn.setAttribute('aria-selected', 'false');
       }
     }
@@ -317,6 +368,13 @@
     }
   }
 
+  function definirAbaPainel(aba, tickerOpcional, opcoes) {
+    if (tickerOpcional && buscarAtivo(tickerOpcional)) {
+      estadoVisual.tickerPrincipal = String(tickerOpcional).toUpperCase();
+    }
+    alternarAbaPrincipal(aba, opcoes);
+  }
+
   function abrirAtivoNaVisaoGrafica(ticker) {
     if (ticker && buscarAtivo(ticker)) {
       estadoVisual.tickerPrincipal = String(ticker).toUpperCase();
@@ -326,7 +384,9 @@
   }
 
   window.abrirAtivoNaVisaoGrafica = abrirAtivoNaVisaoGrafica;
+  window.abrirNaVisaoGrafica = abrirAtivoNaVisaoGrafica;
   window.alternarAbaPrincipal = alternarAbaPrincipal;
+  window.definirAbaPainel = definirAbaPainel;
 
   /* ==========================================================================
    * 3. EXPLORADOR DE PAPÉIS (SIDEBAR) E COMPARAÇÃO
@@ -340,7 +400,7 @@
     if (todos.length === 0) return;
 
     var candidatos = todos.filter(function (a) {
-      return a.bazin && a.bazin.preco_teto > 0 && Array.isArray(a.historico_precos) && a.historico_precos.length > 20;
+      return obterTetoBazin(a) !== null && Array.isArray(a.historico_precos) && a.historico_precos.length > 20;
     });
     candidatos.sort(function (a, b) {
       return (obterMargemBazin(b) || -99) - (obterMargemBazin(a) || -99);
@@ -357,7 +417,7 @@
     var filtrados = todos.filter(function (a) {
       if (filtro === 'painel' && !ativoEstaNoPainelPadrao(a)) return false;
       if (filtro === 'besst' && !a.besst) return false;
-      if (filtro === 'extras' && ativoEstaNoPainelPadrao(a)) return false;
+      if (filtro === 'extras' && a.categoria !== 'demais' && ativoEstaNoPainelPadrao(a)) return false;
 
       if (q) {
         var texto = (
@@ -406,7 +466,7 @@
       var ehComparado = idxComp !== -1;
 
       var m = obterMargemBazin(a);
-      var clsMargem = m === null ? 'neutral' : (m >= 0.15 ? 'pos' : (m >= 0 ? 'warn' : 'neg'));
+      var clsMargem = m === null ? 'neutral' : (m >= 0 ? 'pos' : (m >= -0.05 ? 'warn' : 'neg'));
       var txtMargem = m !== null ? fmtPct(m, 1, true) : 'S/D';
 
       var tagBesst = (exibirTagBesst && a.besst)
@@ -570,6 +630,7 @@
       vrEl.textContent = ver.rotulo;
     }
 
+    var dtCotReal = ativo.data_ult_cot || (ativo.fundamentos && ativo.fundamentos.data_ult_cot) || '';
     if (bgEl) {
       var bHtml = '';
       if (ativo.besst) {
@@ -580,15 +641,15 @@
       if (ativo.rank_greenblatt) {
         bHtml += '<span class="vfocus-badge magic">Greenblatt #' + ativo.rank_greenblatt + '</span>';
       }
-      if (ativo.data_ult_cot) {
-        bHtml += '<span class="vfocus-badge">Última cotação (' + esc(fmtDiaMes(ativo.data_ult_cot)) + ')</span>';
+      if (dtCotReal) {
+        bHtml += '<span class="vfocus-badge">Última cotação (' + esc(fmtDiaMes(dtCotReal)) + ')</span>';
       }
       bgEl.innerHTML = bHtml;
     }
 
     if (kpisEl) {
       var mBazin = obterMargemBazin(ativo);
-      var clsMargem = mBazin === null ? '' : (mBazin >= 0.15 ? 'pos' : (mBazin >= 0 ? 'warn' : 'neg'));
+      var clsMargem = mBazin === null ? '' : (mBazin >= 0 ? 'pos' : (mBazin >= -0.05 ? 'warn' : 'neg'));
       var pctAbaixo = ativo.pct_abaixo_teto_5a !== null && ativo.pct_abaixo_teto_5a !== undefined
         ? Number(ativo.pct_abaixo_teto_5a)
         : null;
@@ -1007,8 +1068,9 @@
     function atualizarHudIndice(idx, ehHover) {
       if (!hudEl) return;
       var ehUltimoPonto = idx === datas.length - 1;
-      var dataRef = (!ehHover && ehUltimoPonto && principal.data_ult_cot)
-        ? fmtDataCurta(principal.data_ult_cot)
+      var dtCotReal = principal.data_ult_cot || (principal.fundamentos && principal.fundamentos.data_ult_cot) || '';
+      var dataRef = (!ehHover && ehUltimoPonto && dtCotReal)
+        ? fmtDataCurta(dtCotReal)
         : fmtDataCurta(datas[idx]);
       var pBruto = (!ehHover && ehUltimoPonto && principal.preco)
         ? Number(principal.preco)
@@ -1134,9 +1196,7 @@
     var margemGraham = principal.margem_graham;
     var margemGordon = principal.margem_gordon;
 
-    var sust = typeof window.calcularScoreSustentabilidade === 'function'
-      ? window.calcularScoreSustentabilidade(principal)
-      : null;
+    var sust = obterSustentabilidade(principal);
 
     if (!tetoBazin || tetoBazin <= 0 || precos.length === 0) {
       badgeEl.className = 'tag tag-warn';
@@ -1337,7 +1397,8 @@
       if (!usandoEstimativaDpa) {
         while (idxEvento < eventosPeriodo.length && eventosPeriodo[idxEvento].data_com <= dAtual) {
           var ev = eventosPeriodo[idxEvento];
-          var fatorLiquido = (estadoVisual.simDescontarIrJcp && ev.tipo === 'JCP') ? 0.85 : 1.0;
+          var ehJcp = String(ev.tipo || '').toUpperCase() === 'JCP';
+          var fatorLiquido = (estadoVisual.simDescontarIrJcp && ehJcp) ? 0.85 : 1.0;
           var valorPorAcao = Number(ev.valor) * fatorLiquido;
 
           if (valorPorAcao > 0 && pAtual > 0) {
@@ -1592,6 +1653,7 @@
 
   function renderizarVisaoGraficaCompleta() {
     if (estadoVisual.abaAtiva !== 'visual') return;
+    if (!obterAtivos().length) return;
     garantirAtivoInicialSelecionado();
     renderizarListaSidebar();
     renderizarBarraComparacao();
@@ -1599,6 +1661,17 @@
     renderizarDiagnosticoValueTrap();
     executarSimulacaoRendimento();
   }
+
+  function atualizarVisaoGrafica() {
+    if (!obterAtivos().length) return;
+    garantirAtivoInicialSelecionado();
+    renderizarDemaisPapeisCard();
+    if (estadoVisual.abaAtiva === 'visual') {
+      renderizarVisaoGraficaCompleta();
+    }
+  }
+
+  window.atualizarVisaoGrafica = atualizarVisaoGrafica;
 
   window.obterEstadoVisaoGrafica = function () {
     return {
@@ -1740,8 +1813,9 @@
     var btnDetalhe = el('visual-open-detail-btn');
     if (btnDetalhe) {
       btnDetalhe.addEventListener('click', function () {
-        if (typeof window.abrirDetalheAtivo === 'function' && estadoVisual.tickerPrincipal) {
-          window.abrirDetalheAtivo(estadoVisual.tickerPrincipal);
+        var fnDet = window.abrirDetalheAtivo || window.abrirDetalhe;
+        if (typeof fnDet === 'function' && estadoVisual.tickerPrincipal) {
+          fnDet(estadoVisual.tickerPrincipal);
         }
       });
     }
@@ -1809,12 +1883,10 @@
   }
 
   function inicializarModuloVisual() {
-    if (!window.VALUATION_DATA || !Array.isArray(window.VALUATION_DATA.ativos)) {
-      return;
-    }
-    garantirAtivoInicialSelecionado();
-    renderizarDemaisPapeisCard();
     configurarEventosVisaoGrafica();
+    if (obterAtivos().length > 0) {
+      atualizarVisaoGrafica();
+    }
   }
 
   if (document.readyState === 'loading') {
