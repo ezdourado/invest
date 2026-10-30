@@ -320,3 +320,96 @@ def test_categoria_demais_papeis_e_tempo_abaixo_teto():
     assert prio.pct_abaixo_teto_5a is None
     assert prio.graham is not None and prio.graham > 0
     assert prio.rank_greenblatt == 1
+
+
+def test_score_sustentabilidade_anti_cilada():
+    """Valida os 4 pilares do Score de Sustentabilidade Anti-Cilada (forte, banco, cilada e sem dividendo)."""
+    from engine.valuation import avaliar_sustentabilidade
+
+    # 1. Pagadora perene operacional saudável -> Forte (>= 75)
+    divs_fortes = [
+        Dividendo(data_com=date(2021, 5, 10), valor=2.0, tipo="dividendo"),
+        Dividendo(data_com=date(2022, 5, 10), valor=2.1, tipo="dividendo"),
+        Dividendo(data_com=date(2023, 5, 10), valor=2.2, tipo="jcp"),
+        Dividendo(data_com=date(2024, 5, 10), valor=2.3, tipo="dividendo"),
+        Dividendo(data_com=date(2025, 5, 10), valor=2.4, tipo="dividendo"),
+    ]
+    bazin_forte = avaliar_bazin(divs_fortes, preco=30.0, ano_referencia=2026)
+    fund_forte = Fundamentos(lpa=4.2, payout=0.55, div_liq_ebitda=1.4, roe=0.20)
+    score_forte = avaliar_sustentabilidade(divs_fortes, bazin_forte, fund_forte, "energia", 2026)
+    assert score_forte.nivel == "forte"
+    assert score_forte.nota == 100
+    assert score_forte.anos_pagos_5a == 5
+    assert len(score_forte.pilares) == 4
+
+    # 2. Banco sólido (sem Dív.Líq/EBITDA, avaliado via ROE bancário) -> Forte
+    fund_banco = Fundamentos(lpa=5.0, payout=0.45, roe=0.19)
+    score_banco = avaliar_sustentabilidade(divs_fortes, bazin_forte, fund_banco, "bancos", 2026)
+    assert score_banco.nivel == "forte"
+    assert score_banco.nota >= 90
+
+    # 3. Cilada clássica: pagou muito em 2021-2022, secou em 2024-2025, prejuízo e dívida crítica -> Alerta
+    divs_cilada = [
+        Dividendo(data_com=date(2021, 8, 15), valor=6.0, tipo="dividendo"),
+        Dividendo(data_com=date(2022, 8, 15), valor=5.0, tipo="dividendo"),
+    ]
+    bazin_cilada = avaliar_bazin(divs_cilada, preco=18.0, ano_referencia=2026)
+    # Observe que pelo Bazin puro a média 5a = 2.20 -> teto = 36.67 (pareceria "barata"), mas o score detecta a cilada!
+    assert bazin_cilada.veredito == "verde"
+    fund_cilada = Fundamentos(lpa=-1.5, div_liq_ebitda=5.2, roe=-0.08)
+    score_cilada = avaliar_sustentabilidade(divs_cilada, bazin_cilada, fund_cilada, "siderurgia", 2026)
+    assert score_cilada.nivel == "alerta"
+    assert score_cilada.nota < 50
+    assert score_cilada.rotulo == "Risco Cilada"
+
+    # 4. Ação de crescimento sem dividendos nos 5 anos -> sem_dividendo
+    bazin_zero = avaliar_bazin([], preco=40.0, ano_referencia=2026)
+    score_zero = avaliar_sustentabilidade([], bazin_zero, Fundamentos(lpa=3.0, roe=0.18), "tecnologia", 2026)
+    assert score_zero.nivel == "sem_dividendo"
+    assert score_zero.nota == 0
+
+
+def test_consolidar_agenda_proventos_e_sazonalidade():
+    """Valida próxima data-com, último provento pago, próximo pagamento, fusão de parcelas e sazonalidade 5a."""
+    from engine.valuation import consolidar_agenda_proventos
+
+    ref = date(2026, 10, 29)
+    historico = [
+        # Sazonalidade recorrente em Maio e Agosto nos últimos anos fechados
+        Dividendo(data_com=date(2022, 5, 12), valor=0.50, tipo="dividendo", data_pagamento=date(2022, 5, 28)),
+        Dividendo(data_com=date(2022, 8, 12), valor=0.40, tipo="jcp", data_pagamento=date(2022, 8, 28)),
+        Dividendo(data_com=date(2023, 5, 11), valor=0.55, tipo="dividendo", data_pagamento=date(2023, 5, 29)),
+        Dividendo(data_com=date(2024, 5, 10), valor=0.60, tipo="dividendo", data_pagamento=date(2024, 5, 27)),
+        Dividendo(data_com=date(2025, 8, 14), valor=0.45, tipo="jcp", data_pagamento=date(2025, 8, 29)),
+        # Último efetivamente PAGO antes de 29/10/2026
+        Dividendo(data_com=date(2026, 5, 11), valor=0.56, tipo="jcp", data_pagamento=date(2026, 8, 26)),
+        # Já ficou ex-dividendo em 14/08/2026 (duas parcelas na mesma data!), pagamento futuro em 26/11/2026
+        Dividendo(data_com=date(2026, 8, 14), valor=0.3595, tipo="jcp", data_pagamento=date(2026, 11, 26)),
+        Dividendo(data_com=date(2026, 8, 14), valor=0.2408, tipo="dividendo", data_pagamento=date(2026, 11, 26)),
+    ]
+    anuncios = [
+        # Próxima data-com em aberto (>= 29/10/2026)
+        Dividendo(data_com=date(2026, 11, 9), valor=0.19, tipo="jcp", data_pagamento=date(2026, 12, 7)),
+    ]
+
+    res = consolidar_agenda_proventos(historico, anuncios, data_referencia=ref, ano_referencia=2026)
+
+    assert res.proxima_data_com is not None
+    assert res.proxima_data_com.data_com == date(2026, 11, 9)
+    assert res.proxima_data_com.data_pagamento == date(2026, 12, 7)
+    assert res.proxima_data_com.status == "anunciado"
+
+    assert res.ultimo_provento_pago is not None
+    assert res.ultimo_provento_pago.data_pagamento == date(2026, 8, 26)
+    assert res.ultimo_provento_pago.valor == pytest.approx(0.56)
+    assert res.ultimo_provento_pago.status == "pago"
+
+    assert res.proximo_pagamento is not None
+    assert res.proximo_pagamento.data_pagamento == date(2026, 11, 26)
+    assert res.proximo_pagamento.valor == pytest.approx(0.3595 + 0.2408)
+    assert res.proximo_pagamento.tipo == "misto"
+    assert res.proximo_pagamento.status == "a_pagar"
+
+    assert res.meses_habituais_dividendo == [5, 8]
+    assert res.mapa_sazonal_5a["5"] == 3
+    assert res.mapa_sazonal_5a["8"] == 2
