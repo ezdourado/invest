@@ -3,13 +3,16 @@
  * - Os preços-teto Bazin (K=6%), Graham e Gordon vêm prontos do motor Python.
  * - O histórico de preços (ajustado apenas por splits) e os proventos por data-com
  *   alimentam o gráfico comparativo e o simulador de retorno total.
+ * - Módulos defensivos e autossuficientes para evitar falhas por cache parcial do navegador.
  */
 
 (function () {
+  'use strict';
+
   const STORAGE_KEY_VISUAL = 'painel_valuation_visual_prefs';
 
   const COR_PRINCIPAL = '#5b8def';
-  const PALETA_COMPARACAO = ['#38bdf8', '#f59e0b', '#f472b6', '#34d399'];
+  const PALETA_COMPARACAO = ['#38bdf8', '#f59e0b', '#f472b6', '#a3e635'];
 
   const ESTILO_TETOS = {
     bazin: {
@@ -17,8 +20,8 @@
       nome: 'Teto Bazin (K=6%)',
       curto: 'Bazin',
       cor: '#2fbf86',
-      dash: '9 5',
-      largura: 2.4,
+      dash: '10 5',
+      largura: 2.6,
       destaque: true
     },
     graham: {
@@ -27,7 +30,7 @@
       curto: 'Graham',
       cor: '#e0b341',
       dash: '5 5',
-      largura: 1.75,
+      largura: 1.85,
       destaque: false
     },
     gordon: {
@@ -36,7 +39,7 @@
       curto: 'Gordon',
       cor: '#a78bfa',
       dash: '2.5 4',
-      largura: 1.75,
+      largura: 1.85,
       destaque: false
     }
   };
@@ -57,7 +60,128 @@
     '5y': '5 anos'
   };
 
-  const prefsSalvas = lerStorage(STORAGE_KEY_VISUAL, {}) || {};
+  /* ---------- Helpers Defensivos Autossuficientes ---------- */
+
+  const qSel = (sel) => document.querySelector(sel);
+
+  function escHtml(str) {
+    if (typeof window.esc === 'function') return window.esc(str);
+    return String(str ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  function ehValido(v) {
+    return v !== null && v !== undefined && typeof v === 'number' && !Number.isNaN(v) && Number.isFinite(v);
+  }
+
+  function formataReal(v) {
+    if (!ehValido(v)) return '—';
+    return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formataPct(v, casas = 1) {
+    if (!ehValido(v)) return '—';
+    const pct = v * 100;
+    const sinal = pct > 0 ? '+' : '';
+    return sinal + pct.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) + '%';
+  }
+
+  function formataPctSimples(v, casas = 1) {
+    if (!ehValido(v)) return '—';
+    const pct = v * 100;
+    return pct.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) + '%';
+  }
+
+  function corClasseMargem(v) {
+    if (!ehValido(v)) return 't-dim';
+    if (v >= 0) return 't-green';
+    if (v >= -0.05) return 't-yellow';
+    return 't-red';
+  }
+
+  function inferirSetorBesstLocal(setor) {
+    if (!setor) return null;
+    const s = String(setor).trim().toLowerCase();
+    if (s.startsWith('banco')) return 'bancos';
+    if (s.startsWith('energia') || s.startsWith('eletric') || s.startsWith('elétric')) return 'energia';
+    if (s.startsWith('saneamento')) return 'saneamento';
+    if (s.startsWith('segur')) return 'seguros';
+    if (s.startsWith('telecom')) return 'telecom';
+    return null;
+  }
+
+  function obterCategoriaAtivo(a) {
+    if (typeof window.categoriaDoAtivo === 'function') {
+      try { return window.categoriaDoAtivo(a); } catch (_) { /* fallback local */ }
+    }
+    if (!a) return 'dividendos';
+    if (a.categoria === 'demais') return 'demais';
+    if (a.besst || inferirSetorBesstLocal(a.setor)) return 'besst';
+    return 'dividendos';
+  }
+
+  function badgeVereditoHtml(v) {
+    if (typeof window.htmlVeredito === 'function') {
+      try { return window.htmlVeredito(v); } catch (_) { /* fallback local */ }
+    }
+    const rotulos = { verde: 'Compra', amarelo: 'Atenção', vermelho: 'Caro' };
+    const k = rotulos[v] ? v : 'vermelho';
+    return `<span class="verdict verdict-${k}">${rotulos[k]}</span>`;
+  }
+
+  function obterUrlInvestidor10(ticker) {
+    if (typeof window.urlInvestidor10 === 'function') {
+      try { return window.urlInvestidor10(ticker); } catch (_) { /* fallback local */ }
+    }
+    const clean = String(ticker || '').trim().toLowerCase();
+    return `https://investidor10.com.br/acoes/${encodeURIComponent(clean)}/`;
+  }
+
+  function lerPrefsLocal(chave, padrao) {
+    try {
+      const raw = localStorage.getItem(chave);
+      return raw ? JSON.parse(raw) : padrao;
+    } catch (_) {
+      return padrao;
+    }
+  }
+
+  function gravarPrefsLocal(chave, valor) {
+    try {
+      localStorage.setItem(chave, JSON.stringify(valor));
+    } catch (_) { /* modo privado */ }
+  }
+
+  function obterUniverso() {
+    if (typeof painelState !== 'undefined' && Array.isArray(painelState.universo)) {
+      return painelState.universo;
+    }
+    return [];
+  }
+
+  function obterSelecionadosPainel() {
+    if (typeof painelState !== 'undefined' && Array.isArray(painelState.selecionados)) {
+      return painelState.selecionados;
+    }
+    return [];
+  }
+
+  function obterPayload() {
+    if (typeof painelState !== 'undefined' && painelState.payload) {
+      return painelState.payload;
+    }
+    return null;
+  }
+
+  function construirMapaUniverso() {
+    const lista = obterUniverso();
+    return new Map(lista.map(a => [String(a.ticker).toUpperCase(), a]));
+  }
+
+  /* ---------- Estado da Visão Gráfica ---------- */
+
+  const prefsSalvas = lerPrefsLocal(STORAGE_KEY_VISUAL, {}) || {};
 
   const visualState = {
     aba: 'tabela',
@@ -65,6 +189,9 @@
     comparados: Array.isArray(prefsSalvas.comparados) ? prefsSalvas.comparados.slice(0, 4) : [],
     periodo: DIAS_PERIODO[prefsSalvas.periodo] ? prefsSalvas.periodo : '5y',
     modoPreco: ['preco', 'margem_bazin', 'variacao'].includes(prefsSalvas.modoPreco) ? prefsSalvas.modoPreco : 'preco',
+    filtroLista: ['todos', 'painel', 'besst', 'dividendos', 'demais'].includes(prefsSalvas.filtroLista) ? prefsSalvas.filtroLista : 'todos',
+    ordemLista: prefsSalvas.ordemLista === 'az' ? 'az' : 'margem',
+    buscaLista: '',
     tetosVisiveis: {
       bazin: prefsSalvas.tetosVisiveis?.bazin !== false,
       graham: prefsSalvas.tetosVisiveis?.graham !== false,
@@ -76,11 +203,13 @@
   };
 
   function salvarPrefsVisual() {
-    gravarStorage(STORAGE_KEY_VISUAL, {
+    gravarPrefsLocal(STORAGE_KEY_VISUAL, {
       tickerPrincipal: visualState.tickerPrincipal,
       comparados: visualState.comparados,
       periodo: visualState.periodo,
       modoPreco: visualState.modoPreco,
+      filtroLista: visualState.filtroLista,
+      ordemLista: visualState.ordemLista,
       tetosVisiveis: visualState.tetosVisiveis,
       simCapital: visualState.simCapital,
       simReinvestir: visualState.simReinvestir,
@@ -105,7 +234,7 @@
   }
 
   function fmtDuracaoDias(dias) {
-    if (!valido(dias) || dias <= 0) return 'menos de 1 semana';
+    if (!ehValido(dias) || dias <= 0) return 'menos de 1 semana';
     if (dias < 30) {
       const sem = Math.max(1, Math.round(dias / 7));
       return `${sem} ${sem === 1 ? 'semana' : 'semanas'}`;
@@ -119,13 +248,15 @@
   }
 
   function garantirAtivosValidos() {
-    const mapa = mapaUniverso();
+    const mapa = construirMapaUniverso();
     if (!mapa.size) return null;
 
     if (!visualState.tickerPrincipal || !mapa.has(visualState.tickerPrincipal.toUpperCase())) {
-      const preferidoPainel = painelState.selecionados.find(t => mapa.has(t.toUpperCase()));
-      const padraoBase = mapa.has('BBAS3') ? 'BBAS3' : painelState.universo[0]?.ticker;
-      visualState.tickerPrincipal = (preferidoPainel || padraoBase || '').toUpperCase();
+      const selPainel = obterSelecionadosPainel();
+      // Prioriza um ativo com bom histórico e teto Bazin (ex: BBAS3) ou o primeiro do painel
+      const preferidoPainel = selPainel.find(t => mapa.has(String(t).toUpperCase()));
+      const padraoBase = mapa.has('BBAS3') ? 'BBAS3' : obterUniverso()[0]?.ticker;
+      visualState.tickerPrincipal = String(preferidoPainel || padraoBase || '').toUpperCase();
     } else {
       visualState.tickerPrincipal = visualState.tickerPrincipal.toUpperCase();
     }
@@ -138,10 +269,11 @@
     return mapa.get(visualState.tickerPrincipal) || null;
   }
 
-  /* ---------- Extração de série histórica na janela ---------- */
+  /* ---------- Extração de Série Histórica na Janela ---------- */
 
   function obterDatasJanela() {
-    const todasDatas = painelState.payload?.historico_datas || [];
+    const payload = obterPayload();
+    const todasDatas = Array.isArray(payload?.historico_datas) ? payload.historico_datas : [];
     if (!todasDatas.length) {
       const hoje = new Date().toISOString().slice(0, 10);
       const ant = new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10);
@@ -185,7 +317,7 @@
       const p = ativo.historico_precos[idx];
       pontos.push({
         data: janela.datas[k],
-        preco: valido(p) && p > 0 ? p : null
+        preco: ehValido(p) && p > 0 ? p : null
       });
     }
     return pontos;
@@ -194,12 +326,22 @@
   /* ---------- Diagnóstico "Barato há muito tempo?" ---------- */
 
   function diagnosticarDescontoProlongado(ativo, serie) {
-    const validos = serie.filter(p => valido(p.preco) && p.preco > 0);
+    const validos = serie.filter(p => ehValido(p.preco) && p.preco > 0);
     const tetoBazin = ativo?.bazin?.teto;
-    const cat = categoriaDoAtivo(ativo);
+    const cat = obterCategoriaAtivo(ativo);
 
     if (!validos.length) {
-      return { tipo: 'neutro', titulo: 'Histórico indisponível', resumo: 'Sem cotações suficientes na janela selecionada.' };
+      return {
+        tipo: 'neutro',
+        titulo: 'Histórico indisponível',
+        resumo: 'Sem cotações suficientes na janela selecionada.',
+        pctAbaixo: null,
+        minPreco: null,
+        maxPreco: null,
+        medPreco: null,
+        varPeriodo: null,
+        diasStreak: 0
+      };
     }
 
     const precos = validos.map(p => p.preco);
@@ -211,14 +353,14 @@
     const varPeriodo = precoIni > 0 ? (precoFim - precoIni) / precoIni : 0;
     const diasJanela = Math.max(1, (new Date(validos[validos.length - 1].data) - new Date(validos[0].data)) / 86400000);
 
-    if (!valido(tetoBazin) || tetoBazin <= 0) {
-      const refGraham = valido(ativo.graham)
-        ? `Referência secundária Graham: ${fmtReal(ativo.graham)} (${fmtPct(ativo.margem_graham)}).`
+    if (!ehValido(tetoBazin) || tetoBazin <= 0) {
+      const refGraham = ehValido(ativo.graham)
+        ? `Valor intrínseco Graham: ${formataReal(ativo.graham)} (${formataPct(ativo.margem_graham)}).`
         : 'Sem LPA/VPA positivos para cálculo de Graham.';
       return {
         tipo: 'sem-bazin',
         titulo: cat === 'demais' ? 'Perfil Demais papéis · sem teto Bazin aplicável' : 'Sem DPA recorrente p/ Teto Bazin',
-        resumo: `${ativo.ticker} não possui proventos recorrentes nos últimos 5 anos fechados para formar preço-teto Bazin. ${refGraham}`,
+        resumo: `${ativo.ticker} não distribuiu proventos recorrentes nos últimos 5 anos fechados para formar preço-teto Bazin. ${refGraham}`,
         pctAbaixo: null,
         minPreco,
         maxPreco,
@@ -251,8 +393,8 @@
         tipo: 'acima',
         titulo: 'Negociando acima do Teto Bazin atualmente',
         resumo: pctAbaixo > 0
-          ? `Apesar de caro hoje (${fmtReal(precoFim)} vs. teto ${fmtReal(tetoBazin)}), negociou abaixo do Teto Bazin em ${fmtPctSimples(pctAbaixo, 0)} desta janela de ${ROTULO_PERIODO[visualState.periodo]}.`
-          : `Permaneceu 100% dos últimos ${ROTULO_PERIODO[visualState.periodo]} acima do Teto Bazin atual (${fmtReal(tetoBazin)}).`,
+          ? `Acima do teto hoje (${formataReal(precoFim)} vs. teto ${formataReal(tetoBazin)}), mas esteve abaixo do Teto Bazin em ${formataPctSimples(pctAbaixo, 0)} desta janela de ${ROTULO_PERIODO[visualState.periodo]}.`
+          : `Permaneceu 100% dos últimos ${ROTULO_PERIODO[visualState.periodo]} acima do Teto Bazin atual (${formataReal(tetoBazin)}).`,
         pctAbaixo,
         minPreco,
         maxPreco,
@@ -262,39 +404,48 @@
       };
     }
 
-    // Está abaixo do Teto Bazin hoje
     if (diasJanela >= 500 && (pctAbaixo >= 0.70 || diasStreak >= 540) && varPeriodo <= 0.05) {
+      const diasAcum = Math.round(pctAbaixo * diasJanela);
+      const trechoTempo = diasStreak >= 180
+        ? `há ${fmtDuracaoDias(diasStreak)} ininterruptos`
+        : `cerca de ${fmtDuracaoDias(diasAcum)} acumulados na janela`;
       return {
         tipo: 'alerta',
         titulo: 'Atenção · Barato há muito tempo sem reação na cotação',
-        resumo: `Ficou abaixo do Teto Bazin atual em ${fmtPctSimples(pctAbaixo, 0)} da janela (${fmtDuracaoDias(diasStreak)} consecutivos) com variação de preço de ${fmtPct(varPeriodo)}. Desconto crônico exige checar no Raio-X se há queda de lucros/ROE, risco regulatório ou possível armadilha de valor.`,
+        resumo: `Negociou abaixo do Teto Bazin em ${formataPctSimples(pctAbaixo, 0)} do período (${trechoTempo}) com variação de cotação de ${formataPct(varPeriodo)}. Desconto prolongado pede checar no Raio-X se há deterioração de ROE/lucros ou armadilha de valor.`,
         pctAbaixo,
         minPreco,
         maxPreco,
         medPreco,
         varPeriodo,
-        diasStreak
+        diasStreak,
+        diasAcum
       };
     }
 
     if (diasJanela >= 500 && (pctAbaixo >= 0.65 || diasStreak >= 450)) {
+      const diasAcum = Math.round(pctAbaixo * diasJanela);
+      const trechoTempo = diasStreak >= 180
+        ? `há ${fmtDuracaoDias(diasStreak)} ininterruptos`
+        : `cerca de ${fmtDuracaoDias(diasAcum)} acumulados`;
       return {
         tipo: 'estrutural',
         titulo: 'Desconto recorrente · Múltiplos historicamente abaixo do teto',
-        resumo: `Negociou abaixo do Teto Bazin atual em ${fmtPctSimples(pctAbaixo, 0)} do período (${fmtDuracaoDias(diasStreak)} seguidos), mas acumulando ${fmtPct(varPeriodo)} na cotação. Comum em geradoras de caixa com valuation descontado — valide sustentabilidade do payout e dívida.`,
+        resumo: `Ficou abaixo do Teto Bazin em ${formataPctSimples(pctAbaixo, 0)} do período (${trechoTempo}), porém valorizando ${formataPct(varPeriodo)} na cotação. Comum em pagadoras perenes descontadas — valide payout e alavancagem.`,
         pctAbaixo,
         minPreco,
         maxPreco,
         medPreco,
         varPeriodo,
-        diasStreak
+        diasStreak,
+        diasAcum
       };
     }
 
     return {
       tipo: 'recente',
       titulo: 'Janela de desconto recente frente ao histórico',
-      resumo: `Negocia abaixo do Teto Bazin há ${fmtDuracaoDias(diasStreak)} (${fmtPctSimples(pctAbaixo, 0)} da janela de ${ROTULO_PERIODO[visualState.periodo]}). Não apresenta padrão de papel estagnado barato por anos.`,
+      resumo: `Abaixo do Teto Bazin há ${fmtDuracaoDias(diasStreak)} (${formataPctSimples(pctAbaixo, 0)} da janela de ${ROTULO_PERIODO[visualState.periodo]}). Não configura papel estagnado barato por anos.`,
       pctAbaixo,
       minPreco,
       maxPreco,
@@ -308,7 +459,7 @@
 
   function simularRetornoAtivo(ativo, janela, capitalInicial, reinvestir, liquidoJcp) {
     const serieBruta = extrairSerieAtivo(ativo, janela);
-    const validos = serieBruta.filter(p => valido(p.preco) && p.preco > 0);
+    const validos = serieBruta.filter(p => ehValido(p.preco) && p.preco > 0);
     if (validos.length < 2) return null;
 
     const dataIni = validos[0].data;
@@ -324,7 +475,7 @@
 
     const proventos = Array.isArray(ativo.proventos_historico)
       ? ativo.proventos_historico
-          .filter(ev => ev && ev.data_com > dataIni && ev.data_com <= dataFim && valido(ev.valor) && ev.valor > 0)
+          .filter(ev => ev && ev.data_com > dataIni && ev.data_com <= dataFim && ehValido(ev.valor) && ev.valor > 0)
           .sort((a, b) => String(a.data_com).localeCompare(String(b.data_com)))
       : [];
 
@@ -408,7 +559,17 @@
     };
   }
 
-  /* ---------- Utilitários de Gráfico SVG Responsivo ---------- */
+  /* ---------- Utilitários de Gráfico SVG Widescreen ---------- */
+
+  function medirLarguraGrafico(containerEl) {
+    const rectW = containerEl ? Math.round(containerEl.getBoundingClientRect().width) : 0;
+    const clientW = containerEl ? containerEl.clientWidth : 0;
+    const bruto = rectW || clientW;
+    if (bruto > 140) return Math.max(280, bruto - 28);
+    const winW = window.innerWidth || 1366;
+    if (winW > 980) return Math.min(1040, Math.max(620, winW - 390));
+    return Math.max(290, winW - 44);
+  }
 
   function calcularTicksEixoY(minVal, maxVal, qtdDesejada = 5) {
     if (!Number.isFinite(minVal) || !Number.isFinite(maxVal)) return { min: 0, max: 10, ticks: [0, 5, 10] };
@@ -437,7 +598,7 @@
     return { min: ticks[0], max: ticks[ticks.length - 1], ticks };
   }
 
-  function resolverColisaoVertical(itens, minTop, maxBottom, espacamento = 20) {
+  function resolverColisaoVertical(itens, minTop, maxBottom, espacamento = 22) {
     if (!itens.length) return [];
     const ord = itens.map(x => ({ ...x, yLabel: Math.max(minTop, Math.min(maxBottom, x.y)) }))
       .sort((a, b) => a.yLabel - b.yLabel);
@@ -482,7 +643,7 @@
     return `${linha} L${ultimo.x.toFixed(1)},${yBase.toFixed(1)} L${primeiro.x.toFixed(1)},${yBase.toFixed(1)} Z`;
   }
 
-  function anexarInteracaoCrosshair(svgEl, areaPlot, totalPontos, aoMover, aoSair) {
+  function anexarInteracaoCrosshair(svgEl, totalPontos, aoMover, aoSair) {
     const hitRect = svgEl.querySelector('.v-hit-area');
     if (!hitRect || totalPontos < 1) return;
 
@@ -491,119 +652,259 @@
       if (!rect.width) return;
       const relX = Math.max(0, Math.min(1, (ev.clientX - rect.left) / rect.width));
       const idx = Math.round(relX * (totalPontos - 1));
-      aoMover(Math.max(0, Math.min(totalPontos - 1, idx)), areaPlot);
+      aoMover(Math.max(0, Math.min(totalPontos - 1, idx)));
     };
 
-    hitRect.addEventListener('pointerdown', (ev) => {
-      processarEvento(ev);
+    hitRect.addEventListener('pointerdown', processarEvento);
+    hitRect.addEventListener('pointermove', processarEvento);
+    hitRect.addEventListener('pointerleave', aoSair);
+  }
+
+  /* ---------- Renderização 1: Explorador Lateral (Desktop) & Seletor Mobile ---------- */
+
+  function filtrarEOrdenarListaSidebar() {
+    const universo = obterUniverso();
+    const noPainelSet = new Set(obterSelecionadosPainel().map(t => String(t).toUpperCase()));
+    const q = visualState.buscaLista.trim().toLowerCase();
+    const cat = visualState.filtroLista;
+
+    const filtrada = universo.filter(a => {
+      const tUp = a.ticker.toUpperCase();
+      if (cat === 'painel' && !noPainelSet.has(tUp)) return false;
+      if (cat === 'besst' && obterCategoriaAtivo(a) !== 'besst') return false;
+      if (cat === 'dividendos' && obterCategoriaAtivo(a) !== 'dividendos') return false;
+      if (cat === 'demais' && obterCategoriaAtivo(a) !== 'demais') return false;
+
+      if (q) {
+        const matchTicker = a.ticker.toLowerCase().includes(q);
+        const matchSetor = String(a.setor || '').toLowerCase().includes(q);
+        const matchEmp = String(a.empresa || '').toLowerCase().includes(q);
+        if (!matchTicker && !matchSetor && !matchEmp) return false;
+      }
+      return true;
     });
-    hitRect.addEventListener('pointermove', (ev) => {
-      processarEvento(ev);
-    });
-    hitRect.addEventListener('pointerleave', () => {
-      aoSair();
+
+    if (visualState.ordemLista === 'az') {
+      return filtrada.sort((a, b) => a.ticker.localeCompare(b.ticker));
+    }
+
+    // Ordenação padrão: Maior margem Bazin primeiro; papéis sem Bazin ordenados por ranking Greenblatt
+    return filtrada.sort((a, b) => {
+      const ma = ehValido(a.bazin?.margem_seguranca) && a.bazin?.teto > 0 ? a.bazin.margem_seguranca : null;
+      const mb = ehValido(b.bazin?.margem_seguranca) && b.bazin?.teto > 0 ? b.bazin.margem_seguranca : null;
+      if (ma !== null && mb !== null) return mb - ma;
+      if (ma !== null) return -1;
+      if (mb !== null) return 1;
+      const ga = ehValido(a.rank_greenblatt) ? a.rank_greenblatt : 9999;
+      const gb = ehValido(b.rank_greenblatt) ? b.rank_greenblatt : 9999;
+      if (ga !== gb) return ga - gb;
+      return a.ticker.localeCompare(b.ticker);
     });
   }
 
-  /* ---------- Renderização: Controles do Topo ---------- */
+  function renderizarChipsComparacaoHtml() {
+    if (!visualState.comparados.length) return '';
+    return visualState.comparados.map((t, idx) => {
+      const cor = PALETA_COMPARACAO[idx % PALETA_COMPARACAO.length];
+      return `
+        <span class="vcompare-chip">
+          <i style="background:${cor}"></i>
+          <b>${escHtml(t)}</b>
+          <button type="button" data-vremove-cmp="${escHtml(t)}" aria-label="Remover ${escHtml(t)} da comparação">×</button>
+        </span>`;
+    }).join('');
+  }
 
-  function renderizarControlesTopo(principal) {
-    const selMain = $('#visual-main-select');
-    const selCmp = $('#visual-compare-select');
-    const pillsWrap = $('#visual-quick-pills');
-    const chipsCmp = $('#visual-compare-chips');
-    const peersWrap = $('#visual-peer-suggestions');
+  function renderizarExploradorEControles(principal) {
+    const universo = obterUniverso();
+    const universoOrd = [...universo].sort((a, b) => a.ticker.localeCompare(b.ticker));
+    const noPainelSet = new Set(obterSelecionadosPainel().map(t => String(t).toUpperCase()));
 
-    const universoOrd = [...painelState.universo].sort((a, b) => a.ticker.localeCompare(b.ticker));
-    const noPainelSet = new Set(painelState.selecionados.map(t => t.toUpperCase()));
-
+    // 1. Selects mobile (#visual-main-select & #visual-compare-select)
     const gruposOpt = [
       { titulo: 'No seu painel', itens: universoOrd.filter(a => noPainelSet.has(a.ticker.toUpperCase())) },
-      { titulo: 'Setores BESST', itens: universoOrd.filter(a => !noPainelSet.has(a.ticker.toUpperCase()) && categoriaDoAtivo(a) === 'besst') },
-      { titulo: 'Outras pagadoras de dividendos', itens: universoOrd.filter(a => !noPainelSet.has(a.ticker.toUpperCase()) && categoriaDoAtivo(a) === 'dividendos') },
-      { titulo: 'Demais papéis', itens: universoOrd.filter(a => !noPainelSet.has(a.ticker.toUpperCase()) && categoriaDoAtivo(a) === 'demais') }
+      { titulo: 'Setores BESST', itens: universoOrd.filter(a => !noPainelSet.has(a.ticker.toUpperCase()) && obterCategoriaAtivo(a) === 'besst') },
+      { titulo: 'Outras pagadoras de dividendos', itens: universoOrd.filter(a => !noPainelSet.has(a.ticker.toUpperCase()) && obterCategoriaAtivo(a) === 'dividendos') },
+      { titulo: 'Demais papéis', itens: universoOrd.filter(a => !noPainelSet.has(a.ticker.toUpperCase()) && obterCategoriaAtivo(a) === 'demais') }
     ];
 
+    const selMain = qSel('#visual-main-select');
     if (selMain) {
       selMain.innerHTML = gruposOpt
         .filter(g => g.itens.length)
-        .map(g => `<optgroup label="${esc(g.titulo)}">${g.itens.map(a =>
-          `<option value="${esc(a.ticker)}" ${a.ticker.toUpperCase() === principal.ticker.toUpperCase() ? 'selected' : ''}>${esc(a.ticker)} · ${esc(a.setor)} (${fmtReal(a.preco)})</option>`
+        .map(g => `<optgroup label="${escHtml(g.titulo)}">${g.itens.map(a =>
+          `<option value="${escHtml(a.ticker)}" ${a.ticker.toUpperCase() === principal.ticker.toUpperCase() ? 'selected' : ''}>${escHtml(a.ticker)} · ${escHtml(a.setor)} (${formataReal(a.preco)})</option>`
         ).join('')}</optgroup>`).join('');
     }
 
+    const selCmp = qSel('#visual-compare-select');
     if (selCmp) {
       const jaUsados = new Set([principal.ticker.toUpperCase(), ...visualState.comparados]);
       const desabilitado = visualState.comparados.length >= 4;
       selCmp.disabled = desabilitado;
-      selCmp.innerHTML = `<option value="">${desabilitado ? 'Limite de 4 comparações atingido' : '+ Comparar papel…'}</option>` +
+      selCmp.innerHTML = `<option value="">${desabilitado ? 'Limite (4/4)' : '+ Comparar…'}</option>` +
         gruposOpt
           .filter(g => g.itens.length)
           .map(g => {
             const disp = g.itens.filter(a => !jaUsados.has(a.ticker.toUpperCase()));
             if (!disp.length) return '';
-            return `<optgroup label="${esc(g.titulo)}">${disp.map(a =>
-              `<option value="${esc(a.ticker)}">${esc(a.ticker)} · ${esc(a.setor)}</option>`
+            return `<optgroup label="${escHtml(g.titulo)}">${disp.map(a =>
+              `<option value="${escHtml(a.ticker)}">${escHtml(a.ticker)} · ${escHtml(a.setor)}</option>`
             ).join('')}</optgroup>`;
           }).join('');
     }
 
-    // Pílulas rápidas: ativos do painel ou destaques das 3 categorias
-    if (pillsWrap) {
-      let listaRapida = ativosSelecionados();
-      if (!listaRapida.length) {
-        const destaques = ['BBAS3', 'ITUB4', 'TAEE11', 'BBSE3', 'VIVT3', 'PETR4', 'VALE3', 'WEGE3', 'PRIO3', 'RADL3'];
-        const mapa = mapaUniverso();
-        listaRapida = destaques.map(t => mapa.get(t)).filter(Boolean);
-      }
-      pillsWrap.innerHTML = listaRapida.slice(0, 18).map(a => {
-        const ativo = a.ticker.toUpperCase() === principal.ticker.toUpperCase();
-        const cat = categoriaDoAtivo(a);
-        const corDot = a.bazin?.veredito === 'verde' ? 'var(--green)' : (a.bazin?.veredito === 'amarelo' ? 'var(--yellow)' : 'var(--red)');
-        return `
-          <button type="button" class="chip ${ativo ? 'is-on' : ''}" data-vquick-ticker="${esc(a.ticker)}"
-            data-tip="${esc(a.setor)}${cat === 'demais' ? ' · Demais papéis' : ''} · ${fmtReal(a.preco)}">
-            <i style="background:${corDot}"></i>${esc(a.ticker)}
-          </button>`;
-      }).join('');
+    const mobileChipsEl = qSel('#visual-mobile-cmp-chips');
+    if (mobileChipsEl) {
+      mobileChipsEl.innerHTML = visualState.comparados.length
+        ? `<span class="vctrl-mini-label">Comparando:</span>${renderizarChipsComparacaoHtml()}<button type="button" class="btn-link-dim" data-vclear-cmp="1">Limpar</button>`
+        : '';
     }
 
-    // Chips dos papéis comparados
-    if (chipsCmp) {
+    // 2. Controles da Sidebar Desktop
+    const sortBtn = qSel('#visual-list-sort');
+    if (sortBtn) {
+      sortBtn.textContent = visualState.ordemLista === 'az' ? 'A–Z ↓' : 'Margem ↓';
+    }
+
+    document.querySelectorAll('#visual-cat-filter .vcat-btn').forEach(btn => {
+      btn.classList.toggle('is-active', btn.dataset.vcat === visualState.filtroLista);
+    });
+
+    const chipsBox = qSel('#visual-compare-chips');
+    if (chipsBox) {
       if (!visualState.comparados.length) {
-        chipsCmp.innerHTML = `<span class="t-dim" style="font-size:12px">Nenhum papel adicionado</span>`;
+        chipsBox.innerHTML = `
+          <div class="vside-cmp-head"><span>Comparação (0/4)</span></div>
+          <p class="vside-cmp-hint">Clique em <b>+</b> ao lado de qualquer ação abaixo para comparar no gráfico.</p>
+        `;
       } else {
-        chipsCmp.innerHTML = visualState.comparados.map((t, idx) => {
-          const cor = PALETA_COMPARACAO[idx % PALETA_COMPARACAO.length];
+        chipsBox.innerHTML = `
+          <div class="vside-cmp-head">
+            <span>Comparando (${visualState.comparados.length}/4)</span>
+            <button type="button" class="btn-link-dim" data-vclear-cmp="1">Limpar</button>
+          </div>
+          <div class="vcompare-chips">${renderizarChipsComparacaoHtml()}</div>
+        `;
+      }
+    }
+
+    // 3. Lista rolável de ações na Sidebar Desktop
+    const listaEl = qSel('#visual-stock-list');
+    const countBadge = qSel('#vside-count-badge');
+    const listaFiltrada = filtrarEOrdenarListaSidebar();
+
+    if (countBadge) countBadge.textContent = String(listaFiltrada.length);
+
+    if (listaEl) {
+      if (!listaFiltrada.length) {
+        const msgVazio = visualState.filtroLista === 'painel' && !noPainelSet.size
+          ? `Nenhum papel selecionado no seu painel.<br><button type="button" class="btn-inline-link" data-vreset-cat="todos" style="margin-top:6px;display:inline-block">Ver todos os ${universo.length} ativos</button>`
+          : `Nenhum papel encontrado para o filtro atual.`;
+        listaEl.innerHTML = `<div class="vside-empty">${msgVazio}</div>`;
+      } else {
+        const cmpSet = new Set(visualState.comparados);
+        const limiteAtingido = visualState.comparados.length >= 4;
+
+        listaEl.innerHTML = listaFiltrada.map(a => {
+          const tUp = a.ticker.toUpperCase();
+          const ehFoco = tUp === principal.ticker.toUpperCase();
+          const ehCmp = cmpSet.has(tUp);
+          const idxCmp = visualState.comparados.indexOf(tUp);
+          const cat = obterCategoriaAtivo(a);
+          const temBazin = ehValido(a.bazin?.teto) && a.bazin.teto > 0;
+          const margem = temBazin ? a.bazin?.margem_seguranca : null;
+
+          const corDot = ehFoco
+            ? COR_PRINCIPAL
+            : (ehCmp
+              ? PALETA_COMPARACAO[idxCmp % PALETA_COMPARACAO.length]
+              : (a.bazin?.veredito === 'verde' ? 'var(--green)' : (a.bazin?.veredito === 'amarelo' ? 'var(--yellow)' : (cat === 'demais' ? '#a78bfa' : 'var(--red)'))));
+
+          const catMini = cat === 'demais'
+            ? `<span class="vstock-cat-mini is-demais">Demais</span>`
+            : (cat === 'besst' ? `<span class="vstock-cat-mini">BESST</span>` : '');
+
+          const subTexto = a.empresa ? `${a.setor} · ${a.empresa}` : a.setor;
+          const metricaSecundaria = temBazin
+            ? `<span class="vstock-margin ${corClasseMargem(margem)}">${formataPct(margem)}</span>`
+            : (ehValido(a.rank_greenblatt)
+              ? `<span class="vstock-margin t-accent">GB #${a.rank_greenblatt}</span>`
+              : `<span class="vstock-margin t-dim">s/ Bazin</span>`);
+
+          let btnCmpHtml = '';
+          if (ehFoco) {
+            btnCmpHtml = `<span class="vcmp-toggle is-on" title="Ativo principal em foco" style="cursor:default;font-size:10px">●</span>`;
+          } else {
+            const desab = !ehCmp && limiteAtingido;
+            btnCmpHtml = `
+              <button type="button" class="vcmp-toggle ${ehCmp ? 'is-on' : ''}" data-vtoggle-cmp="${escHtml(a.ticker)}"
+                ${desab ? 'disabled' : ''}
+                title="${ehCmp ? `Remover ${a.ticker} da comparação` : (desab ? 'Limite de 4 comparações atingido' : `Comparar com ${a.ticker}`)}">
+                ${ehCmp ? '✓' : '+'}
+              </button>`;
+          }
+
           return `
-            <span class="vcompare-chip" style="--cmp-color:${cor}">
-              <i style="background:${cor}"></i>
-              <b>${esc(t)}</b>
-              <button type="button" data-vremove-cmp="${esc(t)}" aria-label="Remover ${esc(t)} da comparação">×</button>
-            </span>`;
-        }).join('') + (visualState.comparados.length > 1
-          ? `<button type="button" class="btn-link-dim" id="btn-clear-comparisons">Limpar</button>`
-          : '');
+            <div class="vstock-row ${ehFoco ? 'is-focused' : ''} ${ehCmp ? 'is-compared' : ''}"
+              role="option" aria-selected="${ehFoco}" data-vselect-ticker="${escHtml(a.ticker)}">
+              <div class="vstock-left">
+                <div class="vstock-tline">
+                  <i class="dot" style="background:${corDot}"></i>
+                  <span class="vstock-ticker">${escHtml(a.ticker)}</span>
+                  ${catMini}
+                </div>
+                <span class="vstock-sub">${escHtml(subTexto)}</span>
+              </div>
+              <div class="vstock-metrics">
+                <span class="vstock-price">${formataReal(a.preco)}</span>
+                ${metricaSecundaria}
+              </div>
+              ${btnCmpHtml}
+            </div>
+          `;
+        }).join('');
       }
     }
+  }
 
-    // Sugestões de pares do mesmo setor
-    if (peersWrap) {
-      const jaUsados = new Set([principal.ticker.toUpperCase(), ...visualState.comparados]);
-      const prefixoRaiz = principal.ticker.slice(0, 4);
-      const pares = painelState.universo
-        .filter(a => !jaUsados.has(a.ticker.toUpperCase()) && a.setor === principal.setor && !a.ticker.startsWith(prefixoRaiz))
-        .slice(0, 4);
+  /* ---------- Renderização 2: Cabeçalho Hero do Ativo & Período ---------- */
 
-      if (pares.length && visualState.comparados.length < 4) {
-        peersWrap.innerHTML = `<span class="vctrl-mini-label">Mesmo setor:</span>` +
-          pares.map(p => `<button type="button" class="chip-mini" data-vadd-peer="${esc(p.ticker)}">+ ${esc(p.ticker)}</button>`).join('');
-      } else {
-        peersWrap.innerHTML = '';
-      }
+  function renderizarHeroAtivo(principal) {
+    const headerEl = qSel('#visual-asset-header');
+    if (headerEl) {
+      const cat = obterCategoriaAtivo(principal);
+      const catBadge = cat === 'besst'
+        ? `<span class="tag tag-besst">BESST</span>`
+        : (cat === 'demais' ? `<span class="tag tag-demais">Demais papéis</span>` : `<span class="tag tag-div">Dividendos</span>`);
+
+      const temBazin = ehValido(principal.bazin?.teto) && principal.bazin.teto > 0;
+      const resumoModelo = temBazin
+        ? `Teto Bazin (6%): <strong class="mono" style="color:var(--green)">${formataReal(principal.bazin.teto)}</strong> <span class="mono ${corClasseMargem(principal.bazin.margem_seguranca)}">(${formataPct(principal.bazin.margem_seguranca)})</span>`
+        : (ehValido(principal.graham)
+          ? `Graham: <strong class="mono" style="color:var(--yellow)">${formataReal(principal.graham)}</strong> <span class="mono ${corClasseMargem(principal.margem_graham)}">(${formataPct(principal.margem_graham)})</span>`
+          : `Sem teto Bazin (DPA 5a ausente)`);
+
+      headerEl.innerHTML = `
+        <div class="vhero-top">
+          <span class="vhero-ticker">${escHtml(principal.ticker)}</span>
+          <span class="vhero-price">${formataReal(principal.preco)}</span>
+          ${catBadge}
+          ${temBazin ? badgeVereditoHtml(principal.bazin?.veredito) : `<span class="tag" style="color:var(--muted);border:1px solid var(--border-strong)">Sem DPA 5a</span>`}
+        </div>
+        <div class="vhero-meta">
+          ${principal.empresa ? `<strong style="color:var(--text-strong)">${escHtml(principal.empresa)}</strong><span class="vhero-sep">·</span>` : ''}
+          <span style="text-transform:capitalize">Setor: <strong style="color:var(--text)">${escHtml(principal.setor)}</strong></span>
+          <span class="vhero-sep">·</span>
+          <span>${resumoModelo}</span>
+          <span class="vhero-sep">·</span>
+          <button type="button" class="btn-inline-link" data-vopen-detail="${escHtml(principal.ticker)}">Abrir Raio-X</button>
+          <span class="vhero-sep">·</span>
+          <a class="btn-inline-link" href="${obterUrlInvestidor10(principal.ticker)}" target="_blank" rel="noopener noreferrer">Investidor10 ↗</a>
+        </div>
+      `;
     }
 
-    // Estado ativo dos botões de período e modo
     document.querySelectorAll('#visual-period-group .seg-btn').forEach(b => {
       b.classList.toggle('is-active', b.dataset.vperiod === visualState.periodo);
     });
@@ -612,55 +913,31 @@
     });
   }
 
-  /* ---------- Renderização: Gráfico 1 (Preços vs. Preços-Teto Tracejados) ---------- */
+  /* ---------- Renderização 3: Gráfico de Preços vs. Preços-Teto Tracejados ---------- */
 
   function renderizarSecaoPrecosTetos(principal, ativosCmp, janela) {
-    const headerEl = $('#visual-asset-header');
-    const legendEl = $('#visual-ceiling-legend');
-    const hudEl = $('#visual-price-hud');
-    const svgWrap = $('#visual-price-svg-wrap');
-    const trapEl = $('#visual-valuetrap-box');
-    const cmpTableWrap = $('#visual-compare-ceilings-wrap');
+    const legendEl = qSel('#visual-ceiling-legend');
+    const peersEl = qSel('#visual-peer-suggestions');
+    const hudEl = qSel('#visual-price-hud');
+    const svgWrap = qSel('#visual-price-svg-wrap');
+    const trapEl = qSel('#visual-valuetrap-box');
+    const cmpTableWrap = qSel('#visual-compare-ceilings-wrap');
     if (!svgWrap) return;
-
-    const cat = categoriaDoAtivo(principal);
-    const catBadge = cat === 'besst'
-      ? `<span class="tag tag-besst">BESST</span>`
-      : (cat === 'demais' ? `<span class="tag tag-demais">Demais papéis</span>` : `<span class="tag tag-div">Dividendos</span>`);
-
-    if (headerEl) {
-      headerEl.innerHTML = `
-        <div class="vasset-title-row">
-          <h2 class="card-title vasset-main-title">
-            <span class="mono">${esc(principal.ticker)}</span>
-            ${principal.empresa ? `<span class="t-muted" style="font-weight:400">· ${esc(principal.empresa)}</span>` : ''}
-            ${catBadge}
-            ${htmlVeredito(principal.bazin?.veredito)}
-          </h2>
-        </div>
-        <p class="card-sub">
-          Setor: <strong style="color:var(--text);text-transform:capitalize">${esc(principal.setor)}</strong> ·
-          Cotação atual: <strong class="mono" style="color:var(--text-strong)">${fmtReal(principal.preco)}</strong> ·
-          <button type="button" class="btn-inline-link" data-vopen-detail="${esc(principal.ticker)}">Abrir Raio-X completo</button> ·
-          <a class="btn-inline-link" href="${urlInvestidor10(principal.ticker)}" target="_blank" rel="noopener noreferrer">Investidor10 ↗</a>
-        </p>
-      `;
-    }
 
     const todosAtivos = [principal, ...ativosCmp];
     const seriesPorTicker = new Map();
     todosAtivos.forEach(a => seriesPorTicker.set(a.ticker, extrairSerieAtivo(a, janela)));
 
     const modo = visualState.modoPreco;
-    const tetoBazin = principal.bazin?.teto > 0 ? principal.bazin.teto : null;
-    const tetoGraham = valido(principal.graham) && principal.graham > 0 ? principal.graham : null;
-    const tetoGordon = valido(principal.gordon) && principal.gordon > 0 ? principal.gordon : null;
+    const tetoBazin = ehValido(principal.bazin?.teto) && principal.bazin.teto > 0 ? principal.bazin.teto : null;
+    const tetoGraham = ehValido(principal.graham) && principal.graham > 0 ? principal.graham : null;
+    const tetoGordon = ehValido(principal.gordon) && principal.gordon > 0 ? principal.gordon : null;
 
-    // Legenda interativa de preços-teto e papéis comparados
+    // 1. Legenda interativa de preços-teto e papéis
     if (legendEl) {
       const seriesLegenda = todosAtivos.map((a, idx) => {
         const cor = idx === 0 ? COR_PRINCIPAL : PALETA_COMPARACAO[(idx - 1) % PALETA_COMPARACAO.length];
-        return `<span class="vleg-item"><span class="vleg-line" style="border-top:2.5px solid ${cor}"></span><b>${esc(a.ticker)}</b> <span class="mono t-muted">${fmtReal(a.preco)}</span></span>`;
+        return `<span class="vleg-item"><span class="vleg-line" style="border-top:2.6px solid ${cor}"></span><b>${escHtml(a.ticker)}</b> <span class="mono t-muted">${formataReal(a.preco)}</span></span>`;
       }).join('');
 
       let tetosLegenda = '';
@@ -672,23 +949,24 @@
         ];
         tetosLegenda = modelos.map(({ cfg, val, m }) => {
           const ligado = visualState.tetosVisiveis[cfg.chave];
-          const disp = valido(val);
+          const disp = ehValido(val);
           const estiloDash = cfg.chave === 'gordon' ? 'dotted' : 'dashed';
           return `
             <button type="button" class="vleg-btn ${ligado && disp ? 'is-on' : 'is-off'} ${cfg.destaque ? 'is-primary-ceil' : ''}"
               data-vtoggle-ceil="${cfg.chave}" ${!disp ? 'disabled' : ''}
-              data-tip="${disp ? `Clique para mostrar/ocultar a linha tracejada de ${cfg.nome} de ${principal.ticker}` : `${cfg.nome} não aplicável a ${principal.ticker}`}">
-              <span class="vleg-line" style="border-top:${cfg.destaque ? '2.5px' : '2px'} ${estiloDash} ${cfg.cor}"></span>
-              <span>${cfg.nome}</span>
-              <strong class="mono">${disp ? fmtReal(val) : 'N/A'}</strong>
-              ${disp && valido(m) ? `<small class="mono ${classeMargem(m)}">(${fmtPct(m)})</small>` : ''}
+              data-tip="${disp ? `Mostrar/ocultar linha tracejada de ${cfg.nome} de ${principal.ticker}` : `${cfg.nome} indisponível para ${principal.ticker}`}">
+              <span class="vleg-line" style="border-top:${cfg.destaque ? '2.6px' : '2px'} ${estiloDash} ${cfg.cor}"></span>
+              <span>${cfg.curto}</span>
+              ${cfg.destaque ? `<span class="vleg-badge-main">6%</span>` : ''}
+              <strong class="mono">${disp ? formataReal(val) : 'N/A'}</strong>
+              ${disp && ehValido(m) ? `<small class="mono ${corClasseMargem(m)}">(${formataPct(m)})</small>` : ''}
             </button>`;
         }).join('');
       } else if (modo === 'margem_bazin') {
         tetosLegenda = `
-          <span class="vleg-item is-primary-ceil">
-            <span class="vleg-line" style="border-top:2.5px dashed ${ESTILO_TETOS.bazin.cor}"></span>
-            <span>Linha 0% = Teto Bazin de cada papel (acima de 0% = barato / com margem de segurança)</span>
+          <span class="vleg-item">
+            <span class="vleg-line" style="border-top:2.6px dashed ${ESTILO_TETOS.bazin.cor}"></span>
+            <span>Linha <b>0%</b> = Teto Bazin de cada papel (acima de 0% = negociando com desconto / margem positiva)</span>
           </span>`;
       } else {
         tetosLegenda = `<span class="vleg-item t-muted">Variação percentual acumulada da cotação (Base 0% no início de ${ROTULO_PERIODO[visualState.periodo]})</span>`;
@@ -697,18 +975,43 @@
       legendEl.innerHTML = `<div class="vleg-group">${seriesLegenda}</div><div class="vleg-group">${tetosLegenda}</div>`;
     }
 
-    // Construção das curvas numéricas conforme o modo selecionado
+    // 2. Barra rápida de pares do mesmo setor + dica de normalização de escala ao comparar
+    if (peersEl) {
+      const jaUsados = new Set([principal.ticker.toUpperCase(), ...visualState.comparados]);
+      const prefixoRaiz = principal.ticker.slice(0, 4);
+      const pares = obterUniverso()
+        .filter(a => !jaUsados.has(a.ticker.toUpperCase()) && a.setor === principal.setor && !a.ticker.startsWith(prefixoRaiz))
+        .slice(0, 5);
+
+      const htmlPares = pares.length && visualState.comparados.length < 4
+        ? `<div class="vpeers-group"><span class="vctrl-mini-label">Comparar mesmo setor:</span>${pares.map(p =>
+            `<button type="button" class="chip-mini" data-vadd-peer="${escHtml(p.ticker)}">+ ${escHtml(p.ticker)}</button>`
+          ).join('')}</div>`
+        : '';
+
+      const htmlDicaEscala = ativosCmp.length > 0 && modo === 'preco'
+        ? `<div class="vscale-tip">
+            <span>Preços em faixas diferentes? Normalize:</span>
+            <button type="button" class="chip-mini" data-vswitch-mode="margem_bazin">Desconto vs. Bazin (%)</button>
+            <button type="button" class="chip-mini" data-vswitch-mode="variacao">Variação (%)</button>
+          </div>`
+        : '';
+
+      peersEl.innerHTML = htmlPares + htmlDicaEscala;
+    }
+
+    // 3. Construção das curvas numéricas
     const nPontos = janela.datas.length;
     const curvasPlot = [];
 
     todosAtivos.forEach((a, idx) => {
       const cor = idx === 0 ? COR_PRINCIPAL : PALETA_COMPARACAO[(idx - 1) % PALETA_COMPARACAO.length];
       const serie = seriesPorTicker.get(a.ticker) || [];
-      const primeiroValido = serie.find(p => valido(p.preco) && p.preco > 0)?.preco || null;
-      const tBazinAtivo = a.bazin?.teto > 0 ? a.bazin.teto : null;
+      const primeiroValido = serie.find(p => ehValido(p.preco) && p.preco > 0)?.preco || null;
+      const tBazinAtivo = ehValido(a.bazin?.teto) && a.bazin.teto > 0 ? a.bazin.teto : null;
 
       const valores = serie.map(p => {
-        if (!valido(p.preco) || p.preco <= 0) return null;
+        if (!ehValido(p.preco) || p.preco <= 0) return null;
         if (modo === 'preco') return p.preco;
         if (modo === 'margem_bazin') {
           if (!tBazinAtivo) return null;
@@ -723,44 +1026,39 @@
         cor,
         principal: idx === 0,
         serieOriginal: serie,
-        valores,
-        semBazinModoMargem: modo === 'margem_bazin' && !tBazinAtivo
+        valores
       });
     });
 
-    // Determinar domínio Y
     const todosValoresY = [];
-    curvasPlot.forEach(c => c.valores.forEach(v => { if (valido(v)) todosValoresY.push(v); }));
+    curvasPlot.forEach(c => c.valores.forEach(v => { if (ehValido(v)) todosValoresY.push(v); }));
 
     const linhasTetoAtivas = [];
     if (modo === 'preco') {
-      if (visualState.tetosVisiveis.bazin && valido(tetoBazin)) {
+      if (visualState.tetosVisiveis.bazin && ehValido(tetoBazin)) {
         linhasTetoAtivas.push({ ...ESTILO_TETOS.bazin, valor: tetoBazin });
         todosValoresY.push(tetoBazin);
       }
-      if (visualState.tetosVisiveis.graham && valido(tetoGraham)) {
+      if (visualState.tetosVisiveis.graham && ehValido(tetoGraham)) {
         linhasTetoAtivas.push({ ...ESTILO_TETOS.graham, valor: tetoGraham });
         todosValoresY.push(tetoGraham);
       }
-      if (visualState.tetosVisiveis.gordon && valido(tetoGordon)) {
+      if (visualState.tetosVisiveis.gordon && ehValido(tetoGordon)) {
         linhasTetoAtivas.push({ ...ESTILO_TETOS.gordon, valor: tetoGordon });
         todosValoresY.push(tetoGordon);
       }
-    } else if (modo === 'margem_bazin') {
-      todosValoresY.push(0);
-    } else if (modo === 'variacao') {
+    } else {
       todosValoresY.push(0);
     }
 
     if (!todosValoresY.length) {
       svgWrap.innerHTML = `<div class="vchart-empty">Este ativo não possui Teto Bazin para o modo "Desconto vs. Bazin (%)". Alterne para "Preço (R$) &amp; Tetos" ou "Variação (%)".</div>`;
     } else {
-      const larguraContainer = Math.max(300, svgWrap.clientWidth || 860);
-      const ehMobile = larguraContainer < 600;
-      const W = larguraContainer;
-      const H = ehMobile ? 300 : 360;
-      const padLeft = ehMobile ? 54 : 66;
-      const padRight = modo === 'preco' && linhasTetoAtivas.length ? (ehMobile ? 96 : 126) : (ehMobile ? 16 : 24);
+      const W = medirLarguraGrafico(svgWrap);
+      const ehMobile = W < 580;
+      const H = ehMobile ? 295 : 390;
+      const padLeft = ehMobile ? 56 : 70;
+      const padRight = modo === 'preco' && linhasTetoAtivas.length ? (ehMobile ? 98 : 138) : (ehMobile ? 16 : 26);
       const padTop = 18;
       const padBottom = 32;
       const plotW = Math.max(120, W - padLeft - padRight);
@@ -768,7 +1066,7 @@
 
       let yMinBruto = Math.min(...todosValoresY);
       let yMaxBruto = Math.max(...todosValoresY);
-      const folga = (yMaxBruto - yMinBruto) * 0.08 || (Math.abs(yMaxBruto) * 0.08 || 1);
+      const folga = (yMaxBruto - yMinBruto) * 0.09 || (Math.abs(yMaxBruto) * 0.09 || 1);
       if (modo === 'preco') yMinBruto = Math.max(0, yMinBruto - folga);
       else yMinBruto -= folga;
       yMaxBruto += folga;
@@ -782,35 +1080,31 @@
         return (v > 0 ? '+' : '') + v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + '%';
       };
 
-      // Ticks do eixo X
-      const qtdTicksX = ehMobile ? 4 : 7;
+      const qtdTicksX = ehMobile ? 4 : 8;
       const ticksX = [];
       for (let t = 0; t < qtdTicksX; t++) {
         const idx = Math.round((t / (qtdTicksX - 1)) * (nPontos - 1));
         if (!ticksX.includes(idx)) ticksX.push(idx);
       }
 
-      // Coordenadas XY de cada curva
       curvasPlot.forEach(c => {
-        c.xy = c.valores.map((v, i) => valido(v) ? { x: xDe(i), y: yDe(v), v, data: janela.datas[i], preco: c.serieOriginal[i]?.preco } : null);
+        c.xy = c.valores.map((v, i) => ehValido(v) ? { x: xDe(i), y: yDe(v), v, data: janela.datas[i], preco: c.serieOriginal[i]?.preco } : null);
       });
 
-      const clipId = 'clip-bazin-zone';
-      const gradId = 'grad-price-main';
       const curvaPrincipal = curvasPlot[0];
       const yBasePlot = padTop + plotH;
 
-      // Zona sombreada verde abaixo do Teto Bazin no modo Preço (quando 1 ativo ou foco no principal)
+      // Sombreado verde suave na zona em que o papel negociou abaixo do Teto Bazin
       let zonaBazinSvg = '';
-      if (modo === 'preco' && visualState.tetosVisiveis.bazin && valido(tetoBazin) && curvaPrincipal) {
+      if (modo === 'preco' && visualState.tetosVisiveis.bazin && ehValido(tetoBazin) && curvaPrincipal) {
         const yBazin = Math.max(padTop, Math.min(yBasePlot, yDe(tetoBazin)));
         const areaAbaixoTeto = caminhoSvgArea(curvaPrincipal.xy, yBazin);
         if (areaAbaixoTeto && yBazin < yBasePlot) {
           zonaBazinSvg = `
-            <clipPath id="${clipId}">
+            <clipPath id="clip-bazin-zone">
               <rect x="${padLeft}" y="${yBazin.toFixed(1)}" width="${plotW}" height="${(yBasePlot - yBazin).toFixed(1)}" />
             </clipPath>
-            <path d="${areaAbaixoTeto}" fill="rgba(47, 191, 134, 0.11)" clip-path="url(#${clipId})" />
+            <path d="${areaAbaixoTeto}" fill="rgba(47, 191, 134, 0.12)" clip-path="url(#clip-bazin-zone)" />
           `;
         }
       } else if (modo === 'margem_bazin') {
@@ -820,28 +1114,27 @@
         }
       }
 
-      // Rótulos laterais anticolisão para os preços-teto no modo Preço
       const labelsTetos = resolverColisaoVertical(
         linhasTetoAtivas.map(lt => ({ ...lt, y: yDe(lt.valor) })),
-        padTop + 10,
-        yBasePlot - 10,
-        22
+        padTop + 11,
+        yBasePlot - 11,
+        23
       );
 
       const linhasGradeSvg = eixoY.ticks.map(tv => {
         const y = yDe(tv);
         return `
           <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${padLeft + plotW}" y2="${y.toFixed(1)}" stroke="#1d2632" stroke-width="1" />
-          <text x="${padLeft - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text">${esc(fmtEixoY(tv))}</text>
+          <text x="${padLeft - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text">${escHtml(fmtEixoY(tv))}</text>
         `;
       }).join('');
 
       const ticksXSvg = ticksX.map(idx => {
         const x = xDe(idx);
-        return `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle" class="vsvg-axis-text">${esc(fmtDataCurta(janela.datas[idx], visualState.periodo !== '6m'))}</text>`;
+        return `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle" class="vsvg-axis-text">${escHtml(fmtDataCurta(janela.datas[idx], visualState.periodo !== '6m'))}</text>`;
       }).join('');
 
-      // Linhas de referência tracejadas (Bazin, Graham, Gordon ou Linha 0%)
+      // Linhas horizontais tracejadas (Bazin principal, Graham e Gordon)
       let referenciasSvg = '';
       if (modo === 'preco') {
         referenciasSvg = labelsTetos.map(lt => {
@@ -852,10 +1145,10 @@
             <g class="vsvg-ceil-group">
               <line x1="${padLeft}" y1="${lt.y.toFixed(1)}" x2="${xFim}" y2="${lt.y.toFixed(1)}"
                 stroke="${lt.cor}" stroke-width="${lt.largura}" stroke-dasharray="${lt.dash}" />
-              <path d="M${xFim},${lt.y.toFixed(1)} L${xFim + 6},${lt.yLabel.toFixed(1)}" stroke="${lt.cor}" stroke-width="1.2" opacity="0.7" fill="none" />
-              <rect x="${xFim + 6}" y="${(lt.yLabel - 9.5).toFixed(1)}" width="${padRight - 10}" height="19" rx="4"
-                fill="rgba(16, 22, 31, 0.94)" stroke="${lt.cor}" stroke-opacity="${lt.destaque ? '0.85' : '0.5'}" stroke-width="1" />
-              <text x="${xFim + 11}" y="${(lt.yLabel + 3.5).toFixed(1)}" fill="${lt.cor}" class="vsvg-ceil-label ${lt.destaque ? 'is-bold' : ''}">${esc(labelTxt)}</text>
+              <path d="M${xFim},${lt.y.toFixed(1)} L${xFim + 7},${lt.yLabel.toFixed(1)}" stroke="${lt.cor}" stroke-width="1.2" opacity="0.75" fill="none" />
+              <rect x="${xFim + 7}" y="${(lt.yLabel - 10).toFixed(1)}" width="${padRight - 11}" height="20" rx="4"
+                fill="rgba(16, 22, 31, 0.96)" stroke="${lt.cor}" stroke-opacity="${lt.destaque ? '0.9' : '0.5'}" stroke-width="${lt.destaque ? '1.3' : '1'}" />
+              <text x="${xFim + 13}" y="${(lt.yLabel + 3.8).toFixed(1)}" fill="${lt.cor}" class="vsvg-ceil-label ${lt.destaque ? 'is-bold' : ''}">${escHtml(labelTxt)}</text>
             </g>
           `;
         }).join('');
@@ -864,8 +1157,8 @@
         if (yZero >= padTop && yZero <= yBasePlot) {
           referenciasSvg = `
             <line x1="${padLeft}" y1="${yZero.toFixed(1)}" x2="${padLeft + plotW}" y2="${yZero.toFixed(1)}"
-              stroke="${ESTILO_TETOS.bazin.cor}" stroke-width="2.2" stroke-dasharray="9 5" />
-            <text x="${padLeft + 8}" y="${Math.max(padTop + 12, yZero - 6).toFixed(1)}" fill="${ESTILO_TETOS.bazin.cor}" class="vsvg-ceil-label is-bold">Teto Bazin (0% margem)</text>
+              stroke="${ESTILO_TETOS.bazin.cor}" stroke-width="2.4" stroke-dasharray="10 5" />
+            <text x="${padLeft + 8}" y="${Math.max(padTop + 13, yZero - 6).toFixed(1)}" fill="${ESTILO_TETOS.bazin.cor}" class="vsvg-ceil-label is-bold">Teto Bazin (0% margem)</text>
           `;
         }
       } else if (modo === 'variacao') {
@@ -875,26 +1168,25 @@
         }
       }
 
-      // Curvas dos ativos
       const areaPrincipalSvg = modo === 'preco' && ativosCmp.length === 0 && curvaPrincipal
-        ? `<path d="${caminhoSvgArea(curvaPrincipal.xy, yBasePlot)}" fill="url(#${gradId})" />`
+        ? `<path d="${caminhoSvgArea(curvaPrincipal.xy, yBasePlot)}" fill="url(#grad-price-main)" />`
         : '';
 
       const linhasCurvasSvg = curvasPlot.map(c => {
         const d = caminhoSvgLinha(c.xy);
         if (!d) return '';
-        const sw = c.principal ? 2.4 : 1.9;
+        const sw = c.principal ? 2.5 : 2.0;
         return `<path d="${d}" fill="none" stroke="${c.cor}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round" />`;
       }).join('');
 
       const pontosCrosshairSvg = curvasPlot.map((c, idx) =>
-        `<circle class="v-ch-dot" data-ch-idx="${idx}" cx="0" cy="0" r="${c.principal ? 4.5 : 3.8}" fill="${c.cor}" stroke="#0a0e14" stroke-width="1.8" style="display:none" />`
+        `<circle class="v-ch-dot" data-ch-idx="${idx}" cx="0" cy="0" r="${c.principal ? 4.8 : 4}" fill="${c.cor}" stroke="#0a0e14" stroke-width="1.8" style="display:none" />`
       ).join('');
 
       svgWrap.innerHTML = `
         <svg class="vsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Gráfico histórico de preços e preços-teto">
           <defs>
-            <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="grad-price-main" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="${COR_PRINCIPAL}" stop-opacity="0.22" />
               <stop offset="100%" stop-color="${COR_PRINCIPAL}" stop-opacity="0.0" />
             </linearGradient>
@@ -905,7 +1197,7 @@
           ${referenciasSvg}
           ${linhasCurvasSvg}
           ${ticksXSvg}
-          <line class="v-crosshair" x1="0" y1="${padTop}" x2="0" y2="${yBasePlot}" stroke="#eef2f8" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="3 3" style="display:none" />
+          <line class="v-crosshair" x1="0" y1="${padTop}" x2="0" y2="${yBasePlot}" stroke="#eef2f8" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="3 3" style="display:none" />
           ${pontosCrosshairSvg}
           <rect class="v-hit-area" x="${padLeft}" y="${padTop}" width="${plotW}" height="${plotH}" fill="transparent" />
         </svg>
@@ -922,16 +1214,16 @@
 
         if (ativosCmp.length === 0) {
           const p = curvaPrincipal.serieOriginal[i]?.preco;
-          const mBaz = valido(tetoBazin) && valido(p) ? (tetoBazin - p) / tetoBazin : null;
-          const mGra = valido(tetoGraham) && valido(p) ? (tetoGraham - p) / tetoGraham : null;
-          const mGor = valido(tetoGordon) && valido(p) ? (tetoGordon - p) / tetoGordon : null;
+          const mBaz = ehValido(tetoBazin) && ehValido(p) ? (tetoBazin - p) / tetoBazin : null;
+          const mGra = ehValido(tetoGraham) && ehValido(p) ? (tetoGraham - p) / tetoGraham : null;
+          const mGor = ehValido(tetoGordon) && ehValido(p) ? (tetoGordon - p) / tetoGordon : null;
           if (hudEl) {
             hudEl.innerHTML = `
               <span class="vhud-date mono">${ehUltimo ? `Última (${dt})` : dt}</span>
-              <span class="vhud-metric">Cotação: <strong class="mono">${fmtReal(p)}</strong></span>
-              ${valido(tetoBazin) ? `<span class="vhud-metric">vs. Bazin: <strong class="mono ${classeMargem(mBaz)}">${fmtPct(mBaz)}</strong></span>` : ''}
-              ${valido(tetoGraham) ? `<span class="vhud-metric">vs. Graham: <strong class="mono ${classeMargem(mGra)}">${fmtPct(mGra)}</strong></span>` : ''}
-              ${valido(tetoGordon) ? `<span class="vhud-metric">vs. Gordon: <strong class="mono ${classeMargem(mGor)}">${fmtPct(mGor)}</strong></span>` : ''}
+              <span class="vhud-metric">Cotação: <strong class="mono">${formataReal(p)}</strong></span>
+              ${ehValido(tetoBazin) ? `<span class="vhud-metric">Margem Bazin: <strong class="mono ${corClasseMargem(mBaz)}">${formataPct(mBaz)}</strong></span>` : ''}
+              ${ehValido(tetoGraham) ? `<span class="vhud-metric">vs. Graham: <strong class="mono ${corClasseMargem(mGra)}">${formataPct(mGra)}</strong></span>` : ''}
+              ${ehValido(tetoGordon) ? `<span class="vhud-metric">vs. Gordon: <strong class="mono ${corClasseMargem(mGor)}">${formataPct(mGor)}</strong></span>` : ''}
             `;
           }
         } else {
@@ -939,9 +1231,9 @@
             const p = c.serieOriginal[i]?.preco;
             const valModo = c.valores[i];
             const txtVal = modo === 'preco'
-              ? fmtReal(p)
-              : (valido(valModo) ? `${valModo > 0 ? '+' : ''}${valModo.toFixed(1)}% (${fmtReal(p)})` : `s/ Bazin (${fmtReal(p)})`);
-            return `<span class="vhud-metric"><i class="dot" style="background:${c.cor}"></i><b>${esc(c.ativo.ticker)}</b>: <strong class="mono">${txtVal}</strong></span>`;
+              ? formataReal(p)
+              : (ehValido(valModo) ? `${valModo > 0 ? '+' : ''}${valModo.toFixed(1)}% (${formataReal(p)})` : `s/ Bazin (${formataReal(p)})`);
+            return `<span class="vhud-metric"><i class="dot" style="background:${c.cor}"></i><b>${escHtml(c.ativo.ticker)}</b>: <strong class="mono">${txtVal}</strong></span>`;
           }).join('');
           if (hudEl) {
             hudEl.innerHTML = `<span class="vhud-date mono">${ehUltimo ? `Última (${dt})` : dt}</span>${itens}`;
@@ -953,7 +1245,6 @@
 
       anexarInteracaoCrosshair(
         svgEl,
-        { padLeft, plotW },
         nPontos,
         (idx) => {
           const x = xDe(idx);
@@ -980,42 +1271,60 @@
       );
     }
 
-    // Diagnóstico "Barato há muito tempo?"
+    // 4. Diagnóstico 3 Colunas Desktop ("Barato há muito tempo?")
     const diag = diagnosticarDescontoProlongado(principal, seriesPorTicker.get(principal.ticker) || []);
     if (trapEl) {
       const classeBox = diag.tipo === 'alerta'
         ? 'is-warn'
         : (diag.tipo === 'recente' ? 'is-good' : (diag.tipo === 'estrutural' ? 'is-info' : 'is-neutral'));
-      const barraPct = valido(diag.pctAbaixo)
+
+      const colMedidor = ehValido(diag.pctAbaixo)
         ? `
-          <div class="vtrap-meter-wrap">
+          <div class="vtrap-meter-col">
             <div class="vtrap-meter-head">
-              <span>Tempo abaixo do Teto Bazin (${ROTULO_PERIODO[visualState.periodo]})</span>
-              <strong class="mono">${fmtPctSimples(diag.pctAbaixo, 0)}</strong>
+              <span>Tempo abaixo do Teto Bazin</span>
+              <strong class="mono">${formataPctSimples(diag.pctAbaixo, 0)}</strong>
             </div>
             <div class="vtrap-meter"><span style="width:${(diag.pctAbaixo * 100).toFixed(1)}%"></span></div>
+            <div class="vtrap-streak">
+              ${diag.diasStreak >= 180
+                ? `Sequência ininterrupta: <strong style="color:var(--text-strong)">${fmtDuracaoDias(diag.diasStreak)}</strong>`
+                : (diag.diasStreak > 0
+                  ? `${ehValido(diag.diasAcum) ? `Acumulado: <strong style="color:var(--text-strong)">~${fmtDuracaoDias(diag.diasAcum)}</strong> · ` : ''}Atual: <strong style="color:var(--text-strong)">${fmtDuracaoDias(diag.diasStreak)}</strong>`
+                  : `Atualmente acima do Teto Bazin`)}
+            </div>
           </div>`
-        : '';
+        : `
+          <div class="vtrap-meter-col">
+            <div class="vtrap-meter-head">
+              <span>Referência Alternativa</span>
+              <strong class="mono">${ehValido(principal.rank_greenblatt) ? `GB #${principal.rank_greenblatt}` : '—'}</strong>
+            </div>
+            <div class="vtrap-streak">
+              ${ehValido(principal.graham)
+                ? `Graham: <strong class="mono" style="color:var(--text-strong)">${formataReal(principal.graham)}</strong> (${formataPct(principal.margem_graham)})`
+                : `Avalie múltiplos no Raio-X`}
+            </div>
+          </div>`;
 
       trapEl.innerHTML = `
         <div class="vtrap-card ${classeBox}">
           <div class="vtrap-main">
-            <div class="vtrap-title">${esc(diag.titulo)}</div>
-            <p class="vtrap-desc">${esc(diag.resumo)}</p>
+            <div class="vtrap-title">${escHtml(diag.titulo)}</div>
+            <p class="vtrap-desc">${escHtml(diag.resumo)}</p>
           </div>
-          <div class="vtrap-stats">
-            ${barraPct}
-            <div class="vtrap-minmax mono">
-              <span>Mín: <b>${fmtReal(diag.minPreco)}</b></span>
-              <span>Méd: <b>${fmtReal(diag.medPreco)}</b></span>
-              <span>Máx: <b>${fmtReal(diag.maxPreco)}</b></span>
-            </div>
+          ${colMedidor}
+          <div class="vtrap-range-col">
+            <div class="vtrap-range-item"><span>Mínimo (${visualState.periodo.toUpperCase()})</span><b>${formataReal(diag.minPreco)}</b></div>
+            <div class="vtrap-range-item"><span>Máximo (${visualState.periodo.toUpperCase()})</span><b>${formataReal(diag.maxPreco)}</b></div>
+            <div class="vtrap-range-item"><span>Preço Médio</span><b>${formataReal(diag.medPreco)}</b></div>
+            <div class="vtrap-range-item"><span>Var. Cotação</span><b class="${ehValido(diag.varPeriodo) ? (diag.varPeriodo >= 0 ? 't-green' : 't-red') : ''}">${formataPct(diag.varPeriodo)}</b></div>
           </div>
         </div>
       `;
     }
 
-    // Tabela / Cartões Comparativos de Preços-Teto quando há comparação (ou resumo multi-modelo)
+    // 5. Tabela comparativa de preços-teto (quando 2+ ativos comparados)
     if (cmpTableWrap) {
       if (ativosCmp.length === 0) {
         cmpTableWrap.innerHTML = '';
@@ -1023,35 +1332,38 @@
         const linhasHtml = todosAtivos.map((a, idx) => {
           const cor = idx === 0 ? COR_PRINCIPAL : PALETA_COMPARACAO[(idx - 1) % PALETA_COMPARACAO.length];
           const dAtivo = diagnosticarDescontoProlongado(a, seriesPorTicker.get(a.ticker) || []);
-          const cAtivo = categoriaDoAtivo(a);
-          const rotCat = cAtivo === 'besst' ? 'BESST' : (cAtivo === 'demais' ? 'Demais papéis' : 'Dividendos');
+          const cAtivo = obterCategoriaAtivo(a);
+          const rotCat = cAtivo === 'besst' ? 'BESST' : (cAtivo === 'demais' ? 'Demais' : 'Divid.');
+          const rotuloAlerta = dAtivo.diasStreak >= 180
+            ? `Barato há ${fmtDuracaoDias(dAtivo.diasStreak)}`
+            : `Barato (${formataPctSimples(dAtivo.pctAbaixo, 0)} s/ reação)`;
           const badgeDiag = dAtivo.tipo === 'alerta'
-            ? `<span class="verdict verdict-amarelo">Barato há ${fmtDuracaoDias(dAtivo.diasStreak)}</span>`
+            ? `<span class="verdict verdict-amarelo">${rotuloAlerta}</span>`
             : (dAtivo.tipo === 'recente'
               ? `<span class="verdict verdict-verde">Desconto recente</span>`
               : (dAtivo.tipo === 'estrutural'
-                ? `<span class="verdict verdict-verde">Recorrente (${fmtPctSimples(dAtivo.pctAbaixo, 0)})</span>`
+                ? `<span class="verdict verdict-verde">Recorrente (${formataPctSimples(dAtivo.pctAbaixo, 0)})</span>`
                 : (dAtivo.tipo === 'acima'
                   ? `<span class="verdict verdict-vermelho">Acima do teto</span>`
                   : `<span class="t-dim">Sem teto Bazin</span>`)));
 
           return `
-            <tr class="vcmp-row" data-vfocus-ticker="${esc(a.ticker)}">
+            <tr class="vcmp-row" data-vfocus-ticker="${escHtml(a.ticker)}" title="Clique para colocar ${escHtml(a.ticker)} em foco">
               <td data-label="Ativo">
-                <span class="vcmp-ticker"><i class="dot" style="background:${cor}"></i><b class="mono">${esc(a.ticker)}</b> <small class="t-muted">${esc(rotCat)}</small></span>
+                <span class="vcmp-ticker"><i class="dot" style="background:${cor}"></i><b class="mono">${escHtml(a.ticker)}</b> <small class="t-muted">${escHtml(rotCat)}</small></span>
               </td>
-              <td class="num mono" data-label="Preço Atual">${fmtReal(a.preco)}</td>
-              <td class="num mono" data-label="Teto Bazin">${a.bazin?.teto > 0 ? `${fmtReal(a.bazin.teto)} <small class="${classeMargem(a.bazin.margem_seguranca)}">(${fmtPct(a.bazin.margem_seguranca)})</small>` : '—'}</td>
-              <td class="num mono" data-label="Teto Graham">${valido(a.graham) ? `${fmtReal(a.graham)} <small class="${classeMargem(a.margem_graham)}">(${fmtPct(a.margem_graham)})</small>` : '—'}</td>
-              <td class="num mono" data-label="Teto Gordon">${valido(a.gordon) ? `${fmtReal(a.gordon)} <small class="${classeMargem(a.margem_gordon)}">(${fmtPct(a.margem_gordon)})</small>` : '—'}</td>
-              <td class="num mono" data-label="Tempo < Bazin">${valido(dAtivo.pctAbaixo) ? fmtPctSimples(dAtivo.pctAbaixo, 0) : '—'}</td>
+              <td class="num mono" data-label="Preço Atual">${formataReal(a.preco)}</td>
+              <td class="num mono" data-label="Teto Bazin">${a.bazin?.teto > 0 ? `${formataReal(a.bazin.teto)} <small class="${corClasseMargem(a.bazin.margem_seguranca)}">(${formataPct(a.bazin.margem_seguranca)})</small>` : '—'}</td>
+              <td class="num mono" data-label="Teto Graham">${ehValido(a.graham) ? `${formataReal(a.graham)} <small class="${corClasseMargem(a.margem_graham)}">(${formataPct(a.margem_graham)})</small>` : '—'}</td>
+              <td class="num mono" data-label="Teto Gordon">${ehValido(a.gordon) ? `${formataReal(a.gordon)} <small class="${corClasseMargem(a.margem_gordon)}">(${formataPct(a.margem_gordon)})</small>` : '—'}</td>
+              <td class="num mono" data-label="Tempo < Bazin">${ehValido(dAtivo.pctAbaixo) ? formataPctSimples(dAtivo.pctAbaixo, 0) : '—'}</td>
               <td data-label="Leitura Histórica">${badgeDiag}</td>
             </tr>
           `;
         }).join('');
 
         cmpTableWrap.innerHTML = `
-          <div class="vsub-table-head">Comparativo de Preços-Teto e Tempo Descontado (${ROTULO_PERIODO[visualState.periodo]})</div>
+          <div class="vsub-table-head">Comparativo de Preços-Teto e Tempo Descontado (${ROTULO_PERIODO[visualState.periodo]}) · clique para focar</div>
           <div class="table-wrap">
             <table class="vt vcmp-table">
               <thead>
@@ -1073,18 +1385,17 @@
     }
   }
 
-  /* ---------- Renderização: Gráfico 2 (Simulador de Rendimento c/ Dividendos) ---------- */
+  /* ---------- Renderização 4: Simulador de Rendimento c/ Dividendos ---------- */
 
   function renderizarSecaoSimulador(principal, ativosCmp, janela) {
-    const kpiGrid = $('#sim-kpi-grid');
-    const subEl = $('#sim-subtitle');
-    const hudEl = $('#sim-chart-hud');
-    const svgWrap = $('#sim-svg-wrap');
-    const breakdownWrap = $('#sim-breakdown-wrap');
+    const kpiGrid = qSel('#sim-kpi-grid');
+    const subEl = qSel('#sim-subtitle');
+    const hudEl = qSel('#sim-chart-hud');
+    const svgWrap = qSel('#sim-svg-wrap');
+    const breakdownWrap = qSel('#sim-breakdown-wrap');
     if (!svgWrap || !kpiGrid) return;
 
-    // Sincronizar controles visuais do simulador
-    const capInput = $('#sim-capital-input');
+    const capInput = qSel('#sim-capital-input');
     if (capInput && document.activeElement !== capInput) {
       capInput.value = String(visualState.simCapital);
     }
@@ -1094,7 +1405,7 @@
     document.querySelectorAll('#sim-reinvest-group .seg-btn').forEach(b => {
       b.classList.toggle('is-active', (b.dataset.reinvest === '1') === visualState.simReinvestir);
     });
-    const btnTax = $('#sim-net-jcp-btn');
+    const btnTax = qSel('#sim-net-jcp-btn');
     if (btnTax) {
       btnTax.classList.toggle('is-on', visualState.simLiquidoJcp);
       const dot = btnTax.querySelector('i');
@@ -1120,41 +1431,38 @@
 
     const simMain = simulacoes[0].sim;
     if (subEl) {
-      subEl.textContent = `Simulação de ${fmtReal(visualState.simCapital)} em ${principal.ticker} de ${fmtDataBr(simMain.dataIni)} a ${fmtDataBr(simMain.dataFim)} (${visualState.simReinvestir ? 'reinvestindo proventos na data-com' : 'acumulando proventos em caixa'})`;
+      subEl.textContent = `Aporte inicial de ${formataReal(visualState.simCapital)} em ${principal.ticker} (${fmtDataBr(simMain.dataIni)} a ${fmtDataBr(simMain.dataFim)}) · ${visualState.simReinvestir ? 'reinvestindo proventos na data-com' : 'acumulando proventos em caixa'}`;
     }
 
-    // 4 KPIs do Ativo Principal
     const sinalLucro = simMain.lucroTotal >= 0 ? '+' : '';
     kpiGrid.innerHTML = `
       <div class="kpi" style="--kpi-color: ${simMain.lucroTotal >= 0 ? 'var(--green)' : 'var(--red)'}">
-        <div class="kpi-label">Patrimônio final (${esc(principal.ticker)})</div>
-        <div class="kpi-value">${fmtReal(simMain.patrimonioFinal)}</div>
-        <div class="kpi-foot ${simMain.lucroTotal >= 0 ? 't-green' : 't-red'}">${sinalLucro}${fmtReal(simMain.lucroTotal)} sobre ${fmtReal(simMain.capitalInicial)}</div>
+        <div class="kpi-label">Patrimônio final (${escHtml(principal.ticker)})</div>
+        <div class="kpi-value">${formataReal(simMain.patrimonioFinal)}</div>
+        <div class="kpi-foot ${simMain.lucroTotal >= 0 ? 't-green' : 't-red'}">${sinalLucro}${formataReal(simMain.lucroTotal)} sobre ${formataReal(simMain.capitalInicial)}</div>
       </div>
       <div class="kpi" style="--kpi-color: var(--accent)">
         <div class="kpi-label">Retorno total (c/ dividendos)</div>
-        <div class="kpi-value ${simMain.retornoTotal >= 0 ? 't-green' : 't-red'}">${fmtPct(simMain.retornoTotal)}</div>
-        <div class="kpi-foot">${valido(simMain.cagr) ? `Equivalente a ${fmtPct(simMain.cagr)} ao ano` : `Janela de ${ROTULO_PERIODO[visualState.periodo]}`}</div>
+        <div class="kpi-value ${simMain.retornoTotal >= 0 ? 't-green' : 't-red'}">${formataPct(simMain.retornoTotal)}</div>
+        <div class="kpi-foot">${ehValido(simMain.cagr) ? `CAGR: ${formataPct(simMain.cagr)} ao ano` : `Janela de ${ROTULO_PERIODO[visualState.periodo]}`}</div>
       </div>
       <div class="kpi" style="--kpi-color: var(--border-strong)">
-        <div class="kpi-label">Apenas variação da cotação</div>
-        <div class="kpi-value ${simMain.retornoCotacao >= 0 ? '' : 't-red'}">${fmtPct(simMain.retornoCotacao)}</div>
-        <div class="kpi-foot">Sem proventos: ${fmtReal(simMain.patrimonioCotacaoFinal)}</div>
+        <div class="kpi-label">Apenas cotação (s/ proventos)</div>
+        <div class="kpi-value ${simMain.retornoCotacao >= 0 ? '' : 't-red'}">${formataPct(simMain.retornoCotacao)}</div>
+        <div class="kpi-foot">Patrimônio s/ dividendos: ${formataReal(simMain.patrimonioCotacaoFinal)}</div>
       </div>
       <div class="kpi" style="--kpi-color: var(--green)">
         <div class="kpi-label">Ganho gerado por proventos</div>
-        <div class="kpi-value t-green">+${fmtReal(Math.max(0, simMain.efeitoProventosRS))}</div>
-        <div class="kpi-foot">YoC acum.: ${fmtPctSimples(simMain.yocAcumulado)} · ${simMain.qtdEventos} ${simMain.qtdEventos === 1 ? 'evento' : 'eventos'} (${simMain.acoesIniciais.toFixed(0)} → ${simMain.acoesFinais.toFixed(0)} ações)</div>
+        <div class="kpi-value t-green">+${formataReal(Math.max(0, simMain.efeitoProventosRS))}</div>
+        <div class="kpi-foot">YoC acum.: ${formataPctSimples(simMain.yocAcumulado)} · ${simMain.qtdEventos}x (${simMain.acoesIniciais.toFixed(0)} → ${simMain.acoesFinais.toFixed(0)} ações)</div>
       </div>
     `;
 
-    // Gráfico SVG de Evolução do Patrimônio
-    const larguraContainer = Math.max(300, svgWrap.clientWidth || 860);
-    const ehMobile = larguraContainer < 600;
-    const W = larguraContainer;
-    const H = ehMobile ? 275 : 320;
-    const padLeft = ehMobile ? 62 : 76;
-    const padRight = ehMobile ? 16 : 24;
+    const W = medirLarguraGrafico(svgWrap);
+    const ehMobile = W < 580;
+    const H = ehMobile ? 270 : 320;
+    const padLeft = ehMobile ? 64 : 78;
+    const padRight = ehMobile ? 16 : 26;
     const padTop = 18;
     const padBottom = 32;
     const plotW = Math.max(120, W - padLeft - padRight);
@@ -1166,9 +1474,7 @@
 
     const valoresY = [visualState.simCapital];
     if (!modoMulti) {
-      simMain.curva.forEach(p => {
-        valoresY.push(p.patTotal, p.patCotacao);
-      });
+      simMain.curva.forEach(p => { valoresY.push(p.patTotal, p.patCotacao); });
     } else {
       simulacoes.forEach(s => s.sim.curva.forEach(p => valoresY.push(p.patTotal)));
       simMain.curva.forEach(p => valoresY.push(p.patCotacao));
@@ -1194,11 +1500,11 @@
       const y = yDe(tv);
       return `
         <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${padLeft + plotW}" y2="${y.toFixed(1)}" stroke="#1d2632" stroke-width="1" />
-        <text x="${padLeft - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text">${esc(fmtMoedaEixo(tv))}</text>
+        <text x="${padLeft - 10}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text">${escHtml(fmtMoedaEixo(tv))}</text>
       `;
     }).join('');
 
-    const qtdTicksX = ehMobile ? 4 : 7;
+    const qtdTicksX = ehMobile ? 4 : 8;
     const ticksX = [];
     for (let t = 0; t < qtdTicksX; t++) {
       const idx = Math.round((t / (qtdTicksX - 1)) * (nPontos - 1));
@@ -1206,14 +1512,14 @@
     }
     const ticksXSvg = ticksX.map(idx => {
       const x = xDe(idx);
-      return `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle" class="vsvg-axis-text">${esc(fmtDataCurta(simMain.curva[idx].data, visualState.periodo !== '6m'))}</text>`;
+      return `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle" class="vsvg-axis-text">${escHtml(fmtDataCurta(simMain.curva[idx].data, visualState.periodo !== '6m'))}</text>`;
     }).join('');
 
     const yAporte = yDe(visualState.simCapital);
     const linhaAporteSvg = `<line x1="${padLeft}" y1="${yAporte.toFixed(1)}" x2="${padLeft + plotW}" y2="${yAporte.toFixed(1)}" stroke="#3b495e" stroke-width="1.2" stroke-dasharray="3 4" />`;
 
     const xyCotacaoMain = simMain.curva.map((p, i) => ({ x: xDe(i), y: yDe(p.patCotacao) }));
-    const linhaCotacaoPuraSvg = `<path d="${caminhoSvgLinha(xyCotacaoMain)}" fill="none" stroke="#8a95a6" stroke-width="1.6" stroke-dasharray="5 4" />`;
+    const linhaCotacaoPuraSvg = `<path d="${caminhoSvgLinha(xyCotacaoMain)}" fill="none" stroke="#8a95a6" stroke-width="1.7" stroke-dasharray="5 4" />`;
 
     let curvasSimSvg = '';
     let marcadoresProvSvg = '';
@@ -1237,12 +1543,12 @@
         const len = s.sim.curva.length;
         const xy = s.sim.curva.map((p, i) => ({ x: xDe(i, len), y: yDe(p.patTotal) }));
         seriesInterativas.push({ cor: s.corLinhaMulti, xy, ticker: s.sim.ativo.ticker });
-        return `<path d="${caminhoSvgLinha(xy)}" fill="none" stroke="${s.corLinhaMulti}" stroke-width="${s.principal ? 2.5 : 1.9}" stroke-linejoin="round" stroke-linecap="round" />`;
+        return `<path d="${caminhoSvgLinha(xy)}" fill="none" stroke="${s.corLinhaMulti}" stroke-width="${s.principal ? 2.6 : 2.0}" stroke-linejoin="round" stroke-linecap="round" />`;
       }).join('');
     }
 
     const chDotsSvg = seriesInterativas.map((s, idx) =>
-      `<circle class="v-sim-dot" data-sim-idx="${idx}" cx="0" cy="0" r="4" fill="${s.cor}" stroke="#0a0e14" stroke-width="1.6" style="display:none" />`
+      `<circle class="v-sim-dot" data-sim-idx="${idx}" cx="0" cy="0" r="4.2" fill="${s.cor}" stroke="#0a0e14" stroke-width="1.6" style="display:none" />`
     ).join('');
 
     svgWrap.innerHTML = `
@@ -1258,7 +1564,7 @@
         ${curvasSimSvg}
         ${marcadoresProvSvg}
         ${ticksXSvg}
-        <line class="v-crosshair" x1="0" y1="${padTop}" x2="0" y2="${yBasePlot}" stroke="#eef2f8" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="3 3" style="display:none" />
+        <line class="v-crosshair" x1="0" y1="${padTop}" x2="0" y2="${yBasePlot}" stroke="#eef2f8" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="3 3" style="display:none" />
         ${chDotsSvg}
         <rect class="v-hit-area" x="${padLeft}" y="${padTop}" width="${plotW}" height="${plotH}" fill="transparent" />
       </svg>
@@ -1279,9 +1585,9 @@
         if (hudEl) {
           hudEl.innerHTML = `
             <span class="vhud-date mono">${ehUltimo ? `Final (${dt})` : dt}</span>
-            <span class="vhud-metric"><i class="dot" style="background:#2fbf86"></i>Com dividendos: <strong class="mono t-green">${fmtReal(pt.patTotal)} (${fmtPct(retData)})</strong></span>
-            <span class="vhud-metric"><i class="dot" style="background:#8a95a6"></i>Só cotação: <strong class="mono">${fmtReal(pt.patCotacao)}</strong></span>
-            <span class="vhud-metric">Proventos recebidos: <strong class="mono">${fmtReal(pt.proventosAcumRS)}</strong></span>
+            <span class="vhud-metric"><span class="vleg-line" style="border-top:2.5px solid #2fbf86;width:16px"></span>Com dividendos: <strong class="mono t-green">${formataReal(pt.patTotal)} (${formataPct(retData)})</strong></span>
+            <span class="vhud-metric"><span class="vleg-line" style="border-top:2px dashed #8a95a6;width:16px"></span>Só cotação: <strong class="mono">${formataReal(pt.patCotacao)}</strong></span>
+            <span class="vhud-metric">Proventos acumulados: <strong class="mono">${formataReal(pt.proventosAcumRS)}</strong></span>
           `;
         }
       } else {
@@ -1289,7 +1595,7 @@
           const idxProp = Math.min(s.sim.curva.length - 1, Math.round((i / Math.max(1, nPontos - 1)) * (s.sim.curva.length - 1)));
           const pSim = s.sim.curva[idxProp];
           const ret = (pSim.patTotal - visualState.simCapital) / visualState.simCapital;
-          return `<span class="vhud-metric"><i class="dot" style="background:${s.corLinhaMulti}"></i><b>${esc(s.sim.ativo.ticker)}</b>: <strong class="mono">${fmtReal(pSim.patTotal)} (${fmtPct(ret)})</strong></span>`;
+          return `<span class="vhud-metric"><i class="dot" style="background:${s.corLinhaMulti}"></i><b>${escHtml(s.sim.ativo.ticker)}</b>: <strong class="mono">${formataReal(pSim.patTotal)} (${formataPct(ret)})</strong></span>`;
         }).join('');
         if (hudEl) {
           hudEl.innerHTML = `<span class="vhud-date mono">${ehUltimo ? `Final (${dt})` : dt}</span>${itens}`;
@@ -1301,7 +1607,6 @@
 
     anexarInteracaoCrosshair(
       svgEl,
-      { padLeft, plotW },
       nPontos,
       (idx) => {
         const x = xDe(idx);
@@ -1327,30 +1632,29 @@
       }
     );
 
-    // Tabela de Decomposição & Ranking entre os papéis simulados
     if (breakdownWrap) {
       const ordenadas = [...simulacoes].sort((a, b) => b.sim.patrimonioFinal - a.sim.patrimonioFinal);
       const linhas = ordenadas.map(item => {
         const s = item.sim;
         const cor = modoMulti ? item.corLinhaMulti : '#2fbf86';
         return `
-          <tr class="vcmp-row" data-vfocus-ticker="${esc(s.ativo.ticker)}">
-            <td data-label="Ativo"><span class="vcmp-ticker"><i class="dot" style="background:${cor}"></i><b class="mono">${esc(s.ativo.ticker)}</b></span></td>
-            <td class="num mono" data-label="Preço Ini → Fim">${fmtReal(s.precoIni)} → ${fmtReal(s.precoFim)}</td>
-            <td class="num mono ${s.retornoCotacao >= 0 ? '' : 't-red'}" data-label="Só Cotação">${fmtPct(s.retornoCotacao)}</td>
-            <td class="num mono t-green" data-label="Proventos Recebidos">${fmtReal(s.proventosRecebidosRS)} <small class="t-muted">(${s.qtdEventos}x)</small></td>
+          <tr class="vcmp-row" data-vfocus-ticker="${escHtml(s.ativo.ticker)}" title="Clique para focar em ${escHtml(s.ativo.ticker)}">
+            <td data-label="Ativo"><span class="vcmp-ticker"><i class="dot" style="background:${cor}"></i><b class="mono">${escHtml(s.ativo.ticker)}</b></span></td>
+            <td class="num mono" data-label="Preço Ini → Fim">${formataReal(s.precoIni)} → ${formataReal(s.precoFim)}</td>
+            <td class="num mono ${s.retornoCotacao >= 0 ? '' : 't-red'}" data-label="Só Cotação">${formataPct(s.retornoCotacao)}</td>
+            <td class="num mono t-green" data-label="Proventos Recebidos">${formataReal(s.proventosRecebidosRS)} <small class="t-muted">(${s.qtdEventos}x)</small></td>
             <td class="num mono" data-label="Ações (Ini → Fim)">${s.acoesIniciais.toFixed(1)} → ${s.acoesFinais.toFixed(1)}</td>
-            <td class="num mono" data-label="Patrimônio Final"><strong>${fmtReal(s.patrimonioFinal)}</strong></td>
+            <td class="num mono" data-label="Patrimônio Final"><strong>${formataReal(s.patrimonioFinal)}</strong></td>
             <td class="num mono ${s.retornoTotal >= 0 ? 't-green' : 't-red'}" data-label="Retorno Total">
-              <strong>${fmtPct(s.retornoTotal)}</strong>
-              ${valido(s.cagr) ? `<small class="t-muted"> (${fmtPct(s.cagr)} a.a.)</small>` : ''}
+              <strong>${formataPct(s.retornoTotal)}</strong>
+              ${ehValido(s.cagr) ? `<small class="t-muted"> (${formataPct(s.cagr)} a.a.)</small>` : ''}
             </td>
           </tr>
         `;
       }).join('');
 
       breakdownWrap.innerHTML = `
-        <div class="vsub-table-head">Resumo da Simulação · Aporte de ${fmtReal(visualState.simCapital)} (${ROTULO_PERIODO[visualState.periodo]})</div>
+        <div class="vsub-table-head">Resumo da Simulação · Aporte de ${formataReal(visualState.simCapital)} (${ROTULO_PERIODO[visualState.periodo]})</div>
         <div class="table-wrap">
           <table class="vt vcmp-table">
             <thead>
@@ -1371,116 +1675,187 @@
     }
   }
 
-  /* ---------- Orquestração da Aba Visual ---------- */
+  /* ---------- Orquestração Principal da Aba Visual ---------- */
 
   function renderizarVisaoGrafica() {
     if (visualState.aba !== 'visual') return;
-    if (!painelState.payload || !painelState.universo.length) return;
+    if (!obterPayload() || !obterUniverso().length) return;
 
     const principal = garantirAtivosValidos();
     if (!principal) return;
 
-    const mapa = mapaUniverso();
+    const mapa = construirMapaUniverso();
     const ativosCmp = visualState.comparados.map(t => mapa.get(t)).filter(Boolean);
     const janela = obterDatasJanela();
 
-    renderizarControlesTopo(principal);
-    renderizarSecaoPrecosTetos(principal, ativosCmp, janela);
-    renderizarSecaoSimulador(principal, ativosCmp, janela);
+    try { renderizarExploradorEControles(principal); } catch (e) { console.error('[VisaoGrafica] Explorador:', e); }
+    try { renderizarHeroAtivo(principal); } catch (e) { console.error('[VisaoGrafica] Hero:', e); }
+    try { renderizarSecaoPrecosTetos(principal, ativosCmp, janela); } catch (e) { console.error('[VisaoGrafica] PrecosTetos:', e); }
+    try { renderizarSecaoSimulador(principal, ativosCmp, janela); } catch (e) { console.error('[VisaoGrafica] Simulador:', e); }
   }
 
   function definirAbaPainel(aba, tickerFoco) {
     visualState.aba = aba === 'visual' ? 'visual' : 'tabela';
+    const mapa = construirMapaUniverso();
+
     if (tickerFoco) {
       const limpo = String(tickerFoco).trim().toUpperCase();
-      if (mapaUniverso().has(limpo)) {
+      if (mapa.has(limpo)) {
         visualState.tickerPrincipal = limpo;
         visualState.comparados = visualState.comparados.filter(t => t !== limpo);
-        salvarPrefsVisual();
       }
     }
 
-    const ehVisual = visualState.aba === 'visual';
-    $('#tab-btn-tabela')?.classList.toggle('is-active', !ehVisual);
-    $('#tab-btn-tabela')?.setAttribute('aria-selected', String(!ehVisual));
-    $('#tab-btn-visual')?.classList.toggle('is-active', ehVisual);
-    $('#tab-btn-visual')?.setAttribute('aria-selected', String(ehVisual));
+    const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
+    if (aba === 'visual' && hashParams.get('c')) {
+      const listaCmp = hashParams.get('c')
+        .split(',')
+        .map(s => s.trim().toUpperCase())
+        .filter(t => t && t !== visualState.tickerPrincipal && mapa.has(t))
+        .slice(0, 4);
+      visualState.comparados = listaCmp;
+    }
+    if (aba === 'visual' && ['preco', 'margem_bazin', 'variacao'].includes(hashParams.get('m'))) {
+      visualState.modoPreco = hashParams.get('m');
+    }
+    salvarPrefsVisual();
 
-    $('#view-tabela')?.classList.toggle('is-hidden', ehVisual);
-    $('#view-visual')?.classList.toggle('is-hidden', !ehVisual);
+    const ehVisual = visualState.aba === 'visual';
+    qSel('#tab-btn-tabela')?.classList.toggle('is-active', !ehVisual);
+    qSel('#tab-btn-tabela')?.setAttribute('aria-selected', String(!ehVisual));
+    qSel('#tab-btn-visual')?.classList.toggle('is-active', ehVisual);
+    qSel('#tab-btn-visual')?.setAttribute('aria-selected', String(ehVisual));
+
+    const hintEl = qSel('#view-nav-hint');
+    if (hintEl) {
+      hintEl.textContent = ehVisual
+        ? 'Histórico 5 anos vs. Preços-Teto tracejados (Bazin 6%, Graham, Gordon) e Simulador com Dividendos'
+        : 'KPIs, cobertura BESST, Demais papéis e tabela comparativa de valuation';
+    }
+
+    qSel('#view-tabela')?.classList.toggle('is-hidden', ehVisual);
+    qSel('#view-visual')?.classList.toggle('is-hidden', !ehVisual);
 
     if (ehVisual) {
       renderizarVisaoGrafica();
+      // Garante medição exata da largura da coluna desktop após o primeiro paint
+      requestAnimationFrame(() => {
+        const wrap = qSel('#visual-price-svg-wrap');
+        const svg = wrap?.querySelector('svg');
+        if (wrap && svg) {
+          const wAtual = medirLarguraGrafico(wrap);
+          const wSvg = Number(svg.getAttribute('width')) || 0;
+          if (Math.abs(wAtual - wSvg) > 16) renderizarVisaoGrafica();
+        }
+        const elFoco = qSel('#visual-stock-list .vstock-row.is-focused');
+        if (elFoco) {
+          const box = qSel('#visual-stock-list');
+          if (box) box.scrollTop = Math.max(0, elFoco.offsetTop - box.offsetTop - box.clientHeight / 3);
+        }
+      });
       if (tickerFoco) window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
-  function adicionarComparacao(ticker) {
+  function focarAtivo(ticker) {
     const clean = String(ticker || '').trim().toUpperCase();
-    if (!clean || !mapaUniverso().has(clean)) return;
+    if (!clean || !construirMapaUniverso().has(clean)) return;
+    visualState.tickerPrincipal = clean;
+    visualState.comparados = visualState.comparados.filter(t => t !== clean);
+    salvarPrefsVisual();
+    renderizarVisaoGrafica();
+  }
+
+  function alternarComparacao(ticker) {
+    const clean = String(ticker || '').trim().toUpperCase();
+    if (!clean || !construirMapaUniverso().has(clean)) return;
     if (clean === visualState.tickerPrincipal) return;
-    if (visualState.comparados.includes(clean)) return;
-    if (visualState.comparados.length >= 4) return;
-    visualState.comparados.push(clean);
+
+    const idx = visualState.comparados.indexOf(clean);
+    if (idx >= 0) {
+      visualState.comparados.splice(idx, 1);
+    } else {
+      if (visualState.comparados.length >= 4) return;
+      visualState.comparados.push(clean);
+    }
     salvarPrefsVisual();
     renderizarVisaoGrafica();
   }
 
   function bindEventosVisaoGrafica() {
-    $('#main-view-tabs')?.addEventListener('click', (e) => {
+    qSel('#main-view-tabs')?.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-view-tab]');
       if (btn) definirAbaPainel(btn.dataset.viewTab);
     });
 
-    $('#visual-main-select')?.addEventListener('change', (e) => {
-      const val = String(e.target.value || '').toUpperCase();
-      if (mapaUniverso().has(val)) {
-        visualState.tickerPrincipal = val;
-        visualState.comparados = visualState.comparados.filter(t => t !== val);
-        salvarPrefsVisual();
-        renderizarVisaoGrafica();
-      }
+    // Mobile selects
+    qSel('#visual-main-select')?.addEventListener('change', (e) => {
+      focarAtivo(e.target.value);
     });
 
-    const quickInput = $('#visual-search-input');
-    quickInput?.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-      const q = (quickInput.value || '').trim().toUpperCase();
-      if (!q) return;
-      const mapa = mapaUniverso();
-      let achado = mapa.get(q);
-      if (!achado) {
-        achado = painelState.universo.find(a =>
-          a.ticker.toUpperCase().startsWith(q) || (a.empresa || '').toUpperCase().includes(q)
-        );
-      }
-      if (achado) {
-        visualState.tickerPrincipal = achado.ticker.toUpperCase();
-        visualState.comparados = visualState.comparados.filter(t => t !== visualState.tickerPrincipal);
-        quickInput.value = '';
-        salvarPrefsVisual();
-        renderizarVisaoGrafica();
-      }
-    });
-
-    $('#visual-quick-pills')?.addEventListener('click', (e) => {
-      const chip = e.target.closest('[data-vquick-ticker]');
-      if (!chip) return;
-      const t = chip.dataset.vquickTicker.toUpperCase();
-      visualState.tickerPrincipal = t;
-      visualState.comparados = visualState.comparados.filter(x => x !== t);
-      salvarPrefsVisual();
-      renderizarVisaoGrafica();
-    });
-
-    $('#visual-compare-select')?.addEventListener('change', (e) => {
+    qSel('#visual-compare-select')?.addEventListener('change', (e) => {
       const val = e.target.value;
       e.target.value = '';
-      if (val) adicionarComparacao(val);
+      if (val) alternarComparacao(val);
     });
 
-    $('#visual-compare-chips')?.addEventListener('click', (e) => {
+    // Busca ao vivo e Enter na Sidebar Desktop
+    const searchInput = qSel('#visual-search-input');
+    searchInput?.addEventListener('input', (e) => {
+      visualState.buscaLista = e.target.value || '';
+      const principal = garantirAtivosValidos();
+      if (principal) renderizarExploradorEControles(principal);
+    });
+    searchInput?.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const resultados = filtrarEOrdenarListaSidebar();
+      if (resultados.length) {
+        focarAtivo(resultados[0].ticker);
+      }
+    });
+
+    // Ordenação e filtro por categoria na Sidebar Desktop
+    qSel('#visual-list-sort')?.addEventListener('click', () => {
+      visualState.ordemLista = visualState.ordemLista === 'az' ? 'margem' : 'az';
+      salvarPrefsVisual();
+      const principal = garantirAtivosValidos();
+      if (principal) renderizarExploradorEControles(principal);
+    });
+
+    qSel('#visual-cat-filter')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-vcat]');
+      if (!btn) return;
+      visualState.filtroLista = btn.dataset.vcat;
+      salvarPrefsVisual();
+      const principal = garantirAtivosValidos();
+      if (principal) renderizarExploradorEControles(principal);
+    });
+
+    // Clique na lista da Sidebar Desktop (focar papel ou clicar em +/✓ para comparar)
+    qSel('#visual-stock-list')?.addEventListener('click', (e) => {
+      const resetBtn = e.target.closest('[data-vreset-cat]');
+      if (resetBtn) {
+        visualState.filtroLista = 'todos';
+        salvarPrefsVisual();
+        const principal = garantirAtivosValidos();
+        if (principal) renderizarExploradorEControles(principal);
+        return;
+      }
+      const cmpBtn = e.target.closest('[data-vtoggle-cmp]');
+      if (cmpBtn) {
+        e.stopPropagation();
+        if (!cmpBtn.disabled) alternarComparacao(cmpBtn.dataset.vtoggleCmp);
+        return;
+      }
+      const row = e.target.closest('[data-vselect-ticker]');
+      if (row) {
+        focarAtivo(row.dataset.vselectTicker);
+      }
+    });
+
+    // Remover chips de comparação (desktop e mobile)
+    const tratarCliqueChipsCmp = (e) => {
       const rem = e.target.closest('[data-vremove-cmp]');
       if (rem) {
         const alvo = rem.dataset.vremoveCmp.toUpperCase();
@@ -1489,19 +1864,32 @@
         renderizarVisaoGrafica();
         return;
       }
-      if (e.target.closest('#btn-clear-comparisons')) {
+      if (e.target.closest('[data-vclear-cmp]')) {
         visualState.comparados = [];
+        salvarPrefsVisual();
+        renderizarVisaoGrafica();
+      }
+    };
+    qSel('#visual-compare-chips')?.addEventListener('click', tratarCliqueChipsCmp);
+    qSel('#visual-mobile-cmp-chips')?.addEventListener('click', tratarCliqueChipsCmp);
+
+    // Pares do mesmo setor & atalho de escala normalizada
+    qSel('#visual-peer-suggestions')?.addEventListener('click', (e) => {
+      const bPeer = e.target.closest('[data-vadd-peer]');
+      if (bPeer) {
+        alternarComparacao(bPeer.dataset.vaddPeer);
+        return;
+      }
+      const bMode = e.target.closest('[data-vswitch-mode]');
+      if (bMode) {
+        visualState.modoPreco = bMode.dataset.vswitchMode;
         salvarPrefsVisual();
         renderizarVisaoGrafica();
       }
     });
 
-    $('#visual-peer-suggestions')?.addEventListener('click', (e) => {
-      const b = e.target.closest('[data-vadd-peer]');
-      if (b) adicionarComparacao(b.dataset.vaddPeer);
-    });
-
-    $('#visual-period-group')?.addEventListener('click', (e) => {
+    // Janela temporal e modo do gráfico
+    qSel('#visual-period-group')?.addEventListener('click', (e) => {
       const b = e.target.closest('[data-vperiod]');
       if (b && DIAS_PERIODO[b.dataset.vperiod]) {
         visualState.periodo = b.dataset.vperiod;
@@ -1510,7 +1898,7 @@
       }
     });
 
-    $('#visual-chart-mode')?.addEventListener('click', (e) => {
+    qSel('#visual-chart-mode')?.addEventListener('click', (e) => {
       const b = e.target.closest('[data-vmode]');
       if (b) {
         visualState.modoPreco = b.dataset.vmode;
@@ -1519,7 +1907,7 @@
       }
     });
 
-    $('#visual-ceiling-legend')?.addEventListener('click', (e) => {
+    qSel('#visual-ceiling-legend')?.addEventListener('click', (e) => {
       const b = e.target.closest('[data-vtoggle-ceil]');
       if (!b || b.disabled) return;
       const k = b.dataset.vtoggleCeil;
@@ -1530,17 +1918,18 @@
       }
     });
 
-    $('#visual-asset-header')?.addEventListener('click', (e) => {
+    qSel('#visual-asset-header')?.addEventListener('click', (e) => {
       const b = e.target.closest('[data-vopen-detail]');
-      if (b) abrirDetalhe(b.dataset.vopenDetail);
+      if (b && typeof window.abrirDetalhe === 'function') {
+        window.abrirDetalhe(b.dataset.vopenDetail);
+      }
     });
 
-    // Clicar em qualquer linha das tabelas comparativas pode torná-la o ativo principal
-    const focarAoClicarLinha = (e) => {
+    const focarAoClicarLinhaTabela = (e) => {
       const tr = e.target.closest('[data-vfocus-ticker]');
       if (!tr) return;
       const novo = tr.dataset.vfocusTicker.toUpperCase();
-      if (novo && novo !== visualState.tickerPrincipal && mapaUniverso().has(novo)) {
+      if (novo && novo !== visualState.tickerPrincipal && construirMapaUniverso().has(novo)) {
         const antigo = visualState.tickerPrincipal;
         visualState.tickerPrincipal = novo;
         visualState.comparados = [antigo, ...visualState.comparados.filter(t => t !== novo)].slice(0, 4);
@@ -1548,11 +1937,11 @@
         renderizarVisaoGrafica();
       }
     };
-    $('#visual-compare-ceilings-wrap')?.addEventListener('click', focarAoClicarLinha);
-    $('#sim-breakdown-wrap')?.addEventListener('click', focarAoClicarLinha);
+    qSel('#visual-compare-ceilings-wrap')?.addEventListener('click', focarAoClicarLinhaTabela);
+    qSel('#sim-breakdown-wrap')?.addEventListener('click', focarAoClicarLinhaTabela);
 
     // Controles do Simulador
-    $('#sim-capital-input')?.addEventListener('input', (e) => {
+    qSel('#sim-capital-input')?.addEventListener('input', (e) => {
       const val = Number(e.target.value);
       if (Number.isFinite(val) && val >= 50) {
         visualState.simCapital = val;
@@ -1561,17 +1950,17 @@
       }
     });
 
-    $('#sim-capital-presets')?.addEventListener('click', (e) => {
+    qSel('#sim-capital-presets')?.addEventListener('click', (e) => {
       const b = e.target.closest('[data-capital]');
       if (!b) return;
       visualState.simCapital = Number(b.dataset.capital);
-      const inp = $('#sim-capital-input');
+      const inp = qSel('#sim-capital-input');
       if (inp) inp.value = String(visualState.simCapital);
       salvarPrefsVisual();
       renderizarVisaoGrafica();
     });
 
-    $('#sim-reinvest-group')?.addEventListener('click', (e) => {
+    qSel('#sim-reinvest-group')?.addEventListener('click', (e) => {
       const b = e.target.closest('[data-reinvest]');
       if (!b) return;
       visualState.simReinvestir = b.dataset.reinvest === '1';
@@ -1579,7 +1968,7 @@
       renderizarVisaoGrafica();
     });
 
-    $('#sim-net-jcp-btn')?.addEventListener('click', () => {
+    qSel('#sim-net-jcp-btn')?.addEventListener('click', () => {
       visualState.simLiquidoJcp = !visualState.simLiquidoJcp;
       salvarPrefsVisual();
       renderizarVisaoGrafica();

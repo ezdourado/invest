@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="./assets/css/painel.css">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261030b">
 </head>
 <body>
 
@@ -53,22 +53,19 @@
 
   <div class="alert alert-error is-hidden" id="engine-error-banner" role="alert"></div>
 
-  <!-- Abas principais do painel -->
-  <div class="view-tabs" id="main-view-tabs" role="tablist" aria-label="Modo de visualização do painel">
-    <button type="button" class="view-tab is-active" role="tab" aria-selected="true" aria-controls="view-tabela" id="tab-btn-tabela" data-view-tab="tabela">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>
-      <div class="view-tab-text">
-        <span class="view-tab-title">Tabela &amp; Triagem</span>
-        <span class="view-tab-sub">KPIs, setores BESST, Demais papéis e ranking</span>
-      </div>
-    </button>
-    <button type="button" class="view-tab" role="tab" aria-selected="false" aria-controls="view-visual" id="tab-btn-visual" data-view-tab="visual">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/><path d="M7 9h13" stroke-dasharray="2 2"/></svg>
-      <div class="view-tab-text">
-        <span class="view-tab-title">Visão Gráfica &amp; Simulador</span>
-        <span class="view-tab-sub">Histórico vs. Tetos (Bazin/Graham/Gordon) e Retorno c/ Dividendos</span>
-      </div>
-    </button>
+  <!-- Barra enxuta de navegação entre modos do painel -->
+  <div class="view-nav-bar">
+    <div class="view-tabs" id="main-view-tabs" role="tablist" aria-label="Modo de visualização do painel">
+      <button type="button" class="view-tab is-active" role="tab" aria-selected="true" aria-controls="view-tabela" id="tab-btn-tabela" data-view-tab="tabela">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>
+        <span>Tabela &amp; Triagem</span>
+      </button>
+      <button type="button" class="view-tab" role="tab" aria-selected="false" aria-controls="view-visual" id="tab-btn-visual" data-view-tab="visual">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/><path d="M7 9h13" stroke-dasharray="2 2"/></svg>
+        <span>Análise Gráfica &amp; Simulador</span>
+      </button>
+    </div>
+    <p class="view-nav-hint" id="view-nav-hint">KPIs, cobertura BESST, Demais papéis e tabela comparativa de valuation</p>
   </div>
 
   <!-- ==================== ABA 1: TABELA & TRIAGEM ==================== -->
@@ -140,134 +137,167 @@
 
   </div>
 
-  <!-- ==================== ABA 2: VISÃO GRÁFICA & SIMULADOR ==================== -->
+  <!-- ==================== ABA 2: ANÁLISE GRÁFICA & SIMULADOR ==================== -->
   <div class="view-pane is-hidden" id="view-visual" role="tabpanel" aria-labelledby="tab-btn-visual">
 
-    <!-- Barra executiva de seleção de papel, comparação e janela -->
-    <section class="card vcard-controls">
-      <div class="vctrl-top">
-        <div class="vctrl-primary">
+    <!-- Barra compacta de seleção exclusiva para dispositivos móveis (< 980px) -->
+    <section class="card vmobile-bar" aria-label="Seleção rápida de papel">
+      <div class="vmobile-row">
+        <div class="vmobile-field">
           <label class="vctrl-label" for="visual-main-select">Papel em foco</label>
-          <div class="vctrl-picker-row">
-            <label class="select-wrap vctrl-select-main">
-              <select id="visual-main-select" aria-label="Selecionar papel principal"></select>
-            </label>
-            <label class="search vctrl-quick-search">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-              <input type="search" id="visual-search-input" placeholder="Ir p/ ticker (Enter)" autocomplete="off">
-            </label>
+          <div class="select-wrap">
+            <select id="visual-main-select" aria-label="Selecionar papel principal"></select>
           </div>
         </div>
-
-        <div class="vctrl-period">
-          <span class="vctrl-label">Período analisado</span>
-          <div class="segmented vperiod-seg" role="group" aria-label="Período do gráfico e simulação" id="visual-period-group">
-            <button type="button" class="seg-btn" data-vperiod="6m">6M</button>
-            <button type="button" class="seg-btn" data-vperiod="1y">1A</button>
-            <button type="button" class="seg-btn" data-vperiod="2y">2A</button>
-            <button type="button" class="seg-btn" data-vperiod="3y">3A</button>
-            <button type="button" class="seg-btn is-active" data-vperiod="5y">5A</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pílulas rápidas dos papéis do painel / categorias -->
-      <div class="vctrl-pills-bar">
-        <span class="vctrl-mini-label">Acesso rápido:</span>
-        <div class="vpills-scroll" id="visual-quick-pills"></div>
-      </div>
-
-      <!-- Comparador multi-ativos -->
-      <div class="vctrl-compare-bar">
-        <div class="vctrl-compare-left">
-          <span class="vctrl-mini-label">Comparar com (até 4):</span>
-          <div class="vcompare-chips" id="visual-compare-chips"></div>
-          <label class="select-wrap vcompare-select-wrap">
+        <div class="vmobile-field">
+          <label class="vctrl-label" for="visual-compare-select">Comparar (até 4)</label>
+          <div class="select-wrap">
             <select id="visual-compare-select" aria-label="Adicionar papel para comparação">
-              <option value="">+ Comparar papel…</option>
+              <option value="">+ Comparar…</option>
             </select>
-          </label>
-        </div>
-        <div class="vctrl-peers" id="visual-peer-suggestions"></div>
-      </div>
-    </section>
-
-    <!-- CARD 1: HISTÓRICO DE PREÇOS VS PREÇOS-TETO TRACEJADOS -->
-    <section class="card vcard-chart" id="visual-ceiling-card">
-      <div class="card-head card-head-wrap">
-        <div id="visual-asset-header">
-          <h2 class="card-title">Histórico de Preços vs. Preços-Teto</h2>
-          <p class="card-sub">Avalie há quanto tempo o papel negocia abaixo ou acima dos tetos Bazin (K=6%), Graham e Gordon</p>
-        </div>
-        <div class="vchart-head-actions">
-          <div class="segmented vmode-seg" role="group" aria-label="Escala do gráfico" id="visual-chart-mode">
-            <button type="button" class="seg-btn is-active" data-vmode="preco" data-tip="Cotação em R$ com linhas horizontais tracejadas dos preços-teto">Preço (R$) &amp; Tetos</button>
-            <button type="button" class="seg-btn" data-vmode="margem_bazin" data-tip="Compara a margem histórica em relação ao Teto Bazin (0% = linha do teto) entre vários papéis">Desconto vs. Bazin (%)</button>
-            <button type="button" class="seg-btn" data-vmode="variacao" data-tip="Variação percentual acumulada da cotação desde o início da janela">Variação (%)</button>
           </div>
         </div>
       </div>
-
-      <!-- Legenda clicável com estilo tracejado distinto para Bazin, Graham e Gordon -->
-      <div class="vlegend-bar" id="visual-ceiling-legend"></div>
-
-      <!-- HUD dinâmico ao passar o cursor ou arrastar o dedo -->
-      <div class="vhud" id="visual-price-hud" aria-live="polite"></div>
-
-      <!-- Área do Gráfico SVG Interativo -->
-      <div class="vsvg-container" id="visual-price-svg-wrap"></div>
-
-      <!-- Diagnóstico de Desconto Prolongado (Alerta de possível Value Trap) -->
-      <div class="vtrap-panel" id="visual-valuetrap-box"></div>
-
-      <!-- Comparativo de Tetos e Tempo Barato entre os papéis ativos -->
-      <div class="vcompare-table-wrap" id="visual-compare-ceilings-wrap"></div>
+      <div class="vmobile-chips" id="visual-mobile-cmp-chips"></div>
     </section>
 
-    <!-- CARD 2: SIMULADOR DE RENDIMENTO NO PERÍODO COM DIVIDENDOS -->
-    <section class="card vcard-sim" id="visual-sim-card">
-      <div class="card-head card-head-wrap">
-        <div>
-          <h2 class="card-title">Simulador de Rendimento Total (Cotação + Dividendos)</h2>
-          <p class="card-sub" id="sim-subtitle">Quanto teria rendido um aporte inicial no período selecionado considerando os proventos distribuídos</p>
+    <!-- Layout Desktop 2 Colunas: Explorador Lateral + Área Principal de Gráficos -->
+    <div class="visual-workspace">
+
+      <!-- COLUNA ESQUERDA (Desktop): Explorador de Papéis & Comparação em 1 clique -->
+      <aside class="card visual-sidebar" aria-label="Explorador de papéis da B3">
+        <div class="vside-head">
+          <div class="vside-title-row">
+            <div class="vside-title-group">
+              <h2 class="vside-title">Explorador</h2>
+              <span class="vside-count mono" id="vside-count-badge">0</span>
+            </div>
+            <button type="button" class="vside-sort-btn" id="visual-list-sort" data-tip="Alternar ordenação da lista entre Maior Margem Bazin e Ordem Alfabética (A–Z)">
+              Margem ↓
+            </button>
+          </div>
+
+          <label class="search vside-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="visual-search-input" placeholder="Buscar ticker ou setor…" autocomplete="off">
+          </label>
+
+          <div class="vside-cats" id="visual-cat-filter" role="group" aria-label="Filtrar lista por categoria">
+            <button type="button" class="vcat-btn is-active" data-vcat="todos">Todos</button>
+            <button type="button" class="vcat-btn" data-vcat="painel">Painel</button>
+            <button type="button" class="vcat-btn" data-vcat="besst">BESST</button>
+            <button type="button" class="vcat-btn" data-vcat="dividendos">Divid.</button>
+            <button type="button" class="vcat-btn" data-vcat="demais">Demais</button>
+          </div>
         </div>
-        <div class="vsim-controls">
-          <div class="vsim-capital-group">
-            <label class="vsim-input-wrap" for="sim-capital-input">
-              <span class="vsim-prefix">R$</span>
-              <input type="number" id="sim-capital-input" value="10000" min="100" step="500" aria-label="Valor inicial investido em reais">
-            </label>
-            <div class="vsim-presets" id="sim-capital-presets">
-              <button type="button" class="chip-mini" data-capital="1000">1 mil</button>
-              <button type="button" class="chip-mini" data-capital="5000">5 mil</button>
-              <button type="button" class="chip-mini is-on" data-capital="10000">10 mil</button>
-              <button type="button" class="chip-mini" data-capital="50000">50 mil</button>
+
+        <!-- Bandeja de papéis em comparação -->
+        <div class="vside-cmp-box" id="visual-compare-chips"></div>
+
+        <!-- Lista rolável de ações -->
+        <div class="vside-list" id="visual-stock-list" role="listbox" aria-label="Ações disponíveis para análise"></div>
+      </aside>
+
+      <!-- COLUNA DIREITA: Cabeçalho do Ativo + Gráfico de Preços-Teto + Simulador -->
+      <div class="visual-main">
+
+        <!-- Cabeçalho executivo do papel em foco + Janela temporal unificada -->
+        <section class="card vhero-card">
+          <div class="vhero-left" id="visual-asset-header"></div>
+          <div class="vhero-right">
+            <span class="vctrl-label">Período analisado</span>
+            <div class="segmented vperiod-seg" role="group" aria-label="Período do gráfico e simulação" id="visual-period-group">
+              <button type="button" class="seg-btn" data-vperiod="6m">6M</button>
+              <button type="button" class="seg-btn" data-vperiod="1y">1A</button>
+              <button type="button" class="seg-btn" data-vperiod="2y">2A</button>
+              <button type="button" class="seg-btn" data-vperiod="3y">3A</button>
+              <button type="button" class="seg-btn is-active" data-vperiod="5y">5A</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARD 1: HISTÓRICO DE PREÇOS VS PREÇOS-TETO TRACEJADOS -->
+        <section class="card vcard-chart" id="visual-ceiling-card">
+          <div class="card-head card-head-wrap">
+            <div>
+              <h2 class="card-title">Histórico de Cotações vs. Preços-Teto Tracejados</h2>
+              <p class="card-sub">Bazin (K=6%, referência principal), Graham e Gordon — identifique se o papel está descontado há anos</p>
+            </div>
+            <div class="vchart-head-actions">
+              <div class="segmented vmode-seg" role="group" aria-label="Escala do gráfico" id="visual-chart-mode">
+                <button type="button" class="seg-btn is-active" data-vmode="preco" data-tip="Cotação em R$ com linhas horizontais tracejadas dos preços-teto Bazin, Graham e Gordon">Preço (R$) &amp; Tetos</button>
+                <button type="button" class="seg-btn" data-vmode="margem_bazin" data-tip="Compara o desconto histórico em relação ao Teto Bazin (0% = linha do teto) entre vários papéis">Desconto vs. Bazin (%)</button>
+                <button type="button" class="seg-btn" data-vmode="variacao" data-tip="Variação percentual acumulada da cotação desde o início da janela">Variação (%)</button>
+              </div>
             </div>
           </div>
 
-          <div class="segmented" role="group" aria-label="Modo de tratamento dos dividendos" id="sim-reinvest-group">
-            <button type="button" class="seg-btn is-active" data-reinvest="1" data-tip="Recompra ações automaticamente na data-com de cada provento">Reinvestindo</button>
-            <button type="button" class="seg-btn" data-reinvest="0" data-tip="Mantém quantidade fixa de ações e acumula os dividendos em caixa">No bolso</button>
+          <!-- Legenda interativa com traços distintos para Bazin, Graham e Gordon -->
+          <div class="vlegend-bar" id="visual-ceiling-legend"></div>
+
+          <!-- Pares do mesmo setor para comparação rápida em 1 clique -->
+          <div class="vpeers-bar" id="visual-peer-suggestions"></div>
+
+          <!-- Leitura dinâmica ao mover o cursor sobre o gráfico -->
+          <div class="vhud" id="visual-price-hud" aria-live="polite"></div>
+
+          <!-- Gráfico SVG Widescreen -->
+          <div class="vsvg-container" id="visual-price-svg-wrap"></div>
+
+          <!-- Diagnóstico "Barato há muito tempo?" -->
+          <div class="vtrap-panel" id="visual-valuetrap-box"></div>
+
+          <!-- Tabela comparativa de preços-teto (exibida ao comparar 2+ ativos) -->
+          <div class="vcompare-table-wrap" id="visual-compare-ceilings-wrap"></div>
+        </section>
+
+        <!-- CARD 2: SIMULADOR DE RENDIMENTO NO PERÍODO COM DIVIDENDOS -->
+        <section class="card vcard-sim" id="visual-sim-card">
+          <div class="card-head card-head-wrap">
+            <div>
+              <h2 class="card-title">Simulador de Rendimento Total (Cotação + Dividendos)</h2>
+              <p class="card-sub" id="sim-subtitle">Quanto teria rendido um aporte inicial no período selecionado considerando os proventos distribuídos</p>
+            </div>
+            <div class="vsim-controls">
+              <div class="vsim-capital-group">
+                <label class="vsim-input-wrap" for="sim-capital-input">
+                  <span class="vsim-prefix">R$</span>
+                  <input type="number" id="sim-capital-input" value="10000" min="100" step="500" aria-label="Valor inicial investido em reais">
+                </label>
+                <div class="vsim-presets" id="sim-capital-presets">
+                  <button type="button" class="chip-mini" data-capital="1000">1k</button>
+                  <button type="button" class="chip-mini" data-capital="5000">5k</button>
+                  <button type="button" class="chip-mini is-on" data-capital="10000">10k</button>
+                  <button type="button" class="chip-mini" data-capital="50000">50k</button>
+                </div>
+              </div>
+
+              <div class="segmented" role="group" aria-label="Modo de tratamento dos dividendos" id="sim-reinvest-group">
+                <button type="button" class="seg-btn is-active" data-reinvest="1" data-tip="Recompra ações automaticamente na data-com de cada provento">Reinvestindo</button>
+                <button type="button" class="seg-btn" data-reinvest="0" data-tip="Mantém quantidade fixa de ações e acumula os dividendos em caixa">No bolso</button>
+              </div>
+
+              <button type="button" class="chip vsim-tax-btn is-on" id="sim-net-jcp-btn" data-tip="Desconta 15% de Imposto de Renda retido na fonte apenas sobre JCP (Dividendos permanecem isentos)">
+                <i style="background:var(--green)"></i>JCP líq. 15%
+              </button>
+            </div>
           </div>
 
-          <button type="button" class="chip vsim-tax-btn is-on" id="sim-net-jcp-btn" data-tip="Desconta 15% de Imposto de Renda retido na fonte apenas sobre JCP (Dividendos permanecem isentos)">
-            <i style="background:var(--green)"></i>JCP líq. IR (15%)
-          </button>
-        </div>
+          <!-- 4 KPIs do Simulador -->
+          <div class="vsim-kpis" id="sim-kpi-grid"></div>
+
+          <!-- HUD do Gráfico do Simulador -->
+          <div class="vhud" id="sim-chart-hud" aria-live="polite"></div>
+
+          <!-- Gráfico SVG de Evolução do Patrimônio -->
+          <div class="vsvg-container" id="sim-svg-wrap"></div>
+
+          <!-- Tabela de Decomposição & Ranking de Retorno -->
+          <div class="vcompare-table-wrap" id="sim-breakdown-wrap"></div>
+        </section>
+
       </div>
-
-      <!-- KPIs do Simulador -->
-      <div class="vsim-kpis" id="sim-kpi-grid"></div>
-
-      <!-- HUD do Gráfico do Simulador -->
-      <div class="vhud" id="sim-chart-hud" aria-live="polite"></div>
-
-      <!-- Gráfico SVG de Evolução do Patrimônio -->
-      <div class="vsvg-container" id="sim-svg-wrap"></div>
-
-      <!-- Tabela / Cartões de Decomposição & Comparação de Retorno -->
-      <div class="vcompare-table-wrap" id="sim-breakdown-wrap"></div>
-    </section>
+    </div>
 
   </div>
 
@@ -331,7 +361,7 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/data.js"></script>
-<script src="./assets/js/visao_grafica.js"></script>
+<script src="./assets/js/data.js?v=20261030b"></script>
+<script src="./assets/js/visao_grafica.js?v=20261030b"></script>
 </body>
 </html>
