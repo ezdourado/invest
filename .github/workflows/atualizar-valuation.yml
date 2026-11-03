@@ -2,18 +2,18 @@ name: Atualizar Valuation B3
 
 on:
   schedule:
-    # Aciona a cada 10 minutos (seg-sex, 09h00 às 19h50 BRT = 12h às 22h UTC)
-    - cron: "*/10 12-22 * * 1-5"
+    # Aciona a cada 10 minutos (segunda a sexta, 09h00 às 18h50 BRT = 12h às 21h UTC)
+    - cron: "*/10 12-21 * * 1-5"
   workflow_dispatch:
     inputs:
       ciclos:
-        description: "Quantidade de ciclos de 10 min nesta execução (1 = imediato, 6 = 1h contínua)"
+        description: "Quantidade de ciclos de coleta nesta execução (1 = imediato ~40s, 6 = 1 hora contínua)"
         required: false
         default: "1"
 
 concurrency:
   group: atualizar-valuation
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -21,7 +21,7 @@ permissions:
 jobs:
   atualizar-valuation:
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 25
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
       - name: Executar testes unitários do motor
         run: python -m pytest -v engine/tests/test_valuation.py
 
-      - name: Loop de atualização (cadência real de 10 em 10 min)
+      - name: Executar atualização de cotações e valuation
         env:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_CICLOS: ${{ github.event.inputs.ciclos }}
@@ -51,11 +51,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Como o agendador cron do GitHub Actions sofre atrasos em intervalos */10,
-          # cada execução agendada mantém o runner ativo por 6 ciclos de 10 minutos (1 hora),
-          # garantindo atualizações pontuais a cada 10 minutos mesmo quando o cron atrasa.
+          # No agendamento automático (cron a cada 10 min), roda exatamente 1 ciclo rápido (~40s).
+          # Isso libera o runner imediatamente e evita bloqueio de concorrência ou timeout.
+          # No acionamento manual (workflow_dispatch), respeita a quantidade de ciclos informada.
           if [ "$EVENT_NAME" = "schedule" ]; then
-            TOTAL_CICLOS=6
+            TOTAL_CICLOS=1
           else
             TOTAL_CICLOS="${INPUT_CICLOS:-1}"
           fi

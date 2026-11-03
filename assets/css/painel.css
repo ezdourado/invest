@@ -3799,3 +3799,24 @@ body.is-presentation .shell {
 .dot-fcf {
   background-color: #10b981;
 }
+
+/* Ponto pulsante de Pregão B3 ao vivo no cabeçalho */
+.status-live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background-color: #10b981;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+  animation: pulse-live 1.8s infinite ease-in-out;
+}
+.status-live-label {
+  color: #10b981;
+  font-weight: 700;
+}
+@keyframes pulse-live {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1.15); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}

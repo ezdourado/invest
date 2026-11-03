@@ -497,6 +497,18 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
         except Exception:
             preco = detalhes_fund.get("cotacao")
 
+    # Determina a data real da cotação a partir do timestamp do Yahoo Finance
+    data_cotacao = None
+    rmt = info.get("regularMarketTime")
+    if rmt and isinstance(rmt, (int, float)) and rmt > 0:
+        try:
+            dt_cot = datetime.fromtimestamp(rmt, timezone(timedelta(hours=-3)))
+            data_cotacao = dt_cot.strftime("%d/%m/%Y")
+        except Exception:
+            data_cotacao = None
+    if not data_cotacao:
+        data_cotacao = detalhes_fund.get("data_ult_cot")
+
     splits: list[tuple[date, float]] = []
     try:
         serie_splits = ticker_obj.splits
@@ -782,9 +794,10 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
         "dividendos": dividendos,
         "anuncios_agenda": anuncios_yf,
         "historico_lucros": historico_lucros,
+        "data_ult_cot": data_cotacao or detalhes_fund.get("data_ult_cot"),
         "fundamentos": {
             "empresa": detalhes_fund.get("empresa") or info.get("shortName"),
-            "data_ult_cot": detalhes_fund.get("data_ult_cot"),
+            "data_ult_cot": data_cotacao or detalhes_fund.get("data_ult_cot"),
             "ult_balanco": detalhes_fund.get("ult_balanco"),
             "lpa": lpa,
             "vpa": vpa,

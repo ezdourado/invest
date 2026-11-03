@@ -622,15 +622,48 @@ function atualizarStatusBase() {
   const dias = infoGerado.dateObj ? (Date.now() - infoGerado.dateObj.getTime()) / 86400000 : 0;
   const estado = dias > DIAS_BASE_DESATUALIZADA ? 'is-stale' : 'is-ok';
 
-  renderizarStatus(
-    estado,
-    `<span class="status-text-full"><span class="status-cot">Cotações de <strong class="mono">${esc(dataCotCurta)}</strong> (fechamento)</span><span class="status-full-extra"><span class="status-sep">·</span>Base gerada em <span class="mono">${esc(infoGerado.dataCurta)} ${esc(infoGerado.hora)}</span></span></span><span class="status-text-mobile"><strong class="mono">${esc(dataCotCurta)}</strong></span>`
-  );
+  // Identifica se a base foi gerada hoje
+  const hojeBr = hojeIsoSaoPaulo(); // 'YYYY-MM-DD'
+  const partesHoje = hojeBr.split('-');
+  const hojeCurta = `${partesHoje[2]}/${partesHoje[1]}`;
+  const ehHoje = infoGerado.dataCurta === hojeCurta;
+
+  // Horário de Brasília da geração
+  const horaSp = infoGerado.dateObj ? (infoGerado.dateObj.getUTCHours() - 3 + 24) % 24 : 12;
+  const diaSemanaSp = infoGerado.dateObj ? ((infoGerado.dateObj.getUTCDay() + (infoGerado.dateObj.getUTCHours() < 3 ? -1 : 0) + 7) % 7) : 1;
+  const ehDiaUtil = diaSemanaSp >= 1 && diaSemanaSp <= 5;
+  const emPregao = ehHoje && ehDiaUtil && (horaSp >= 10 && horaSp < 18);
+
+  const pill = $('#status-pill');
+  if (pill) {
+    pill.classList.remove('is-ok', 'is-stale', 'is-error', 'is-live');
+    pill.classList.add(estado);
+    if (emPregao) pill.classList.add('is-live');
+
+    const tipStatus = emPregao
+      ? `Pregão B3 em andamento: Cotações atualizadas a cada 10 min (delay padrão B3). Sincronização às ${infoGerado.hora} de hoje (${infoGerado.dataCompleta}). Indicadores contábeis e dividendos utilizam o fechamento oficial consolidado.`
+      : (ehHoje && horaSp >= 18
+        ? `Pregão B3 encerrado: Cotações finais de fechamento de hoje (${infoGerado.dataCompleta}) consolidadas às ${infoGerado.hora}. Atualizações automáticas de 10 em 10 min ocorrem em dias úteis das 10h às 18h.`
+        : `Último pregão consolidado: ${dataUltCotRaw || dataCotCurta}. Base gerada em ${infoGerado.dataCompleta} às ${infoGerado.hora}. As cotações ao vivo atualizam de 10 em 10 min nos dias úteis durante o pregão (10h–18h).`);
+    pill.setAttribute('data-tip', tipStatus);
+  }
+
+  const dataExibir = ehHoje ? infoGerado.dataCurta : dataCotCurta;
+  let statusHtml = '';
+  if (emPregao) {
+    statusHtml = `<span class="status-text-full"><span class="status-cot"><span class="status-live-dot" aria-hidden="true"></span><strong class="t-green">Pregão B3</strong> · Cotações de <strong class="mono">${esc(dataExibir)} às ${esc(infoGerado.hora)}</strong></span><span class="status-full-extra"><span class="status-sep">·</span>Atualização a cada 10 min</span></span><span class="status-text-mobile"><span class="status-live-dot" aria-hidden="true"></span><strong class="mono">${esc(dataExibir)} · ${esc(infoGerado.hora)}</strong></span>`;
+  } else if (ehHoje && horaSp >= 18) {
+    statusHtml = `<span class="status-text-full"><span class="status-cot">Fechamento B3 de <strong class="mono">${esc(dataExibir)}</strong></span><span class="status-full-extra"><span class="status-sep">·</span>Consolidado às <span class="mono">${esc(infoGerado.hora)}</span></span></span><span class="status-text-mobile"><strong class="mono">${esc(dataExibir)} (Fech.)</strong></span>`;
+  } else {
+    statusHtml = `<span class="status-text-full"><span class="status-cot">Cotações de <strong class="mono">${esc(dataCotCurta)}</strong> (último fechamento)</span><span class="status-full-extra"><span class="status-sep">·</span>Base gerada em <span class="mono">${esc(infoGerado.dataCurta)} ${esc(infoGerado.hora)}</span></span></span><span class="status-text-mobile"><strong class="mono">${esc(dataCotCurta)}</strong></span>`;
+  }
+
+  renderizarStatus(estado, statusHtml);
 
   const foot = $('#main-footer');
   if (foot) {
-    const dataCompleta = dataUltCotRaw && dataUltCotRaw.includes('/') ? dataUltCotRaw : infoGerado.dataCompleta;
-    foot.textContent = `Dados de mercado e proventos · Base atualizada em ${dataCompleta} · Conteúdo informativo, não constitui recomendação de investimento.`;
+    const rotuloMercado = emPregao ? `em pregão ao vivo (${infoGerado.dataCompleta} às ${infoGerado.hora})` : `fechamento de ${dataUltCotRaw || infoGerado.dataCompleta}`;
+    foot.textContent = `Dados de mercado e proventos B3 · Cotações ${rotuloMercado} · Atualização de 10 em 10 min em dias úteis (10h às 18h) · Conteúdo informativo, não constitui recomendação.`;
   }
 }
 
