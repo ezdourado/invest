@@ -2360,6 +2360,25 @@ html[data-theme="light"] .vt tbody td.c-ticker {
   fill: #a855f7;
 }
 
+.vleg-lucro-wrap {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.segmented.segmented-compact {
+  height: 24px;
+  padding: 1px;
+  background: var(--surface-2);
+  border-radius: 5px;
+}
+.segmented.segmented-compact .seg-btn {
+  height: 22px;
+  padding: 0 7px;
+  font-size: 11px;
+  border-radius: 4px;
+}
+
 .vleg-btn-wrap {
   display: inline-flex;
   align-items: center;

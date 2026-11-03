@@ -589,28 +589,81 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
 
     historico_lucros: list[PontoLucro] = []
     try:
-        fin = ticker_obj.financials
-        if fin is not None and not fin.empty:
-            row_lucro = None
+        # 1. Pontos Trimestrais (preferenciais para captar descolamentos recentes trimestre a trimestre)
+        qf = ticker_obj.quarterly_income_stmt
+        if qf is None or qf.empty:
+            qf = ticker_obj.quarterly_financials
+
+        row_lucro_q = None
+        row_eps_q = None
+        if qf is not None and not qf.empty:
             for idx_cand in [
                 "Net Income Common Stockholders",
                 "Net Income",
                 "Net Income From Continuing Operation Net Minority Interest",
                 "Net Income Continuous Operations",
             ]:
-                if idx_cand in fin.index:
-                    row_lucro = fin.loc[idx_cand]
+                if idx_cand in qf.index:
+                    row_lucro_q = qf.loc[idx_cand]
                     break
-
-            row_eps = None
             for idx_cand in ["Diluted EPS", "Basic EPS"]:
-                if idx_cand in fin.index:
-                    row_eps = fin.loc[idx_cand]
+                if idx_cand in qf.index:
+                    row_eps_q = qf.loc[idx_cand]
                     break
 
-            if row_lucro is not None:
-                for col_dt in sorted(fin.columns):
-                    val_lucro = _limpar_float(row_lucro[col_dt])
+            if row_lucro_q is not None:
+                for col_dt in sorted(qf.columns):
+                    val_lucro = _limpar_float(row_lucro_q[col_dt])
+                    if val_lucro is None:
+                        continue
+                    dt_str = str(col_dt)[:10]
+                    try:
+                        ano_num = int(dt_str[:4])
+                        mes_num = int(dt_str[5:7])
+                        trim_num = (mes_num - 1) // 3 + 1
+                    except (ValueError, TypeError):
+                        continue
+                    val_eps = (
+                        _limpar_float(row_eps_q[col_dt])
+                        if (row_eps_q is not None and col_dt in row_eps_q)
+                        else None
+                    )
+                    historico_lucros.append(
+                        PontoLucro(
+                            ano=ano_num,
+                            data=dt_str,
+                            periodo=f"{trim_num}T{str(ano_num)[2:]}",
+                            lucro_liquido=round(val_lucro, 2),
+                            lpa=round(val_eps, 4) if val_eps is not None else None,
+                            tipo="trimestral",
+                        )
+                    )
+
+        # 2. Pontos Anuais (para suporte a histórico mais longo de 4-5 anos)
+        af = ticker_obj.income_stmt
+        if af is None or af.empty:
+            af = ticker_obj.financials
+
+        row_lucro_a = None
+        row_eps_a = None
+        if af is not None and not af.empty:
+            for idx_cand in [
+                "Net Income Common Stockholders",
+                "Net Income",
+                "Net Income From Continuing Operation Net Minority Interest",
+                "Net Income Continuous Operations",
+            ]:
+                if idx_cand in af.index:
+                    row_lucro_a = af.loc[idx_cand]
+                    break
+            for idx_cand in ["Diluted EPS", "Basic EPS"]:
+                if idx_cand in af.index:
+                    row_eps_a = af.loc[idx_cand]
+                    break
+
+            if row_lucro_a is not None:
+                for col_dt in sorted(af.columns):
+                    val_lucro = _limpar_float(row_lucro_a[col_dt])
                     if val_lucro is None:
                         continue
                     dt_str = str(col_dt)[:10]
@@ -619,18 +672,22 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
                     except (ValueError, TypeError):
                         continue
                     val_eps = (
-                        _limpar_float(row_eps[col_dt])
-                        if (row_eps is not None and col_dt in row_eps)
+                        _limpar_float(row_eps_a[col_dt])
+                        if (row_eps_a is not None and col_dt in row_eps_a)
                         else None
                     )
                     historico_lucros.append(
                         PontoLucro(
                             ano=ano_num,
                             data=dt_str,
+                            periodo=str(ano_num),
                             lucro_liquido=round(val_lucro, 2),
                             lpa=round(val_eps, 4) if val_eps is not None else None,
+                            tipo="anual",
                         )
                     )
+
+        historico_lucros.sort(key=lambda p: (p.data or f"{p.ano}-12-31", p.tipo))
     except Exception:
         pass
 

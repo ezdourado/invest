@@ -103,14 +103,16 @@ class Fundamentos(BaseModel):
 
 
 class PontoLucro(BaseModel):
-    """Ponto de histórico anual/periódico de lucro líquido."""
+    """Ponto de histórico trimestral ou anual de lucro líquido."""
 
     model_config = ConfigDict(extra="forbid")
 
     ano: int
     data: Optional[str] = None
+    periodo: Optional[str] = None
     lucro_liquido: float
     lpa: Optional[float] = None
+    tipo: str = "trimestral"
 
 
 class Ativo(BaseModel):

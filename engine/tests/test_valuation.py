@@ -416,22 +416,24 @@ def test_consolidar_agenda_proventos_e_sazonalidade():
 
 
 def test_historico_lucros_no_resultado_ativo():
-    """Valida serialização e campos de historico_lucros em ResultadoAtivo."""
+    """Valida serialização e campos de historico_lucros (trimestral e anual) em ResultadoAtivo."""
     from engine.build import construir_saida
     from engine.schemas import Ativo, PontoLucro
 
-    ponto = PontoLucro(ano=2024, data="2024-12-31", lucro_liquido=26358860000.0, lpa=4.62)
-    assert ponto.ano == 2024
-    assert ponto.lucro_liquido > 0
-    assert ponto.lpa == 4.62
+    p_trim = PontoLucro(ano=2026, data="2026-06-30", periodo="2T26", lucro_liquido=2397643000.0, lpa=0.42, tipo="trimestral")
+    p_anual = PontoLucro(ano=2024, data="2024-12-31", periodo="2024", lucro_liquido=26358860000.0, lpa=4.62, tipo="anual")
+    assert p_trim.ano == 2026
+    assert p_trim.periodo == "2T26"
+    assert p_trim.tipo == "trimestral"
+    assert p_anual.tipo == "anual"
 
     ativo = Ativo(
         ticker="BBAS3",
         setor="Bancos",
         preco=25.0,
-        historico_lucros=[ponto],
+        historico_lucros=[p_trim, p_anual],
     )
     saida = construir_saida([ativo], ano_referencia=2026)
     assert len(saida.ativos) == 1
-    assert len(saida.ativos[0].historico_lucros) == 1
-    assert saida.ativos[0].historico_lucros[0].ano == 2024
+    assert len(saida.ativos[0].historico_lucros) == 2
+    assert saida.ativos[0].historico_lucros[0].periodo == "2T26"

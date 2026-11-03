@@ -194,6 +194,7 @@
     comparados: Array.isArray(prefsSalvas.comparados) ? prefsSalvas.comparados.slice(0, 4) : [],
     periodo: DIAS_PERIODO[prefsSalvas.periodo] ? prefsSalvas.periodo : '5y',
     modoPreco: ['preco', 'lucro_cotacao', 'margem_bazin', 'variacao'].includes(prefsSalvas.modoPreco) ? prefsSalvas.modoPreco : 'preco',
+    frequenciaLucro: ['trimestral', '12m', 'anual'].includes(prefsSalvas.frequenciaLucro) ? prefsSalvas.frequenciaLucro : 'trimestral',
     filtroLista: ['todos', 'painel', 'besst', 'dividendos', 'demais'].includes(prefsSalvas.filtroLista) ? prefsSalvas.filtroLista : 'todos',
     ordemLista: prefsSalvas.ordemLista === 'az' ? 'az' : 'margem',
     buscaLista: '',
@@ -218,6 +219,7 @@
       comparados: visualState.comparados,
       periodo: visualState.periodo,
       modoPreco: visualState.modoPreco,
+      frequenciaLucro: visualState.frequenciaLucro,
       filtroLista: visualState.filtroLista,
       ordemLista: visualState.ordemLista,
       sidebarRecolhida: visualState.sidebarRecolhida,
@@ -415,13 +417,72 @@
     return `${sinal}R$ ${abs.toLocaleString('pt-BR')}`;
   }
 
-  function calcularSerieLucroHistorico(ativo, datas) {
+  function extrairPontosLucro(ativo, freq = 'trimestral') {
+    if (!ativo || !Array.isArray(ativo.historico_lucros) || !ativo.historico_lucros.length) return [];
+    const todos = [...ativo.historico_lucros].sort((a, b) => (a.data || String(a.ano)).localeCompare(b.data || String(b.ano)));
+
+    if (freq === 'anual') {
+      const anuais = todos.filter(p => p.tipo === 'anual');
+      if (anuais.length) return anuais;
+      return todos;
+    }
+
+    const trimestrais = todos.filter(p => p.tipo === 'trimestral');
+    if (!trimestrais.length) {
+      return todos;
+    }
+
+    // Se temos anuais anteriores ao primeiro trimestre disponível,
+    // sintetiza trimestres aproximados para anos anteriores (lucro_anual / 4)
+    // para fornecer histórico contínuo em janelas longas (2y, 5y)
+    const primeiroAnoTrim = trimestrais[0].ano;
+    const anuaisAnteriores = todos.filter(p => p.tipo === 'anual' && p.ano < primeiroAnoTrim);
+
+    const pontosSinteticos = [];
+    anuaisAnteriores.forEach(pa => {
+      const lq = pa.lucro_liquido / 4;
+      const lpaQ = ehValido(pa.lpa) ? pa.lpa / 4 : null;
+      const anoStr = String(pa.ano).slice(2);
+      pontosSinteticos.push(
+        { ano: pa.ano, data: `${pa.ano}-03-31`, periodo: `1T${anoStr}`, lucro_liquido: lq, lpa: lpaQ, tipo: 'trimestral', sintetico: true },
+        { ano: pa.ano, data: `${pa.ano}-06-30`, periodo: `2T${anoStr}`, lucro_liquido: lq, lpa: lpaQ, tipo: 'trimestral', sintetico: true },
+        { ano: pa.ano, data: `${pa.ano}-09-30`, periodo: `3T${anoStr}`, lucro_liquido: lq, lpa: lpaQ, tipo: 'trimestral', sintetico: true },
+        { ano: pa.ano, data: `${pa.ano}-12-31`, periodo: `4T${anoStr}`, lucro_liquido: lq, lpa: lpaQ, tipo: 'trimestral', sintetico: true }
+      );
+    });
+
+    const serieTrimCompleta = [...pontosSinteticos, ...trimestrais].sort((a, b) => (a.data || String(a.ano)).localeCompare(b.data || String(b.ano)));
+
+    if (freq === '12m') {
+      return serieTrimCompleta.map((pt, idx) => {
+        if (idx < 3) {
+          return {
+            ...pt,
+            lucro_liquido: pt.lucro_liquido * 4,
+            lpa: ehValido(pt.lpa) ? pt.lpa * 4 : null,
+            periodo: `${pt.periodo} (12M)`
+          };
+        }
+        const ultimos4 = serieTrimCompleta.slice(idx - 3, idx + 1);
+        const somaLucro = ultimos4.reduce((acc, x) => acc + (x.lucro_liquido || 0), 0);
+        const somaLpa = ultimos4.every(x => ehValido(x.lpa)) ? ultimos4.reduce((acc, x) => acc + x.lpa, 0) : null;
+        return {
+          ...pt,
+          lucro_liquido: somaLucro,
+          lpa: somaLpa,
+          periodo: `${pt.periodo} (12M)`
+        };
+      });
+    }
+
+    return serieTrimCompleta;
+  }
+
+  function calcularSerieLucroHistorico(ativo, datas, freq = 'trimestral') {
     if (!ativo || !Array.isArray(datas) || !datas.length) return [];
-    const lucros = Array.isArray(ativo.historico_lucros)
-      ? [...ativo.historico_lucros].sort((a, b) => (a.data || String(a.ano)).localeCompare(b.data || String(b.ano)))
-      : [];
+    const lucros = extrairPontosLucro(ativo, freq);
     if (!lucros.length) {
-      const arr = datas.map(d => ({ data: d, lucro: null, lpa: null, ano: null }));
+      const arr = datas.map(d => ({ data: d, lucro: null, lpa: null, periodo: null, ano: null }));
       arr.marcos = [];
       return arr;
     }
@@ -451,9 +512,11 @@
         return {
           data: dtIso,
           lucro: pontoExato.lucro_liquido,
-          lucroExercicio: pontoExato.lucro_liquido,
+          lucroPeriodo: pontoExato.lucro_liquido,
           lpa: pontoExato.lpa,
-          ano: pontoExato.ano
+          periodo: pontoExato.periodo || String(pontoExato.ano),
+          ano: pontoExato.ano,
+          tipo: pontoExato.tipo
         };
       }
 
@@ -462,11 +525,27 @@
 
       if (t <= t0) {
         const p = lucros[0];
-        return { data: dtIso, lucro: p.lucro_liquido, lucroExercicio: p.lucro_liquido, lpa: p.lpa, ano: p.ano };
+        return {
+          data: dtIso,
+          lucro: p.lucro_liquido,
+          lucroPeriodo: p.lucro_liquido,
+          lpa: p.lpa,
+          periodo: p.periodo || String(p.ano),
+          ano: p.ano,
+          tipo: p.tipo
+        };
       }
       if (t >= tFim) {
         const p = lucros[lucros.length - 1];
-        return { data: dtIso, lucro: p.lucro_liquido, lucroExercicio: p.lucro_liquido, lpa: p.lpa, ano: p.ano };
+        return {
+          data: dtIso,
+          lucro: p.lucro_liquido,
+          lucroPeriodo: p.lucro_liquido,
+          lpa: p.lpa,
+          periodo: p.periodo || String(p.ano),
+          ano: p.ano,
+          tipo: p.tipo
+        };
       }
 
       for (let k = 0; k < lucros.length - 1; k++) {
@@ -484,91 +563,126 @@
           return {
             data: dtIso,
             lucro: lucroInterp,
-            lucroExercicio: pRef.lucro_liquido,
+            lucroPeriodo: pRef.lucro_liquido,
             lpa: lpaInterp,
-            ano: pRef.ano
+            periodo: pRef.periodo || String(pRef.ano),
+            ano: pRef.ano,
+            tipo: pRef.tipo
           };
         }
       }
 
       const pUlt = lucros[lucros.length - 1];
-      return { data: dtIso, lucro: pUlt.lucro_liquido, lucroExercicio: pUlt.lucro_liquido, lpa: pUlt.lpa, ano: pUlt.ano };
+      return {
+        data: dtIso,
+        lucro: pUlt.lucro_liquido,
+        lucroPeriodo: pUlt.lucro_liquido,
+        lpa: pUlt.lpa,
+        periodo: pUlt.periodo || String(pUlt.ano),
+        ano: pUlt.ano,
+        tipo: pUlt.tipo
+      };
     });
 
     resultado.marcos = marcos;
     return resultado;
   }
 
-  function diagnosticarPeterLynch(principal, seriePrecos, serieLucro) {
-    const lucros = Array.isArray(principal.historico_lucros) && principal.historico_lucros.length
-      ? [...principal.historico_lucros].sort((a, b) => (a.data || String(a.ano)).localeCompare(b.data || String(b.ano)))
-      : [];
-
+  function diagnosticarPeterLynch(principal, seriePrecos, serieLucro, freq = 'trimestral') {
+    const pontosTrim = (principal.historico_lucros || []).filter(p => p.tipo === 'trimestral').sort((a, b) => a.data.localeCompare(b.data));
     const validosPreco = (seriePrecos || []).filter(p => ehValido(p.preco) && p.preco > 0);
-    const precoIni = validosPreco[0]?.preco || null;
-    const precoFim = validosPreco[validosPreco.length - 1]?.preco || principal.preco || null;
-    const varPreco = (precoIni && precoFim) ? (precoFim - precoIni) / precoIni : null;
+    const precoAtual = principal.preco || validosPreco[validosPreco.length - 1]?.preco || null;
 
-    const lIni = lucros.find(l => ehValido(l.lucro_liquido));
-    const lFim = [...lucros].reverse().find(l => ehValido(l.lucro_liquido));
+    if (pontosTrim.length >= 2) {
+      const pRecente = pontosTrim[pontosTrim.length - 1];
+      const pAnterior = pontosTrim[pontosTrim.length - 2];
 
-    let varLucro = null;
-    if (lIni && lFim && lIni !== lFim && Math.abs(lIni.lucro_liquido) > 0) {
-      varLucro = (lFim.lucro_liquido - lIni.lucro_liquido) / Math.abs(lIni.lucro_liquido);
-    }
+      // Busca o mesmo trimestre no ano anterior (ex: 2T26 vs 2T25) para base YoY comparável
+      const anoAlvoYoY = pRecente.ano - 1;
+      const prefixoYoY = pRecente.periodo.slice(0, 2); // ex: '2T'
+      const pYoY = pontosTrim.find(p => p.ano === anoAlvoYoY && p.periodo.startsWith(prefixoYoY)) || pontosTrim[0];
 
-    const plAtual = ehValido(principal.fundamentos?.pl)
-      ? principal.fundamentos.pl
-      : ((precoFim && lFim?.lpa && lFim.lpa > 0) ? precoFim / lFim.lpa : null);
+      const varQoQ = Math.abs(pAnterior.lucro_liquido) > 0
+        ? (pRecente.lucro_liquido - pAnterior.lucro_liquido) / Math.abs(pAnterior.lucro_liquido)
+        : null;
 
-    let plInicial = null;
-    if (precoIni && lIni?.lpa && lIni.lpa > 0) {
-      plInicial = precoIni / lIni.lpa;
-    }
+      const varYoY = (pYoY && pYoY !== pRecente && Math.abs(pYoY.lucro_liquido) > 0)
+        ? (pRecente.lucro_liquido - pYoY.lucro_liquido) / Math.abs(pYoY.lucro_liquido)
+        : null;
 
-    let tipo = 'insuficiente';
-    let titulo = 'Histórico de Lucro Parcial';
-    let resumo = 'Dados de lucro em apuração para análise completa de convergência Peter Lynch.';
-    let classeBox = 'is-neutral';
-
-    if (varLucro !== null && varPreco !== null) {
-      const delta = varLucro - varPreco;
-      if (delta >= 0.20) {
-        tipo = 'oportunidade';
-        titulo = 'Descolamento Positivo (Oportunidade Lynch)';
-        resumo = `O lucro líquido expandiu ${formataPct(varLucro)} superando a cotação (${formataPct(varPreco)}). O crescimento dos lucros acima do preço comprime o múltiplo P/L e gera margem de segurança.`;
-        classeBox = 'is-good';
-      } else if (varPreco - varLucro >= 0.30) {
-        tipo = 'alerta';
-        titulo = 'Expansão de Múltiplo (Atenção)';
-        resumo = `A cotação valorizou ${formataPct(varPreco)} em ritmo muito superior ao avanço dos lucros (${formataPct(varLucro)}). O papel encareceu sem expansão equivalente dos fundamentos.`;
-        classeBox = 'is-warn';
-      } else if (varLucro < -0.10 && varPreco < -0.10) {
-        tipo = 'deterioracao';
-        titulo = 'Deterioração de Resultados';
-        resumo = `Queda simultânea no lucro líquido (${formataPct(varLucro)}) e na cotação (${formataPct(varPreco)}), refletindo retração dos fundamentos da companhia.`;
-        classeBox = 'is-warn';
-      } else {
-        tipo = 'convergencia';
-        titulo = 'Convergência Fundamentalista';
-        resumo = `A trajetória da cotação (${formataPct(varPreco)}) acompanhou o ritmo de variação do lucro (${formataPct(varLucro)}), mantendo a correlação clássica da tese de Peter Lynch.`;
-        classeBox = 'is-neutral';
+      // Cotação na data do trimestre base YoY
+      let precoRef = validosPreco[0]?.preco || null;
+      if (pYoY?.data) {
+        const ptMatch = validosPreco.find(p => p.data >= pYoY.data) || validosPreco[0];
+        if (ptMatch) precoRef = ptMatch.preco;
       }
+      const varPreco = (precoAtual && precoRef) ? (precoAtual - precoRef) / precoRef : null;
+
+      // LPA Anualizado e P/L Atual
+      const lpaAnualizado = ehValido(pRecente.lpa) ? pRecente.lpa * 4 : null;
+      const plAtual = (precoAtual && lpaAnualizado && lpaAnualizado > 0)
+        ? precoAtual / lpaAnualizado
+        : principal.fundamentos?.pl || null;
+
+      let tipo = 'convergencia';
+      let titulo = `Convergência Trimestral de Resultados (${pRecente.periodo})`;
+      let resumo = `A evolução da cotação (${formataPct(varPreco)}) acompanhou a dinâmica dos resultados trimestrais recentes (${formataPct(varYoY)} YoY), mantendo a correlação de valuation estável.`;
+      let classeBox = 'is-neutral';
+
+      if (varYoY !== null && varPreco !== null) {
+        const delta = varYoY - varPreco;
+        if (delta >= 0.25) {
+          tipo = 'oportunidade';
+          titulo = `Descolamento Recente Positivo (${pRecente.periodo})`;
+          resumo = `Nos trimestres mais recentes (${pYoY.periodo} a ${pRecente.periodo}), o lucro trimestral acelerou ${formataPct(varYoY)} (de ${formatarLucroCurto(pYoY.lucro_liquido)} para ${formatarLucroCurto(pRecente.lucro_liquido)}), enquanto a cotação variou ${formataPct(varPreco)}. A expansão operacional recente supera com folga o preço de tela.`;
+          classeBox = 'is-good';
+        } else if (varPreco - varYoY >= 0.30) {
+          tipo = 'alerta';
+          titulo = `Expansão de Múltiplo Recente (${pRecente.periodo})`;
+          resumo = `A cotação valorizou ${formataPct(varPreco)} superando o ritmo dos lucros trimestrais recentes (${formataPct(varYoY)}). O papel encareceu mais rápido que a geração de resultados recentes.`;
+          classeBox = 'is-warn';
+        } else if (varYoY < -0.10 && varPreco < -0.10) {
+          tipo = 'deterioracao';
+          titulo = `Compressão Trimestral de Resultados (${pRecente.periodo})`;
+          resumo = `O lucro trimestral recuou ${formataPct(varYoY)} acompanhado por retração de ${formataPct(varPreco)} no preço das ações.`;
+          classeBox = 'is-warn';
+        }
+      }
+
+      return {
+        tipo,
+        titulo,
+        resumo,
+        classeBox,
+        pRecente,
+        pAnterior,
+        pYoY,
+        varQoQ,
+        varYoY,
+        varPreco,
+        plAtual
+      };
     }
 
+    // Fallback anual se não houver 2+ trimestres
+    const lucros = (principal.historico_lucros || []).sort((a, b) => (a.data || String(a.ano)).localeCompare(b.data || String(b.ano)));
+    const lIni = lucros[0];
+    const lFim = lucros[lucros.length - 1];
+    const precoIni = validosPreco[0]?.preco || null;
+    const varPreco = (precoIni && precoAtual) ? (precoAtual - precoIni) / precoIni : null;
+    const varLucro = (lIni && lFim && Math.abs(lIni.lucro_liquido) > 0) ? (lFim.lucro_liquido - lIni.lucro_liquido) / Math.abs(lIni.lucro_liquido) : null;
     return {
-      tipo,
-      titulo,
-      resumo,
-      classeBox,
-      precoIni,
-      precoFim,
+      tipo: 'convergencia',
+      titulo: 'Histórico Fundamentalista',
+      resumo: `Acompanhamento histórico entre cotação (${formataPct(varPreco)}) e lucro (${formataPct(varLucro)}).`,
+      classeBox: 'is-neutral',
+      pRecente: lFim || { periodo: 'Atual', lucro_liquido: null, lpa: null },
+      pAnterior: lIni || { periodo: 'Inicial', lucro_liquido: null, lpa: null },
+      pYoY: lIni,
+      varQoQ: null,
+      varYoY: varLucro,
       varPreco,
-      varLucro,
-      lIni,
-      lFim,
-      plAtual,
-      plInicial
+      plAtual: principal.fundamentos?.pl || null
     };
   }
 
@@ -1322,7 +1436,7 @@
     const tetoGraham = ehValido(principal.graham) && principal.graham > 0 ? principal.graham : null;
     const tetoGordon = ehValido(principal.gordon) && principal.gordon > 0 ? principal.gordon : null;
     const serieTetoBazin = calcularSerieTetoBazinHistorico(principal, janela.datas);
-    const serieLucro = calcularSerieLucroHistorico(principal, janela.datas);
+    const serieLucro = calcularSerieLucroHistorico(principal, janela.datas, visualState.frequenciaLucro);
 
     // 1. Legenda interativa de preços-teto e papéis (com aria-pressed e sem inline style)
     if (legendEl) {
@@ -1362,17 +1476,28 @@
             </div>`;
         }).join('');
       } else if (modo === 'lucro_cotacao') {
-        const ultLucro = Array.isArray(principal.historico_lucros) && principal.historico_lucros.length
-          ? principal.historico_lucros[principal.historico_lucros.length - 1]
-          : null;
-        const txtLucro = ultLucro ? `${formatarLucroGrande(ultLucro.lucro_liquido)} (${ultLucro.ano})` : 'N/D';
-        const txtLpa = ultLucro && ehValido(ultLucro.lpa) ? `LPA: R$ ${ultLucro.lpa.toFixed(2).replace('.', ',')}` : '';
+        const pontosTrim = (principal.historico_lucros || []).filter(p => p.tipo === 'trimestral').sort((a, b) => (a.data || String(a.ano)).localeCompare(b.data || String(b.ano)));
+        const ultPonto = visualState.frequenciaLucro === 'anual'
+          ? (principal.historico_lucros?.filter(p => p.tipo === 'anual').pop() || principal.historico_lucros?.[principal.historico_lucros.length - 1])
+          : (pontosTrim.length ? pontosTrim[pontosTrim.length - 1] : principal.historico_lucros?.[principal.historico_lucros.length - 1]);
+        const rotPeriodo = ultPonto?.periodo || (ultPonto ? `${ultPonto.ano}` : '');
+        const rotTipo = visualState.frequenciaLucro === 'trimestral' ? 'Trimestral' : (visualState.frequenciaLucro === '12m' ? '12M Móvel' : 'Anual');
+        const txtLucro = ultPonto ? `${formatarLucroGrande(ultPonto.lucro_liquido)} (${rotPeriodo})` : 'N/D';
+        const txtLpa = ultPonto && ehValido(ultPonto.lpa) ? `LPA: R$ ${ultPonto.lpa.toFixed(2).replace('.', ',')}` : '';
+
         tetosLegenda = `
-          <span class="vleg-item">
-            <span class="vleg-swatch is-lucro" aria-hidden="true"></span>
-            <span>Lucro Líquido Anual: <strong class="mono" style="color:var(--series-lucro,#a855f7);">${txtLucro}</strong> ${txtLpa ? `<small class="mono t-muted">(${txtLpa})</small>` : ''}</span>
-          </span>
-          <span class="vleg-item t-muted">Eixo Esquerdo: Cotação (R$) · Eixo Direito: Lucro Líquido (R$)</span>`;
+          <div class="vleg-lucro-wrap">
+            <span class="vleg-item">
+              <span class="vleg-swatch is-lucro" aria-hidden="true"></span>
+              <span>Lucro Líquido <strong>${rotTipo}</strong>: <strong class="mono" style="color:var(--series-lucro,#a855f7);">${txtLucro}</strong> ${txtLpa ? `<small class="mono t-muted">(${txtLpa})</small>` : ''}</span>
+            </span>
+            <div class="segmented segmented-compact" id="visual-lucro-freq-group" role="group" aria-label="Frequência do Lucro">
+              <button type="button" class="seg-btn ${visualState.frequenciaLucro === 'trimestral' ? 'is-active' : ''}" data-vlucro-freq="trimestral" data-tip="Exibe o lucro reportado a cada trimestre (3M) para avaliar descolamentos recentes">Trimestral (3M)</button>
+              <button type="button" class="seg-btn ${visualState.frequenciaLucro === '12m' ? 'is-active' : ''}" data-vlucro-freq="12m" data-tip="Soma móvel dos últimos 4 trimestres (LTM/TTM)">12M Móvel</button>
+              <button type="button" class="seg-btn ${visualState.frequenciaLucro === 'anual' ? 'is-active' : ''}" data-vlucro-freq="anual" data-tip="Exercícios contábeis anuais fechados">Anual</button>
+            </div>
+          </div>
+          <span class="vleg-item t-muted">Eixo Esquerdo: Cotação (R$) · Eixo Direito: Lucro Líquido (${rotTipo})</span>`;
       } else if (modo === 'margem_bazin') {
         tetosLegenda = `
           <span class="vleg-item">
@@ -1669,7 +1794,7 @@
             const marcosSvg = serieLucro.marcos.map(m => {
               const pt = xyLucro[m.index];
               if (!pt) return '';
-              const txtAno = String(m.ponto.ano);
+              const txtAno = m.ponto.periodo || String(m.ponto.ano);
               return `
                 <g class="vsvg-lucro-marco">
                   <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="4.5" fill="#a855f7" stroke="var(--surface,#18181b)" stroke-width="2" />
@@ -1738,16 +1863,21 @@
           const pontoL = (serieLucro && serieLucro[i]) ? serieLucro[i] : null;
           const lucroPonto = pontoL?.lucro;
           const lpaPonto = pontoL?.lpa;
-          const anoPonto = pontoL?.ano;
-          const plImpl = (ehValido(p) && ehValido(lpaPonto) && lpaPonto > 0) ? (p / lpaPonto) : null;
+          const perPonto = pontoL?.periodo || pontoL?.ano;
+          const rotFreq = visualState.frequenciaLucro === 'trimestral' ? 'Trimestral' : (visualState.frequenciaLucro === '12m' ? '12M' : 'Anual');
+
+          let plImpl = null;
+          if (ehValido(p) && ehValido(lpaPonto) && lpaPonto > 0) {
+            plImpl = visualState.frequenciaLucro === 'trimestral' ? (p / (lpaPonto * 4)) : (p / lpaPonto);
+          }
 
           if (hudEl) {
             hudEl.innerHTML = `
               <span class="vhud-date mono">${ehUltimo ? `Última cotação (${dtReal})` : dtReal}</span>
               <span class="vhud-metric">Cotação: <strong class="mono">${formataReal(p)}</strong></span>
-              <span class="vhud-metric"><i class="dot dot-lucro" aria-hidden="true"></i>Lucro Líquido: <strong class="mono" style="color:var(--series-lucro,#a855f7);">${formatarLucroGrande(lucroPonto)}</strong> ${anoPonto ? `<small class="mono t-muted">(${anoPonto})</small>` : ''}</span>
+              <span class="vhud-metric"><i class="dot dot-lucro" aria-hidden="true"></i>Lucro (${rotFreq}): <strong class="mono" style="color:var(--series-lucro,#a855f7);">${formatarLucroGrande(lucroPonto)}</strong> ${perPonto ? `<small class="mono t-muted">(${perPonto})</small>` : ''}</span>
               ${ehValido(lpaPonto) ? `<span class="vhud-metric">LPA: <strong class="mono">R$ ${lpaPonto.toFixed(2).replace('.', ',')}</strong></span>` : ''}
-              ${ehValido(plImpl) ? `<span class="vhud-metric">P/L Implícito: <strong class="mono t-strong">${plImpl.toFixed(1).replace('.', ',')}x</strong></span>` : ''}
+              ${ehValido(plImpl) ? `<span class="vhud-metric">P/L Anualizado: <strong class="mono t-strong">${plImpl.toFixed(1).replace('.', ',')}x</strong></span>` : ''}
             `;
           }
         } else if (ativosCmp.length === 0) {
@@ -1826,17 +1956,17 @@
 
     // 4. Diagnóstico Peter Lynch ou Desconto Prolongado ("Barato há muito tempo?")
     if (modo === 'lucro_cotacao') {
-      const diagLynch = diagnosticarPeterLynch(principal, seriesPorTicker.get(principal.ticker) || [], serieLucro);
+      const diagLynch = diagnosticarPeterLynch(principal, seriesPorTicker.get(principal.ticker) || [], serieLucro, visualState.frequenciaLucro);
       if (trapEl) {
         const colMedidorLynch = `
           <div class="vtrap-meter-col">
             <div class="vtrap-meter-head">
-              <span>Múltiplo P/L Implícito</span>
+              <span>Múltiplo P/L Atual</span>
               <strong class="mono">${ehValido(diagLynch.plAtual) ? `${diagLynch.plAtual.toFixed(1).replace('.', ',')}x` : '—'}</strong>
             </div>
             <div class="vtrap-streak">
-              ${ehValido(diagLynch.lFim?.lpa) ? `LPA Atual: <strong class="mono t-strong">R$ ${diagLynch.lFim.lpa.toFixed(2).replace('.', ',')}</strong>` : ''}
-              ${ehValido(diagLynch.plInicial) ? ` · P/L Inicial: <span class="mono">${diagLynch.plInicial.toFixed(1).replace('.', ',')}x</span>` : ''}
+              ${ehValido(diagLynch.pRecente?.lpa) ? `LPA (${diagLynch.pRecente.periodo}): <strong class="mono t-strong">R$ ${diagLynch.pRecente.lpa.toFixed(2).replace('.', ',')}</strong>` : ''}
+              ${ehValido(diagLynch.varQoQ) ? ` · QoQ: <b class="${diagLynch.varQoQ >= 0 ? 't-green' : 't-red'}">${formataPct(diagLynch.varQoQ)}</b>` : ''}
             </div>
           </div>
         `;
@@ -1849,10 +1979,10 @@
             </div>
             ${colMedidorLynch}
             <div class="vtrap-range-col">
-              <div class="vtrap-range-item"><span>Var. Cotação</span><b class="${ehValido(diagLynch.varPreco) ? (diagLynch.varPreco >= 0 ? 't-green' : 't-red') : ''}">${formataPct(diagLynch.varPreco)}</b></div>
-              <div class="vtrap-range-item"><span>Var. Lucro Líq.</span><b class="${ehValido(diagLynch.varLucro) ? (diagLynch.varLucro >= 0 ? 't-green' : 't-red') : ''}">${formataPct(diagLynch.varLucro)}</b></div>
-              <div class="vtrap-range-item"><span>Lucro Inicial</span><b>${diagLynch.lIni ? formatarLucroCurto(diagLynch.lIni.lucro_liquido) : '—'}</b></div>
-              <div class="vtrap-range-item"><span>Lucro Atual</span><b style="color:var(--series-lucro,#a855f7);">${diagLynch.lFim ? formatarLucroCurto(diagLynch.lFim.lucro_liquido) : '—'}</b></div>
+              <div class="vtrap-range-item"><span>Var. Cotação Recente</span><b class="${ehValido(diagLynch.varPreco) ? (diagLynch.varPreco >= 0 ? 't-green' : 't-red') : ''}">${formataPct(diagLynch.varPreco)}</b></div>
+              <div class="vtrap-range-item"><span>Var. Lucro (YoY)</span><b class="${ehValido(diagLynch.varYoY) ? (diagLynch.varYoY >= 0 ? 't-green' : 't-red') : ''}">${formataPct(diagLynch.varYoY)}</b></div>
+              <div class="vtrap-range-item"><span>${escHtml(diagLynch.pYoY?.periodo || 'Base')}</span><b>${formatarLucroCurto(diagLynch.pYoY?.lucro_liquido)}</b></div>
+              <div class="vtrap-range-item"><span>${escHtml(diagLynch.pRecente?.periodo || 'Atual')}</span><b style="color:var(--series-lucro,#a855f7);">${formatarLucroCurto(diagLynch.pRecente?.lucro_liquido)}</b></div>
             </div>
           </div>
         `;
@@ -2601,6 +2731,13 @@
     });
 
     qSel('#visual-ceiling-legend')?.addEventListener('click', (e) => {
+      const bFreq = e.target.closest('[data-vlucro-freq]');
+      if (bFreq) {
+        visualState.frequenciaLucro = bFreq.dataset.vlucroFreq;
+        salvarPrefsVisual();
+        renderizarVisaoGrafica();
+        return;
+      }
       const bDinamico = e.target.closest('#btn-toggle-teto-dinamico');
       if (bDinamico) {
         visualState.modoTetoBazin = visualState.modoTetoBazin === 'dinamico' ? 'fixo' : 'dinamico';

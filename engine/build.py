@@ -47,8 +47,8 @@ def _compactar_vetores_historico(json_str: str) -> str:
         compactado,
     )
     return re.sub(
-        r'\{\s+("ano": \d+,)\s+("data": (?:"[^"]+"|null),)\s+("lucro_liquido": [0-9.eE+-]+,)\s+("lpa": (?:[0-9.eE+-]+|null))\s+\}',
-        r'{ \1 \2 \3 \4 }',
+        r'\{\s+("ano": \d+,)\s+("data": (?:"[^"]+"|null),)\s+("periodo": (?:"[^"]+"|null),)\s+("lucro_liquido": [0-9.eE+-]+,)\s+("lpa": (?:[0-9.eE+-]+|null),)\s+("tipo": "[^"]+")\s+\}',
+        r'{ \1 \2 \3 \4 \5 \6 }',
         compactado,
     )
 
