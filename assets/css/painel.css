@@ -2352,6 +2352,13 @@ html[data-theme="light"] .vt tbody td.c-ticker {
 .vleg-swatch.is-gordon { border-top: 2.5px dotted var(--series-gordon); background: none; height: 0; }
 .vleg-swatch.is-sim-total { background: var(--series-bazin); }
 .vleg-swatch.is-sim-quote { border-top: 2px dashed var(--muted); background: none; height: 0; }
+.vleg-swatch.is-lucro { background: #a855f7; }
+.dot-lucro { background: #a855f7; }
+.vsvg-axis-text-right {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: #a855f7;
+}
 
 .vleg-btn-wrap {
   display: inline-flex;

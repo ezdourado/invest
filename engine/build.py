@@ -41,8 +41,13 @@ def _compactar_vetores_historico(json_str: str) -> str:
         _colapsar,
         json_str,
     )
-    return re.sub(
+    compactado = re.sub(
         r'\{\s+("data_com": "[^"]+",)\s+("valor": [0-9.eE+-]+,)\s+("tipo": "[^"]+",)\s+("data_pagamento": (?:"[^"]+"|null))\s+\}',
+        r'{ \1 \2 \3 \4 }',
+        compactado,
+    )
+    return re.sub(
+        r'\{\s+("ano": \d+,)\s+("data": (?:"[^"]+"|null),)\s+("lucro_liquido": [0-9.eE+-]+,)\s+("lpa": (?:[0-9.eE+-]+|null))\s+\}',
         r'{ \1 \2 \3 \4 }',
         compactado,
     )
@@ -182,6 +187,7 @@ def construir_saida(
                 pct_abaixo_teto_5a=pct_abaixo,
                 historico_precos=serie_alinhada,
                 proventos_historico=proventos_5a,
+                historico_lucros=ativo.historico_lucros,
             )
         )
 

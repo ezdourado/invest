@@ -102,6 +102,17 @@ class Fundamentos(BaseModel):
     liquidez_diaria: Optional[float] = None
 
 
+class PontoLucro(BaseModel):
+    """Ponto de histórico anual/periódico de lucro líquido."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ano: int
+    data: Optional[str] = None
+    lucro_liquido: float
+    lpa: Optional[float] = None
+
+
 class Ativo(BaseModel):
     """Dados de entrada de um ativo da B3."""
 
@@ -115,6 +126,7 @@ class Ativo(BaseModel):
     anuncios_agenda: list[Dividendo] = Field(default_factory=list)
     fundamentos: Fundamentos = Field(default_factory=Fundamentos)
     pontos_historico: list[tuple[str, float]] = Field(default_factory=list)
+    historico_lucros: list[PontoLucro] = Field(default_factory=list)
 
 
 class ResultadoBazin(BaseModel):
@@ -163,6 +175,7 @@ class ResultadoAtivo(BaseModel):
     pct_abaixo_teto_5a: Optional[float] = None
     historico_precos: list[Optional[float]] = Field(default_factory=list)
     proventos_historico: list[Dividendo] = Field(default_factory=list)
+    historico_lucros: list[PontoLucro] = Field(default_factory=list)
 
 
 class Saida(BaseModel):

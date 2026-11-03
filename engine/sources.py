@@ -37,7 +37,7 @@ import yfinance as yf
 from bs4 import BeautifulSoup
 from pydantic import ValidationError
 
-from engine.schemas import Ativo, CategoriaAtivo, Dividendo, Fundamentos, TipoDividendo
+from engine.schemas import Ativo, CategoriaAtivo, Dividendo, Fundamentos, PontoLucro, TipoDividendo
 
 CAMINHO_LOG_ERROS = Path(__file__).resolve().parent / "erros.log"
 CAMINHO_TICKERS_PADRAO = Path(__file__).resolve().parent / "tickers.json"
@@ -587,10 +587,58 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
     pl = (round(preco / lpa, 2) if (preco and lpa and lpa != 0) else None) or detalhes_fund.get("pl")
     pvp = (round(preco / vpa, 2) if (preco and vpa and vpa > 0) else None) or detalhes_fund.get("pvp")
 
+    historico_lucros: list[PontoLucro] = []
+    try:
+        fin = ticker_obj.financials
+        if fin is not None and not fin.empty:
+            row_lucro = None
+            for idx_cand in [
+                "Net Income Common Stockholders",
+                "Net Income",
+                "Net Income From Continuing Operation Net Minority Interest",
+                "Net Income Continuous Operations",
+            ]:
+                if idx_cand in fin.index:
+                    row_lucro = fin.loc[idx_cand]
+                    break
+
+            row_eps = None
+            for idx_cand in ["Diluted EPS", "Basic EPS"]:
+                if idx_cand in fin.index:
+                    row_eps = fin.loc[idx_cand]
+                    break
+
+            if row_lucro is not None:
+                for col_dt in sorted(fin.columns):
+                    val_lucro = _limpar_float(row_lucro[col_dt])
+                    if val_lucro is None:
+                        continue
+                    dt_str = str(col_dt)[:10]
+                    try:
+                        ano_num = int(dt_str[:4])
+                    except (ValueError, TypeError):
+                        continue
+                    val_eps = (
+                        _limpar_float(row_eps[col_dt])
+                        if (row_eps is not None and col_dt in row_eps)
+                        else None
+                    )
+                    historico_lucros.append(
+                        PontoLucro(
+                            ano=ano_num,
+                            data=dt_str,
+                            lucro_liquido=round(val_lucro, 2),
+                            lpa=round(val_eps, 4) if val_eps is not None else None,
+                        )
+                    )
+    except Exception:
+        pass
+
     return {
         "preco": preco,
         "dividendos": dividendos,
         "anuncios_agenda": anuncios_yf,
+        "historico_lucros": historico_lucros,
         "fundamentos": {
             "empresa": detalhes_fund.get("empresa") or info.get("shortName"),
             "data_ult_cot": detalhes_fund.get("data_ult_cot"),
@@ -714,6 +762,7 @@ def obter_ativos(
                 anuncios_agenda=anuncios_finais,
                 fundamentos=fundamentos,
                 pontos_historico=pontos_hist,
+                historico_lucros=bruto.get("historico_lucros", []),
             )
         except (ValidationError, Exception) as exc:
             registrar_erro_log(ticker_raw, f"Falha ao obter/validar ativo: {exc}", caminho_log=caminho_log)

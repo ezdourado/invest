@@ -413,3 +413,25 @@ def test_consolidar_agenda_proventos_e_sazonalidade():
     assert res.meses_habituais_dividendo == [5, 8]
     assert res.mapa_sazonal_5a["5"] == 3
     assert res.mapa_sazonal_5a["8"] == 2
+
+
+def test_historico_lucros_no_resultado_ativo():
+    """Valida serialização e campos de historico_lucros em ResultadoAtivo."""
+    from engine.build import construir_saida
+    from engine.schemas import Ativo, PontoLucro
+
+    ponto = PontoLucro(ano=2024, data="2024-12-31", lucro_liquido=26358860000.0, lpa=4.62)
+    assert ponto.ano == 2024
+    assert ponto.lucro_liquido > 0
+    assert ponto.lpa == 4.62
+
+    ativo = Ativo(
+        ticker="BBAS3",
+        setor="Bancos",
+        preco=25.0,
+        historico_lucros=[ponto],
+    )
+    saida = construir_saida([ativo], ano_referencia=2026)
+    assert len(saida.ativos) == 1
+    assert len(saida.ativos[0].historico_lucros) == 1
+    assert saida.ativos[0].historico_lucros[0].ano == 2024

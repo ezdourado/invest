@@ -193,7 +193,7 @@
     tickerPrincipal: prefsSalvas.tickerPrincipal || '',
     comparados: Array.isArray(prefsSalvas.comparados) ? prefsSalvas.comparados.slice(0, 4) : [],
     periodo: DIAS_PERIODO[prefsSalvas.periodo] ? prefsSalvas.periodo : '5y',
-    modoPreco: ['preco', 'margem_bazin', 'variacao'].includes(prefsSalvas.modoPreco) ? prefsSalvas.modoPreco : 'preco',
+    modoPreco: ['preco', 'lucro_cotacao', 'margem_bazin', 'variacao'].includes(prefsSalvas.modoPreco) ? prefsSalvas.modoPreco : 'preco',
     filtroLista: ['todos', 'painel', 'besst', 'dividendos', 'demais'].includes(prefsSalvas.filtroLista) ? prefsSalvas.filtroLista : 'todos',
     ordemLista: prefsSalvas.ordemLista === 'az' ? 'az' : 'margem',
     buscaLista: '',
@@ -385,6 +385,191 @@
         teto: Math.round(tetoPonto * 100) / 100
       };
     });
+  }
+
+  /* ---------- Série Histórica de Lucro Líquido e LPA (Peter Lynch) ---------- */
+
+  function formatarLucroGrande(v) {
+    if (!ehValido(v)) return '—';
+    const abs = Math.abs(v);
+    const sinal = v < 0 ? '-' : '';
+    if (abs >= 1e9) {
+      return `${sinal}R$ ${(abs / 1e9).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })} Bi`;
+    }
+    if (abs >= 1e6) {
+      return `${sinal}R$ ${(abs / 1e6).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Mi`;
+    }
+    return `${sinal}R$ ${abs.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`;
+  }
+
+  function formatarLucroCurto(v) {
+    if (!ehValido(v)) return '';
+    const abs = Math.abs(v);
+    const sinal = v < 0 ? '-' : '';
+    if (abs >= 1e9) {
+      return `${sinal}R$ ${(abs / 1e9).toFixed(1).replace('.', ',')}B`;
+    }
+    if (abs >= 1e6) {
+      return `${sinal}R$ ${(abs / 1e6).toFixed(0)}M`;
+    }
+    return `${sinal}R$ ${abs.toLocaleString('pt-BR')}`;
+  }
+
+  function calcularSerieLucroHistorico(ativo, datas) {
+    if (!ativo || !Array.isArray(datas) || !datas.length) return [];
+    const lucros = Array.isArray(ativo.historico_lucros)
+      ? [...ativo.historico_lucros].sort((a, b) => (a.data || String(a.ano)).localeCompare(b.data || String(b.ano)))
+      : [];
+    if (!lucros.length) {
+      const arr = datas.map(d => ({ data: d, lucro: null, lpa: null, ano: null }));
+      arr.marcos = [];
+      return arr;
+    }
+
+    const timestamps = datas.map(d => new Date(d).getTime());
+    const marcos = [];
+
+    lucros.forEach(ponto => {
+      const dtPonto = ponto.data || `${ponto.ano}-12-31`;
+      const tPonto = new Date(dtPonto).getTime();
+      let melhorIdx = 0;
+      let menorDiff = Infinity;
+      timestamps.forEach((t, i) => {
+        const diff = Math.abs(t - tPonto);
+        if (diff < menorDiff) {
+          menorDiff = diff;
+          melhorIdx = i;
+        }
+      });
+      marcos.push({ index: melhorIdx, ponto });
+    });
+
+    const resultado = datas.map((dtIso, i) => {
+      const t = timestamps[i];
+      const pontoExato = lucros.find(l => (l.data || `${l.ano}-12-31`) === dtIso);
+      if (pontoExato) {
+        return {
+          data: dtIso,
+          lucro: pontoExato.lucro_liquido,
+          lucroExercicio: pontoExato.lucro_liquido,
+          lpa: pontoExato.lpa,
+          ano: pontoExato.ano
+        };
+      }
+
+      const t0 = new Date(lucros[0].data || `${lucros[0].ano}-12-31`).getTime();
+      const tFim = new Date(lucros[lucros.length - 1].data || `${lucros[lucros.length - 1].ano}-12-31`).getTime();
+
+      if (t <= t0) {
+        const p = lucros[0];
+        return { data: dtIso, lucro: p.lucro_liquido, lucroExercicio: p.lucro_liquido, lpa: p.lpa, ano: p.ano };
+      }
+      if (t >= tFim) {
+        const p = lucros[lucros.length - 1];
+        return { data: dtIso, lucro: p.lucro_liquido, lucroExercicio: p.lucro_liquido, lpa: p.lpa, ano: p.ano };
+      }
+
+      for (let k = 0; k < lucros.length - 1; k++) {
+        const pA = lucros[k];
+        const pB = lucros[k + 1];
+        const tA = new Date(pA.data || `${pA.ano}-12-31`).getTime();
+        const tB = new Date(pB.data || `${pB.ano}-12-31`).getTime();
+        if (t >= tA && t <= tB) {
+          const frac = (t - tA) / (tB - tA || 1);
+          const lucroInterp = pA.lucro_liquido + frac * (pB.lucro_liquido - pA.lucro_liquido);
+          const lpaInterp = (ehValido(pA.lpa) && ehValido(pB.lpa))
+            ? pA.lpa + frac * (pB.lpa - pA.lpa)
+            : (frac >= 0.5 ? pB.lpa : pA.lpa);
+          const pRef = frac >= 0.5 ? pB : pA;
+          return {
+            data: dtIso,
+            lucro: lucroInterp,
+            lucroExercicio: pRef.lucro_liquido,
+            lpa: lpaInterp,
+            ano: pRef.ano
+          };
+        }
+      }
+
+      const pUlt = lucros[lucros.length - 1];
+      return { data: dtIso, lucro: pUlt.lucro_liquido, lucroExercicio: pUlt.lucro_liquido, lpa: pUlt.lpa, ano: pUlt.ano };
+    });
+
+    resultado.marcos = marcos;
+    return resultado;
+  }
+
+  function diagnosticarPeterLynch(principal, seriePrecos, serieLucro) {
+    const lucros = Array.isArray(principal.historico_lucros) && principal.historico_lucros.length
+      ? [...principal.historico_lucros].sort((a, b) => (a.data || String(a.ano)).localeCompare(b.data || String(b.ano)))
+      : [];
+
+    const validosPreco = (seriePrecos || []).filter(p => ehValido(p.preco) && p.preco > 0);
+    const precoIni = validosPreco[0]?.preco || null;
+    const precoFim = validosPreco[validosPreco.length - 1]?.preco || principal.preco || null;
+    const varPreco = (precoIni && precoFim) ? (precoFim - precoIni) / precoIni : null;
+
+    const lIni = lucros.find(l => ehValido(l.lucro_liquido));
+    const lFim = [...lucros].reverse().find(l => ehValido(l.lucro_liquido));
+
+    let varLucro = null;
+    if (lIni && lFim && lIni !== lFim && Math.abs(lIni.lucro_liquido) > 0) {
+      varLucro = (lFim.lucro_liquido - lIni.lucro_liquido) / Math.abs(lIni.lucro_liquido);
+    }
+
+    const plAtual = ehValido(principal.fundamentos?.pl)
+      ? principal.fundamentos.pl
+      : ((precoFim && lFim?.lpa && lFim.lpa > 0) ? precoFim / lFim.lpa : null);
+
+    let plInicial = null;
+    if (precoIni && lIni?.lpa && lIni.lpa > 0) {
+      plInicial = precoIni / lIni.lpa;
+    }
+
+    let tipo = 'insuficiente';
+    let titulo = 'Histórico de Lucro Parcial';
+    let resumo = 'Dados de lucro em apuração para análise completa de convergência Peter Lynch.';
+    let classeBox = 'is-neutral';
+
+    if (varLucro !== null && varPreco !== null) {
+      const delta = varLucro - varPreco;
+      if (delta >= 0.20) {
+        tipo = 'oportunidade';
+        titulo = 'Descolamento Positivo (Oportunidade Lynch)';
+        resumo = `O lucro líquido expandiu ${formataPct(varLucro)} superando a cotação (${formataPct(varPreco)}). O crescimento dos lucros acima do preço comprime o múltiplo P/L e gera margem de segurança.`;
+        classeBox = 'is-good';
+      } else if (varPreco - varLucro >= 0.30) {
+        tipo = 'alerta';
+        titulo = 'Expansão de Múltiplo (Atenção)';
+        resumo = `A cotação valorizou ${formataPct(varPreco)} em ritmo muito superior ao avanço dos lucros (${formataPct(varLucro)}). O papel encareceu sem expansão equivalente dos fundamentos.`;
+        classeBox = 'is-warn';
+      } else if (varLucro < -0.10 && varPreco < -0.10) {
+        tipo = 'deterioracao';
+        titulo = 'Deterioração de Resultados';
+        resumo = `Queda simultânea no lucro líquido (${formataPct(varLucro)}) e na cotação (${formataPct(varPreco)}), refletindo retração dos fundamentos da companhia.`;
+        classeBox = 'is-warn';
+      } else {
+        tipo = 'convergencia';
+        titulo = 'Convergência Fundamentalista';
+        resumo = `A trajetória da cotação (${formataPct(varPreco)}) acompanhou o ritmo de variação do lucro (${formataPct(varLucro)}), mantendo a correlação clássica da tese de Peter Lynch.`;
+        classeBox = 'is-neutral';
+      }
+    }
+
+    return {
+      tipo,
+      titulo,
+      resumo,
+      classeBox,
+      precoIni,
+      precoFim,
+      varPreco,
+      varLucro,
+      lIni,
+      lFim,
+      plAtual,
+      plInicial
+    };
   }
 
   /* ---------- Janela Dinâmica do Simulador ---------- */
@@ -1137,6 +1322,7 @@
     const tetoGraham = ehValido(principal.graham) && principal.graham > 0 ? principal.graham : null;
     const tetoGordon = ehValido(principal.gordon) && principal.gordon > 0 ? principal.gordon : null;
     const serieTetoBazin = calcularSerieTetoBazinHistorico(principal, janela.datas);
+    const serieLucro = calcularSerieLucroHistorico(principal, janela.datas);
 
     // 1. Legenda interativa de preços-teto e papéis (com aria-pressed e sem inline style)
     if (legendEl) {
@@ -1175,6 +1361,18 @@
               ${extraBazin}
             </div>`;
         }).join('');
+      } else if (modo === 'lucro_cotacao') {
+        const ultLucro = Array.isArray(principal.historico_lucros) && principal.historico_lucros.length
+          ? principal.historico_lucros[principal.historico_lucros.length - 1]
+          : null;
+        const txtLucro = ultLucro ? `${formatarLucroGrande(ultLucro.lucro_liquido)} (${ultLucro.ano})` : 'N/D';
+        const txtLpa = ultLucro && ehValido(ultLucro.lpa) ? `LPA: R$ ${ultLucro.lpa.toFixed(2).replace('.', ',')}` : '';
+        tetosLegenda = `
+          <span class="vleg-item">
+            <span class="vleg-swatch is-lucro" aria-hidden="true"></span>
+            <span>Lucro Líquido Anual: <strong class="mono" style="color:var(--series-lucro,#a855f7);">${txtLucro}</strong> ${txtLpa ? `<small class="mono t-muted">(${txtLpa})</small>` : ''}</span>
+          </span>
+          <span class="vleg-item t-muted">Eixo Esquerdo: Cotação (R$) · Eixo Direito: Lucro Líquido (R$)</span>`;
       } else if (modo === 'margem_bazin') {
         tetosLegenda = `
           <span class="vleg-item">
@@ -1226,7 +1424,7 @@
 
       const valores = serie.map(p => {
         if (!ehValido(p.preco) || p.preco <= 0) return null;
-        if (modo === 'preco') return p.preco;
+        if (modo === 'preco' || modo === 'lucro_cotacao') return p.preco;
         if (modo === 'margem_bazin') {
           if (!tBazinAtivo) return null;
           return ((tBazinAtivo - p.preco) / tBazinAtivo) * 100;
@@ -1271,18 +1469,20 @@
         linhasTetoAtivas.push({ ...ESTILO_TETOS.gordon, valor: tetoGordon });
         todosValoresY.push(tetoGordon);
       }
-    } else {
+    } else if (modo === 'margem_bazin' || modo === 'variacao') {
       todosValoresY.push(0);
     }
 
     if (!todosValoresY.length) {
-      svgWrap.innerHTML = `<div class="vchart-empty">Este ativo não possui Teto Bazin para o modo "Margem vs. Bazin (%)". Alterne para "Preço (R$) &amp; Tetos" ou "Variação (%)".</div>`;
+      svgWrap.innerHTML = `<div class="vchart-empty">Este ativo não possui dados para visualização no modo selecionado.</div>`;
     } else {
       const W = medirLarguraGrafico(svgWrap);
       const ehMobile = W < 580;
       const H = ehMobile ? 295 : 460;
       const padLeft = ehMobile ? 58 : 74;
-      const padRight = modo === 'preco' && linhasTetoAtivas.length ? (ehMobile ? 108 : 158) : (ehMobile ? 16 : 28);
+      const padRight = modo === 'preco' && linhasTetoAtivas.length
+        ? (ehMobile ? 108 : 158)
+        : (modo === 'lucro_cotacao' ? (ehMobile ? 65 : 85) : (ehMobile ? 16 : 28));
       const padTop = 18;
       const padBottom = 32;
       const plotW = Math.max(120, W - padLeft - padRight);
@@ -1291,7 +1491,7 @@
       let yMinBruto = Math.min(...todosValoresY);
       let yMaxBruto = Math.max(...todosValoresY);
       const folga = (yMaxBruto - yMinBruto) * 0.09 || (Math.abs(yMaxBruto) * 0.09 || 1);
-      if (modo === 'preco') yMinBruto = Math.max(0, yMinBruto - folga);
+      if (modo === 'preco' || modo === 'lucro_cotacao') yMinBruto = Math.max(0, yMinBruto - folga);
       else yMinBruto -= folga;
       yMaxBruto += folga;
 
@@ -1300,7 +1500,7 @@
       const yDe = (v) => padTop + plotH - ((v - eixoY.min) / (eixoY.max - eixoY.min || 1)) * plotH;
 
       const fmtEixoY = (v) => {
-        if (modo === 'preco') return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: v < 10 ? 2 : 0, maximumFractionDigits: v < 10 ? 2 : 0 });
+        if (modo === 'preco' || modo === 'lucro_cotacao') return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: v < 10 ? 2 : 0, maximumFractionDigits: v < 10 ? 2 : 0 });
         return (v > 0 ? '+' : '') + v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + '%';
       };
 
@@ -1317,6 +1517,31 @@
 
       if (modo === 'preco' && visualState.modoTetoBazin === 'dinamico' && visualState.tetosVisiveis.bazin && ehValido(tetoBazin)) {
         xyTetoBazin = serieTetoBazin.map((st, i) => ehValido(st.teto) ? { x: xDe(i), y: yDe(st.teto), teto: st.teto } : null);
+      }
+
+      // Eixo Y e coordenadas para o Lucro Líquido (Peter Lynch)
+      let eixoYLucro = null;
+      let xyLucro = null;
+      if (modo === 'lucro_cotacao') {
+        const valsL = serieLucro.map(s => s.lucro).filter(ehValido);
+        if (valsL.length) {
+          let minL = Math.min(...valsL);
+          let maxL = Math.max(...valsL);
+          const folgaL = (maxL - minL) * 0.12 || (Math.abs(maxL) * 0.12 || 1e8);
+          minL -= folgaL;
+          maxL += folgaL;
+          eixoYLucro = calcularTicksEixoY(minL, maxL, ehMobile ? 5 : 6);
+          const yLucroDe = (v) => padTop + plotH - ((v - eixoYLucro.min) / (eixoYLucro.max - eixoYLucro.min || 1)) * plotH;
+          xyLucro = serieLucro.map((s, i) => ehValido(s.lucro) ? {
+            x: xDe(i),
+            y: yLucroDe(s.lucro),
+            lucro: s.lucro,
+            lucroExercicio: s.lucroExercicio,
+            lpa: s.lpa,
+            ano: s.ano,
+            data: s.data
+          } : null);
+        }
       }
 
       const curvaPrincipal = curvasPlot[0];
@@ -1377,6 +1602,19 @@
         `;
       }).join('');
 
+      // Linhas e rótulos do eixo direito de Lucro Líquido
+      let eixoDireitoLucroSvg = '';
+      if (modo === 'lucro_cotacao' && eixoYLucro) {
+        const xDir = padLeft + plotW;
+        eixoDireitoLucroSvg = eixoYLucro.ticks.map(tv => {
+          const y = padTop + plotH - ((tv - eixoYLucro.min) / (eixoYLucro.max - eixoYLucro.min || 1)) * plotH;
+          return `
+            <line x1="${xDir}" y1="${y.toFixed(1)}" x2="${xDir + 4}" y2="${y.toFixed(1)}" stroke="#a855f7" stroke-width="1.2" opacity="0.6" />
+            <text x="${xDir + 8}" y="${(y + 3.5).toFixed(1)}" text-anchor="start" class="vsvg-axis-text-right">${escHtml(formatarLucroCurto(tv))}</text>
+          `;
+        }).join('');
+      }
+
       const ticksXSvg = ticksX.map(idx => {
         const x = xDe(idx);
         return `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle" class="vsvg-axis-text">${escHtml(fmtDataCurta(janela.datas[idx], visualState.periodo !== '6m'))}</text>`;
@@ -1417,9 +1655,32 @@
         }
       }
 
-      const areaPrincipalSvg = modo === 'preco' && ativosCmp.length === 0 && curvaPrincipal
+      const areaPrincipalSvg = (modo === 'preco' || modo === 'lucro_cotacao') && ativosCmp.length === 0 && curvaPrincipal
         ? `<path d="${caminhoSvgArea(curvaPrincipal.xy, yBasePlot)}" fill="url(#grad-price-main)" />`
         : '';
+
+      // Curva de Lucro Líquido em violeta (Peter Lynch)
+      let curvaLucroSvg = '';
+      if (modo === 'lucro_cotacao' && xyLucro) {
+        const dLucro = caminhoSvgLinha(xyLucro);
+        if (dLucro) {
+          curvaLucroSvg = `<path d="${dLucro}" fill="none" stroke="#a855f7" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />`;
+          if (serieLucro.marcos && serieLucro.marcos.length) {
+            const marcosSvg = serieLucro.marcos.map(m => {
+              const pt = xyLucro[m.index];
+              if (!pt) return '';
+              const txtAno = String(m.ponto.ano);
+              return `
+                <g class="vsvg-lucro-marco">
+                  <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="4.5" fill="#a855f7" stroke="var(--surface,#18181b)" stroke-width="2" />
+                  <text x="${pt.x.toFixed(1)}" y="${(pt.y - 8).toFixed(1)}" text-anchor="middle" fill="#a855f7" font-family="var(--sans)" font-size="10" font-weight="700">${escHtml(txtAno)}</text>
+                </g>
+              `;
+            }).join('');
+            curvaLucroSvg += marcosSvg;
+          }
+        }
+      }
 
       const linhasCurvasSvg = curvasPlot.map(c => {
         const d = caminhoSvgLinha(c.xy);
@@ -1432,6 +1693,10 @@
         `<circle class="v-ch-dot is-hidden" data-ch-idx="${idx}" cx="0" cy="0" r="${c.principal ? 4.8 : 4}" fill="${c.cor}" stroke="var(--bg)" stroke-width="1.8" />`
       ).join('');
 
+      const chDotLucroSvg = (modo === 'lucro_cotacao')
+        ? `<circle class="v-ch-dot-lucro is-hidden" cx="0" cy="0" r="5" fill="#a855f7" stroke="var(--bg)" stroke-width="2" />`
+        : '';
+
       svgWrap.innerHTML = `
         <svg class="vsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Gráfico histórico de preços e preços-teto de ${escHtml(principal.ticker)}">
           <defs>
@@ -1441,14 +1706,17 @@
             </linearGradient>
           </defs>
           ${linhasGradeSvg}
+          ${eixoDireitoLucroSvg}
           ${zonaBazinSvg}
           ${linhaTetoBazinDinamicoSvg}
           ${areaPrincipalSvg}
           ${referenciasSvg}
+          ${curvaLucroSvg}
           ${linhasCurvasSvg}
           ${ticksXSvg}
           <line class="v-crosshair is-hidden" x1="0" y1="${padTop}" x2="0" y2="${yBasePlot}" stroke="var(--text-strong)" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="3 3" />
           ${pontosCrosshairSvg}
+          ${chDotLucroSvg}
           <rect class="v-hit-area" x="${padLeft}" y="${padTop}" width="${plotW}" height="${plotH}" fill="transparent" />
         </svg>
       `;
@@ -1456,6 +1724,7 @@
       const svgEl = svgWrap.querySelector('svg');
       const chLine = svgEl.querySelector('.v-crosshair');
       const chDots = svgEl.querySelectorAll('.v-ch-dot');
+      const chDotLucro = svgEl.querySelector('.v-ch-dot-lucro');
 
       const atualizarHudPreco = (idx) => {
         const ehUltimo = idx === null || idx === undefined;
@@ -1464,7 +1733,24 @@
           ? fmtDataBr(principal.data_ult_cot)
           : fmtDataBr(janela.datas[i]);
 
-        if (ativosCmp.length === 0) {
+        if (modo === 'lucro_cotacao') {
+          const p = ehUltimo && ehValido(principal.preco) ? principal.preco : curvaPrincipal.serieOriginal[i]?.preco;
+          const pontoL = (serieLucro && serieLucro[i]) ? serieLucro[i] : null;
+          const lucroPonto = pontoL?.lucro;
+          const lpaPonto = pontoL?.lpa;
+          const anoPonto = pontoL?.ano;
+          const plImpl = (ehValido(p) && ehValido(lpaPonto) && lpaPonto > 0) ? (p / lpaPonto) : null;
+
+          if (hudEl) {
+            hudEl.innerHTML = `
+              <span class="vhud-date mono">${ehUltimo ? `Última cotação (${dtReal})` : dtReal}</span>
+              <span class="vhud-metric">Cotação: <strong class="mono">${formataReal(p)}</strong></span>
+              <span class="vhud-metric"><i class="dot dot-lucro" aria-hidden="true"></i>Lucro Líquido: <strong class="mono" style="color:var(--series-lucro,#a855f7);">${formatarLucroGrande(lucroPonto)}</strong> ${anoPonto ? `<small class="mono t-muted">(${anoPonto})</small>` : ''}</span>
+              ${ehValido(lpaPonto) ? `<span class="vhud-metric">LPA: <strong class="mono">R$ ${lpaPonto.toFixed(2).replace('.', ',')}</strong></span>` : ''}
+              ${ehValido(plImpl) ? `<span class="vhud-metric">P/L Implícito: <strong class="mono t-strong">${plImpl.toFixed(1).replace('.', ',')}x</strong></span>` : ''}
+            `;
+          }
+        } else if (ativosCmp.length === 0) {
           const p = ehUltimo && ehValido(principal.preco) ? principal.preco : curvaPrincipal.serieOriginal[i]?.preco;
           const tetoBazinNaData = (visualState.modoTetoBazin === 'dinamico' && serieTetoBazin[i]?.teto)
             ? serieTetoBazin[i].teto
@@ -1517,73 +1803,118 @@
               dot.classList.add('is-hidden');
             }
           });
+          if (chDotLucro) {
+            const ptL = xyLucro ? xyLucro[idx] : null;
+            if (ptL) {
+              chDotLucro.setAttribute('cx', ptL.x.toFixed(1));
+              chDotLucro.setAttribute('cy', ptL.y.toFixed(1));
+              chDotLucro.classList.remove('is-hidden');
+            } else {
+              chDotLucro.classList.add('is-hidden');
+            }
+          }
           atualizarHudPreco(idx);
         },
         () => {
           chLine.classList.add('is-hidden');
           chDots.forEach(d => d.classList.add('is-hidden'));
+          if (chDotLucro) chDotLucro.classList.add('is-hidden');
           atualizarHudPreco(null);
         }
       );
     }
 
-    // 4. Diagnóstico 3 Colunas Desktop ("Barato há muito tempo?" integrado ao Score Anti-Cilada)
-    const diag = diagnosticarDescontoProlongado(principal, seriesPorTicker.get(principal.ticker) || [], serieTetoBazin);
-    if (trapEl) {
-      const classeBox = diag.tipo === 'alerta'
-        ? 'is-warn'
-        : (diag.tipo === 'recente' ? 'is-good' : (diag.tipo === 'estrutural' ? 'is-info' : 'is-neutral'));
-
-      const wFillTrap = ehValido(diag.pctAbaixo) ? Math.max(2, Math.round(diag.pctAbaixo * 180)) : 0;
-      const corFillTrap = diag.tipo === 'alerta' ? 'var(--yellow)' : 'var(--series-bazin)';
-
-      const colMedidor = ehValido(diag.pctAbaixo)
-        ? `
+    // 4. Diagnóstico Peter Lynch ou Desconto Prolongado ("Barato há muito tempo?")
+    if (modo === 'lucro_cotacao') {
+      const diagLynch = diagnosticarPeterLynch(principal, seriesPorTicker.get(principal.ticker) || [], serieLucro);
+      if (trapEl) {
+        const colMedidorLynch = `
           <div class="vtrap-meter-col">
             <div class="vtrap-meter-head">
-              <span>Tempo abaixo do Teto Bazin</span>
-              <strong class="mono">${formataPctSimples(diag.pctAbaixo, 0)}</strong>
-            </div>
-            <svg class="inline-bar-svg" width="180" height="6" viewBox="0 0 180 6" aria-hidden="true">
-              <rect x="0" y="0" width="180" height="6" rx="3" fill="var(--surface-2)" />
-              <rect x="0" y="0" width="${wFillTrap}" height="6" rx="3" fill="${corFillTrap}" />
-            </svg>
-            <div class="vtrap-streak">
-              ${diag.diasStreak >= 180
-                ? `Sequência ininterrupta: <strong class="t-strong">${fmtDuracaoDias(diag.diasStreak)}</strong>`
-                : (diag.diasStreak > 0
-                  ? `${ehValido(diag.diasAcum) ? `Acumulado: <strong class="t-strong">~${fmtDuracaoDias(diag.diasAcum)}</strong> · ` : ''}Atual: <strong class="t-strong">${fmtDuracaoDias(diag.diasStreak)}</strong>`
-                  : `Atualmente acima do Teto Bazin`)}
-            </div>
-          </div>`
-        : `
-          <div class="vtrap-meter-col">
-            <div class="vtrap-meter-head">
-              <span>Referência Alternativa</span>
-              <strong class="mono">${ehValido(principal.rank_greenblatt) ? `GB #${principal.rank_greenblatt}` : '—'}</strong>
+              <span>Múltiplo P/L Implícito</span>
+              <strong class="mono">${ehValido(diagLynch.plAtual) ? `${diagLynch.plAtual.toFixed(1).replace('.', ',')}x` : '—'}</strong>
             </div>
             <div class="vtrap-streak">
-              ${ehValido(principal.graham)
-                ? `Graham: <strong class="mono t-strong">${formataReal(principal.graham)}</strong> (${formataPct(principal.margem_graham)})`
-                : `Avalie múltiplos no Raio-X`}
+              ${ehValido(diagLynch.lFim?.lpa) ? `LPA Atual: <strong class="mono t-strong">R$ ${diagLynch.lFim.lpa.toFixed(2).replace('.', ',')}</strong>` : ''}
+              ${ehValido(diagLynch.plInicial) ? ` · P/L Inicial: <span class="mono">${diagLynch.plInicial.toFixed(1).replace('.', ',')}x</span>` : ''}
             </div>
-          </div>`;
+          </div>
+        `;
 
-      trapEl.innerHTML = `
-        <div class="vtrap-card ${classeBox}">
-          <div class="vtrap-main">
-            <div class="vtrap-title">${escHtml(diag.titulo)}</div>
-            <p class="vtrap-desc">${escHtml(diag.resumo)} <button type="button" class="btn-inline-link" data-vopen-detail="${escHtml(principal.ticker)}">Ver pilares no Raio-X →</button></p>
+        trapEl.innerHTML = `
+          <div class="vtrap-card ${diagLynch.classeBox}">
+            <div class="vtrap-main">
+              <div class="vtrap-title">${escHtml(diagLynch.titulo)}</div>
+              <p class="vtrap-desc">${escHtml(diagLynch.resumo)} <button type="button" class="btn-inline-link" data-vopen-detail="${escHtml(principal.ticker)}">Ver balanço no Raio-X →</button></p>
+            </div>
+            ${colMedidorLynch}
+            <div class="vtrap-range-col">
+              <div class="vtrap-range-item"><span>Var. Cotação</span><b class="${ehValido(diagLynch.varPreco) ? (diagLynch.varPreco >= 0 ? 't-green' : 't-red') : ''}">${formataPct(diagLynch.varPreco)}</b></div>
+              <div class="vtrap-range-item"><span>Var. Lucro Líq.</span><b class="${ehValido(diagLynch.varLucro) ? (diagLynch.varLucro >= 0 ? 't-green' : 't-red') : ''}">${formataPct(diagLynch.varLucro)}</b></div>
+              <div class="vtrap-range-item"><span>Lucro Inicial</span><b>${diagLynch.lIni ? formatarLucroCurto(diagLynch.lIni.lucro_liquido) : '—'}</b></div>
+              <div class="vtrap-range-item"><span>Lucro Atual</span><b style="color:var(--series-lucro,#a855f7);">${diagLynch.lFim ? formatarLucroCurto(diagLynch.lFim.lucro_liquido) : '—'}</b></div>
+            </div>
           </div>
-          ${colMedidor}
-          <div class="vtrap-range-col">
-            <div class="vtrap-range-item"><span>Mínimo (${visualState.periodo.toUpperCase()})</span><b>${formataReal(diag.minPreco)}</b></div>
-            <div class="vtrap-range-item"><span>Máximo (${visualState.periodo.toUpperCase()})</span><b>${formataReal(diag.maxPreco)}</b></div>
-            <div class="vtrap-range-item"><span>Preço Médio</span><b>${formataReal(diag.medPreco)}</b></div>
-            <div class="vtrap-range-item"><span>Var. Cotação</span><b class="${ehValido(diag.varPeriodo) ? (diag.varPeriodo >= 0 ? 't-green' : 't-red') : ''}">${formataPct(diag.varPeriodo)}</b></div>
+        `;
+      }
+    } else {
+      const diag = diagnosticarDescontoProlongado(principal, seriesPorTicker.get(principal.ticker) || [], serieTetoBazin);
+      if (trapEl) {
+        const classeBox = diag.tipo === 'alerta'
+          ? 'is-warn'
+          : (diag.tipo === 'recente' ? 'is-good' : (diag.tipo === 'estrutural' ? 'is-info' : 'is-neutral'));
+
+        const wFillTrap = ehValido(diag.pctAbaixo) ? Math.max(2, Math.round(diag.pctAbaixo * 180)) : 0;
+        const corFillTrap = diag.tipo === 'alerta' ? 'var(--yellow)' : 'var(--series-bazin)';
+
+        const colMedidor = ehValido(diag.pctAbaixo)
+          ? `
+            <div class="vtrap-meter-col">
+              <div class="vtrap-meter-head">
+                <span>Tempo abaixo do Teto Bazin</span>
+                <strong class="mono">${formataPctSimples(diag.pctAbaixo, 0)}</strong>
+              </div>
+              <svg class="inline-bar-svg" width="180" height="6" viewBox="0 0 180 6" aria-hidden="true">
+                <rect x="0" y="0" width="180" height="6" rx="3" fill="var(--surface-2)" />
+                <rect x="0" y="0" width="${wFillTrap}" height="6" rx="3" fill="${corFillTrap}" />
+              </svg>
+              <div class="vtrap-streak">
+                ${diag.diasStreak >= 180
+                  ? `Sequência ininterrupta: <strong class="t-strong">${fmtDuracaoDias(diag.diasStreak)}</strong>`
+                  : (diag.diasStreak > 0
+                    ? `${ehValido(diag.diasAcum) ? `Acumulado: <strong class="t-strong">~${fmtDuracaoDias(diag.diasAcum)}</strong> · ` : ''}Atual: <strong class="t-strong">${fmtDuracaoDias(diag.diasStreak)}</strong>`
+                    : `Atualmente acima do Teto Bazin`)}
+              </div>
+            </div>`
+          : `
+            <div class="vtrap-meter-col">
+              <div class="vtrap-meter-head">
+                <span>Referência Alternativa</span>
+                <strong class="mono">${ehValido(principal.rank_greenblatt) ? `GB #${principal.rank_greenblatt}` : '—'}</strong>
+              </div>
+              <div class="vtrap-streak">
+                ${ehValido(principal.graham)
+                  ? `Graham: <strong class="mono t-strong">${formataReal(principal.graham)}</strong> (${formataPct(principal.margem_graham)})`
+                  : `Avalie múltiplos no Raio-X`}
+              </div>
+            </div>`;
+
+        trapEl.innerHTML = `
+          <div class="vtrap-card ${classeBox}">
+            <div class="vtrap-main">
+              <div class="vtrap-title">${escHtml(diag.titulo)}</div>
+              <p class="vtrap-desc">${escHtml(diag.resumo)} <button type="button" class="btn-inline-link" data-vopen-detail="${escHtml(principal.ticker)}">Ver pilares no Raio-X →</button></p>
+            </div>
+            ${colMedidor}
+            <div class="vtrap-range-col">
+              <div class="vtrap-range-item"><span>Mínimo (${visualState.periodo.toUpperCase()})</span><b>${formataReal(diag.minPreco)}</b></div>
+              <div class="vtrap-range-item"><span>Máximo (${visualState.periodo.toUpperCase()})</span><b>${formataReal(diag.maxPreco)}</b></div>
+              <div class="vtrap-range-item"><span>Preço Médio</span><b>${formataReal(diag.medPreco)}</b></div>
+              <div class="vtrap-range-item"><span>Var. Cotação</span><b class="${ehValido(diag.varPeriodo) ? (diag.varPeriodo >= 0 ? 't-green' : 't-red') : ''}">${formataPct(diag.varPeriodo)}</b></div>
+            </div>
           </div>
-        </div>
-      `;
+        `;
+      }
     }
 
     // 5. Tabela comparativa de preços-teto (quando 2+ ativos comparados)

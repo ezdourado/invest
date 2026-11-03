@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261103a">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261103b">
 </head>
 <body>
 
@@ -239,6 +239,7 @@
 
             <div class="segmented vmode-seg" role="group" aria-label="Escala do gráfico" id="visual-chart-mode">
               <button type="button" class="seg-btn is-active" data-vmode="preco" data-tip="Cotação em R$ com linhas horizontais tracejadas dos preços-teto Bazin, Graham e Gordon">Preço (R$) &amp; Tetos</button>
+              <button type="button" class="seg-btn" data-vmode="lucro_cotacao" data-tip="Comparativo histórico da Cotação vs. Lucro Líquido anual (Peter Lynch)">Cotação × Lucro</button>
               <button type="button" class="seg-btn" data-vmode="margem_bazin" data-tip="Compara a margem de segurança histórica em relação ao Teto Bazin (0% = linha do teto)">Margem vs. Bazin (%)</button>
               <button type="button" class="seg-btn" data-vmode="variacao" data-tip="Variação percentual acumulada da cotação desde o início da janela">Variação (%)</button>
             </div>
@@ -584,8 +585,8 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/data.js?v=20261103a"></script>
-<script src="./assets/js/visao_grafica.js?v=20261103a"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261103a"></script>
+<script src="./assets/js/data.js?v=20261103b"></script>
+<script src="./assets/js/visao_grafica.js?v=20261103b"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261103b"></script>
 </body>
 </html>
