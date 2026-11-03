@@ -3,17 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#090d14">
+  <meta name="theme-color" content="#0F1217">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Painel Executivo de Valuation · B3</title>
+  <meta name="description" content="Painel executivo de valuation para ações da B3 baseado em Bazin, Graham, Gordon e Greenblatt. Acompanhe preços-teto, margem de segurança e proventos com atualização contínua.">
+  <meta property="og:title" content="Painel Executivo de Valuation · B3">
+  <meta property="og:description" content="Acompanhe preços-teto Bazin (K=6%), Graham, Gordon e Score Anti-Cilada de ações da B3.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="./favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261103f">
+  <link rel="preload" href="./assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261103g">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261103g">
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('painel_valuation_theme');
+        if (window.location.search.includes('tema=light') || window.location.hash.includes('tema=light')) t = 'light';
+        if (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) t = 'light';
+        if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        var d = localStorage.getItem('painel_valuation_density');
+        if (d) document.documentElement.setAttribute('data-density', d);
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
+<noscript>
+  <div style="padding:16px;background:#E5645A;color:#fff;text-align:center;font-family:sans-serif;font-weight:600">
+    Este painel requer JavaScript habilitado para carregar as análises de valuation e gráficos de mercado.
+  </div>
+</noscript>
 
 <header class="topbar">
   <div class="topbar-inner">
@@ -25,7 +46,7 @@
       </div>
     </div>
 
-    <!-- Camada única de navegação principal entre as 4 abas -->
+    <!-- Navegação principal entre as 4 abas -->
     <div class="view-nav-bar">
       <div class="view-tabs" id="main-view-tabs" role="tablist" aria-label="Navegação das visões do painel">
         <button type="button" class="view-tab is-active" role="tab" aria-selected="true" aria-controls="view-tabela" id="tab-btn-tabela" data-view-tab="tabela">
@@ -54,25 +75,50 @@
         <span id="status-text"><span class="status-text-full">Carregando base…</span><span class="status-text-mobile">Carregando…</span></span>
       </button>
 
-      <button type="button" class="icon-btn" id="btn-open-methodology" data-tip="Metodologia de Valuation e Score Anti-Cilada" aria-label="Abrir metodologia">
-        <span aria-hidden="true">ⓘ</span>
+      <!-- Botão Gatilho da Paleta de Comandos -->
+      <button type="button" class="btn btn-ghost topbar-cmd-btn" id="btn-open-cmd-palette" aria-label="Abrir paleta de comandos (Ctrl+K)" data-tip="Paleta de Comandos (Ctrl+K)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <span class="cmd-text-label">Buscar / Comandos</span>
+        <kbd class="kbd">Ctrl K</kbd>
       </button>
 
-      <button type="button" class="icon-btn" id="btn-toggle-presentation" data-tip="Modo Apresentação (tecla P)" aria-label="Alternar Modo Apresentação" aria-pressed="false">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-      </button>
+      <!-- Menu Mais Opções (Metodologia, Atalhos, Tema, Apresentação, Calculadora) -->
+      <div class="more-menu-wrap">
+        <button type="button" class="icon-btn" id="btn-open-more-menu" aria-haspopup="true" aria-expanded="false" aria-label="Mais opções e configurações" data-tip="Mais opções">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </button>
+        <div class="more-menu-dropdown is-hidden" id="more-menu-dropdown" role="menu">
+          <button type="button" class="more-menu-item" id="btn-more-methodology" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span>Metodologia</span>
+          </button>
+          <button type="button" class="more-menu-item" id="btn-more-shortcuts" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h10M7 9h2M11 9h2M15 9h2"/></svg>
+            <span>Atalhos de teclado</span>
+            <kbd class="kbd">?</kbd>
+          </button>
+          <button type="button" class="more-menu-item" id="btn-more-theme" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+            <span>Alternar tema</span>
+          </button>
+          <button type="button" class="more-menu-item" id="btn-more-presentation" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <span>Modo Apresentação</span>
+            <kbd class="kbd">P</kbd>
+          </button>
+          <div class="more-divider" role="separator"></div>
+          <a href="./CalculadoraBazin.html" class="more-menu-item" role="menuitem">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <span>Calculadora Bazin ↗</span>
+          </a>
+        </div>
+      </div>
 
-      <button type="button" class="icon-btn" id="btn-toggle-theme" data-tip="Alternar tema escuro ou claro" aria-label="Alternar tema escuro ou claro">
-        <svg viewBox="0 0 24 24" aria-hidden="true" id="theme-icon-svg"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-      </button>
-
-      <button type="button" class="icon-btn" id="btn-open-shortcuts" data-tip="Atalhos de teclado (tecla ?)" aria-label="Ver atalhos de teclado">
-        <span class="mono" aria-hidden="true">?</span>
-      </button>
-
-      <nav class="topnav" aria-label="Páginas auxiliares">
-        <a href="./CalculadoraBazin.html" class="topnav-link" data-tip="Abrir calculadora manual de Preço-Teto Bazin e Graham">Calculadora ↗</a>
-      </nav>
+      <!-- Botões de apoio mantidos no DOM para retrocompatibilidade direta com data.js -->
+      <button type="button" class="icon-btn is-hidden" id="btn-open-methodology" aria-label="Metodologia"></button>
+      <button type="button" class="icon-btn is-hidden" id="btn-toggle-presentation" aria-label="Apresentação"></button>
+      <button type="button" class="icon-btn is-hidden" id="btn-toggle-theme" aria-label="Tema"></button>
+      <button type="button" class="icon-btn is-hidden" id="btn-open-shortcuts" aria-label="Atalhos"></button>
 
       <button type="button" class="btn btn-primary" id="btn-open-selector">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
@@ -92,81 +138,153 @@
     <!-- Faixa de Resumo Executivo (4 indicadores) -->
     <section class="kpi-grid" id="kpi-grid" aria-label="Resumo executivo do painel"></section>
 
-    <!-- Faixa Fina de Chips-Filtro de Cobertura Setorial -->
-    <section class="sector-strip-card" aria-label="Filtrar por setor BESST ou categoria">
-      <span class="sector-strip-label">Setores:</span>
-      <div class="besst-grid" id="besst-coverage-grid"></div>
-      <div class="cat-extra-grid" id="extra-categories-grid"></div>
-    </section>
+    <!-- Estrutura Master-Detail (Tabela à esquerda + Raio-X à direita) -->
+    <div class="master-detail-wrap" id="master-detail-wrap">
+      <div class="master-col">
 
-    <!-- Tabela Principal de Valuation -->
-    <section class="card card-table">
-      <div class="card-head card-head-wrap">
-        <div>
-          <h1 class="card-title">Tabela &amp; Triagem de Valuation</h1>
-          <p class="card-sub" id="engine-count-badge">0 ativos exibidos</p>
-        </div>
-        <div class="toolbar">
-          <label class="search">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-            <input type="search" id="input-filter-table" placeholder="Buscar ticker, empresa ou setor… (/)" autocomplete="off">
-          </label>
+        <!-- Faixa Fina de Chips-Filtro de Cobertura Setorial -->
+        <section class="sector-strip-card" aria-label="Filtrar por setor BESST ou categoria">
+          <span class="sector-strip-label">Setores:</span>
+          <div class="besst-grid" id="besst-coverage-grid"></div>
+          <div class="cat-extra-grid" id="extra-categories-grid"></div>
+        </section>
 
-          <div class="segmented" role="group" aria-label="Filtrar por situação frente ao teto ou análise técnica" id="verdict-filter">
-            <button type="button" class="seg-btn is-active" data-verdict="todos">Todos</button>
-            <button type="button" class="seg-btn" data-verdict="verde"><span class="verdict-icon t-green" aria-hidden="true">▲</span>Abaixo do teto</button>
-            <button type="button" class="seg-btn" data-verdict="amarelo"><span class="verdict-icon t-yellow" aria-hidden="true">●</span>Próximo do teto</button>
-            <button type="button" class="seg-btn" data-verdict="vermelho"><span class="verdict-icon t-red" aria-hidden="true">▼</span>Acima do teto</button>
-            <button type="button" class="seg-btn" data-verdict="bullish"><span class="verdict-icon t-green" aria-hidden="true">▲</span>Bullish</button>
-            <button type="button" class="seg-btn" data-verdict="bearish"><span class="verdict-icon t-red" aria-hidden="true">▼</span>Bearish</button>
+        <!-- Tabela Principal de Valuation -->
+        <section class="card card-table">
+          <div class="card-head card-head-wrap">
+            <div>
+              <h1 class="card-title">Tabela &amp; Triagem de Valuation</h1>
+              <p class="card-sub" id="engine-count-badge">0 ativos exibidos</p>
+            </div>
+            <div class="toolbar">
+              <label class="search">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <input type="search" id="input-filter-table" placeholder="Buscar ticker, empresa ou setor… (/)" autocomplete="off">
+              </label>
+
+              <!-- Situação frente ao teto Bazin -->
+              <div class="segmented" role="group" aria-label="Filtrar por situação frente ao teto Bazin" id="verdict-filter">
+                <button type="button" class="seg-btn is-active" data-verdict="todos">Todos</button>
+                <button type="button" class="seg-btn" data-verdict="verde">
+                  <span class="verdict-icon t-green" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="m18 15-6-6-6 6"/></svg>
+                  </span>Abaixo do teto
+                </button>
+                <button type="button" class="seg-btn" data-verdict="amarelo">
+                  <span class="verdict-icon t-yellow" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="5"/></svg>
+                  </span>Próximo
+                </button>
+                <button type="button" class="seg-btn" data-verdict="vermelho">
+                  <span class="verdict-icon t-red" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="m6 9 6 6 6-6"/></svg>
+                  </span>Acima do teto
+                </button>
+              </div>
+
+              <!-- Filtro de Análise Técnica (Neutro) -->
+              <div class="segmented" role="group" aria-label="Filtrar por análise técnica neutra" id="tech-signal-filter">
+                <button type="button" class="seg-btn is-active" data-tech="todos">Técnica: Todas</button>
+                <button type="button" class="seg-btn" data-tech="bullish">Bullish</button>
+                <button type="button" class="seg-btn" data-tech="bearish">Bearish</button>
+              </div>
+
+              <!-- Visões Salvas (Valuation / Dividendos / Qualidade / Custom) -->
+              <div class="select-wrap views-select-wrap">
+                <span class="sr-only">Visão</span>
+                <select id="select-saved-views" aria-label="Visões salvas de colunas">
+                  <option value="padrao">Visão: Padrão</option>
+                  <option value="valuation">Visão: Valuation</option>
+                  <option value="dividendos">Visão: Dividendos</option>
+                  <option value="qualidade">Visão: Qualidade</option>
+                </select>
+              </div>
+
+              <!-- Seletor de Colunas Customizáveis -->
+              <div class="cols-dropdown-wrap">
+                <button type="button" class="btn btn-ghost" id="btn-toggle-cols-menu" aria-haspopup="true" aria-expanded="false" data-tip="Configurar colunas visíveis">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18M3 9h18"/></svg>
+                  <span>Colunas</span>
+                </button>
+                <div class="cols-menu is-hidden" id="cols-menu" role="menu">
+                  <div class="cols-menu-head">Colunas Visíveis</div>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="dpa" checked><span>DPA 5a</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="falta" checked><span>Falta até teto</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="sustent" checked><span>Anti-Cilada</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="graham" checked><span>Graham</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="gordon" checked><span>Gordon</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="gb" checked><span>Greenblatt</span></label>
+                </div>
+              </div>
+
+              <div class="segmented" role="group" aria-label="Densidade da tabela" id="table-density-group">
+                <button type="button" class="seg-btn is-active" data-density="confortavel" data-tip="Espaçamento padrão para leitura executiva">Confortável</button>
+                <button type="button" class="seg-btn" data-density="compacta" data-tip="Exibir mais linhas por tela">Compacta</button>
+              </div>
+
+              <button type="button" class="btn btn-ghost" id="btn-export-table-csv" data-tip="Exportar os ativos filtrados da tabela em formato CSV">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>CSV</span>
+              </button>
+
+              <label class="select-wrap mobile-only">
+                <span class="sr-only">Ordenar por</span>
+                <select id="select-sort-mobile" aria-label="Ordenar por"></select>
+              </label>
+            </div>
           </div>
 
-          <div class="segmented" role="group" aria-label="Densidade da tabela" id="table-density-group">
-            <button type="button" class="seg-btn is-active" data-density="confortavel" data-tip="Espaçamento padrão para leitura executiva">Confortável</button>
-            <button type="button" class="seg-btn" data-density="compacta" data-tip="Exibir mais linhas por tela">Compacta</button>
+          <div class="filter-chips" id="active-filters"></div>
+
+          <div class="table-wrap">
+            <table class="vt" id="engine-valuation-table">
+              <thead>
+                <tr>
+                  <th data-sort="ticker" data-tip="Código de negociação, setor e tendência de 12 meses">Ativo · 12m</th>
+                  <th data-sort="preco" class="num" data-tip="Última cotação de fechamento na B3">Preço</th>
+                  <th data-sort="dpa" class="num c-dpa" data-tip="Média anual de dividendos e JCP nos últimos 5 anos civis fechados">DPA 5a</th>
+                  <th data-sort="teto" class="num" data-tip="Preço-teto Bazin (K = 6% fixo): DPA 5a ÷ 0,06">Teto Bazin</th>
+                  <th data-sort="faltateto" class="num c-falta" data-tip="Diferença em reais até o Teto Bazin (Teto − Preço). Positivo = abaixo do teto.">Falta até teto</th>
+                  <th data-sort="margem" class="num" data-tip="Margem de segurança Bazin = (Teto − Preço) ÷ Teto">Margem Bazin</th>
+                  <th data-sort="veredito" data-tip="Posição atual do preço em relação ao Teto Bazin">Situação</th>
+                  <th data-sort="sustentabilidade" class="c-sustent" data-tip="Score Anti-Cilada (0–100): regularidade 5a, cobertura pelo lucro, alavancagem e tendência">Anti-Cilada</th>
+                  <th data-sort="graham" class="num c-graham th-secondary" data-tip="Valor intrínseco de Graham √(22,5 × LPA × VPA)">Graham</th>
+                  <th data-sort="gordon" class="num c-gordon th-secondary" data-tip="Preço justo de Gordon: DPA × (1+g) ÷ (k − g)">Gordon</th>
+                  <th data-sort="greenblatt" class="num c-gb th-secondary" data-tip="Posição no ranking Greenblatt (EBIT/EV + ROIC). Bancos não participam.">Greenblatt</th>
+                  <th class="col-actions"><span class="sr-only">Ações</span></th>
+                </tr>
+              </thead>
+              <tbody id="engine-valuation-tbody">
+                <tr class="row-skeleton"><td colspan="12"><div class="skeleton"></div></td></tr>
+                <tr class="row-skeleton"><td colspan="12"><div class="skeleton"></div></td></tr>
+                <tr class="row-skeleton"><td colspan="12"><div class="skeleton"></div></td></tr>
+              </tbody>
+            </table>
           </div>
+        </section>
+      </div>
 
-          <button type="button" class="btn btn-ghost" id="btn-export-table-csv" data-tip="Exportar os ativos filtrados da tabela em formato CSV">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            <span>CSV</span>
-          </button>
-
-          <label class="select-wrap mobile-only">
-            <span class="sr-only">Ordenar por</span>
-            <select id="select-sort-mobile" aria-label="Ordenar por"></select>
-          </label>
+      <!-- COLUNA DIREITA: Painel Raio-X Integrado (Master-Detail) -->
+      <aside class="detail-col" id="master-detail-pane" aria-label="Raio-X do ativo selecionado">
+        <div class="detail-card-inner">
+          <div class="detail-header-compact">
+            <div>
+              <h2 class="detail-pane-title" id="detail-title">Raio-X</h2>
+              <p class="detail-pane-sub" id="detail-sub">Selecione um ativo na tabela para analisar</p>
+            </div>
+            <button type="button" class="icon-btn detail-close-mobile" id="btn-close-detail-pane" aria-label="Fechar painel Raio-X">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
+          </div>
+          <div class="detail-pane-body" id="detail-body">
+            <div class="detail-empty-state">
+              <svg viewBox="0 0 24 24" class="empty-icon" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              <p>Clique em qualquer linha da tabela ou use as setas ↑ / ↓ para inspecionar os fundamentos, múltiplos e histórico de proventos.</p>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div class="filter-chips" id="active-filters"></div>
-
-      <div class="table-wrap">
-        <table class="vt" id="engine-valuation-table">
-          <thead>
-            <tr>
-              <th data-sort="ticker" data-tip="Código de negociação, setor e tendência de 12 meses">Ativo · 12m</th>
-              <th data-sort="preco" class="num" data-tip="Última cotação de fechamento na B3">Preço</th>
-              <th data-sort="dpa" class="num" data-tip="Média anual de dividendos e JCP nos últimos 5 anos civis fechados (pela data-com, sem extraordinários)">DPA 5a</th>
-              <th data-sort="teto" class="num" data-tip="Preço-teto Bazin (K = 6% fixo): DPA 5a ÷ 0,06">Teto Bazin</th>
-              <th data-sort="faltateto" class="num" data-tip="Diferença em reais até o Teto Bazin (Teto − Preço). Valores positivos indicam folga abaixo do teto.">Falta até o teto (R$)</th>
-              <th data-sort="margem" class="num" data-tip="Margem de segurança Bazin = (Teto − Preço) ÷ Teto">Margem Bazin</th>
-              <th data-sort="veredito" data-tip="Posição atual do preço em relação ao Teto Bazin">Situação</th>
-              <th data-sort="sustentabilidade" data-tip="Score Anti-Cilada (0–100): avalia regularidade 5a, cobertura pelo lucro, alavancagem e tendência do DPA. Abaixo de 50 = Risco Cilada.">Anti-Cilada</th>
-              <th data-sort="graham" class="num th-secondary" data-tip="Valor intrínseco de Graham √(22,5 × LPA × VPA) e preço justo de Gordon (referências secundárias)">
-                <span>Outros métodos (Graham</span> · <span data-sort="gordon" data-tip="Clique para ordenar pela margem do modelo de Gordon">Gordon)</span>
-              </th>
-              <th data-sort="greenblatt" class="num th-secondary" data-tip="Posição no ranking Greenblatt (EBIT/EV + ROIC). Bancos não participam.">Greenblatt</th>
-              <th class="col-actions"><span class="sr-only">Ações</span></th>
-            </tr>
-          </thead>
-          <tbody id="engine-valuation-tbody">
-            <tr class="row-skeleton"><td colspan="11"><div class="skeleton"></div></td></tr>
-            <tr class="row-skeleton"><td colspan="11"><div class="skeleton"></div></td></tr>
-            <tr class="row-skeleton"><td colspan="11"><div class="skeleton"></div></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+      </aside>
+    </div>
 
   </div>
 
@@ -499,28 +617,39 @@
 
   </div>
 
-  <footer class="foot" id="main-footer">Dados de mercado e proventos · Base atualizada · Conteúdo informativo, não constitui recomendação de investimento.</footer>
+  <footer class="main-footer" id="main-footer">
+    <div class="footer-legal">
+      <strong>Aviso Legal:</strong> Este painel tem caráter exclusivamente analítico e educacional com base em dados públicos da B3 e demonstrações financeiras da CVM. As metodologias de Bazin, Graham, Gordon e Greenblatt são modelos quantitativos teóricos e não constituem recomendação, consultoria ou indicação de compra ou venda de ativos. Retornos passados não garantem rentabilidade futura.
+    </div>
+    <div class="footer-meta">
+      <span>Fontes: B3 · CVM · Status Invest · Investidor10</span>
+      <span>·</span>
+      <span id="footer-data-sinc">Base atualizada</span>
+      <span>·</span>
+      <a href="#" id="footer-link-metodologia">Metodologia de Valuation</a>
+    </div>
+  </footer>
 </main>
 
-<!-- Popover / Modal de Metodologia (acionado pelo botão ⓘ no cabeçalho) -->
+<!-- Modal de Metodologia -->
 <div class="popover-modal is-hidden" id="methodology-modal" role="dialog" aria-modal="true" aria-labelledby="methodology-title">
   <div class="popover-dialog">
     <div class="popover-head">
-      <h2 id="methodology-title">Metodologia</h2>
+      <h2 id="methodology-title">Metodologia de Valuation</h2>
       <button type="button" class="icon-btn" data-close-modal="methodology-modal" aria-label="Fechar metodologia">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
     </div>
     <dl class="notes">
-      <div><dt>Bazin &amp; Margem</dt><dd>K = 6% fixo. DPA retroativo = média de dividendos e JCP reais por ano civil da data-com nos últimos 5 anos fechados (sem bonificações). Margem = (Teto − Preço) ÷ Teto.</dd></div>
-      <div><dt>Anti-Cilada (0–100)</dt><dd>Avalia 4 pilares objetivos (25 pts cada): regularidade nos 5 anos, cobertura do payout pelo lucro, alavancagem/ROE e tendência recente do DPA. Abaixo de 50 indica Risco Cilada.</dd></div>
-      <div><dt>Graham &amp; Gordon</dt><dd>√(22,5 × LPA × VPA) e DPA × (1+g) ÷ (k − g). Graham é referência secundária para instituições financeiras e holdings.</dd></div>
-      <div><dt>Agenda &amp; Greenblatt</dt><dd>Agenda combina anúncios oficiais de data-com e pagamento com sazonalidade de 5 anos. Greenblatt ranqueia empresas operacionais (bancos ficam fora com justificativa).</dd></div>
+      <div><dt>Preço-Teto Bazin (K = 6%)</dt><dd>DPA médio dos últimos 5 anos civis fechados dividido por 0,06 (fixo). Considera apenas dividendos e JCP recorrentes pelas datas-com oficiais. Margem = (Teto − Preço) ÷ Teto.</dd></div>
+      <div><dt>Score Anti-Cilada (0–100)</dt><dd>Métrica proprietária com 4 pilares de 25 pontos cada: Regularidade (pagou nos 5 anos), Cobertura (Payout &le; 100% e Lucro estável), Solvência/Qualidade (Alavancagem equilibrada e ROE &ge; 10%) e Tendência do DPA. Abaixo de 50 = Risco Cilada.</dd></div>
+      <div><dt>Graham &amp; Gordon</dt><dd>Graham: √(22,5 × LPA × VPA), referência de valor intrínseco. Gordon: DPA × (1+g) ÷ (k − g), modelo de fluxo descontado de dividendos perpétuos.</dd></div>
+      <div><dt>Greenblatt (Fórmula Mágica)</dt><dd>Ranqueia empresas combinando maior Rendimento dos Lucros (EBIT/EV) com maior Retorno sobre Capital (ROIC). Bancos não participam por operarem com estrutura contábil distinta.</dd></div>
     </dl>
   </div>
 </div>
 
-<!-- Modal de Atalhos de Teclado (acionado por ?) -->
+<!-- Modal de Atalhos de Teclado -->
 <div class="popover-modal is-hidden" id="shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcuts-title">
   <div class="popover-dialog">
     <div class="popover-head">
@@ -530,17 +659,18 @@
       </button>
     </div>
     <div class="shortcut-grid">
-      <div class="shortcut-row"><span>Focar busca da aba ativa</span><span><kbd class="kbd">/</kbd> ou <kbd class="kbd">Ctrl+K</kbd></span></div>
-      <div class="shortcut-row"><span>Modo Apresentação</span><kbd class="kbd">P</kbd></div>
+      <div class="shortcut-row"><span>Paleta de comandos</span><span><kbd class="kbd">Ctrl+K</kbd> ou <kbd class="kbd">Cmd+K</kbd></span></div>
+      <div class="shortcut-row"><span>Focar busca da tabela</span><kbd class="kbd">/</kbd></div>
+      <div class="shortcut-row"><span>Navegar ativos na tabela</span><span><kbd class="kbd">↑</kbd> <kbd class="kbd">↓</kbd></span></div>
       <div class="shortcut-row"><span>Alternar abas (1 a 4)</span><span><kbd class="kbd">1</kbd> <kbd class="kbd">2</kbd> <kbd class="kbd">3</kbd> <kbd class="kbd">4</kbd></span></div>
-      <div class="shortcut-row"><span>Navegar entre abas</span><span><kbd class="kbd">←</kbd> / <kbd class="kbd">→</kbd></span></div>
-      <div class="shortcut-row"><span>Fechar gaveta ou sair</span><kbd class="kbd">Esc</kbd></div>
+      <div class="shortcut-row"><span>Modo Apresentação</span><kbd class="kbd">P</kbd></div>
+      <div class="shortcut-row"><span>Fechar modais / painel</span><kbd class="kbd">Esc</kbd></div>
       <div class="shortcut-row"><span>Lista de atalhos</span><kbd class="kbd">?</kbd></div>
     </div>
   </div>
 </div>
 
-<!-- Gaveta de seleção de ativos -->
+<!-- Gaveta de seleção de ativos (Universo) -->
 <div class="overlay is-hidden" id="overlay" data-close-drawer></div>
 
 <aside class="drawer is-hidden" id="selector-drawer" role="dialog" aria-modal="true" aria-labelledby="selector-title">
@@ -571,24 +701,30 @@
   </div>
 </aside>
 
-<!-- Painel de detalhes do ativo (Raio-X) -->
-<aside class="drawer drawer-detail is-hidden" id="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="detail-title">
-  <div class="drawer-head">
-    <div>
-      <h2 id="detail-title">Ativo</h2>
-      <p class="card-sub" id="detail-sub"></p>
+<!-- Paleta de Comandos (Ctrl+K) -->
+<div class="cmd-palette-backdrop is-hidden" id="cmd-palette-backdrop" role="dialog" aria-modal="true" aria-label="Paleta de Comandos">
+  <div class="cmd-palette-box">
+    <div class="cmd-palette-input-wrap">
+      <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="cmd-palette-input" placeholder="Digite um ativo, setor, aba ou comando… (ex: PETR4, Matriz, Claro, Bazin)" autocomplete="off">
+      <kbd class="kbd">ESC</kbd>
     </div>
-    <button type="button" class="icon-btn" data-close-drawer aria-label="Fechar">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
-    </button>
+    <div class="cmd-palette-results" id="cmd-palette-results" role="listbox"></div>
+    <div class="cmd-palette-foot">
+      <span><kbd class="kbd">↑</kbd> <kbd class="kbd">↓</kbd> navegar</span>
+      <span><kbd class="kbd">↵ Enter</kbd> selecionar</span>
+      <span><kbd class="kbd">Esc</kbd> fechar</span>
+    </div>
   </div>
-  <div class="drawer-body" id="detail-body"></div>
-</aside>
+</div>
+
+<!-- Container de Notificações Toast com Ação de Desfazer -->
+<div class="app-toast-container" id="app-toast-container" aria-live="polite"></div>
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/data.js?v=20261103f"></script>
-<script src="./assets/js/visao_grafica.js?v=20261103f"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261103f"></script>
+<script src="./assets/js/data.js?v=20261103g"></script>
+<script src="./assets/js/visao_grafica.js?v=20261103g"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261103g"></script>
 </body>
 </html>

@@ -3,60 +3,62 @@
  * ========================================================================== */
 
 :root {
-  /* 1. Superfícies em 3 níveis + bordas sutis de 1px */
-  --bg:              #090d14;
-  --surface:         #101622;
-  --bg-elev:         #161e2e;
-  --surface-2:       #161e2e;
-  --surface-hover:   #1c2638;
-  --border:          rgba(255, 255, 255, 0.08);
-  --border-strong:   rgba(255, 255, 255, 0.15);
+  /* 1. Superfícies em 3 níveis + bordas sutis de 1px (conectadas aos tokens) */
+  --bg:              var(--bg-app);
+  --surface:         var(--bg-surface);
+  --bg-elev:         var(--bg-surface-elevated);
+  --surface-2:       var(--bg-surface-elevated);
+  --surface-hover:   var(--bg-surface-hover);
+  --border:          var(--border-default);
+  --border-strong:   var(--border-strong);
 
-  /* 2. Tipografia & Contraste WCAG AA (>= 4.5:1 sobre --bg e --surface) */
-  --text-strong:     #f8fafc;
-  --text:            #e2e8f0;
-  --muted:           #94a3b8; /* 6.4:1 sobre #101622 */
-  --dim:             #8594a8; /* 5.1:1 sobre #101622 */
+  /* 2. Tipografia & Contraste WCAG AA (Inter puro, sem glifos) */
+  --text-strong:     var(--text-primary);
+  --text:            var(--text-primary);
+  --muted:           var(--text-secondary);
+  --dim:             var(--text-muted);
 
   /* 3. Azul de Marca Único (botões, foco, seleção, barras neutras) */
-  --accent:          #3b82f6;
-  --accent-hover:    #60a5fa;
-  --accent-soft:     rgba(59, 130, 246, 0.14);
-  --accent-line:     rgba(59, 130, 246, 0.45);
-  --accent-seq-1:    rgba(59, 130, 246, 0.12);
-  --accent-seq-2:    rgba(59, 130, 246, 0.26);
-  --accent-seq-3:    rgba(59, 130, 246, 0.44);
-  --accent-seq-4:    rgba(59, 130, 246, 0.68);
+  --accent:          var(--color-accent);
+  --accent-hover:    var(--color-accent-hover);
+  --accent-soft:     var(--color-accent-subtle);
+  --accent-line:     var(--color-accent-border);
+  --accent-seq-1:    rgba(91, 141, 239, 0.12);
+  --accent-seq-2:    rgba(91, 141, 239, 0.26);
+  --accent-seq-3:    rgba(91, 141, 239, 0.44);
+  --accent-seq-4:    rgba(91, 141, 239, 0.68);
 
-  /* 4. Cores Semânticas (EXCLUSIVAS para veredito, margem e risco) */
-  --green:           #10b981;
-  --green-text:      #34d399;
-  --green-soft:      rgba(16, 185, 129, 0.14);
-  --green-line:      rgba(16, 185, 129, 0.40);
+  /* 4. Vereditos Semânticos Dessaturados */
+  --green:           var(--verdict-green-text);
+  --green-text:      var(--verdict-green-text);
+  --green-soft:      var(--verdict-green-bg);
+  --green-line:      var(--verdict-green-border);
 
-  --yellow:          #f59e0b;
-  --yellow-text:     #fbbf24;
-  --yellow-soft:     rgba(245, 158, 11, 0.14);
-  --yellow-line:     rgba(245, 158, 11, 0.40);
+  --yellow:          var(--verdict-yellow-text);
+  --yellow-text:     var(--verdict-yellow-text);
+  --yellow-soft:     var(--verdict-yellow-bg);
+  --yellow-line:     var(--verdict-yellow-border);
 
-  --red:             #ef4444;
-  --red-text:        #f87171;
-  --red-soft:        rgba(239, 68, 68, 0.14);
-  --red-line:        rgba(239, 68, 68, 0.40);
+  --red:             var(--verdict-red-text);
+  --red-text:        var(--verdict-red-text);
+  --red-soft:        var(--verdict-red-bg);
+  --red-line:        var(--verdict-red-border);
 
   /* 5. Séries de Gráficos (sem colisão com vereditos semânticos) */
-  --series-price:    #60a5fa; /* Azul-claro */
-  --series-bazin:    #06b6d4; /* Ciano */
-  --series-graham:   #a855f7; /* Violeta */
-  --series-gordon:   #f472b6; /* Rosa */
+  --series-price:    var(--series-price);
+  --series-bazin:    var(--series-bazin);
+  --series-consenso: var(--series-consenso);
+  --series-barsi:    var(--series-barsi);
+  --series-graham:   var(--series-graham);
+  --series-gordon:   var(--series-gordon);
   --series-cmp-1:    #38bdf8;
   --series-cmp-2:    #c084fc;
   --series-cmp-3:    #f472b6;
   --series-cmp-4:    #818cf8;
 
-  /* 6. Escala Tipográfica (nenhum rótulo abaixo de 12px) */
-  --mono:            'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --sans:            'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* 6. Escala Tipográfica (Inter puro auto-hospedado) */
+  --mono:            var(--font-mono);
+  --sans:            var(--font-sans);
   --fs-xs:           12px;
   --fs-sm:           13px;
   --fs-body:         14px;
@@ -75,83 +77,69 @@
   --sp-8:            32px;
   --radius:          8px;
   --radius-sm:       6px;
-  --shadow:          0 4px 20px rgba(0, 0, 0, 0.22);
-  --shadow-float:    0 12px 32px rgba(0, 0, 0, 0.48);
-  --ease:            cubic-bezier(0.2, 0.7, 0.2, 1);
+  --shadow:          var(--shadow-sm);
+  --shadow-float:    var(--shadow-lg);
+  --ease:            var(--transition-normal);
 
   /* Superfícies internas de gráficos SVG */
-  --svg-plot-bg:     #0c121d;
-  --svg-grid:        rgba(255, 255, 255, 0.06);
-  --svg-axis:        #94a3b8;
-  --svg-pill-bg:     #131b2b;
+  --svg-plot-bg:     var(--bg-surface);
+  --svg-grid:        var(--series-grid);
+  --svg-axis:        var(--series-axis);
+  --svg-pill-bg:     var(--bg-surface-elevated);
 
   /* Barras de rolagem (Scrollbars) */
-  --scrollbar-track:        #0c1018;
-  --scrollbar-thumb:        rgba(255, 255, 255, 0.18);
-  --scrollbar-thumb-hover:  rgba(255, 255, 255, 0.32);
+  --scrollbar-track:        var(--bg-app);
+  --scrollbar-thumb:        rgba(255, 255, 255, 0.15);
+  --scrollbar-thumb-hover:  rgba(255, 255, 255, 0.28);
   --scrollbar-thumb-active: var(--accent);
 }
 
 /* Tema Claro Opcional (WCAG AA >= 4.5:1) */
-html[data-theme="light"] {
-  --bg:              #f1f5f9;
-  --surface:         #ffffff;
-  --bg-elev:         #f8fafc;
-  --surface-2:       #f1f5f9;
-  --surface-hover:   #e2e8f0;
-  --border:          rgba(15, 23, 42, 0.09);
-  --border-strong:   rgba(15, 23, 42, 0.18);
+html[data-theme="light"],
+[data-theme="light"] {
+  --bg:              var(--bg-app);
+  --surface:         var(--bg-surface);
+  --bg-elev:         var(--bg-surface-elevated);
+  --surface-2:       var(--bg-surface-elevated);
+  --surface-hover:   var(--bg-surface-hover);
+  --border:          var(--border-default);
+  --border-strong:   var(--border-strong);
 
-  --text-strong:     #0f172a;
-  --text:            #1e293b;
-  --muted:           #475569; /* 7.5:1 sobre #ffffff */
-  --dim:             #526077; /* 5.8:1 sobre #ffffff */
+  --text-strong:     var(--text-primary);
+  --text:            var(--text-primary);
+  --muted:           var(--text-secondary);
+  --dim:             var(--text-muted);
 
-  --accent:          #2563eb;
-  --accent-hover:    #1d4ed8;
-  --accent-soft:     rgba(37, 99, 235, 0.10);
-  --accent-line:     rgba(37, 99, 235, 0.38);
-  --accent-seq-1:    rgba(37, 99, 235, 0.10);
-  --accent-seq-2:    rgba(37, 99, 235, 0.22);
-  --accent-seq-3:    rgba(37, 99, 235, 0.36);
-  --accent-seq-4:    rgba(37, 99, 235, 0.56);
+  --accent:          var(--color-accent);
+  --accent-hover:    var(--color-accent-hover);
+  --accent-soft:     var(--color-accent-subtle);
+  --accent-line:     var(--color-accent-border);
 
-  --green:           #047857;
-  --green-text:      #065f46;
-  --green-soft:      rgba(4, 120, 87, 0.10);
-  --green-line:      rgba(4, 120, 87, 0.35);
+  --green:           var(--verdict-green-text);
+  --green-text:      var(--verdict-green-text);
+  --green-soft:      var(--verdict-green-bg);
+  --green-line:      var(--verdict-green-border);
 
-  --yellow:          #b45309;
-  --yellow-text:     #92400e;
-  --yellow-soft:     rgba(180, 83, 9, 0.11);
-  --yellow-line:     rgba(180, 83, 9, 0.35);
+  --yellow:          var(--verdict-yellow-text);
+  --yellow-text:     var(--verdict-yellow-text);
+  --yellow-soft:     var(--verdict-yellow-bg);
+  --yellow-line:     var(--verdict-yellow-border);
 
-  --red:             #b91c1c;
-  --red-text:        #991b1b;
-  --red-soft:        rgba(185, 28, 28, 0.10);
-  --red-line:        rgba(185, 28, 28, 0.35);
+  --red:             var(--verdict-red-text);
+  --red-text:        var(--verdict-red-text);
+  --red-soft:        var(--verdict-red-bg);
+  --red-line:        var(--verdict-red-border);
 
-  --series-price:    #2563eb;
-  --series-bazin:    #0891b2;
-  --series-graham:   #7e22ce;
-  --series-gordon:   #be185d;
-  --series-cmp-1:    #0284c7;
-  --series-cmp-2:    #7c3aed;
-  --series-cmp-3:    #db2777;
-  --series-cmp-4:    #4f46e5;
+  --series-price:    var(--series-price);
+  --series-bazin:    var(--series-bazin);
+  --series-consenso: var(--series-consenso);
+  --series-barsi:    var(--series-barsi);
+  --series-graham:   var(--series-graham);
+  --series-gordon:   var(--series-gordon);
 
-  --shadow:          0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
-  --shadow-float:    0 10px 28px rgba(15, 23, 42, 0.15);
-
-  --svg-plot-bg:     #f8fafc;
-  --svg-grid:        rgba(15, 23, 42, 0.08);
-  --svg-axis:        #475569;
-  --svg-pill-bg:     #ffffff;
-
-  --scrollbar-track:        #f1f5f9;
-  --scrollbar-thumb:        #cbd5e1;
-  --scrollbar-thumb-hover:  #94a3b8;
-  --scrollbar-thumb-active: var(--accent);
+  --scrollbar-track:        var(--bg-app);
+  --scrollbar-thumb:        rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover:  rgba(0, 0, 0, 0.28);
 }
 
 /* Modo Apresentação (Escala +15%, foco executivo) */
@@ -3386,10 +3374,11 @@ body.is-presentation .shell {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-areas:
       "ticker  verdict"
-      "preco   margem"
-      "teto    falta"
-      "sustent gb"
-      "dpa     graham"
+      "preco   teto"
+      "margem  margem"
+      "falta   sustent"
+      "dpa     gb"
+      "graham  gordon"
       "actions actions";
     background: var(--bg-elev);
     border: 1px solid var(--border);
@@ -3420,13 +3409,14 @@ body.is-presentation .shell {
   .vt tbody td.c-ticker { grid-area: ticker; background: var(--surface); }
   .vt tbody td.c-verdict { grid-area: verdict; align-items: flex-end; background: var(--surface); }
   .vt tbody td.c-preco { grid-area: preco; border-right: 1px solid var(--border); }
+  .vt tbody td.c-teto { grid-area: teto; }
   .vt tbody td.c-margem { grid-area: margem; }
-  .vt tbody td.c-teto { grid-area: teto; border-right: 1px solid var(--border); }
-  .vt tbody td.c-falta { grid-area: falta; }
-  .vt tbody td.c-sustent { grid-area: sustent; border-right: 1px solid var(--border); }
-  .vt tbody td.c-gb { grid-area: gb; }
+  .vt tbody td.c-falta { grid-area: falta; border-right: 1px solid var(--border); }
+  .vt tbody td.c-sustent { grid-area: sustent; }
   .vt tbody td.c-dpa { grid-area: dpa; border-right: 1px solid var(--border); }
-  .vt tbody td.c-graham { grid-area: graham; }
+  .vt tbody td.c-gb { grid-area: gb; }
+  .vt tbody td.c-graham { grid-area: graham; border-right: 1px solid var(--border); }
+  .vt tbody td.c-gordon { grid-area: gordon; }
   .vt tbody td.c-actions {
     grid-area: actions;
     border-bottom: none;
@@ -3440,13 +3430,13 @@ body.is-presentation .shell {
   .vt tbody td.c-actions::before {
     display: none;
   }
-  /* Colapso opcional dos detalhes secundários no mobile card */
-  .vt tbody tr.row:not(.is-expanded) td.c-teto,
+  /* Colapso dos detalhes secundários no mobile card: Situação, Margem e Teto SEMPRE visíveis */
   .vt tbody tr.row:not(.is-expanded) td.c-falta,
   .vt tbody tr.row:not(.is-expanded) td.c-sustent,
   .vt tbody tr.row:not(.is-expanded) td.c-dpa,
   .vt tbody tr.row:not(.is-expanded) td.c-gb,
-  .vt tbody tr.row:not(.is-expanded) td.c-graham {
+  .vt tbody tr.row:not(.is-expanded) td.c-graham,
+  .vt tbody tr.row:not(.is-expanded) td.c-gordon {
     display: none;
   }
   .row-actions {
@@ -3959,4 +3949,374 @@ body.is-presentation .shell {
 .t-cyan { color: #06b6d4 !important; }
 .t-lime { color: #a3e635 !important; }
 .t-orange { color: #f97316 !important; }
+
+/* ==========================================================================
+   FASE B: MASTER-DETAIL, COMMAND PALETTE, SAVED VIEWS & TOAST
+   ========================================================================== */
+
+/* 1. Master-Detail Grid (Tabela à esquerda + Raio-X à direita) */
+.master-detail-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: var(--sp-4);
+  align-items: start;
+  margin-top: var(--sp-4);
+}
+
+.master-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.detail-col {
+  position: sticky;
+  top: 76px;
+  max-height: calc(100vh - 92px);
+  overflow-y: auto;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-card-head {
+  padding: var(--sp-4);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 10;
+}
+
+.detail-card-head .detail-title {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.detail-card-body {
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+@media (max-width: 1100px) {
+  .master-detail-wrap {
+    grid-template-columns: 1fr;
+  }
+  .detail-col {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 480px;
+    max-height: 100vh;
+    z-index: 100;
+    box-shadow: var(--shadow-float);
+    border-radius: 0;
+    transform: translateX(100%);
+    transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .detail-col.is-open {
+    transform: translateX(0);
+  }
+}
+
+/* 2. Topbar com Botão de Paleta de Comandos e Menu Mais */
+.topbar-cmd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: var(--fs-xs);
+  transition: all 140ms ease;
+}
+
+.topbar-cmd-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.topbar-cmd-btn .cmd-kbd {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: var(--mono);
+}
+
+.more-menu-wrap {
+  position: relative;
+}
+
+.more-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-float);
+  width: 220px;
+  padding: 4px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+}
+
+.more-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: var(--fs-body);
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-align: left;
+  text-decoration: none;
+  font-family: var(--sans);
+  transition: background-color 120ms ease;
+}
+
+.more-item:hover {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+.more-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+/* 3. Command Palette Modal (Ctrl+K) */
+.cmd-palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh var(--sp-4) var(--sp-4);
+}
+
+.cmd-palette-box {
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-float);
+  width: 100%;
+  max-width: 580px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: cmd-scale-in 140ms ease-out;
+}
+
+@keyframes cmd-scale-in {
+  from { opacity: 0; transform: scale(0.97) translateY(-8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.cmd-palette-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.cmd-palette-input-wrap input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-strong);
+  font-family: var(--sans);
+  font-size: var(--fs-md);
+}
+
+.cmd-palette-results {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: var(--sp-2);
+}
+
+.cmd-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  cursor: pointer;
+  font-size: var(--fs-body);
+  transition: background-color 100ms ease;
+}
+
+.cmd-item:hover,
+.cmd-item.is-selected {
+  background: var(--surface-hover);
+  color: var(--text-strong);
+}
+
+.cmd-item-group-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--sp-2) var(--sp-3) 4px;
+}
+
+.cmd-palette-foot {
+  padding: var(--sp-2) var(--sp-4);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  font-size: var(--fs-xs);
+  color: var(--muted);
+}
+
+.cmd-palette-foot kbd {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-family: var(--mono);
+}
+
+/* 4. Toast com Botão de Desfazer */
+.app-toast-container {
+  position: fixed;
+  bottom: var(--sp-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  pointer-events: none;
+}
+
+.app-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: var(--sp-3) var(--sp-4);
+  box-shadow: var(--shadow-float);
+  font-size: var(--fs-body);
+  color: var(--text-strong);
+  animation: toast-slide-up 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toast-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.app-toast-undo {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.app-toast-undo:hover {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+/* 5. Customização de Colunas Visíveis */
+.vt.hide-col-falta th.c-falta,
+.vt.hide-col-falta td.c-falta { display: none !important; }
+
+.vt.hide-col-graham th.c-graham,
+.vt.hide-col-graham td.c-graham { display: none !important; }
+
+.vt.hide-col-gb th.c-gb,
+.vt.hide-col-gb td.c-gb { display: none !important; }
+
+.vt.hide-col-sustent th.c-sustent,
+.vt.hide-col-sustent td.c-sustent { display: none !important; }
+
+.vt.hide-col-dpa th.c-dpa,
+.vt.hide-col-dpa td.c-dpa { display: none !important; }
+
+/* 6. Linha Selecionada na Tabela */
+.vt tbody tr.row.is-selected td {
+  background: var(--accent-soft) !important;
+  border-bottom-color: var(--accent-line) !important;
+}
+
+.vt tbody tr.row.is-selected td.c-ticker {
+  background: var(--accent-soft) !important;
+}
+
+/* 7. Footer de Primeira Classe */
+.main-footer {
+  margin-top: var(--sp-8);
+  padding: var(--sp-6) var(--sp-4);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  text-align: center;
+}
+
+.main-footer .footer-legal {
+  max-width: 760px;
+  margin: 0 auto var(--sp-2);
+  line-height: 1.5;
+}
+
+.main-footer .footer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.main-footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.main-footer a:hover {
+  text-decoration: underline;
+}
+
 

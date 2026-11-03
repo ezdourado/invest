@@ -156,15 +156,19 @@ function htmlBadgeTecnico(a) {
   const tech = calcularAnaliseTecnica(a);
   if (!tech) return '';
   const tip = `Análise Técnica: ${tech.rotulo} (Score ${tech.score}/100 · IFR ${tech.ifr14 ?? '—'}${tech.sinais.length ? ' · ' + tech.sinais[0] : ''})`;
-  const icone = tech.status === 'bullish' ? '▲' : (tech.status === 'bearish' ? '▼' : '●');
+  const iconeSvg = tech.status === 'bullish'
+    ? '<svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>'
+    : (tech.status === 'bearish'
+      ? '<svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
+      : '<svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4"/></svg>');
   const txt = tech.status === 'bullish' ? 'Bullish' : (tech.status === 'bearish' ? 'Bearish' : 'Neutro');
-  return `<span class="badge-tech badge-tech-${tech.status}" data-tip="${esc(tip)}" aria-label="${esc(tip)}"><span class="badge-tech-icon" aria-hidden="true">${icone}</span>${txt}</span>`;
+  return `<span class="badge-tech badge-tech-${tech.status}" data-tip="${esc(tip)}" aria-label="${esc(tip)}"><span class="badge-tech-icon" aria-hidden="true">${iconeSvg}</span><span>${txt}</span></span>`;
 }
 
 const ICONE_VEREDITO = {
-  verde: '▲',
-  amarelo: '●',
-  vermelho: '▼'
+  verde: '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>',
+  amarelo: '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>',
+  vermelho: '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
 };
 
 const OPCOES_ORDENACAO = [
@@ -188,10 +192,13 @@ const painelState = {
   selecionados: [],
   filtroSetor: 'todos',
   filtroVeredito: 'todos',
+  filtroTech: 'todos',
   termo: '',
   sort: { key: 'margem', dir: 'desc' },
   densidade: 'confortavel',
   detalheTicker: null,
+  ativoSelecionado: null,
+  visaoSalva: 'padrao',
   ultimoGatilhoFoco: null,
   modoApresentacao: false
 };
@@ -489,11 +496,15 @@ function gravarStorage(chave, valor) {
 function inicializarTema() {
   let tema = 'dark';
   try {
-    const salvo = localStorage.getItem(STORAGE_KEY_THEME);
-    if (salvo === 'light' || salvo === 'dark') {
-      tema = salvo;
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+    if (window.location.search.includes('tema=light') || window.location.hash.includes('tema=light')) {
       tema = 'light';
+    } else {
+      const salvo = localStorage.getItem(STORAGE_KEY_THEME);
+      if (salvo === 'light' || salvo === 'dark') {
+        tema = salvo;
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        tema = 'light';
+      }
     }
   } catch (_) {
     tema = 'dark';
@@ -588,6 +599,7 @@ function ordenar(lista) {
 function ativosVisiveis() {
   const q = painelState.termo.trim().toLowerCase();
   const fv = painelState.filtroVeredito;
+  const ft = painelState.filtroTech || 'todos';
   const lista = ativosSelecionados().filter(a => {
     if (!passaFiltroSetor(a)) return false;
     if (fv !== 'todos') {
@@ -597,6 +609,10 @@ function ativosVisiveis() {
       } else if (a.bazin?.veredito !== fv) {
         return false;
       }
+    }
+    if (ft !== 'todos') {
+      const t = calcularAnaliseTecnica(a);
+      if (!t || t.status !== ft) return false;
     }
     if (q && !a.ticker.toLowerCase().includes(q) && !a.setor.toLowerCase().includes(q) && !(a.empresa || '').toLowerCase().includes(q)) return false;
     return true;
@@ -664,11 +680,11 @@ function atualizarStatusBase() {
 
   renderizarStatus(estado, statusHtml);
 
-  const foot = $('#main-footer');
-  if (foot) {
-    const rotuloMercado = emPregao ? `em pregão ao vivo (${infoGerado.dataCompleta} às ${infoGerado.hora})` : `fechamento de ${dataUltCotRaw || infoGerado.dataCompleta}`;
-    foot.textContent = `Dados de mercado e proventos B3 · Cotações ${rotuloMercado} · Atualização de 10 em 10 min em dias úteis (10h às 18h) · Conteúdo informativo, não constitui recomendação.`;
+  const footerSinc = $('#footer-data-sinc');
+  if (footerSinc) {
+    footerSinc.textContent = `Sincronizada em ${infoGerado.dataCompleta} às ${infoGerado.hora}`;
   }
+  verificarDadosDefasados();
 }
 
 /* ---------- Render: Faixa de Resumo Executivo (4 Indicadores) ---------- */
@@ -996,6 +1012,7 @@ function renderizarChipsFiltro() {
   const chips = [];
   if (painelState.filtroSetor !== 'todos') chips.push({ tipo: 'setor', label: `Setor: ${nomeSetor(painelState.filtroSetor)}` });
   if (painelState.filtroVeredito !== 'todos') chips.push({ tipo: 'veredito', label: `Situação: ${ROTULO_VEREDITO[painelState.filtroVeredito]}` });
+  if (painelState.filtroTech && painelState.filtroTech !== 'todos') chips.push({ tipo: 'tech', label: `Técnica: ${painelState.filtroTech === 'bullish' ? 'Bullish' : 'Bearish'}` });
   if (painelState.termo.trim()) chips.push({ tipo: 'termo', label: `Busca: "${painelState.termo.trim()}"` });
   el.innerHTML = chips.map(c => `
     <span class="filter-chip">${esc(c.label)}
@@ -1023,7 +1040,7 @@ function renderizarTabela() {
 
   if (totalSel === 0) {
     tbody.innerHTML = `
-      <tr class="row-empty"><td colspan="11" class="empty">
+      <tr class="row-empty"><td colspan="12" class="empty">
         <strong>Nenhum ativo selecionado no seu painel</strong>
         Escolha as ações que deseja monitorar (setores BESST, pagadoras de dividendos ou Demais papéis).
         <div class="empty-actions">
@@ -1038,7 +1055,7 @@ function renderizarTabela() {
 
   if (lista.length === 0) {
     tbody.innerHTML = `
-      <tr class="row-empty"><td colspan="11" class="empty">
+      <tr class="row-empty"><td colspan="12" class="empty">
         <strong>Nenhum ativo corresponde ao filtro selecionado</strong>
         Ajuste o termo de busca, o setor ou a situação frente ao teto.
         <div class="empty-actions"><button type="button" class="btn btn-primary" data-empty-action="limpar-filtros">Limpar filtros</button></div>
@@ -1062,8 +1079,10 @@ function renderizarTabela() {
       ? `<span class="${falta >= 0 ? 't-green' : 't-red'}">${fmtRealSinal(falta)}</span>`
       : `<span class="t-dim">—</span>`;
 
+    const isSelected = painelState.ativoSelecionado === a.ticker;
+
     return `
-      <tr class="row" data-ticker="${esc(a.ticker)}" tabindex="0">
+      <tr class="row ${isSelected ? 'is-selected' : ''}" data-ticker="${esc(a.ticker)}" tabindex="0">
         <td class="c-ticker" data-label="Ativo">
           <div class="asset-cell-wrap">
             <div class="asset">
@@ -1090,7 +1109,8 @@ function renderizarTabela() {
         </td>
         <td class="c-verdict" data-label="Situação">${b.teto > 0 ? htmlVeredito(b.veredito) : '<span class="tag">Sem teto Bazin</span>'}</td>
         <td class="c-sustent" data-label="Anti-Cilada">${htmlSustentabilidadeTabela(a)}</td>
-        <td class="num c-graham" data-label="Outros métodos">${htmlOutrosMetodos(a)}</td>
+        <td class="num c-graham" data-label="Graham">${valido(a.graham) ? fmtReal(a.graham) : '<span class="t-dim">—</span>'}</td>
+        <td class="num c-gordon" data-label="Gordon">${valido(a.gordon) ? fmtReal(a.gordon) : '<span class="t-dim">—</span>'}</td>
         <td class="num c-gb" data-label="Greenblatt">${htmlGreenblatt(a)}</td>
         <td class="c-actions">
           <button type="button" class="btn-inline-link mobile-only" data-row-action="expand" aria-label="Expandir detalhes do cartão de ${esc(a.ticker)}">Mais dados</button>
@@ -1111,6 +1131,14 @@ function renderizarTabela() {
         </td>
       </tr>`;
   }).join('');
+
+  if (!painelState.ativoSelecionado && lista.length) {
+    selecionarAtivoMasterDetail(lista[0].ticker, false);
+  } else if (painelState.ativoSelecionado) {
+    const selRow = tbody.querySelector(`tr.row[data-ticker="${painelState.ativoSelecionado}"]`);
+    if (selRow) selRow.classList.add('is-selected');
+    renderizarDetalhe(painelState.ativoSelecionado);
+  }
 }
 
 /* ---------- Render: Gaveta de Seleção de Ativos ---------- */
@@ -1708,13 +1736,243 @@ function abrirSeletor() {
   }
 }
 
-function abrirDetalhe(ticker) {
+function selecionarAtivoMasterDetail(ticker, abrirMobile = true) {
+  if (!ticker) return;
+  ticker = ticker.toUpperCase();
+  painelState.ativoSelecionado = ticker;
+  document.querySelectorAll('#engine-valuation-tbody tr.row').forEach(tr => {
+    tr.classList.toggle('is-selected', tr.dataset.ticker === ticker);
+  });
   renderizarDetalhe(ticker);
-  abrirGaveta('#detail-drawer');
+
+  if (abrirMobile && window.innerWidth <= 1100) {
+    const pane = $('#master-detail-pane');
+    if (pane) pane.classList.add('is-open');
+    document.body.classList.add('no-scroll');
+  }
+}
+
+function fecharPainelRaioXMobile() {
+  const pane = $('#master-detail-pane');
+  if (pane) pane.classList.remove('is-open');
+  document.body.classList.remove('no-scroll');
+}
+
+function abrirDetalhe(ticker) {
+  selecionarAtivoMasterDetail(ticker, true);
 }
 window.abrirDetalhe = abrirDetalhe;
 window.abrirDetalheAtivo = abrirDetalhe;
+window.selecionarAtivoMasterDetail = selecionarAtivoMasterDetail;
+window.fecharPainelRaioXMobile = fecharPainelRaioXMobile;
 window.obterTickersPainelAtivo = () => [...painelState.selecionados];
+
+/* ---------- Sistema de Notificação Toast com Desfazer ---------- */
+
+function mostrarToast(mensagem, rotuloAcao = null, onAcao = null) {
+  const container = $('#app-toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'app-toast';
+  toast.setAttribute('role', 'alert');
+
+  let acaoHtml = '';
+  if (rotuloAcao && onAcao) {
+    acaoHtml = `<button type="button" class="app-toast-undo">${esc(rotuloAcao)}</button>`;
+  }
+  toast.innerHTML = `<span>${esc(mensagem)}</span>${acaoHtml}`;
+
+  if (rotuloAcao && onAcao) {
+    toast.querySelector('.app-toast-undo').addEventListener('click', () => {
+      onAcao();
+      toast.remove();
+    });
+  }
+
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(8px)';
+    toast.style.transition = 'all 180ms ease';
+    setTimeout(() => toast.remove(), 200);
+  }, 4500);
+}
+
+function ocultarTickerComUndo(ticker) {
+  if (!ticker) return;
+  ticker = ticker.toUpperCase();
+  const index = painelState.selecionados.indexOf(ticker);
+  if (index === -1) return;
+  painelState.selecionados.splice(index, 1);
+  salvarSelecionados(painelState.selecionados);
+  renderizarBesst();
+  renderizarTabela();
+  sincronizarEstadoUrl();
+  mostrarToast(`Ativo ${ticker} ocultado do painel`, 'Desfazer', () => {
+    if (!painelState.selecionados.includes(ticker)) {
+      painelState.selecionados.splice(index, 0, ticker);
+      salvarSelecionados(painelState.selecionados);
+      renderizarBesst();
+      renderizarTabela();
+      sincronizarEstadoUrl();
+    }
+  });
+}
+
+/* ---------- Visões Salvas & Customização de Colunas ---------- */
+
+function aplicarVisaoSalva(tipo) {
+  painelState.visaoSalva = tipo;
+  try { localStorage.setItem('painel_valuation_saved_view', tipo); } catch(e) {}
+  const tabela = $('#engine-valuation-table');
+  if (!tabela) return;
+  tabela.classList.remove('hide-col-dpa', 'hide-col-falta', 'hide-col-graham', 'hide-col-gordon', 'hide-col-gb', 'hide-col-sustent');
+
+  if (tipo === 'valuation') {
+    tabela.classList.add('hide-col-dpa', 'hide-col-gb');
+  } else if (tipo === 'dividendos') {
+    tabela.classList.add('hide-col-graham', 'hide-col-gordon', 'hide-col-gb');
+  } else if (tipo === 'qualidade') {
+    tabela.classList.add('hide-col-dpa', 'hide-col-falta');
+  }
+  sincronizarCheckboxesColunas();
+}
+
+function sincronizarCheckboxesColunas() {
+  const tabela = $('#engine-valuation-table');
+  if (!tabela) return;
+  document.querySelectorAll('#cols-menu input[data-col]').forEach(chk => {
+    const col = chk.dataset.col;
+    chk.checked = !tabela.classList.contains(`hide-col-${col}`);
+  });
+}
+
+function definirFiltroTech(tech) {
+  painelState.filtroTech = tech;
+  document.querySelectorAll('#tech-signal-filter .seg-btn').forEach(b => {
+    b.classList.toggle('is-active', b.dataset.tech === tech);
+  });
+  renderizarTabela();
+}
+
+/* ---------- Paleta de Comandos (Ctrl+K) ---------- */
+
+let cmdPaletteSelectedIndex = 0;
+let cmdPaletteItems = [];
+
+function abrirCommandPalette() {
+  const modal = $('#cmd-palette-backdrop');
+  if (!modal) return;
+  modal.classList.remove('is-hidden');
+  const input = $('#cmd-palette-input');
+  if (input) {
+    input.value = '';
+    input.focus();
+  }
+  renderizarResultadosComandos('');
+  document.body.classList.add('no-scroll');
+}
+
+function fecharCommandPalette() {
+  const modal = $('#cmd-palette-backdrop');
+  if (!modal) return;
+  modal.classList.add('is-hidden');
+  document.body.classList.remove('no-scroll');
+}
+
+function renderizarResultadosComandos(termo) {
+  const container = $('#cmd-palette-results');
+  if (!container) return;
+  const q = (termo || '').trim().toLowerCase();
+  cmdPaletteItems = [];
+
+  const tickers = painelState.universo
+    .filter(a => !q || a.ticker.toLowerCase().includes(q) || (a.empresa || '').toLowerCase().includes(q) || a.setor.toLowerCase().includes(q))
+    .slice(0, 8)
+    .map(a => ({
+      tipo: 'ticker',
+      id: a.ticker,
+      titulo: `${a.ticker} · ${a.empresa || a.setor}`,
+      sub: `Preço: ${fmtReal(a.preco)} · Teto: ${fmtReal(a.bazin?.teto)} · Margem: ${fmtPct(a.bazin?.margem_seguranca)}`,
+      executar: () => {
+        if (typeof window.definirAbaPainel === 'function') window.definirAbaPainel('tabela');
+        selecionarAtivoMasterDetail(a.ticker, true);
+        const row = document.querySelector(`tr.row[data-ticker="${a.ticker}"]`);
+        if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }));
+
+  const abas = [
+    { id: 'tabela', titulo: 'Ir para Tabela & Triagem', sub: 'Visão executiva em lista com Raio-X' },
+    { id: 'visual', titulo: 'Ir para Gráficos & Simulador', sub: 'Histórico de preços, tetos e rendimento acumulado' },
+    { id: 'matriz', titulo: 'Ir para Matriz Desconto × Qualidade', sub: 'Gráfico de dispersão Margem vs. ROE/ROIC' },
+    { id: 'calendario', titulo: 'Ir para Calendário de Proventos', sub: 'Datas-com abertas, pagamentos e sazonalidade' }
+  ].filter(ab => !q || ab.titulo.toLowerCase().includes(q) || ab.sub.toLowerCase().includes(q))
+    .map(ab => ({
+      tipo: 'aba',
+      id: ab.id,
+      titulo: ab.titulo,
+      sub: ab.sub,
+      executar: () => {
+        if (typeof window.definirAbaPainel === 'function') window.definirAbaPainel(ab.id);
+      }
+    }));
+
+  const acoes = [
+    { titulo: 'Alternar Tema Claro / Escuro', sub: 'Alterna entre o tema Dark e Light', executar: alternarTema },
+    { titulo: 'Densidade: Confortável', sub: 'Espaçamento generoso para leitura executiva', executar: () => { painelState.densidade = 'confortavel'; gravarStorage(STORAGE_KEY_PAINEL_DENSITY, 'confortavel'); renderizarCabecalho(); } },
+    { titulo: 'Densidade: Compacta', sub: 'Maior densidade de linhas por tela', executar: () => { painelState.densidade = 'compacta'; gravarStorage(STORAGE_KEY_PAINEL_DENSITY, 'compacta'); renderizarCabecalho(); } },
+    { titulo: 'Filtro: Abaixo do Teto (Verde)', sub: 'Exibe apenas ações com margem de segurança positiva', executar: () => { if (typeof window.definirAbaPainel === 'function') window.definirAbaPainel('tabela'); definirFiltroVeredito('verde'); } },
+    { titulo: 'Filtro: Próximo do Teto (Amarelo)', sub: 'Exibe ações com preço a até 5% do teto', executar: () => { if (typeof window.definirAbaPainel === 'function') window.definirAbaPainel('tabela'); definirFiltroVeredito('amarelo'); } },
+    { titulo: 'Filtro: Limpar Filtros', sub: 'Restaura a visualização de todos os ativos', executar: limparFiltros },
+    { titulo: 'Exportar Tabela em CSV', sub: 'Baixa arquivo CSV dos ativos visíveis', executar: exportarTabelaCsv },
+    { titulo: 'Abrir Calculadora Bazin ↗', sub: 'Ferramenta para cálculo manual de tetos', executar: () => { window.open('./CalculadoraBazin.html', '_blank'); } }
+  ].filter(ac => !q || ac.titulo.toLowerCase().includes(q) || ac.sub.toLowerCase().includes(q))
+    .map(ac => ({ tipo: 'acao', ...ac }));
+
+  cmdPaletteItems = [...tickers, ...abas, ...acoes];
+  cmdPaletteSelectedIndex = 0;
+
+  if (!cmdPaletteItems.length) {
+    container.innerHTML = `<div style="padding:24px;text-align:center;color:var(--muted)">Nenhum resultado encontrado para "${esc(q)}".</div>`;
+    return;
+  }
+
+  container.innerHTML = cmdPaletteItems.map((item, idx) => `
+    <div class="cmd-item ${idx === 0 ? 'is-selected' : ''}" data-cmd-idx="${idx}" role="option" aria-selected="${idx === 0}">
+      <div>
+        <div style="font-weight:600;color:var(--text-strong)">${esc(item.titulo)}</div>
+        <div style="font-size:12px;color:var(--muted)">${esc(item.sub)}</div>
+      </div>
+      <span style="font-size:11px;text-transform:uppercase;color:var(--dim);letter-spacing:0.04em">${item.tipo}</span>
+    </div>
+  `).join('');
+}
+
+function executarComandoSelecionado() {
+  if (cmdPaletteItems[cmdPaletteSelectedIndex]) {
+    cmdPaletteItems[cmdPaletteSelectedIndex].executar();
+    fecharCommandPalette();
+  }
+}
+
+function verificarDadosDefasados() {
+  const geradoIso = painelState.payload?.gerado_em;
+  if (!geradoIso) return;
+  const gerado = new Date(geradoIso);
+  const agora = new Date();
+  const diffDias = (agora - gerado) / (1000 * 60 * 60 * 24);
+  const banner = $('#engine-error-banner');
+  if (diffDias > DIAS_BASE_DESATUALIZADA && banner) {
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-wrap:wrap;gap:8px">
+        <span><strong>Aviso de dados:</strong> A base de cotações e proventos foi sincronizada pela última vez em ${fmtDataIso(geradoIso)} (há mais de 3 dias úteis). As cotações podem estar defasadas.</span>
+        <button type="button" class="btn btn-ghost" id="btn-reload-stale" style="margin-left:auto">Atualizar base</button>
+      </div>`;
+    banner.classList.remove('is-hidden');
+    $('#btn-reload-stale')?.addEventListener('click', () => carregarValuationJson(true));
+  }
+}
 
 function sincronizarEstadoUrl() {
   if (!painelState.payload) return;
@@ -2189,6 +2447,102 @@ function bindEventos() {
   $('#btn-open-shortcuts')?.addEventListener('click', () => abrirModal('shortcuts-modal'));
   $('#btn-export-table-csv')?.addEventListener('click', exportarTabelaCsv);
 
+  // Paleta de Comandos (Ctrl+K)
+  $('#btn-open-cmd-palette')?.addEventListener('click', abrirCommandPalette);
+  const cmdInput = $('#cmd-palette-input');
+  cmdInput?.addEventListener('input', (e) => {
+    renderizarResultadosComandos(e.target.value);
+  });
+  cmdInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      cmdPaletteSelectedIndex = (cmdPaletteSelectedIndex + 1) % Math.max(1, cmdPaletteItems.length);
+      document.querySelectorAll('#cmd-palette-results .cmd-item').forEach((el, idx) => {
+        const isSel = idx === cmdPaletteSelectedIndex;
+        el.classList.toggle('is-selected', isSel);
+        el.setAttribute('aria-selected', isSel);
+        if (isSel) el.scrollIntoView({ block: 'nearest' });
+      });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      cmdPaletteSelectedIndex = (cmdPaletteSelectedIndex - 1 + cmdPaletteItems.length) % Math.max(1, cmdPaletteItems.length);
+      document.querySelectorAll('#cmd-palette-results .cmd-item').forEach((el, idx) => {
+        const isSel = idx === cmdPaletteSelectedIndex;
+        el.classList.toggle('is-selected', isSel);
+        el.setAttribute('aria-selected', isSel);
+        if (isSel) el.scrollIntoView({ block: 'nearest' });
+      });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      executarComandoSelecionado();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      fecharCommandPalette();
+    }
+  });
+  $('#cmd-palette-results')?.addEventListener('click', (e) => {
+    const item = e.target.closest('.cmd-item');
+    if (item) {
+      cmdPaletteSelectedIndex = Number(item.dataset.cmdIdx);
+      executarComandoSelecionado();
+    }
+  });
+
+  // Menu Mais
+  $('#btn-open-more-menu')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const dd = $('#more-menu-dropdown');
+    if (dd) dd.classList.toggle('is-hidden');
+  });
+  $('#btn-more-methodology')?.addEventListener('click', () => {
+    $('#more-menu-dropdown')?.classList.add('is-hidden');
+    abrirModal('methodology-modal');
+  });
+  $('#btn-more-shortcuts')?.addEventListener('click', () => {
+    $('#more-menu-dropdown')?.classList.add('is-hidden');
+    abrirModal('shortcuts-modal');
+  });
+  $('#btn-more-theme')?.addEventListener('click', () => {
+    $('#more-menu-dropdown')?.classList.add('is-hidden');
+    alternarTema();
+  });
+  $('#btn-more-presentation')?.addEventListener('click', () => {
+    $('#more-menu-dropdown')?.classList.add('is-hidden');
+    alternarModoApresentacao();
+  });
+
+  // Visões Salvas & Colunas
+  $('#select-saved-views')?.addEventListener('change', (e) => {
+    aplicarVisaoSalva(e.target.value);
+  });
+  $('#btn-toggle-cols-menu')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    $('#cols-menu')?.classList.toggle('is-hidden');
+  });
+  $('#cols-menu')?.addEventListener('change', (e) => {
+    const chk = e.target.closest('input[data-col]');
+    if (!chk) return;
+    const col = chk.dataset.col;
+    const tabela = $('#engine-valuation-table');
+    if (!tabela) return;
+    tabela.classList.toggle(`hide-col-${col}`, !chk.checked);
+  });
+
+  // Filtro de Análise Técnica
+  $('#tech-signal-filter')?.addEventListener('click', (e) => {
+    const b = e.target.closest('.seg-btn');
+    if (b) definirFiltroTech(b.dataset.tech);
+  });
+
+  // Fechar Raio-X em telas pequenas
+  $('#btn-close-detail-pane')?.addEventListener('click', fecharPainelRaioXMobile);
+
+  // Link Metodologia Rodapé
+  $('#footer-link-metodologia')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    abrirModal('methodology-modal');
+  });
+
   $('#table-density-group')?.addEventListener('click', (e) => {
     const b = e.target.closest('[data-density]');
     if (!b) return;
@@ -2198,6 +2552,15 @@ function bindEventos() {
   });
 
   document.addEventListener('click', (e) => {
+    if (!e.target.closest('.more-menu-wrap')) {
+      $('#more-menu-dropdown')?.classList.add('is-hidden');
+    }
+    if (!e.target.closest('.cols-dropdown-wrap')) {
+      $('#cols-menu')?.classList.add('is-hidden');
+    }
+    if (e.target.id === 'cmd-palette-backdrop') {
+      fecharCommandPalette();
+    }
     if (e.target.closest('[data-close-drawer]')) {
       fecharGavetas();
       return;
@@ -2259,7 +2622,7 @@ function bindEventos() {
     const digitando = ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
-      focarBuscaAbaAtiva();
+      abrirCommandPalette();
       return;
     }
     if (digitando) return;
@@ -2373,15 +2736,33 @@ function bindEventos() {
       if (typeof window.abrirNaVisaoGrafica === 'function') window.abrirNaVisaoGrafica(linha.dataset.ticker);
       return;
     }
-    if (acao?.dataset.rowAction === 'remove') { alternarTicker(linha.dataset.ticker); return; }
-    abrirDetalhe(linha.dataset.ticker);
+    if (acao?.dataset.rowAction === 'remove') {
+      ocultarTickerComUndo(linha.dataset.ticker);
+      return;
+    }
+    selecionarAtivoMasterDetail(linha.dataset.ticker, true);
   });
 
   tbody?.addEventListener('keydown', (e) => {
     const linha = e.target.closest('tr.row');
-    if (linha && e.target === linha && (e.key === 'Enter' || e.key === ' ')) {
+    if (!linha) return;
+    if (e.key === 'ArrowDown') {
       e.preventDefault();
-      abrirDetalhe(linha.dataset.ticker);
+      const next = linha.nextElementSibling;
+      if (next && next.classList.contains('row')) {
+        next.focus();
+        selecionarAtivoMasterDetail(next.dataset.ticker, false);
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = linha.previousElementSibling;
+      if (prev && prev.classList.contains('row')) {
+        prev.focus();
+        selecionarAtivoMasterDetail(prev.dataset.ticker, false);
+      }
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      selecionarAtivoMasterDetail(linha.dataset.ticker, true);
     }
   });
 
@@ -2450,8 +2831,18 @@ window.addEventListener('DOMContentLoaded', () => {
   if (sortSalvo?.key && sortSalvo?.dir) painelState.sort = sortSalvo;
   const densSalva = lerStorage(STORAGE_KEY_PAINEL_DENSITY, 'confortavel');
   painelState.densidade = densSalva === 'compacta' ? 'compacta' : 'confortavel';
+  const visaoSalva = lerStorage('painel_valuation_saved_view', 'padrao');
+  if (visaoSalva) {
+    painelState.visaoSalva = visaoSalva;
+    const sel = $('#select-saved-views');
+    if (sel) sel.value = visaoSalva;
+    aplicarVisaoSalva(visaoSalva);
+  }
   bindEventos();
   carregarValuationJson();
+  if (window.location.search.includes('cmd=1') || window.location.hash.includes('cmd=1')) {
+    setTimeout(abrirCommandPalette, 600);
+  }
   setInterval(() => {
     if (!document.hidden) carregarValuationJson(true);
   }, 60000);
