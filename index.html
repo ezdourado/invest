@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261102b">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261103a">
 </head>
 <body>
 
@@ -281,6 +281,28 @@
               <p class="card-sub" id="sim-subtitle">Quanto teria rendido um aporte inicial no período selecionado considerando os proventos distribuídos</p>
             </div>
             <div class="vsim-controls">
+              <!-- Período e Data Móvel do Simulador -->
+              <div class="vsim-period-group">
+                <div class="segmented" role="group" aria-label="Período do simulador" id="sim-period-presets">
+                  <button type="button" class="seg-btn" data-sim-period="1y">1A</button>
+                  <button type="button" class="seg-btn" data-sim-period="2y">2A</button>
+                  <button type="button" class="seg-btn" data-sim-period="3y">3A</button>
+                  <button type="button" class="seg-btn is-active" data-sim-period="5y">5A</button>
+                  <button type="button" class="seg-btn" data-sim-period="max">Máx</button>
+                  <button type="button" class="seg-btn" data-sim-period="custom">Personalizado</button>
+                </div>
+                <div class="vsim-date-range is-hidden" id="sim-custom-dates">
+                  <label class="vsim-date-label">
+                    <span>De</span>
+                    <input type="date" id="sim-date-start" class="input-date" aria-label="Data inicial da simulação">
+                  </label>
+                  <label class="vsim-date-label">
+                    <span>Até</span>
+                    <input type="date" id="sim-date-end" class="input-date" aria-label="Data final da simulação">
+                  </label>
+                </div>
+              </div>
+
               <div class="vsim-capital-group">
                 <label class="vsim-input-wrap" for="sim-capital-input">
                   <span class="vsim-prefix">R$</span>
@@ -562,8 +584,8 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/data.js?v=20261102b"></script>
-<script src="./assets/js/visao_grafica.js?v=20261102b"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261102b"></script>
+<script src="./assets/js/data.js?v=20261103a"></script>
+<script src="./assets/js/visao_grafica.js?v=20261103a"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261103a"></script>
 </body>
 </html>

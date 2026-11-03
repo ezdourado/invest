@@ -28,7 +28,7 @@
       id: 'premio',
       titulo: 'Qualidade Cara',
       sub: 'Alta Rentabilidade · Acima do Teto',
-      cor: '#3b82f6',
+      cor: '#818cf8',
       classe: 'is-premio'
     },
     atencao: {
@@ -593,8 +593,8 @@
     const domMaxY = Math.min(0.48, Math.ceil((maxYRaw + 0.04) * 20) / 20);
 
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-    const mapX = (x) => (padL + 10) + ((clamp(x, domMinX, domMaxX) - domMinX) / (domMaxX - domMinX || 1)) * (plotW - 20);
-    const mapY = (y) => (padT + 10) + (plotH - 20) - ((clamp(y, domMinY, domMaxY) - domMinY) / (domMaxY - domMinY || 1)) * (plotH - 20);
+    const mapX = (x) => (padL + 18) + ((clamp(x, domMinX, domMaxX) - domMinX) / (domMaxX - domMinX || 1)) * (plotW - 36);
+    const mapY = (y) => (padT + 18) + (plotH - 36) - ((clamp(y, domMinY, domMaxY) - domMinY) / (domMaxY - domMinY || 1)) * (plotH - 36);
 
     const xZero = mapX(0);
     const yRef = mapY(refY);
@@ -626,7 +626,8 @@
     state.matrizPontosRender = renderPts;
 
     const caixasRotulos = [];
-    const candidatosRotulo = renderPts.filter(p => p.matchBusca || p.ticker === state.matrizHoverTicker);
+    const tickersTopOuro = new Set((contQuad.ouro || []).slice(0, 5).map(p => p.ticker));
+    const candidatosRotulo = renderPts.filter(p => p.matchBusca || p.ticker === state.matrizHoverTicker || (tickersTopOuro.has(p.ticker) && !ehCompacto));
     const rotulosEscolhidos = [];
     for (const p of candidatosRotulo) {
       const wTxt = p.ticker.length * 7.5 + 8;
@@ -675,7 +676,7 @@
 
     const watermarksSvg = ehCompacto ? '' : `
       <text x="${padL + plotW - 10}" y="${padT + 18}" text-anchor="end" class="vsvg-ceil-label" fill="#10b981" opacity="0.82">QUADRANTE OURO (DESCONTO + QUALIDADE)</text>
-      <text x="${padL + 10}" y="${padT + 18}" text-anchor="start" class="vsvg-ceil-label" fill="#3b82f6" opacity="0.72">QUALIDADE CARA</text>
+      <text x="${padL + 10}" y="${padT + 18}" text-anchor="start" class="vsvg-ceil-label" fill="#818cf8" opacity="0.82">QUALIDADE CARA</text>
       <text x="${padL + plotW - 10}" y="${padT + plotH - 10}" text-anchor="end" class="vsvg-ceil-label" fill="#f59e0b" opacity="0.72">DESCONTO C/ ATENÇÃO</text>
       <text x="${padL + 10}" y="${padT + plotH - 10}" text-anchor="start" class="vsvg-ceil-label" fill="#ef4444" opacity="0.65">CARAS &amp; BAIXO RETORNO</text>
     `;

@@ -486,7 +486,7 @@ function atualizarStatusBase() {
 
   renderizarStatus(
     estado,
-    `<span class="status-text-full">Cotações de <strong class="mono">${esc(dataCotCurta)}</strong> (fechamento)<span class="status-sep">·</span>Base gerada em <span class="mono">${esc(infoGerado.dataCurta)} ${esc(infoGerado.hora)}</span></span><span class="status-text-mobile"><strong class="mono">${esc(dataCotCurta)}</strong></span>`
+    `<span class="status-text-full"><span class="status-cot">Cotações de <strong class="mono">${esc(dataCotCurta)}</strong> (fechamento)</span><span class="status-full-extra"><span class="status-sep">·</span>Base gerada em <span class="mono">${esc(infoGerado.dataCurta)} ${esc(infoGerado.hora)}</span></span></span><span class="status-text-mobile"><strong class="mono">${esc(dataCotCurta)}</strong></span>`
   );
 
   const foot = $('#main-footer');
@@ -692,17 +692,17 @@ function htmlVeredito(v) {
 
 /* Barra divergente centrada no zero via SVG (sem style inline) */
 function htmlBarraMargem(m) {
-  if (!valido(m)) return '';
+  if (!valido(m) || m === null || m === undefined || isNaN(m)) return '';
   const c = Math.max(-1, Math.min(1, m));
-  const largura = Math.max(2, Math.round(Math.abs(c) * 50));
+  const largura = Math.max(3, Math.round(Math.abs(c) * 50));
   const cor = m >= 0 ? 'var(--green)' : (m >= -0.05 ? 'var(--yellow)' : 'var(--red)');
   const x = m >= 0 ? 52 : (52 - largura);
 
   return `
-    <svg class="mbar-svg" width="104" height="6" viewBox="0 0 104 6" aria-hidden="true">
-      <rect x="0" y="1" width="104" height="4" rx="2" fill="var(--surface-2)" />
-      <rect x="${x}" y="1" width="${largura}" height="4" rx="2" fill="${cor}" />
-      <line x1="52" y1="0" x2="52" y2="6" stroke="var(--border-strong)" stroke-width="1.2" />
+    <svg class="mbar-svg" width="104" height="5" viewBox="0 0 104 5" aria-hidden="true">
+      <rect x="0" y="0.5" width="104" height="4" rx="2" fill="var(--bg-elev)" stroke="var(--border)" stroke-width="0.5" />
+      <rect x="${x}" y="0.5" width="${largura}" height="4" rx="2" fill="${cor}" />
+      <line x1="52" y1="0" x2="52" y2="5" stroke="var(--border-strong)" stroke-width="1" />
     </svg>
   `;
 }
