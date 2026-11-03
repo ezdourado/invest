@@ -523,6 +523,9 @@ function aplicarTema(tema, persistir = true) {
   if (btn) {
     btn.setAttribute('aria-pressed', String(ehLight));
     btn.setAttribute('data-tip', ehLight ? 'Alternar para tema escuro' : 'Alternar para tema claro');
+    btn.innerHTML = ehLight
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
   }
   if (persistir) {
     try { localStorage.setItem(STORAGE_KEY_THEME, ehLight ? 'light' : 'dark'); } catch (_) { /* modo privado */ }
@@ -669,14 +672,11 @@ function atualizarStatusBase() {
   }
 
   const dataExibir = ehHoje ? infoGerado.dataCurta : dataCotCurta;
-  let statusHtml = '';
-  if (emPregao) {
-    statusHtml = `<span class="status-text-full"><span class="status-cot"><span class="status-live-dot" aria-hidden="true"></span><strong class="t-green">Pregão B3</strong> · Cotações de <strong class="mono">${esc(dataExibir)} às ${esc(infoGerado.hora)}</strong></span><span class="status-full-extra"><span class="status-sep">·</span>Atualização a cada 10 min</span></span><span class="status-text-mobile"><span class="status-live-dot" aria-hidden="true"></span><strong class="mono">${esc(dataExibir)} · ${esc(infoGerado.hora)}</strong></span>`;
-  } else if (ehHoje && horaSp >= 18) {
-    statusHtml = `<span class="status-text-full"><span class="status-cot">Fechamento B3 de <strong class="mono">${esc(dataExibir)}</strong></span><span class="status-full-extra"><span class="status-sep">·</span>Consolidado às <span class="mono">${esc(infoGerado.hora)}</span></span></span><span class="status-text-mobile"><strong class="mono">${esc(dataExibir)} (Fech.)</strong></span>`;
-  } else {
-    statusHtml = `<span class="status-text-full"><span class="status-cot">Cotações de <strong class="mono">${esc(dataCotCurta)}</strong> (último fechamento)</span><span class="status-full-extra"><span class="status-sep">·</span>Base gerada em <span class="mono">${esc(infoGerado.dataCurta)} ${esc(infoGerado.hora)}</span></span></span><span class="status-text-mobile"><strong class="mono">${esc(dataCotCurta)}</strong></span>`;
-  }
+  const statusHtml = emPregao
+    ? `<span class="status-live-dot" aria-hidden="true"></span><span class="t-green" style="font-weight:600">Pregão B3</span> · <span class="mono">${esc(dataExibir)} ${esc(infoGerado.hora)}</span>`
+    : (ehHoje && horaSp >= 18
+      ? `<span>Fechamento B3</span> · <span class="mono">${esc(dataExibir)} ${esc(infoGerado.hora)}</span>`
+      : `<span>Cotações B3</span> · <span class="mono">${esc(dataCotCurta)}</span>`);
 
   renderizarStatus(estado, statusHtml);
 

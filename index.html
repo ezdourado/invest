@@ -82,7 +82,12 @@
         <kbd class="kbd">Ctrl K</kbd>
       </button>
 
-      <!-- Menu Mais Opções (Metodologia, Atalhos, Tema, Apresentação, Calculadora) -->
+      <!-- Alternar Tema Claro/Escuro Direto na Topbar (1 clique) -->
+      <button type="button" class="icon-btn" id="btn-toggle-theme" data-tip="Alternar tema escuro ou claro" aria-label="Alternar tema escuro ou claro">
+        <svg viewBox="0 0 24 24" aria-hidden="true" id="theme-icon-svg"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+
+      <!-- Menu Mais Opções (Metodologia, Atalhos, Apresentação, Calculadora) -->
       <div class="more-menu-wrap">
         <button type="button" class="icon-btn" id="btn-open-more-menu" aria-haspopup="true" aria-expanded="false" aria-label="Mais opções e configurações" data-tip="Mais opções">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
@@ -117,7 +122,6 @@
       <!-- Botões de apoio mantidos no DOM para retrocompatibilidade direta com data.js -->
       <button type="button" class="icon-btn is-hidden" id="btn-open-methodology" aria-label="Metodologia"></button>
       <button type="button" class="icon-btn is-hidden" id="btn-toggle-presentation" aria-label="Apresentação"></button>
-      <button type="button" class="icon-btn is-hidden" id="btn-toggle-theme" aria-label="Tema"></button>
       <button type="button" class="icon-btn is-hidden" id="btn-open-shortcuts" aria-label="Atalhos"></button>
 
       <button type="button" class="btn btn-primary" id="btn-open-selector">
