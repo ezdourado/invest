@@ -1244,45 +1244,45 @@ function htmlBlocoBazinComparativo(a) {
   return `
     <div class="d-block">
       <div class="d-section-title">Bazin: Histórico vs. Projetado (K = 6%)</div>
-      <div class="d-bazin-proj-grid">
+      <div class="d-bazin-proj-grid" style="display: flex !important; flex-direction: column !important; gap: 10px !important; width: 100% !important; margin-top: 10px !important;">
         <!-- Card 1: Bazin Histórico (5a) -->
-        <div class="d-bazin-proj-card is-hist">
-          <div class="d-bpc-header">
+        <div class="d-bazin-proj-card is-hist" style="display: flex !important; flex-direction: column !important; gap: 8px !important; width: 100% !important; box-sizing: border-box !important; padding: 12px 14px !important;">
+          <div class="d-bpc-header" style="display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; padding-bottom: 6px !important; border-bottom: 1px solid var(--border) !important;">
             <span class="d-bpc-badge badge-hist">Histórico 5 Anos</span>
             <span class="d-bpc-sub">Média dos últimos 5a fechados</span>
           </div>
-          <div class="d-bpc-body">
-            <div class="d-bpc-row"><span class="d-bpc-label">DPA Base:</span> <strong class="d-bpc-val">${b.dpa_sem_extra > 0 ? fmtReal(b.dpa_sem_extra) : '—'}</strong></div>
-            <div class="d-bpc-row"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-cyan">${b.teto > 0 ? fmtReal(b.teto) : '—'}</strong></div>
-            <div class="d-bpc-row"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(b.margem_seguranca)}">${fmtPct(b.margem_seguranca)}</span></div>
+          <div class="d-bpc-body" style="display: flex !important; flex-direction: column !important; gap: 6px !important;">
+            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">DPA Base:</span> <strong class="d-bpc-val">${b.dpa_sem_extra > 0 ? fmtReal(b.dpa_sem_extra) : '—'}</strong></div>
+            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-cyan">${b.teto > 0 ? fmtReal(b.teto) : '—'}</strong></div>
+            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(b.margem_seguranca)}">${fmtPct(b.margem_seguranca)}</span></div>
           </div>
         </div>
 
         <!-- Card 2: Consenso Mercado -->
-        <div class="d-bazin-proj-card is-consenso">
-          <div class="d-bpc-header">
+        <div class="d-bazin-proj-card is-consenso" style="display: flex !important; flex-direction: column !important; gap: 8px !important; width: 100% !important; box-sizing: border-box !important; padding: 12px 14px !important;">
+          <div class="d-bpc-header" style="display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; padding-bottom: 6px !important; border-bottom: 1px solid var(--border) !important;">
             <span class="d-bpc-badge badge-consenso">Consenso Mercado</span>
             <span class="d-bpc-sub">LPA Projetado × Payout</span>
           </div>
-          <div class="d-bpc-body">
-            <div class="d-bpc-row"><span class="d-bpc-label">LPA Proj. / Payout:</span> <span class="d-bpc-val">${f.forward_eps ? fmtReal(f.forward_eps) : '—'} · ${fmtPctSimples(f.payout, 0)}</span></div>
-            <div class="d-bpc-row"><span class="d-bpc-label">DPA Proj.:</span> <strong class="d-bpc-val">${dc ? fmtReal(dc) : '—'}</strong></div>
-            <div class="d-bpc-row"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-lime">${tc ? fmtReal(tc) : '—'}</strong></div>
-            <div class="d-bpc-row"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(mc)}">${fmtPct(mc)}</span></div>
+          <div class="d-bpc-body" style="display: flex !important; flex-direction: column !important; gap: 6px !important;">
+            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">LPA Proj. / Payout:</span> <span class="d-bpc-val">${f.forward_eps ? fmtReal(f.forward_eps) : '—'} · ${fmtPctSimples(f.payout, 0)}</span></div>
+            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">DPA Proj.:</span> <strong class="d-bpc-val">${dc ? fmtReal(dc) : '—'}</strong></div>
+            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-lime">${tc ? fmtReal(tc) : '—'}</strong></div>
+            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(mc)}">${fmtPct(mc)}</span></div>
           </div>
         </div>
 
         <!-- Card 3: Fundamentalista Barsi / AGF -->
-        <div class="d-bazin-proj-card is-barsi">
-          <div class="d-bpc-header">
+        <div class="d-bazin-proj-card is-barsi" style="display: flex !important; flex-direction: column !important; gap: 8px !important; width: 100% !important; box-sizing: border-box !important; padding: 12px 14px !important;">
+          <div class="d-bpc-header" style="display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; padding-bottom: 6px !important; border-bottom: 1px solid var(--border) !important;">
             <span class="d-bpc-badge badge-barsi">Fundamentalista Barsi/AGF</span>
             <span class="d-bpc-sub">(VPA × ROE) × Payout</span>
           </div>
-          <div class="d-bpc-body">
-            <div class="d-bpc-row"><span class="d-bpc-label">Lucro Teórico:</span> <span class="d-bpc-val">${lpaBarsi ? fmtReal(lpaBarsi) : '—'} · ${fmtPctSimples(f.payout, 0)}</span></div>
-            <div class="d-bpc-row"><span class="d-bpc-label">DPA Proj.:</span> <strong class="d-bpc-val">${db ? fmtReal(db) : '—'}</strong></div>
-            <div class="d-bpc-row"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-orange">${tb ? fmtReal(tb) : '—'}</strong></div>
-            <div class="d-bpc-row"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(mb)}">${fmtPct(mb)}</span></div>
+          <div class="d-bpc-body" style="display: flex !important; flex-direction: column !important; gap: 6px !important;">
+            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Lucro Teórico:</span> <span class="d-bpc-val">${lpaBarsi ? fmtReal(lpaBarsi) : '—'} · ${fmtPctSimples(f.payout, 0)}</span></div>
+            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">DPA Proj.:</span> <strong class="d-bpc-val">${db ? fmtReal(db) : '—'}</strong></div>
+            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-orange">${tb ? fmtReal(tb) : '—'}</strong></div>
+            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(mb)}">${fmtPct(mb)}</span></div>
           </div>
         </div>
       </div>

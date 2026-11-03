@@ -14,8 +14,39 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="./favicon.png">
   <link rel="preload" href="./assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261103g">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261103g">
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261103_v4">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261103_v4">
+  <style>
+    /* Regras prioritárias com proteção absoluta contra cache de CSS */
+    .d-bazin-proj-grid {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+      width: 100% !important;
+      margin-top: 10px !important;
+    }
+    .d-bazin-proj-card {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 8px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      padding: 12px 14px !important;
+    }
+    .more-menu-dropdown,
+    .more-dropdown {
+      position: absolute !important;
+      top: calc(100% + 6px) !important;
+      right: 0 !important;
+      min-width: 220px !important;
+      z-index: 1000 !important;
+    }
+    .more-menu-dropdown.is-hidden,
+    .more-dropdown.is-hidden,
+    .is-hidden {
+      display: none !important;
+    }
+  </style>
   <script>
     (function() {
       try {
@@ -727,8 +758,8 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/data.js?v=20261103g"></script>
-<script src="./assets/js/visao_grafica.js?v=20261103g"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261103g"></script>
+<script src="./assets/js/data.js?v=20261103_v4"></script>
+<script src="./assets/js/visao_grafica.js?v=20261103_v4"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261103_v4"></script>
 </body>
 </html>

@@ -3870,21 +3870,22 @@ body.is-presentation .shell {
 
 /* Raio-X: Grid Comparativo de Histórico vs Projetado (Cards Verticais) */
 .d-bazin-proj-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-top: 10px !important;
+  width: 100% !important;
 }
 .d-bazin-proj-card {
   background: var(--bg-surface-elevated, var(--surface));
   border: 1px solid var(--border);
   border-radius: var(--radius-sm, 6px);
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-  box-sizing: border-box;
+  padding: 12px 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 .d-bazin-proj-card.is-hist {
   border-left: 3px solid #06b6d4;
