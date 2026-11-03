@@ -169,6 +169,8 @@ const ICONE_VEREDITO = {
 
 const OPCOES_ORDENACAO = [
   { key: 'margem', dir: 'desc', label: 'Maior margem Bazin' },
+  { key: 'margem_consenso', dir: 'desc', label: 'Maior margem Projetada (Consenso)' },
+  { key: 'margem_barsi', dir: 'desc', label: 'Maior margem Projetada (Barsi/AGF)' },
   { key: 'faltateto', dir: 'desc', label: 'Maior folga até o teto (R$)' },
   { key: 'sustentabilidade', dir: 'desc', label: 'Maior Score Anti-Cilada' },
   { key: 'margem', dir: 'asc', label: 'Menor margem Bazin' },
@@ -555,6 +557,8 @@ function valorOrdenacao(a, key) {
     case 'teto': return a.bazin?.teto > 0 ? a.bazin.teto : null;
     case 'faltateto': return diferencaAteTeto(a);
     case 'margem': return a.bazin?.teto > 0 ? a.bazin?.margem_seguranca : null;
+    case 'margem_consenso': return a.margem_consenso ?? a.bazin?.margem_projetada_consenso;
+    case 'margem_barsi': return a.margem_barsi ?? a.bazin?.margem_projetada_barsi;
     case 'veredito': return ORDEM_VEREDITO[a.bazin?.veredito] ?? 9;
     case 'sustentabilidade': return a.sustentabilidade?.nivel === 'sem_dividendo' ? -1 : a.sustentabilidade?.nota;
     case 'graham': return a.margem_graham;
@@ -861,6 +865,24 @@ function htmlVeredito(v) {
   return `<span class="verdict verdict-${k}"><span class="verdict-icon" aria-hidden="true">${ICONE_VEREDITO[k]}</span><span>${ROTULO_VEREDITO[k]}</span></span>`;
 }
 
+function htmlSubTetosProjetados(a) {
+  const tc = a.teto_consenso ?? a.bazin?.teto_projetado_consenso;
+  const tb = a.teto_barsi ?? a.bazin?.teto_projetado_barsi;
+  if (!tc && !tb) return '';
+  const mc = a.margem_consenso ?? a.bazin?.margem_projetada_consenso;
+  const mb = a.margem_barsi ?? a.bazin?.margem_projetada_barsi;
+
+  const tipCons = tc ? `Consenso Mercado: ${fmtReal(tc)} (${mc != null ? (mc >= 0 ? '+' : '') + Math.round(mc * 100) + '%' : '—'})` : '';
+  const tipBarsi = tb ? `Fundamentalista Barsi/AGF: ${fmtReal(tb)} (${mb != null ? (mb >= 0 ? '+' : '') + Math.round(mb * 100) + '%' : '—'})` : '';
+
+  return `
+    <div class="sub-tetos-wrap">
+      ${tc ? `<span class="sub-teto sub-teto-consenso" data-tip="${esc(tipCons)}">Cons. <strong>${fmtReal(tc)}</strong></span>` : ''}
+      ${tb ? `<span class="sub-teto sub-teto-barsi" data-tip="${esc(tipBarsi)}">Barsi <strong>${fmtReal(tb)}</strong></span>` : ''}
+    </div>
+  `;
+}
+
 /* Barra divergente centrada no zero via SVG (sem style inline) */
 function htmlBarraMargem(m) {
   if (!valido(m) || m === null || m === undefined || isNaN(m)) return '';
@@ -1053,7 +1075,12 @@ function renderizarTabela() {
         </td>
         <td class="num c-preco" data-label="Preço">${fmtReal(a.preco)}</td>
         <td class="num c-dpa" data-label="DPA 5a">${dpaCell}</td>
-        <td class="num c-teto" data-label="Teto Bazin">${b.teto > 0 ? fmtReal(b.teto) : '<span class="t-dim" data-tip="Sem DPA recorrente nos últimos 5 anos fechados">—</span>'}</td>
+        <td class="num c-teto" data-label="Teto Bazin">
+          <div class="c-teto-stack">
+            <span class="teto-val-hist">${b.teto > 0 ? fmtReal(b.teto) : '<span class="t-dim" data-tip="Sem DPA recorrente nos últimos 5 anos fechados">—</span>'}</span>
+            ${htmlSubTetosProjetados(a)}
+          </div>
+        </td>
         <td class="num c-falta" data-label="Falta até o teto">${faltaCell}</td>
         <td class="num c-margem" data-label="Margem Bazin">
           <div class="margin-cell" data-tip="Preço ${fmtReal(a.preco)} vs. Teto Bazin ${fmtReal(b.teto)}">
@@ -1132,38 +1159,107 @@ function renderizarUniverso() {
 /* ---------- Render: Gaveta de Detalhe (Raio-X) sem Inline Styles ---------- */
 
 function htmlComparativoModelos(a) {
+  const tc = a.teto_consenso ?? a.bazin?.teto_projetado_consenso;
+  const tb = a.teto_barsi ?? a.bazin?.teto_projetado_barsi;
+
   const modelos = [
-    { nome: 'Teto Bazin', valor: a.bazin?.teto > 0 ? a.bazin.teto : null, cor: 'var(--series-bazin)' },
-    { nome: 'Graham', valor: a.graham, cor: 'var(--series-graham)' },
-    { nome: 'Gordon', valor: a.gordon, cor: 'var(--series-gordon)' }
+    { nome: 'Teto Bazin (5a)', valor: a.bazin?.teto > 0 ? a.bazin.teto : null, cor: '#06b6d4' },
+    { nome: 'Teto Consenso', valor: (tc && tc > 0) ? tc : null, cor: '#a3e635' },
+    { nome: 'Teto Barsi/AGF', valor: (tb && tb > 0) ? tb : null, cor: '#f97316' },
+    { nome: 'Graham', valor: a.graham, cor: '#a855f7' },
+    { nome: 'Gordon', valor: a.gordon, cor: '#f472b6' }
   ];
   const valores = [a.preco, ...modelos.map(m => m.valor)].filter(valido);
   const max = Math.max(...valores, 1) * 1.12;
-  const xBase = 88;
-  const wMax = 240;
+  const xBase = 110;
+  const wMax = 220;
   const xPreco = xBase + Math.round((a.preco / max) * wMax);
+  const totalH = 20 + modelos.length * 26;
 
   const linhasSvg = modelos.map((m, idx) => {
     const y = 14 + idx * 26;
     const w = valido(m.valor) ? Math.max(3, Math.round((m.valor / max) * wMax)) : 0;
     const txtVal = valido(m.valor) ? fmtReal(m.valor) : '—';
     return `
-      <text x="0" y="${y + 9}" fill="var(--muted)" font-family="var(--sans)" font-size="12" font-weight="500">${esc(m.nome)}</text>
+      <text x="0" y="${y + 9}" fill="var(--muted)" font-family="var(--sans)" font-size="11" font-weight="500">${esc(m.nome)}</text>
       <rect x="${xBase}" y="${y}" width="${wMax}" height="10" rx="5" fill="var(--surface)" />
       ${w > 0 ? `<rect x="${xBase}" y="${y}" width="${w}" height="10" rx="5" fill="${m.cor}" />` : ''}
-      <text x="418" y="${y + 9}" text-anchor="end" fill="var(--text-strong)" font-family="var(--mono)" font-size="12" font-weight="600">${esc(txtVal)}</text>
+      <text x="418" y="${y + 9}" text-anchor="end" fill="var(--text-strong)" font-family="var(--mono)" font-size="11" font-weight="600">${esc(txtVal)}</text>
     `;
   }).join('');
 
   return `
     <div class="d-block">
       <div class="d-section-title">Preço vs. valor justo por modelo</div>
-      <svg class="vsvg" viewBox="0 0 420 92" width="420" height="92" role="img" aria-label="Comparativo entre preço atual e preços-teto">
+      <svg class="vsvg" viewBox="0 0 420 ${totalH}" width="420" height="${totalH}" role="img" aria-label="Comparativo entre preço atual e preços-teto">
         ${linhasSvg}
-        <line x1="${xPreco}" y1="6" x2="${xPreco}" y2="84" stroke="var(--text-strong)" stroke-width="2" stroke-dasharray="3 2" />
+        <line x1="${xPreco}" y1="6" x2="${xPreco}" y2="${totalH - 8}" stroke="var(--text-strong)" stroke-width="2" stroke-dasharray="3 2" />
       </svg>
       <p class="d-note">Linha tracejada vertical = preço atual (${fmtReal(a.preco)}). Barras à direita da linha indicam preço-teto acima da cotação.</p>
     </div>`;
+}
+
+function htmlBlocoBazinComparativo(a) {
+  const b = a.bazin || {};
+  const f = a.fundamentos || {};
+
+  const tc = a.teto_consenso ?? b.teto_projetado_consenso;
+  const mc = a.margem_consenso ?? b.margem_projetada_consenso;
+  const dc = b.dpa_projetado_consenso;
+
+  const tb = a.teto_barsi ?? b.teto_projetado_barsi;
+  const mb = a.margem_barsi ?? b.margem_projetada_barsi;
+  const db = b.dpa_projetado_barsi;
+
+  const lpaBarsi = (f.vpa && f.roe) ? (f.vpa * f.roe) : null;
+
+  return `
+    <div class="d-block">
+      <div class="d-section-title">Bazin: Histórico vs. Projetado (K = 6%)</div>
+      <div class="d-bazin-proj-grid">
+        <!-- Card 1: Bazin Histórico (5a) -->
+        <div class="d-bazin-proj-card is-hist">
+          <div class="d-bpc-header">
+            <span class="d-bpc-badge badge-hist">Histórico 5 Anos</span>
+            <span class="d-bpc-sub">Média dos últimos 5a fechados</span>
+          </div>
+          <div class="d-bpc-body">
+            <div class="d-bpc-row"><span class="d-bpc-label">DPA Base:</span> <strong class="d-bpc-val">${b.dpa_sem_extra > 0 ? fmtReal(b.dpa_sem_extra) : '—'}</strong></div>
+            <div class="d-bpc-row"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-cyan">${b.teto > 0 ? fmtReal(b.teto) : '—'}</strong></div>
+            <div class="d-bpc-row"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(b.margem_seguranca)}">${fmtPct(b.margem_seguranca)}</span></div>
+          </div>
+        </div>
+
+        <!-- Card 2: Consenso Mercado -->
+        <div class="d-bazin-proj-card is-consenso">
+          <div class="d-bpc-header">
+            <span class="d-bpc-badge badge-consenso">Consenso Mercado</span>
+            <span class="d-bpc-sub">LPA Projetado × Payout</span>
+          </div>
+          <div class="d-bpc-body">
+            <div class="d-bpc-row"><span class="d-bpc-label">LPA Proj. / Payout:</span> <span class="d-bpc-val">${f.forward_eps ? fmtReal(f.forward_eps) : '—'} · ${fmtPctSimples(f.payout, 0)}</span></div>
+            <div class="d-bpc-row"><span class="d-bpc-label">DPA Proj.:</span> <strong class="d-bpc-val">${dc ? fmtReal(dc) : '—'}</strong></div>
+            <div class="d-bpc-row"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-lime">${tc ? fmtReal(tc) : '—'}</strong></div>
+            <div class="d-bpc-row"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(mc)}">${fmtPct(mc)}</span></div>
+          </div>
+        </div>
+
+        <!-- Card 3: Fundamentalista Barsi / AGF -->
+        <div class="d-bazin-proj-card is-barsi">
+          <div class="d-bpc-header">
+            <span class="d-bpc-badge badge-barsi">Fundamentalista Barsi/AGF</span>
+            <span class="d-bpc-sub">(VPA × ROE) × Payout</span>
+          </div>
+          <div class="d-bpc-body">
+            <div class="d-bpc-row"><span class="d-bpc-label">Lucro Teórico:</span> <span class="d-bpc-val">${lpaBarsi ? fmtReal(lpaBarsi) : '—'} · ${fmtPctSimples(f.payout, 0)}</span></div>
+            <div class="d-bpc-row"><span class="d-bpc-label">DPA Proj.:</span> <strong class="d-bpc-val">${db ? fmtReal(db) : '—'}</strong></div>
+            <div class="d-bpc-row"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-orange">${tb ? fmtReal(tb) : '—'}</strong></div>
+            <div class="d-bpc-row"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(mb)}">${fmtPct(mb)}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function htmlHistoricoDpaAnual(porAno) {
@@ -1468,6 +1564,8 @@ function renderizarDetalhe(ticker) {
     ${htmlBlocoAgendaProventos(a)}
 
     ${htmlBlocoSustentabilidade(a)}
+
+    ${htmlBlocoBazinComparativo(a)}
 
     <div class="d-block">
       <div class="d-section-title">Bazin · K = 6%</div>
@@ -1968,6 +2066,11 @@ async function obterPayloadMaisRecente() {
   if (!validos.length) {
     const primeiroErro = resultados.find(r => r.status === 'rejected')?.reason;
     throw primeiroErro || new Error('Nenhuma fonte respondeu');
+  }
+
+  if (typeof location !== 'undefined' && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    const local = resultados[0];
+    if (local.status === 'fulfilled' && local.value) return local.value;
   }
 
   validos.sort((a, b) => {

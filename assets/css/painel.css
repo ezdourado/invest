@@ -2348,6 +2348,8 @@ html[data-theme="light"] .vt tbody td.c-ticker {
 }
 .vleg-swatch.is-price { background: var(--series-price); }
 .vleg-swatch.is-bazin { border-top: 3px dashed var(--series-bazin); background: none; height: 0; }
+.vleg-swatch.is-consenso { border-top: 2.5px dashed #a3e635; background: none; height: 0; }
+.vleg-swatch.is-barsi { border-top: 2.5px dashed #f97316; background: none; height: 0; }
 .vleg-swatch.is-graham { border-top: 2.5px dashed var(--series-graham); background: none; height: 0; }
 .vleg-swatch.is-gordon { border-top: 2.5px dotted var(--series-gordon); background: none; height: 0; }
 .vleg-swatch.is-sim-total { background: var(--series-bazin); }
@@ -3820,3 +3822,141 @@ body.is-presentation .shell {
   70% { transform: scale(1.15); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
+
+/* ==========================================================================
+   TETOS PROJETADOS (CONSENSO MERCADO & FUNDAMENTALISTA BARSI/AGF)
+   ========================================================================== */
+
+/* Sub-tetos compactos na coluna Teto da tabela principal */
+.c-teto-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.teto-val-hist {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.sub-tetos-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.sub-teto {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.68rem;
+  line-height: 1.2;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+.sub-teto strong {
+  font-weight: 700;
+}
+.sub-teto-consenso {
+  color: #a3e635;
+  background: rgba(163, 230, 53, 0.12);
+  border: 1px solid rgba(163, 230, 53, 0.32);
+}
+.sub-teto-barsi {
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.32);
+}
+
+/* Raio-X: Grid Comparativo de 3 Colunas (Histórico vs Projetado) */
+.d-bazin-proj-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+@media (max-width: 860px) {
+  .d-bazin-proj-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+.d-bazin-proj-card {
+  background: var(--surface-card, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 8px);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.d-bazin-proj-card.is-hist {
+  border-left: 3px solid #06b6d4;
+}
+.d-bazin-proj-card.is-consenso {
+  border-left: 3px solid #a3e635;
+}
+.d-bazin-proj-card.is-barsi {
+  border-left: 3px solid #f97316;
+}
+.d-bpc-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.d-bpc-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.d-bpc-badge.badge-hist {
+  color: #06b6d4;
+  background: rgba(6, 182, 212, 0.14);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+}
+.d-bpc-badge.badge-consenso {
+  color: #a3e635;
+  background: rgba(163, 230, 53, 0.14);
+  border: 1px solid rgba(163, 230, 53, 0.35);
+}
+.d-bpc-badge.badge-barsi {
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.14);
+  border: 1px solid rgba(249, 115, 22, 0.35);
+}
+.d-bpc-sub {
+  font-size: 0.73rem;
+  color: var(--muted);
+}
+.d-bpc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+.d-bpc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.d-bpc-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.d-bpc-val {
+  font-family: var(--mono);
+  font-weight: 600;
+}
+
+.t-cyan { color: #06b6d4 !important; }
+.t-lime { color: #a3e635 !important; }
+.t-orange { color: #f97316 !important; }
+

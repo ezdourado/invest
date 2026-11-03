@@ -27,6 +27,26 @@
       largura: 2.6,
       destaque: true
     },
+    consenso: {
+      chave: 'consenso',
+      nome: 'Teto Consenso Mercado',
+      curto: 'Consenso',
+      cor: '#a3e635',
+      swatchCls: 'is-consenso',
+      dash: '8 4',
+      largura: 2.4,
+      destaque: false
+    },
+    barsi: {
+      chave: 'barsi',
+      nome: 'Teto Barsi/AGF',
+      curto: 'Barsi/AGF',
+      cor: '#f97316',
+      swatchCls: 'is-barsi',
+      dash: '4 3',
+      largura: 2.4,
+      destaque: false
+    },
     graham: {
       chave: 'graham',
       nome: 'Teto Graham',
@@ -201,6 +221,8 @@
     sidebarRecolhida: Boolean(prefsSalvas.sidebarRecolhida),
     tetosVisiveis: {
       bazin: prefsSalvas.tetosVisiveis?.bazin !== false,
+      consenso: prefsSalvas.tetosVisiveis?.consenso !== false,
+      barsi: prefsSalvas.tetosVisiveis?.barsi !== false,
       graham: prefsSalvas.tetosVisiveis?.graham !== false,
       gordon: prefsSalvas.tetosVisiveis?.gordon !== false
     },
@@ -1448,6 +1470,16 @@
 
     const modo = visualState.modoPreco;
     const tetoBazin = ehValido(principal.bazin?.teto) && principal.bazin.teto > 0 ? principal.bazin.teto : null;
+    const tetoConsenso = ehValido(principal.teto_consenso) && principal.teto_consenso > 0
+      ? principal.teto_consenso
+      : (ehValido(principal.bazin?.teto_projetado_consenso) && principal.bazin.teto_projetado_consenso > 0 ? principal.bazin.teto_projetado_consenso : null);
+    const margemConsenso = principal.margem_consenso ?? principal.bazin?.margem_projetada_consenso;
+
+    const tetoBarsi = ehValido(principal.teto_barsi) && principal.teto_barsi > 0
+      ? principal.teto_barsi
+      : (ehValido(principal.bazin?.teto_projetado_barsi) && principal.bazin.teto_projetado_barsi > 0 ? principal.bazin.teto_projetado_barsi : null);
+    const margemBarsi = principal.margem_barsi ?? principal.bazin?.margem_projetada_barsi;
+
     const tetoGraham = ehValido(principal.graham) && principal.graham > 0 ? principal.graham : null;
     const tetoGordon = ehValido(principal.gordon) && principal.gordon > 0 ? principal.gordon : null;
     const serieTetoBazin = calcularSerieTetoBazinHistorico(principal, janela.datas);
@@ -1464,6 +1496,8 @@
       if (modo === 'preco') {
         const modelos = [
           { cfg: ESTILO_TETOS.bazin, val: tetoBazin, m: principal.bazin?.margem_seguranca },
+          { cfg: ESTILO_TETOS.consenso, val: tetoConsenso, m: margemConsenso },
+          { cfg: ESTILO_TETOS.barsi, val: tetoBarsi, m: margemBarsi },
           { cfg: ESTILO_TETOS.graham, val: tetoGraham, m: principal.margem_graham },
           { cfg: ESTILO_TETOS.gordon, val: tetoGordon, m: principal.margem_gordon }
         ];
@@ -1644,6 +1678,14 @@
           linhasTetoAtivas.push({ ...ESTILO_TETOS.bazin, valor: tetoBazin });
           todosValoresY.push(tetoBazin);
         }
+      }
+      if (visualState.tetosVisiveis.consenso && ehValido(tetoConsenso)) {
+        linhasTetoAtivas.push({ ...ESTILO_TETOS.consenso, valor: tetoConsenso });
+        todosValoresY.push(tetoConsenso);
+      }
+      if (visualState.tetosVisiveis.barsi && ehValido(tetoBarsi)) {
+        linhasTetoAtivas.push({ ...ESTILO_TETOS.barsi, valor: tetoBarsi });
+        todosValoresY.push(tetoBarsi);
       }
       if (visualState.tetosVisiveis.graham && ehValido(tetoGraham)) {
         linhasTetoAtivas.push({ ...ESTILO_TETOS.graham, valor: tetoGraham });
@@ -1967,6 +2009,8 @@
           const mBaz = ehValido(tetoBazinNaData) && ehValido(p) ? (tetoBazinNaData - p) / tetoBazinNaData : null;
           const mGra = ehValido(tetoGraham) && ehValido(p) ? (tetoGraham - p) / tetoGraham : null;
           const mGor = ehValido(tetoGordon) && ehValido(p) ? (tetoGordon - p) / tetoGordon : null;
+          const mCons = ehValido(tetoConsenso) && ehValido(p) ? (tetoConsenso - p) / tetoConsenso : null;
+          const mBars = ehValido(tetoBarsi) && ehValido(p) ? (tetoBarsi - p) / tetoBarsi : null;
           const labelBazinHud = visualState.modoTetoBazin === 'dinamico' ? `Bazin dinâmico (${formataReal(tetoBazinNaData)})` : 'Bazin';
           let infoMma = '';
           if (visualState.mediasVisiveis.mma21 && serieMma21 && ehValido(serieMma21[i])) {
@@ -1982,6 +2026,8 @@
               <span class="vhud-metric">Preço: <strong class="mono">${formataReal(p)}</strong></span>
               ${infoMma}
               ${ehValido(tetoBazinNaData) ? `<span class="vhud-metric">Margem vs. ${labelBazinHud}: <strong class="mono ${corClasseMargem(mBaz)}">${formataPct(mBaz)}</strong></span>` : ''}
+              ${visualState.tetosVisiveis.consenso && ehValido(tetoConsenso) ? `<span class="vhud-metric"><i class="dot" style="background:#a3e635;" aria-hidden="true"></i>Consenso (${formataReal(tetoConsenso)}): <strong class="mono ${corClasseMargem(mCons)}">${formataPct(mCons)}</strong></span>` : ''}
+              ${visualState.tetosVisiveis.barsi && ehValido(tetoBarsi) ? `<span class="vhud-metric"><i class="dot" style="background:#f97316;" aria-hidden="true"></i>Barsi (${formataReal(tetoBarsi)}): <strong class="mono ${corClasseMargem(mBars)}">${formataPct(mBars)}</strong></span>` : ''}
               ${ehValido(tetoGraham) ? `<span class="vhud-metric">Margem vs. Graham: <strong class="mono ${corClasseMargem(mGra)}">${formataPct(mGra)}</strong></span>` : ''}
               ${ehValido(tetoGordon) ? `<span class="vhud-metric">Margem vs. Gordon: <strong class="mono ${corClasseMargem(mGor)}">${formataPct(mGor)}</strong></span>` : ''}
             `;
@@ -2159,6 +2205,11 @@
                   ? `<span class="verdict verdict-vermelho">Acima do teto</span>`
                   : `<span class="t-dim">Sem teto Bazin</span>`)));
 
+          const tCons = a.teto_consenso ?? a.bazin?.teto_projetado_consenso;
+          const mCons = a.margem_consenso ?? a.bazin?.margem_projetada_consenso;
+          const tBars = a.teto_barsi ?? a.bazin?.teto_projetado_barsi;
+          const mBars = a.margem_barsi ?? a.bazin?.margem_projetada_barsi;
+
           return `
             <tr class="vcmp-row" data-vfocus-ticker="${escHtml(a.ticker)}" title="Clique para colocar ${escHtml(a.ticker)} em foco">
               <td data-label="Ativo">
@@ -2166,6 +2217,8 @@
               </td>
               <td class="num mono" data-label="Preço Atual">${formataReal(a.preco)}</td>
               <td class="num mono" data-label="Teto Bazin">${a.bazin?.teto > 0 ? `${formataReal(a.bazin.teto)} <small class="${corClasseMargem(a.bazin.margem_seguranca)}">(${formataPct(a.bazin.margem_seguranca)})</small>` : '—'}</td>
+              <td class="num mono" data-label="Teto Consenso">${ehValido(tCons) ? `${formataReal(tCons)} <small class="${corClasseMargem(mCons)}">(${formataPct(mCons)})</small>` : '—'}</td>
+              <td class="num mono" data-label="Teto Barsi">${ehValido(tBars) ? `${formataReal(tBars)} <small class="${corClasseMargem(mBars)}">(${formataPct(mBars)})</small>` : '—'}</td>
               <td class="num mono" data-label="Teto Graham">${ehValido(a.graham) ? `${formataReal(a.graham)} <small class="${corClasseMargem(a.margem_graham)}">(${formataPct(a.margem_graham)})</small>` : '—'}</td>
               <td class="num mono" data-label="Teto Gordon">${ehValido(a.gordon) ? `${formataReal(a.gordon)} <small class="${corClasseMargem(a.margem_gordon)}">(${formataPct(a.margem_gordon)})</small>` : '—'}</td>
               <td class="num mono" data-label="Tempo < Bazin">${ehValido(dAtivo.pctAbaixo) ? formataPctSimples(dAtivo.pctAbaixo, 0) : '—'}</td>
@@ -2183,6 +2236,8 @@
                   <th>Ativo</th>
                   <th class="num">Preço</th>
                   <th class="num">Teto Bazin (K=6%)</th>
+                  <th class="num">Teto Consenso</th>
+                  <th class="num">Teto Barsi</th>
                   <th class="num">Teto Graham</th>
                   <th class="num">Teto Gordon</th>
                   <th class="num">Tempo &lt; Bazin</th>

@@ -114,6 +114,44 @@ def construir_saida(
         if payout_calc is None and f.lpa is not None and f.lpa > 0 and bazin_res.dpa_sem_extra >= 0:
             payout_calc = round(bazin_res.dpa_sem_extra / f.lpa, 4)
 
+        # Projeção de Tetos: Consenso Mercado e Fundamentalista Barsi/AGF
+        payout_base = payout_calc
+        if payout_base is None or payout_base < 0.15 or payout_base > 0.95:
+            if f.lpa is not None and f.lpa > 0 and bazin_res.dpa_sem_extra > 0:
+                payout_base = max(0.25, min(0.85, round(bazin_res.dpa_sem_extra / f.lpa, 4)))
+            else:
+                payout_base = 0.50
+
+        # 1. Consenso Mercado (forward_eps * payout)
+        dpa_consenso = None
+        teto_consenso = None
+        m_consenso = None
+        if f.forward_eps is not None and f.forward_eps > 0:
+            dpa_consenso = round(f.forward_eps * payout_base, 4)
+            if dpa_consenso > 0:
+                teto_consenso = round(dpa_consenso / 0.06, 2)
+                m_consenso = margem(teto_consenso, ativo.preco)
+
+        # 2. Fundamentalista Barsi/AGF ((VPA * ROE) * payout)
+        dpa_barsi = None
+        teto_barsi = None
+        m_barsi = None
+        if f.vpa is not None and f.roe is not None and f.vpa > 0 and f.roe > 0:
+            lpa_barsi = f.vpa * f.roe
+            dpa_barsi = round(lpa_barsi * payout_base, 4)
+            if dpa_barsi > 0:
+                teto_barsi = round(dpa_barsi / 0.06, 2)
+                m_barsi = margem(teto_barsi, ativo.preco)
+
+        bazin_completo = bazin_res.model_copy(update={
+            "dpa_projetado_consenso": dpa_consenso,
+            "teto_projetado_consenso": teto_consenso,
+            "margem_projetada_consenso": m_consenso,
+            "dpa_projetado_barsi": dpa_barsi,
+            "teto_projetado_barsi": teto_barsi,
+            "margem_projetada_barsi": m_barsi,
+        })
+
         fund_out = f.model_copy(update={"payout": payout_calc})
         categoria_resolvida = resolver_categoria_ativo(ativo.setor, ativo.categoria)
 
@@ -169,7 +207,11 @@ def construir_saida(
                 preco=ativo.preco,
                 data_ult_cot=f.data_ult_cot,
                 ult_balanco=f.ult_balanco,
-                bazin=bazin_res,
+                bazin=bazin_completo,
+                teto_consenso=teto_consenso,
+                margem_consenso=m_consenso,
+                teto_barsi=teto_barsi,
+                margem_barsi=m_barsi,
                 graham=vi_graham,
                 margem_graham=m_graham,
                 gordon=preco_gordon,

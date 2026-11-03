@@ -106,6 +106,8 @@ class Fundamentos(BaseModel):
     fcf_12m: Optional[float] = None
     fcf_yield: Optional[float] = None
     conversao_fcf_lucro: Optional[float] = None
+    forward_eps: Optional[float] = None
+    target_consensus: Optional[float] = None
 
 
 class PontoLucro(BaseModel):
@@ -153,6 +155,12 @@ class ResultadoBazin(BaseModel):
     margem_seguranca: Optional[float] = None
     veredito: VereditoCor
     por_ano: Optional[dict[str, float]] = None
+    dpa_projetado_consenso: Optional[float] = None
+    teto_projetado_consenso: Optional[float] = None
+    margem_projetada_consenso: Optional[float] = None
+    dpa_projetado_barsi: Optional[float] = None
+    teto_projetado_barsi: Optional[float] = None
+    margem_projetada_barsi: Optional[float] = None
 
 
 class ResultadoAtivo(BaseModel):
@@ -169,6 +177,10 @@ class ResultadoAtivo(BaseModel):
     data_ult_cot: Optional[str] = None
     ult_balanco: Optional[str] = None
     bazin: ResultadoBazin
+    teto_consenso: Optional[float] = None
+    margem_consenso: Optional[float] = None
+    teto_barsi: Optional[float] = None
+    margem_barsi: Optional[float] = None
     graham: Optional[float] = None
     margem_graham: Optional[float] = None
     gordon: Optional[float] = None

@@ -828,6 +828,8 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
             "fcf_12m": fcf_12m,
             "fcf_yield": fcf_yield,
             "conversao_fcf_lucro": conversao_fcf_lucro,
+            "forward_eps": _limpar_float(info.get("forwardEps")),
+            "target_consensus": _limpar_float(info.get("targetMeanPrice")),
         },
     }
 
