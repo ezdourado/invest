@@ -84,6 +84,12 @@
   --svg-grid:        rgba(255, 255, 255, 0.06);
   --svg-axis:        #94a3b8;
   --svg-pill-bg:     #131b2b;
+
+  /* Barras de rolagem (Scrollbars) */
+  --scrollbar-track:        #0c1018;
+  --scrollbar-thumb:        rgba(255, 255, 255, 0.18);
+  --scrollbar-thumb-hover:  rgba(255, 255, 255, 0.32);
+  --scrollbar-thumb-active: var(--accent);
 }
 
 /* Tema Claro Opcional (WCAG AA >= 4.5:1) */
@@ -141,6 +147,11 @@ html[data-theme="light"] {
   --svg-grid:        rgba(15, 23, 42, 0.08);
   --svg-axis:        #475569;
   --svg-pill-bg:     #ffffff;
+
+  --scrollbar-track:        #f1f5f9;
+  --scrollbar-thumb:        #cbd5e1;
+  --scrollbar-thumb-hover:  #94a3b8;
+  --scrollbar-thumb-active: var(--accent);
 }
 
 /* Modo Apresentação (Escala +15%, foco executivo) */
@@ -212,6 +223,105 @@ code {
   color: var(--muted);
 }
 
+/* ==================== ESTILIZAÇÃO DAS BARRAS DE ROLAGEM ==================== */
+/* Suporte padrão W3C moderno (Firefox, Chrome 121+, Edge 121+, Safari 17+) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* Motores WebKit / Blink (Chrome, Edge, Safari, Opera, Brave) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+  border: 2px solid var(--scrollbar-track);
+  transition: background-color 0.15s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-thumb-active);
+}
+
+/* Remove botões/setas de rolagem padrão do Windows que quebram o design executivo */
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
+}
+
+/* Scrollbars dedicadas da tabela principal e containers roláveis */
+.table-wrap,
+.cal-heat-scroll,
+.vcompare-table-wrap,
+.vside-list,
+.cal-event-list,
+.drawer-body,
+.popover-dialog {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+.table-wrap::-webkit-scrollbar,
+.cal-heat-scroll::-webkit-scrollbar,
+.vcompare-table-wrap::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-wrap::-webkit-scrollbar-track,
+.cal-heat-scroll::-webkit-scrollbar-track,
+.vcompare-table-wrap::-webkit-scrollbar-track {
+  background: var(--bg-elev);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.table-wrap::-webkit-scrollbar-thumb,
+.cal-heat-scroll::-webkit-scrollbar-thumb,
+.vcompare-table-wrap::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+  border: 2px solid var(--bg-elev);
+}
+
+.table-wrap::-webkit-scrollbar-thumb:hover,
+.cal-heat-scroll::-webkit-scrollbar-thumb:hover,
+.vcompare-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Barra fina em chips e listas compactas */
+.sector-strip-card {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.sector-strip-card::-webkit-scrollbar {
+  height: 4px;
+}
+.sector-strip-card::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sector-strip-card::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 2px;
+}
+
 /* ---------- Utilitários Globais ---------- */
 .is-hidden { display: none !important; }
 .sr-only {
@@ -221,6 +331,17 @@ code {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* Utilitários responsivos do cabeçalho */
+.status-text-mobile {
+  display: none;
+}
+.btn-text-mobile {
+  display: none;
+}
+.tab-label-mobile {
+  display: none;
 }
 
 .num {
@@ -2995,24 +3116,75 @@ body.is-presentation .shell {
 }
 
 @media (max-width: 980px) {
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
   .topbar-inner {
+    display: flex;
     flex-wrap: wrap;
-    padding: 8px 14px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px 6px;
+    gap: 8px 10px;
+    min-height: auto;
+  }
+  .brand {
+    order: 1;
     gap: 8px;
+    flex-shrink: 0;
+  }
+  .topbar-right {
+    order: 2;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
   }
   .view-nav-bar {
     order: 3;
     width: 100%;
+    margin-top: 2px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .view-nav-bar::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
   .view-tabs {
-    width: max-content;
-    min-width: 100%;
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    padding: 2px;
+    gap: 2px;
   }
   .view-tab {
-    flex: 1 0 auto;
+    flex: 1 1 0;
+    min-width: 0;
     justify-content: center;
+    padding: 0 6px;
+    height: 32px;
+    font-size: var(--fs-xs);
+    gap: 5px;
+  }
+  .view-tab svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  /* Oculta controles de apresentação e atalhos físicos de teclado na visão mobile/tablet */
+  #btn-toggle-presentation,
+  #btn-open-shortcuts {
+    display: none !important;
   }
 
   .visual-workspace {
@@ -3175,8 +3347,89 @@ body.is-presentation .shell {
 }
 
 @media (max-width: 640px) {
+  .topbar-inner {
+    padding: 6px 10px 6px;
+    gap: 6px 8px;
+  }
+  .brand {
+    gap: 6px;
+  }
+  .brand-mark {
+    width: 22px;
+    height: 22px;
+  }
+  .brand-mark::after {
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    height: 7px;
+  }
+  .brand-title {
+    font-size: var(--fs-sm);
+  }
+  .brand-sub {
+    display: none !important;
+  }
+  .topbar-right {
+    gap: 5px;
+  }
+  .status-text-full {
+    display: none !important;
+  }
+  .status-text-mobile {
+    display: inline !important;
+  }
+  .status-pill {
+    height: 30px;
+    padding: 0 8px;
+    font-size: var(--fs-xs);
+    gap: 5px;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+  }
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+  }
+  .topnav {
+    display: none !important;
+  }
+  .btn-text-desktop {
+    display: none !important;
+  }
+  .btn-text-mobile {
+    display: inline !important;
+  }
+  #btn-open-selector {
+    height: 30px;
+    padding: 0 9px;
+    font-size: var(--fs-xs);
+    gap: 4px;
+  }
+  .tab-label-desktop {
+    display: none !important;
+  }
+  .tab-label-mobile {
+    display: inline !important;
+  }
+  .desktop-only {
+    display: none !important;
+  }
+  .view-tab {
+    height: 30px;
+    padding: 0 4px;
+    font-size: 11.5px;
+    gap: 4px;
+  }
+  .view-tab svg {
+    width: 13px;
+    height: 13px;
+  }
+
   .shell {
-    padding: 12px 10px 36px;
+    padding: 10px 8px 36px;
   }
   .vmobile-row,
   .d-agenda-grid {
@@ -3193,6 +3446,21 @@ body.is-presentation .shell {
   .drawer {
     width: 100vw;
     border-left: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .topbar-inner {
+    padding: 5px 8px;
+  }
+  .view-tab span {
+    font-size: 11px;
+  }
+  #btn-open-selector .btn-text-mobile {
+    display: none !important;
+  }
+  #btn-open-selector {
+    padding: 0 8px;
   }
 }
 

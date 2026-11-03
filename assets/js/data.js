@@ -486,7 +486,7 @@ function atualizarStatusBase() {
 
   renderizarStatus(
     estado,
-    `Cotações de <strong class="mono">${esc(dataCotCurta)}</strong> (fechamento)<span class="status-sep">·</span>Base gerada em <span class="mono">${esc(infoGerado.dataCurta)} ${esc(infoGerado.hora)}</span>`
+    `<span class="status-text-full">Cotações de <strong class="mono">${esc(dataCotCurta)}</strong> (fechamento)<span class="status-sep">·</span>Base gerada em <span class="mono">${esc(infoGerado.dataCurta)} ${esc(infoGerado.hora)}</span></span><span class="status-text-mobile"><strong class="mono">${esc(dataCotCurta)}</strong></span>`
   );
 
   const foot = $('#main-footer');
@@ -1652,7 +1652,10 @@ function exibirErro(msg) {
     banner.textContent = `Não foi possível carregar os dados de valuation: ${msg}. Verifique sua conexão e tente novamente.`;
     banner.classList.remove('is-hidden');
   }
-  renderizarStatus('is-error', 'Base indisponível · Clique para tentar novamente');
+  renderizarStatus(
+    'is-error',
+    '<span class="status-text-full">Base indisponível · Clique para tentar novamente</span><span class="status-text-mobile">Erro</span>'
+  );
   const tbody = $('#engine-valuation-tbody');
   if (tbody) {
     tbody.innerHTML = `<tr class="row-empty"><td colspan="11" class="empty"><strong>Dados temporariamente indisponíveis</strong>${esc(msg)}</td></tr>`;
@@ -2040,7 +2043,7 @@ function bindEventos() {
 
   $('#status-pill')?.addEventListener('click', () => {
     const el = $('#status-text');
-    if (el) el.textContent = 'Sincronizando base…';
+    if (el) el.innerHTML = '<span class="status-text-full">Sincronizando base…</span><span class="status-text-mobile">Sincronizando…</span>';
     carregarValuationJson(true);
   });
 
