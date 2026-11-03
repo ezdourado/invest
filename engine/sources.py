@@ -588,8 +588,31 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
     pvp = (round(preco / vpa, 2) if (preco and vpa and vpa > 0) else None) or detalhes_fund.get("pvp")
 
     historico_lucros: list[PontoLucro] = []
+    fco_12m = None
+    capex_12m = None
+    fcf_12m = None
+    fcf_yield = None
+    conversao_fcf_lucro = None
+
     try:
-        # 1. Pontos Trimestrais (preferenciais para captar descolamentos recentes trimestre a trimestre)
+        # Cash flow data
+        qcf = ticker_obj.quarterly_cash_flow
+        if qcf is None or qcf.empty:
+            qcf = ticker_obj.quarterly_cashflow
+
+        acf = ticker_obj.cash_flow
+        if acf is None or acf.empty:
+            acf = ticker_obj.cashflow
+
+        row_fco_q = qcf.loc["Operating Cash Flow"] if (qcf is not None and "Operating Cash Flow" in qcf.index) else None
+        row_capex_q = qcf.loc["Capital Expenditure"] if (qcf is not None and "Capital Expenditure" in qcf.index) else None
+        row_fcf_q = qcf.loc["Free Cash Flow"] if (qcf is not None and "Free Cash Flow" in qcf.index) else None
+
+        row_fco_a = acf.loc["Operating Cash Flow"] if (acf is not None and "Operating Cash Flow" in acf.index) else None
+        row_capex_a = acf.loc["Capital Expenditure"] if (acf is not None and "Capital Expenditure" in acf.index) else None
+        row_fcf_a = acf.loc["Free Cash Flow"] if (acf is not None and "Free Cash Flow" in acf.index) else None
+
+        # 1. Pontos Trimestrais (Income Statement + Cash Flow)
         qf = ticker_obj.quarterly_income_stmt
         if qf is None or qf.empty:
             qf = ticker_obj.quarterly_financials
@@ -628,6 +651,13 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
                         if (row_eps_q is not None and col_dt in row_eps_q)
                         else None
                     )
+                    # Match cash flow column
+                    val_fco = _limpar_float(row_fco_q[col_dt]) if (row_fco_q is not None and col_dt in row_fco_q) else None
+                    val_capex = _limpar_float(row_capex_q[col_dt]) if (row_capex_q is not None and col_dt in row_capex_q) else None
+                    val_fcf = _limpar_float(row_fcf_q[col_dt]) if (row_fcf_q is not None and col_dt in row_fcf_q) else None
+                    if val_fcf is None and val_fco is not None and val_capex is not None:
+                        val_fcf = round(val_fco + val_capex, 2)  # capex is usually negative
+
                     historico_lucros.append(
                         PontoLucro(
                             ano=ano_num,
@@ -635,11 +665,14 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
                             periodo=f"{trim_num}T{str(ano_num)[2:]}",
                             lucro_liquido=round(val_lucro, 2),
                             lpa=round(val_eps, 4) if val_eps is not None else None,
+                            fco=round(val_fco, 2) if val_fco is not None else None,
+                            capex=round(val_capex, 2) if val_capex is not None else None,
+                            fcf=round(val_fcf, 2) if val_fcf is not None else None,
                             tipo="trimestral",
                         )
                     )
 
-        # 2. Pontos Anuais (para suporte a histórico mais longo de 4-5 anos)
+        # 2. Pontos Anuais (Income Statement + Cash Flow)
         af = ticker_obj.income_stmt
         if af is None or af.empty:
             af = ticker_obj.financials
@@ -676,6 +709,12 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
                         if (row_eps_a is not None and col_dt in row_eps_a)
                         else None
                     )
+                    val_fco = _limpar_float(row_fco_a[col_dt]) if (row_fco_a is not None and col_dt in row_fco_a) else None
+                    val_capex = _limpar_float(row_capex_a[col_dt]) if (row_capex_a is not None and col_dt in row_capex_a) else None
+                    val_fcf = _limpar_float(row_fcf_a[col_dt]) if (row_fcf_a is not None and col_dt in row_fcf_a) else None
+                    if val_fcf is None and val_fco is not None and val_capex is not None:
+                        val_fcf = round(val_fco + val_capex, 2)
+
                     historico_lucros.append(
                         PontoLucro(
                             ano=ano_num,
@@ -683,11 +722,58 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
                             periodo=str(ano_num),
                             lucro_liquido=round(val_lucro, 2),
                             lpa=round(val_eps, 4) if val_eps is not None else None,
+                            fco=round(val_fco, 2) if val_fco is not None else None,
+                            capex=round(val_capex, 2) if val_capex is not None else None,
+                            fcf=round(val_fcf, 2) if val_fcf is not None else None,
                             tipo="anual",
                         )
                     )
 
         historico_lucros.sort(key=lambda p: (p.data or f"{p.ano}-12-31", p.tipo))
+
+        # 3. Consolidação 12M de Fluxo de Caixa
+        trims_fcf = [p for p in historico_lucros if p.tipo == "trimestral" and p.fcf is not None]
+        trims_fco = [p for p in historico_lucros if p.tipo == "trimestral" and p.fco is not None]
+        trims_capex = [p for p in historico_lucros if p.tipo == "trimestral" and p.capex is not None]
+        trims_lucro = [p for p in historico_lucros if p.tipo == "trimestral" and p.lucro_liquido is not None]
+
+        if len(trims_fcf) >= 4:
+            fcf_12m = round(sum(p.fcf for p in trims_fcf[-4:]), 2)
+        elif len(trims_fcf) >= 1:
+            fcf_12m = round((sum(p.fcf for p in trims_fcf) / len(trims_fcf)) * 4, 2)
+        else:
+            anuais_fcf = [p.fcf for p in historico_lucros if p.tipo == "anual" and p.fcf is not None]
+            fcf_12m = anuais_fcf[-1] if anuais_fcf else None
+
+        if len(trims_fco) >= 4:
+            fco_12m = round(sum(p.fco for p in trims_fco[-4:]), 2)
+        elif len(trims_fco) >= 1:
+            fco_12m = round((sum(p.fco for p in trims_fco) / len(trims_fco)) * 4, 2)
+        else:
+            anuais_fco = [p.fco for p in historico_lucros if p.tipo == "anual" and p.fco is not None]
+            fco_12m = anuais_fco[-1] if anuais_fco else None
+
+        if len(trims_capex) >= 4:
+            capex_12m = round(sum(p.capex for p in trims_capex[-4:]), 2)
+        elif len(trims_capex) >= 1:
+            capex_12m = round((sum(p.capex for p in trims_capex) / len(trims_capex)) * 4, 2)
+        else:
+            anuais_capex = [p.capex for p in historico_lucros if p.tipo == "anual" and p.capex is not None]
+            capex_12m = anuais_capex[-1] if anuais_capex else None
+
+        # Lucro 12m
+        lucro_12m = None
+        if len(trims_lucro) >= 4:
+            lucro_12m = sum(p.lucro_liquido for p in trims_lucro[-4:])
+        elif len(trims_lucro) >= 1:
+            lucro_12m = (sum(p.lucro_liquido for p in trims_lucro) / len(trims_lucro)) * 4
+
+        if fcf_12m is not None and lucro_12m and abs(lucro_12m) > 0:
+            conversao_fcf_lucro = round(fcf_12m / abs(lucro_12m), 4)
+
+        mkt_cap = info.get("marketCap")
+        if fcf_12m is not None and mkt_cap and mkt_cap > 0:
+            fcf_yield = round(fcf_12m / mkt_cap, 4)
     except Exception:
         pass
 
@@ -724,6 +810,11 @@ def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
             "div_liq_ebitda": detalhes_fund.get("div_liq_ebitda"),
             "liquidez_corrente": detalhes_fund.get("liquidez_corrente"),
             "liquidez_diaria": detalhes_fund.get("liquidez_diaria"),
+            "fco_12m": fco_12m,
+            "capex_12m": capex_12m,
+            "fcf_12m": fcf_12m,
+            "fcf_yield": fcf_yield,
+            "conversao_fcf_lucro": conversao_fcf_lucro,
         },
     }
 

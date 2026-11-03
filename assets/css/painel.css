@@ -3627,3 +3627,175 @@ body.is-presentation .shell {
     transition: none !important;
   }
 }
+
+/* ==========================================================================
+   Análise Técnica (Bullish / Bearish / Neutro) & DFC / FCF
+   ========================================================================== */
+
+.badge-tech {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill, 999px);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1.3;
+  margin-left: 4px;
+}
+.badge-tech-icon {
+  font-size: 8px;
+  line-height: 1;
+}
+.badge-tech-bullish {
+  color: var(--green-text);
+  background: var(--green-soft);
+  border: 1px solid var(--green-line);
+}
+.badge-tech-bearish {
+  color: var(--red-text);
+  background: var(--red-soft);
+  border: 1px solid var(--red-line);
+}
+.badge-tech-neutro {
+  color: var(--text-muted);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+}
+
+/* Detalhe Drawer: Card de Análise Técnica & Momentum */
+.d-tech-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.d-tech-score-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+}
+.d-tech-badge {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+}
+.d-tech-meter-bar {
+  flex: 1;
+  min-width: 100px;
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.d-tech-meter-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+.d-tech-meter-fill.fill-bullish {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+.d-tech-meter-fill.fill-bearish {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+.d-tech-meter-fill.fill-neutro {
+  background: linear-gradient(90deg, #64748b, #94a3b8);
+}
+.d-tech-score-text {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.d-tech-score-text strong {
+  color: var(--text);
+  font-family: var(--mono);
+}
+.d-tech-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+.d-tech-signals {
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+}
+.d-tech-signals-label {
+  font-weight: 600;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 4px;
+}
+.d-tech-signals-list {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.d-tech-signal-item {
+  color: var(--text);
+}
+
+/* Gráficos: Toggles de Médias Móveis Técnicas e Swatches */
+.vleg-tech-toggles {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+}
+.vleg-tech-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.vleg-tech-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.vleg-tech-btn.is-active {
+  background: var(--surface-active);
+  border-color: var(--border-strong);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.vleg-swatch.is-mma21 {
+  background-color: #f59e0b;
+}
+.vleg-swatch.is-mma50 {
+  background-color: #3b82f6;
+}
+.vleg-swatch.is-fcf {
+  background-color: #10b981;
+}
+.dot-mma21 {
+  background-color: #f59e0b;
+}
+.dot-mma50 {
+  background-color: #3b82f6;
+}
+.dot-fcf {
+  background-color: #10b981;
+}

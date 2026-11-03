@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261103c">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261103d">
 </head>
 <body>
 
@@ -112,11 +112,13 @@
             <input type="search" id="input-filter-table" placeholder="Buscar ticker, empresa ou setor… (/)" autocomplete="off">
           </label>
 
-          <div class="segmented" role="group" aria-label="Filtrar por situação frente ao teto" id="verdict-filter">
+          <div class="segmented" role="group" aria-label="Filtrar por situação frente ao teto ou análise técnica" id="verdict-filter">
             <button type="button" class="seg-btn is-active" data-verdict="todos">Todos</button>
             <button type="button" class="seg-btn" data-verdict="verde"><span class="verdict-icon t-green" aria-hidden="true">▲</span>Abaixo do teto</button>
             <button type="button" class="seg-btn" data-verdict="amarelo"><span class="verdict-icon t-yellow" aria-hidden="true">●</span>Próximo do teto</button>
             <button type="button" class="seg-btn" data-verdict="vermelho"><span class="verdict-icon t-red" aria-hidden="true">▼</span>Acima do teto</button>
+            <button type="button" class="seg-btn" data-verdict="bullish"><span class="verdict-icon t-green" aria-hidden="true">▲</span>Bullish</button>
+            <button type="button" class="seg-btn" data-verdict="bearish"><span class="verdict-icon t-red" aria-hidden="true">▼</span>Bearish</button>
           </div>
 
           <div class="segmented" role="group" aria-label="Densidade da tabela" id="table-density-group">
@@ -585,8 +587,8 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/data.js?v=20261103c"></script>
-<script src="./assets/js/visao_grafica.js?v=20261103c"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261103c"></script>
+<script src="./assets/js/data.js?v=20261103d"></script>
+<script src="./assets/js/visao_grafica.js?v=20261103d"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261103d"></script>
 </body>
 </html>

@@ -100,6 +100,12 @@ class Fundamentos(BaseModel):
     div_liq_ebitda: Optional[float] = None
     liquidez_corrente: Optional[float] = None
     liquidez_diaria: Optional[float] = None
+    # Fluxo de caixa
+    fco_12m: Optional[float] = None
+    capex_12m: Optional[float] = None
+    fcf_12m: Optional[float] = None
+    fcf_yield: Optional[float] = None
+    conversao_fcf_lucro: Optional[float] = None
 
 
 class PontoLucro(BaseModel):
@@ -112,6 +118,9 @@ class PontoLucro(BaseModel):
     periodo: Optional[str] = None
     lucro_liquido: float
     lpa: Optional[float] = None
+    fco: Optional[float] = None
+    capex: Optional[float] = None
+    fcf: Optional[float] = None
     tipo: str = "trimestral"
 
 

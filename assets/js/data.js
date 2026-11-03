@@ -31,8 +31,136 @@ const ORDEM_VEREDITO = { verde: 0, amarelo: 1, vermelho: 2 };
 const ROTULO_VEREDITO = {
   verde: 'Abaixo do teto',
   amarelo: 'Próximo do teto',
-  vermelho: 'Acima do teto'
+  vermelho: 'Acima do teto',
+  bullish: 'Tendência Bullish',
+  bearish: 'Tendência Bearish'
 };
+
+/* ---------- Análise Técnica (MMA 21, MMA 50, MMA 200, IFR 14 & Score de Tendência) ---------- */
+
+function calcularAnaliseTecnica(a) {
+  if (!a) return null;
+  const precos = (a.historico_precos || []).filter(v => typeof v === 'number' && v > 0);
+  if (!precos.length && a.preco > 0) precos.push(a.preco);
+  if (!precos.length) return null;
+
+  const n = precos.length;
+  const precoAtual = a.preco || precos[n - 1];
+
+  const mma = (periodo) => {
+    if (n < Math.min(periodo, 4)) return null;
+    const slice = precos.slice(-periodo);
+    const soma = slice.reduce((acc, v) => acc + v, 0);
+    return Math.round((soma / slice.length) * 100) / 100;
+  };
+
+  const mma9 = mma(9);
+  const mma21 = mma(21);
+  const mma50 = mma(50);
+  const mma200 = n >= 50 ? mma(200) : null;
+
+  // IFR 14 semanas
+  let ifr14 = null;
+  if (n >= 15) {
+    const periodos = 14;
+    const slice = precos.slice(-periodos - 1);
+    let ganhos = 0;
+    let perdas = 0;
+    for (let i = 1; i < slice.length; i++) {
+      const diff = slice[i] - slice[i - 1];
+      if (diff > 0) ganhos += diff;
+      else perdas += Math.abs(diff);
+    }
+    const mediaGanhos = ganhos / periodos;
+    const mediaPerdas = perdas / periodos;
+    if (mediaPerdas === 0) ifr14 = 100;
+    else {
+      const rs = mediaGanhos / mediaPerdas;
+      ifr14 = Math.round((100 - (100 / (1 + rs))) * 10) / 10;
+    }
+  }
+
+  // Score de Tendência (0 a 100)
+  let score = 0;
+  let maxScore = 0;
+
+  // 1. Preço vs MMA 21 (+25 pts)
+  maxScore += 25;
+  if (mma21 !== null && precoAtual >= mma21) score += 25;
+
+  // 2. Preço vs MMA 50 (+25 pts)
+  maxScore += 25;
+  if (mma50 !== null && precoAtual >= mma50) score += 25;
+
+  // 3. MMA 21 vs MMA 50 (+20 pts)
+  if (mma21 !== null && mma50 !== null) {
+    maxScore += 20;
+    if (mma21 >= mma50) score += 20;
+  }
+
+  // 4. Preço vs MMA 200 (+15 pts)
+  if (mma200 !== null) {
+    maxScore += 15;
+    if (precoAtual >= mma200) score += 15;
+  }
+
+  // 5. IFR Momentum (+15 pts)
+  if (ifr14 !== null) {
+    maxScore += 15;
+    if (ifr14 >= 50 && ifr14 <= 70) score += 15;
+    else if (ifr14 >= 40 && ifr14 < 50) score += 10;
+    else if (ifr14 > 70) score += 8;
+    else if (ifr14 >= 30 && ifr14 < 40) score += 5;
+  }
+
+  const scoreNormalizado = maxScore > 0 ? Math.round((score / maxScore) * 100) : 50;
+
+  let status = 'neutro';
+  let rotulo = 'Tendência Neutra';
+  if (scoreNormalizado >= 65) {
+    status = 'bullish';
+    rotulo = 'Bullish (Tendência de Alta)';
+  } else if (scoreNormalizado <= 35) {
+    status = 'bearish';
+    rotulo = 'Bearish (Tendência de Baixa)';
+  }
+
+  const sinais = [];
+  if (mma21 && mma50 && mma21 > mma50) sinais.push('MMA 21 acima da MMA 50 (Alinhamento altista)');
+  else if (mma21 && mma50 && mma21 < mma50) sinais.push('MMA 21 abaixo da MMA 50 (Pressão vendedora)');
+
+  if (ifr14 !== null) {
+    if (ifr14 < 30) sinais.push(`IFR Sobrevendido (${ifr14}) · Potencial repique`);
+    else if (ifr14 > 70) sinais.push(`IFR Sobrecomprado (${ifr14}) · Cautela no curto prazo`);
+  }
+
+  if (mma200 && precoAtual > mma200) sinais.push('Acima da MMA 200 (Tendência primária de alta)');
+  else if (mma200 && precoAtual < mma200) sinais.push('Abaixo da MMA 200 (Tendência primária de baixa)');
+
+  return {
+    precoAtual,
+    mma9,
+    mma21,
+    mma50,
+    mma200,
+    ifr14,
+    score: scoreNormalizado,
+    status,
+    rotulo,
+    sinais
+  };
+}
+window.calcularAnaliseTecnica = calcularAnaliseTecnica;
+
+function htmlBadgeTecnico(a) {
+  const tech = calcularAnaliseTecnica(a);
+  if (!tech) return '';
+  const tip = `Análise Técnica: ${tech.rotulo} (Score ${tech.score}/100 · IFR ${tech.ifr14 ?? '—'}${tech.sinais.length ? ' · ' + tech.sinais[0] : ''})`;
+  const icone = tech.status === 'bullish' ? '▲' : (tech.status === 'bearish' ? '▼' : '●');
+  const txt = tech.status === 'bullish' ? 'Bullish' : (tech.status === 'bearish' ? 'Bearish' : 'Neutro');
+  return `<span class="badge-tech badge-tech-${tech.status}" data-tip="${esc(tip)}" aria-label="${esc(tip)}"><span class="badge-tech-icon" aria-hidden="true">${icone}</span>${txt}</span>`;
+}
+
 const ICONE_VEREDITO = {
   verde: '▲',
   amarelo: '●',
@@ -128,10 +256,12 @@ function fmtMult(v, sufixo = 'x') {
 }
 
 function fmtMoedaCompacta(v) {
-  if (!valido(v) || v <= 0) return '—';
-  if (v >= 1e9) return 'R$ ' + (v / 1e9).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' bi';
-  if (v >= 1e6) return 'R$ ' + (v / 1e6).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' mi';
-  if (v >= 1e3) return 'R$ ' + (v / 1e3).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' mil';
+  if (!valido(v) || v === 0) return '—';
+  const sinal = v < 0 ? '−' : '';
+  const abs = Math.abs(v);
+  if (abs >= 1e9) return sinal + 'R$ ' + (abs / 1e9).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' bi';
+  if (abs >= 1e6) return sinal + 'R$ ' + (abs / 1e6).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' mi';
+  if (abs >= 1e3) return sinal + 'R$ ' + (abs / 1e3).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' mil';
   return fmtReal(v);
 }
 
@@ -453,9 +583,17 @@ function ordenar(lista) {
 
 function ativosVisiveis() {
   const q = painelState.termo.trim().toLowerCase();
+  const fv = painelState.filtroVeredito;
   const lista = ativosSelecionados().filter(a => {
     if (!passaFiltroSetor(a)) return false;
-    if (painelState.filtroVeredito !== 'todos' && a.bazin?.veredito !== painelState.filtroVeredito) return false;
+    if (fv !== 'todos') {
+      if (fv === 'bullish' || fv === 'bearish') {
+        const t = calcularAnaliseTecnica(a);
+        if (!t || t.status !== fv) return false;
+      } else if (a.bazin?.veredito !== fv) {
+        return false;
+      }
+    }
     if (q && !a.ticker.toLowerCase().includes(q) && !a.setor.toLowerCase().includes(q) && !(a.empresa || '').toLowerCase().includes(q)) return false;
     return true;
   });
@@ -874,7 +1012,7 @@ function renderizarTabela() {
         <td class="c-ticker" data-label="Ativo">
           <div class="asset-cell-wrap">
             <div class="asset">
-              <span class="asset-ticker" ${a.empresa ? `data-tip="${esc(a.empresa)}"` : ''}>${esc(a.ticker)} ${extra}</span>
+              <span class="asset-ticker" ${a.empresa ? `data-tip="${esc(a.empresa)}"` : ''}>${esc(a.ticker)} ${extra} ${htmlBadgeTecnico(a)}</span>
               <span class="asset-sector">${esc(a.empresa || a.setor)} ${catTag}</span>
             </div>
             ${htmlSparkline12m(a)}
@@ -1144,6 +1282,112 @@ function htmlBlocoSustentabilidade(a) {
     </div>`;
 }
 
+
+function htmlBlocoAnaliseTecnicaEFluxoCaixa(a) {
+  const tech = calcularAnaliseTecnica(a);
+  const f = a.fundamentos || {};
+  const ehBanco = a.setor && String(a.setor).toLowerCase().includes('banco');
+
+  let blocoTech = '';
+  if (tech) {
+    const sinaisHtml = tech.sinais.length
+      ? tech.sinais.map(s => `<li class="d-tech-signal-item">${esc(s)}</li>`).join('')
+      : '<li class="d-tech-signal-item t-muted">Sem alertas técnicos atípicos no momento.</li>';
+
+    const ifrClass = tech.ifr14 < 30 ? 't-green' : (tech.ifr14 > 70 ? 't-yellow' : '');
+    const ifrDesc = tech.ifr14 < 30 ? ' (Sobrevendido)' : (tech.ifr14 > 70 ? ' (Sobrecomprado)' : ' (Neutro)');
+
+    blocoTech = `
+      <div class="d-block">
+        <div class="d-section-title">Análise Técnica &amp; Momentum (Semanal)</div>
+        <div class="d-tech-hero">
+          <div class="d-tech-score-wrap">
+            <span class="d-tech-badge badge-tech-${tech.status}">${tech.status === 'bullish' ? '▲ Bullish' : (tech.status === 'bearish' ? '▼ Bearish' : '● Neutro')}</span>
+            <div class="d-tech-meter-bar">
+              <div class="d-tech-meter-fill fill-${tech.status}" style="width: ${tech.score}%"></div>
+            </div>
+            <span class="d-tech-score-text">Score Técnico: <strong>${tech.score}</strong>/100</span>
+          </div>
+          <div class="d-tech-kpis">
+            <div class="d-mult-card">
+              <span class="d-mult-label">IFR (14 Semanas)</span>
+              <span class="d-mult-val ${ifrClass}">${tech.ifr14 !== null ? tech.ifr14 : '—'}<small>${tech.ifr14 !== null ? ifrDesc : ''}</small></span>
+              <span class="d-mult-sub">&lt;30 Compra · &gt;70 Venda</span>
+            </div>
+            <div class="d-mult-card">
+              <span class="d-mult-label">MMA 21 Semanas</span>
+              <span class="d-mult-val ${tech.mma21 ? (a.preco >= tech.mma21 ? 't-green' : 't-red') : ''}">${tech.mma21 ? fmtReal(tech.mma21) : '—'}</span>
+              <span class="d-mult-sub">Curto/Médio Prazo</span>
+            </div>
+            <div class="d-mult-card">
+              <span class="d-mult-label">MMA 50 Semanas</span>
+              <span class="d-mult-val ${tech.mma50 ? (a.preco >= tech.mma50 ? 't-green' : 't-red') : ''}">${tech.mma50 ? fmtReal(tech.mma50) : '—'}</span>
+              <span class="d-mult-sub">Médio Prazo (~1 ano)</span>
+            </div>
+            <div class="d-mult-card">
+              <span class="d-mult-label">MMA 200 Semanas</span>
+              <span class="d-mult-val ${tech.mma200 ? (a.preco >= tech.mma200 ? 't-green' : 't-red') : ''}">${tech.mma200 ? fmtReal(tech.mma200) : '—'}</span>
+              <span class="d-mult-sub">Longo Prazo (~4 anos)</span>
+            </div>
+          </div>
+        </div>
+        <div class="d-tech-signals">
+          <span class="d-tech-signals-label">Diagnóstico de Tendência:</span>
+          <ul class="d-tech-signals-list">${sinaisHtml}</ul>
+        </div>
+      </div>
+    `;
+  }
+
+  const fcf12m = f.fcf_12m;
+  const fco12m = f.fco_12m;
+  const capex12m = f.capex_12m;
+  const fcfYield = f.fcf_yield;
+  const conv = f.conversao_fcf_lucro;
+
+  const convClass = valido(conv) ? (conv >= 0.8 ? 't-green' : (conv >= 0.4 ? 't-yellow' : 't-red')) : 't-dim';
+  const yieldClass = valido(fcfYield) ? (fcfYield >= 0.08 ? 't-green' : (fcfYield >= 0.04 ? 't-yellow' : '')) : 't-dim';
+
+  const blocoCashflow = `
+    <div class="d-block">
+      <div class="d-section-title">Demonstração do Fluxo de Caixa (DFC &amp; FCF)</div>
+      ${ehBanco ? `
+        <p class="d-note">Bancos e instituições financeiras não possuem CAPEX industrial nem métrica padronizada de FCF livre; seu resultado é gerido pela intermediação financeira e provisões.</p>
+      ` : `
+        <div class="d-mult-grid">
+          <div class="d-mult-card" data-tip="Fluxo de Caixa Livre (12m): Caixa operacional gerado subtraído dos investimentos em capital (Capex).">
+            <span class="d-mult-label">FCF (Livre 12M)</span>
+            <span class="d-mult-val ${valido(fcf12m) ? (fcf12m > 0 ? 't-green' : 't-red') : 't-dim'}">${fmtMoedaCompacta(fcf12m)}</span>
+            <span class="d-mult-sub">FCO − CAPEX</span>
+          </div>
+          <div class="d-mult-card" data-tip="FCF Yield: Rendimento do Fluxo de Caixa Livre sobre o Valor de Mercado. Acima de 8% indica alta capacidade de remuneração.">
+            <span class="d-mult-label">FCF Yield</span>
+            <span class="d-mult-val ${yieldClass}">${fmtPctSimples(fcfYield)}</span>
+            <span class="d-mult-sub">FCF ÷ Valor de Mercado</span>
+          </div>
+          <div class="d-mult-card" data-tip="Fluxo de Caixa Operacional (FCO 12m): Dinheiro efetivamente gerado pelas operações da empresa.">
+            <span class="d-mult-label">FCO (Operacional 12M)</span>
+            <span class="d-mult-val">${fmtMoedaCompacta(fco12m)}</span>
+            <span class="d-mult-sub">Geração Bruta de Caixa</span>
+          </div>
+          <div class="d-mult-card" data-tip="Conversão de Lucro em Caixa: FCF dividido pelo Lucro Líquido. Quanto maior que 80%, maior a qualidade dos lucros (sem artifícios contábeis).">
+            <span class="d-mult-label">Conversão Caixa/Lucro</span>
+            <span class="d-mult-val ${convClass}">${fmtPctSimples(conv)}</span>
+            <span class="d-mult-sub">Qualidade do Lucro</span>
+          </div>
+        </div>
+        <dl class="kv" style="margin-top: 10px;">
+          <dt>Capex 12M (Investimentos)</dt><dd>${fmtMoedaCompacta(capex12m)}</dd>
+          <dt>Qualidade dos Lucros Contábeis</dt>
+          <dd>${valido(conv) ? (conv >= 0.8 ? '<span class="t-green">Alta (Gera caixa real)</span>' : (conv >= 0.4 ? '<span class="t-yellow">Média (Consome capital)</span>' : '<span class="t-red">Alerta (Descolamento lucro/caixa)</span>')) : '—'}</dd>
+        </dl>
+      `}
+    </div>
+  `;
+
+  return `${blocoTech}${blocoCashflow}`;
+}
+
 function renderizarDetalhe(ticker) {
   const a = mapaUniverso().get(String(ticker).toUpperCase());
   if (!a) return;
@@ -1185,6 +1429,8 @@ function renderizarDetalhe(ticker) {
     </div>
 
     ${htmlComparativoModelos(a)}
+
+    ${htmlBlocoAnaliseTecnicaEFluxoCaixa(a)}
 
     ${htmlBlocoAgendaProventos(a)}
 
@@ -1381,7 +1627,7 @@ function aplicarEstadoUrl() {
   if (obj.tab && !obj.aba) obj.aba = obj.tab;
   if (obj.p && !obj.ativo) obj.ativo = obj.p;
   if (obj.setor) painelState.filtroSetor = obj.setor;
-  if (obj.veredito && ['todos', 'verde', 'amarelo', 'vermelho'].includes(obj.veredito)) {
+  if (obj.veredito && ['todos', 'verde', 'amarelo', 'vermelho', 'bullish', 'bearish'].includes(obj.veredito)) {
     painelState.filtroVeredito = obj.veredito;
     document.querySelectorAll('#verdict-filter .seg-btn').forEach(b => b.classList.toggle('is-active', b.dataset.verdict === obj.veredito));
   }

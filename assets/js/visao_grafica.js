@@ -194,7 +194,7 @@
     comparados: Array.isArray(prefsSalvas.comparados) ? prefsSalvas.comparados.slice(0, 4) : [],
     periodo: DIAS_PERIODO[prefsSalvas.periodo] ? prefsSalvas.periodo : '5y',
     modoPreco: ['preco', 'lucro_cotacao', 'margem_bazin', 'variacao'].includes(prefsSalvas.modoPreco) ? prefsSalvas.modoPreco : 'preco',
-    frequenciaLucro: ['trimestral', '12m', 'anual'].includes(prefsSalvas.frequenciaLucro) ? prefsSalvas.frequenciaLucro : 'trimestral',
+    frequenciaLucro: ['trimestral', '12m', 'fcf', 'anual'].includes(prefsSalvas.frequenciaLucro) ? prefsSalvas.frequenciaLucro : 'trimestral',
     filtroLista: ['todos', 'painel', 'besst', 'dividendos', 'demais'].includes(prefsSalvas.filtroLista) ? prefsSalvas.filtroLista : 'todos',
     ordemLista: prefsSalvas.ordemLista === 'az' ? 'az' : 'margem',
     buscaLista: '',
@@ -203,6 +203,10 @@
       bazin: prefsSalvas.tetosVisiveis?.bazin !== false,
       graham: prefsSalvas.tetosVisiveis?.graham !== false,
       gordon: prefsSalvas.tetosVisiveis?.gordon !== false
+    },
+    mediasVisiveis: {
+      mma21: Boolean(prefsSalvas.mediasVisiveis?.mma21),
+      mma50: Boolean(prefsSalvas.mediasVisiveis?.mma50)
     },
     modoTetoBazin: prefsSalvas.modoTetoBazin === 'fixo' ? 'fixo' : 'dinamico',
     simCapital: Number(prefsSalvas.simCapital) >= 100 ? Number(prefsSalvas.simCapital) : 10000,
@@ -224,6 +228,7 @@
       ordemLista: visualState.ordemLista,
       sidebarRecolhida: visualState.sidebarRecolhida,
       tetosVisiveis: visualState.tetosVisiveis,
+      mediasVisiveis: visualState.mediasVisiveis,
       modoTetoBazin: visualState.modoTetoBazin,
       simCapital: visualState.simCapital,
       simReinvestir: visualState.simReinvestir,
@@ -452,6 +457,16 @@
     });
 
     const serieTrimCompleta = [...pontosSinteticos, ...trimestrais].sort((a, b) => (a.data || String(a.ano)).localeCompare(b.data || String(b.ano)));
+
+    if (freq === 'fcf') {
+      const pontosComFcf = serieTrimCompleta.filter(pt => ehValido(pt.fcf));
+      if (!pontosComFcf.length) return [];
+      return pontosComFcf.map(pt => ({
+        ...pt,
+        lucro_liquido: pt.fcf,
+        periodo: `${pt.periodo} (FCF)`
+      }));
+    }
 
     if (freq === '12m') {
       return serieTrimCompleta.map((pt, idx) => {
@@ -1475,29 +1490,47 @@
               ${extraBazin}
             </div>`;
         }).join('');
+
+        const toggleMediasHtml = `
+          <div class="vleg-tech-toggles" role="group" aria-label="Médias Móveis Técnicas">
+            <button type="button" class="vleg-tech-btn ${visualState.mediasVisiveis.mma21 ? 'is-active' : ''}" data-vmedia-toggle="mma21" data-tip="Média Móvel Aritmética de 21 semanas (curto/médio prazo)" aria-pressed="${visualState.mediasVisiveis.mma21}">
+              <span class="vleg-swatch is-mma21" aria-hidden="true"></span>
+              <span>MMA 21</span>
+            </button>
+            <button type="button" class="vleg-tech-btn ${visualState.mediasVisiveis.mma50 ? 'is-active' : ''}" data-vmedia-toggle="mma50" data-tip="Média Móvel Aritmética de 50 semanas (~1 ano)" aria-pressed="${visualState.mediasVisiveis.mma50}">
+              <span class="vleg-swatch is-mma50" aria-hidden="true"></span>
+              <span>MMA 50</span>
+            </button>
+          </div>
+        `;
+        tetosLegenda += toggleMediasHtml;
       } else if (modo === 'lucro_cotacao') {
         const pontosTrim = (principal.historico_lucros || []).filter(p => p.tipo === 'trimestral').sort((a, b) => (a.data || String(a.ano)).localeCompare(b.data || String(b.ano)));
         const ultPonto = visualState.frequenciaLucro === 'anual'
           ? (principal.historico_lucros?.filter(p => p.tipo === 'anual').pop() || principal.historico_lucros?.[principal.historico_lucros.length - 1])
           : (pontosTrim.length ? pontosTrim[pontosTrim.length - 1] : principal.historico_lucros?.[principal.historico_lucros.length - 1]);
         const rotPeriodo = ultPonto?.periodo || (ultPonto ? `${ultPonto.ano}` : '');
-        const rotTipo = visualState.frequenciaLucro === 'trimestral' ? 'Trimestral' : (visualState.frequenciaLucro === '12m' ? '12M Móvel' : 'Anual');
+        const rotTipo = visualState.frequenciaLucro === 'trimestral' ? 'Trimestral' : (visualState.frequenciaLucro === '12m' ? '12M Móvel' : (visualState.frequenciaLucro === 'fcf' ? 'FCF Livre' : 'Anual'));
+        const corLucroAtual = visualState.frequenciaLucro === 'fcf' ? '#10b981' : '#a855f7';
+        const swatchLucroCls = visualState.frequenciaLucro === 'fcf' ? 'is-fcf' : 'is-lucro';
+        const rotTituloSerie = visualState.frequenciaLucro === 'fcf' ? 'Fluxo de Caixa Livre (FCF)' : 'Lucro Líquido';
         const txtLucro = ultPonto ? `${formatarLucroGrande(ultPonto.lucro_liquido)} (${rotPeriodo})` : 'N/D';
-        const txtLpa = ultPonto && ehValido(ultPonto.lpa) ? `LPA: R$ ${ultPonto.lpa.toFixed(2).replace('.', ',')}` : '';
+        const txtLpa = (ultPonto && ehValido(ultPonto.lpa) && visualState.frequenciaLucro !== 'fcf') ? `LPA: R$ ${ultPonto.lpa.toFixed(2).replace('.', ',')}` : '';
 
         tetosLegenda = `
           <div class="vleg-lucro-wrap">
             <span class="vleg-item">
-              <span class="vleg-swatch is-lucro" aria-hidden="true"></span>
-              <span>Lucro Líquido <strong>${rotTipo}</strong>: <strong class="mono" style="color:var(--series-lucro,#a855f7);">${txtLucro}</strong> ${txtLpa ? `<small class="mono t-muted">(${txtLpa})</small>` : ''}</span>
+              <span class="vleg-swatch ${swatchLucroCls}" aria-hidden="true"></span>
+              <span>${rotTituloSerie} <strong>${rotTipo}</strong>: <strong class="mono" style="color:${corLucroAtual};">${txtLucro}</strong> ${txtLpa ? `<small class="mono t-muted">(${txtLpa})</small>` : ''}</span>
             </span>
             <div class="segmented segmented-compact" id="visual-lucro-freq-group" role="group" aria-label="Frequência do Lucro">
               <button type="button" class="seg-btn ${visualState.frequenciaLucro === 'trimestral' ? 'is-active' : ''}" data-vlucro-freq="trimestral" data-tip="Exibe o lucro reportado a cada trimestre (3M) para avaliar descolamentos recentes">Trimestral (3M)</button>
               <button type="button" class="seg-btn ${visualState.frequenciaLucro === '12m' ? 'is-active' : ''}" data-vlucro-freq="12m" data-tip="Soma móvel dos últimos 4 trimestres (LTM/TTM)">12M Móvel</button>
+              <button type="button" class="seg-btn ${visualState.frequenciaLucro === 'fcf' ? 'is-active' : ''}" data-vlucro-freq="fcf" data-tip="Fluxo de Caixa Livre (FCF = FCO − Capex) reportado a cada trimestre">FCF (Caixa Livre)</button>
               <button type="button" class="seg-btn ${visualState.frequenciaLucro === 'anual' ? 'is-active' : ''}" data-vlucro-freq="anual" data-tip="Exercícios contábeis anuais fechados">Anual</button>
             </div>
           </div>
-          <span class="vleg-item t-muted">Eixo Esquerdo: Cotação (R$) · Eixo Direito: Lucro Líquido (${rotTipo})</span>`;
+          <span class="vleg-item t-muted">Eixo Esquerdo: Cotação (R$) · Eixo Direito: ${rotTituloSerie} (${rotTipo})</span>`;
       } else if (modo === 'margem_bazin') {
         tetosLegenda = `
           <span class="vleg-item">
@@ -1571,6 +1604,32 @@
     const todosValoresY = [];
     curvasPlot.forEach(c => c.valores.forEach(v => { if (ehValido(v)) todosValoresY.push(v); }));
 
+    // Médias Móveis Técnicas (MMA 21 e MMA 50)
+    let serieMma21 = null;
+    let serieMma50 = null;
+    let xyMma21 = null;
+    let xyMma50 = null;
+    if (modo === 'preco' && principal && Array.isArray(principal.historico_precos)) {
+      const histCompleto = principal.historico_precos;
+      const calcularMmaJanela = (periodo) => {
+        return janela.indices.map(idx => {
+          if (idx === undefined || idx === null) return null;
+          const ini = Math.max(0, idx - periodo + 1);
+          const sub = histCompleto.slice(ini, idx + 1).filter(ehValido);
+          if (sub.length < Math.min(periodo, 4)) return null;
+          return sub.reduce((a, b) => a + b, 0) / sub.length;
+        });
+      };
+      if (visualState.mediasVisiveis.mma21) {
+        serieMma21 = calcularMmaJanela(21);
+        serieMma21.forEach(v => { if (ehValido(v)) todosValoresY.push(v); });
+      }
+      if (visualState.mediasVisiveis.mma50) {
+        serieMma50 = calcularMmaJanela(50);
+        serieMma50.forEach(v => { if (ehValido(v)) todosValoresY.push(v); });
+      }
+    }
+
     const linhasTetoAtivas = [];
     let xyTetoBazin = null;
     if (modo === 'preco') {
@@ -1642,6 +1701,13 @@
 
       if (modo === 'preco' && visualState.modoTetoBazin === 'dinamico' && visualState.tetosVisiveis.bazin && ehValido(tetoBazin)) {
         xyTetoBazin = serieTetoBazin.map((st, i) => ehValido(st.teto) ? { x: xDe(i), y: yDe(st.teto), teto: st.teto } : null);
+      }
+
+      if (serieMma21) {
+        xyMma21 = serieMma21.map((v, i) => ehValido(v) ? { x: xDe(i), y: yDe(v), v } : null);
+      }
+      if (serieMma50) {
+        xyMma50 = serieMma50.map((v, i) => ehValido(v) ? { x: xDe(i), y: yDe(v), v } : null);
       }
 
       // Eixo Y e coordenadas para o Lucro Líquido (Peter Lynch)
@@ -1784,12 +1850,24 @@
         ? `<path d="${caminhoSvgArea(curvaPrincipal.xy, yBasePlot)}" fill="url(#grad-price-main)" />`
         : '';
 
-      // Curva de Lucro Líquido em violeta (Peter Lynch)
+      // Linhas de Médias Móveis Técnicas (MMA 21 e MMA 50)
+      let linhasMmaSvg = '';
+      if (xyMma21) {
+        const d21 = caminhoSvgLinha(xyMma21);
+        if (d21) linhasMmaSvg += `<path d="${d21}" fill="none" stroke="#f59e0b" stroke-width="2.0" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" />`;
+      }
+      if (xyMma50) {
+        const d50 = caminhoSvgLinha(xyMma50);
+        if (d50) linhasMmaSvg += `<path d="${d50}" fill="none" stroke="#3b82f6" stroke-width="2.0" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" />`;
+      }
+
+      // Curva de Lucro Líquido / FCF
       let curvaLucroSvg = '';
+      const corCurvaLucro = visualState.frequenciaLucro === 'fcf' ? '#10b981' : '#a855f7';
       if (modo === 'lucro_cotacao' && xyLucro) {
         const dLucro = caminhoSvgLinha(xyLucro);
         if (dLucro) {
-          curvaLucroSvg = `<path d="${dLucro}" fill="none" stroke="#a855f7" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />`;
+          curvaLucroSvg = `<path d="${dLucro}" fill="none" stroke="${corCurvaLucro}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />`;
           if (serieLucro.marcos && serieLucro.marcos.length) {
             const marcosSvg = serieLucro.marcos.map(m => {
               const pt = xyLucro[m.index];
@@ -1797,8 +1875,8 @@
               const txtAno = m.ponto.periodo || String(m.ponto.ano);
               return `
                 <g class="vsvg-lucro-marco">
-                  <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="4.5" fill="#a855f7" stroke="var(--surface,#18181b)" stroke-width="2" />
-                  <text x="${pt.x.toFixed(1)}" y="${(pt.y - 8).toFixed(1)}" text-anchor="middle" fill="#a855f7" font-family="var(--sans)" font-size="10" font-weight="700">${escHtml(txtAno)}</text>
+                  <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="4.5" fill="${corCurvaLucro}" stroke="var(--surface,#18181b)" stroke-width="2" />
+                  <text x="${pt.x.toFixed(1)}" y="${(pt.y - 8).toFixed(1)}" text-anchor="middle" fill="${corCurvaLucro}" font-family="var(--sans)" font-size="10" font-weight="700">${escHtml(txtAno)}</text>
                 </g>
               `;
             }).join('');
@@ -1819,7 +1897,7 @@
       ).join('');
 
       const chDotLucroSvg = (modo === 'lucro_cotacao')
-        ? `<circle class="v-ch-dot-lucro is-hidden" cx="0" cy="0" r="5" fill="#a855f7" stroke="var(--bg)" stroke-width="2" />`
+        ? `<circle class="v-ch-dot-lucro is-hidden" cx="0" cy="0" r="5" fill="${corCurvaLucro}" stroke="var(--bg)" stroke-width="2" />`
         : '';
 
       svgWrap.innerHTML = `
@@ -1834,6 +1912,7 @@
           ${eixoDireitoLucroSvg}
           ${zonaBazinSvg}
           ${linhaTetoBazinDinamicoSvg}
+          ${linhasMmaSvg}
           ${areaPrincipalSvg}
           ${referenciasSvg}
           ${curvaLucroSvg}
@@ -1875,7 +1954,7 @@
             hudEl.innerHTML = `
               <span class="vhud-date mono">${ehUltimo ? `Última cotação (${dtReal})` : dtReal}</span>
               <span class="vhud-metric">Cotação: <strong class="mono">${formataReal(p)}</strong></span>
-              <span class="vhud-metric"><i class="dot dot-lucro" aria-hidden="true"></i>Lucro (${rotFreq}): <strong class="mono" style="color:var(--series-lucro,#a855f7);">${formatarLucroGrande(lucroPonto)}</strong> ${perPonto ? `<small class="mono t-muted">(${perPonto})</small>` : ''}</span>
+              <span class="vhud-metric"><i class="dot dot-lucro" style="background:${visualState.frequenciaLucro === 'fcf' ? '#10b981' : '#a855f7'};" aria-hidden="true"></i>${visualState.frequenciaLucro === 'fcf' ? 'FCF' : 'Lucro'} (${rotFreq}): <strong class="mono" style="color:${visualState.frequenciaLucro === 'fcf' ? '#10b981' : 'var(--series-lucro,#a855f7)'};">${formatarLucroGrande(lucroPonto)}</strong> ${perPonto ? `<small class="mono t-muted">(${perPonto})</small>` : ''}</span>
               ${ehValido(lpaPonto) ? `<span class="vhud-metric">LPA: <strong class="mono">R$ ${lpaPonto.toFixed(2).replace('.', ',')}</strong></span>` : ''}
               ${ehValido(plImpl) ? `<span class="vhud-metric">P/L Anualizado: <strong class="mono t-strong">${plImpl.toFixed(1).replace('.', ',')}x</strong></span>` : ''}
             `;
@@ -1889,10 +1968,19 @@
           const mGra = ehValido(tetoGraham) && ehValido(p) ? (tetoGraham - p) / tetoGraham : null;
           const mGor = ehValido(tetoGordon) && ehValido(p) ? (tetoGordon - p) / tetoGordon : null;
           const labelBazinHud = visualState.modoTetoBazin === 'dinamico' ? `Bazin dinâmico (${formataReal(tetoBazinNaData)})` : 'Bazin';
+          let infoMma = '';
+          if (visualState.mediasVisiveis.mma21 && serieMma21 && ehValido(serieMma21[i])) {
+            infoMma += `<span class="vhud-metric"><i class="dot" style="background:#f59e0b;" aria-hidden="true"></i>MMA 21: <strong class="mono" style="color:#f59e0b;">${formataReal(serieMma21[i])}</strong></span>`;
+          }
+          if (visualState.mediasVisiveis.mma50 && serieMma50 && ehValido(serieMma50[i])) {
+            infoMma += `<span class="vhud-metric"><i class="dot" style="background:#3b82f6;" aria-hidden="true"></i>MMA 50: <strong class="mono" style="color:#3b82f6;">${formataReal(serieMma50[i])}</strong></span>`;
+          }
+
           if (hudEl) {
             hudEl.innerHTML = `
               <span class="vhud-date mono">${ehUltimo ? `Última cotação (${dtReal})` : dtReal}</span>
               <span class="vhud-metric">Preço: <strong class="mono">${formataReal(p)}</strong></span>
+              ${infoMma}
               ${ehValido(tetoBazinNaData) ? `<span class="vhud-metric">Margem vs. ${labelBazinHud}: <strong class="mono ${corClasseMargem(mBaz)}">${formataPct(mBaz)}</strong></span>` : ''}
               ${ehValido(tetoGraham) ? `<span class="vhud-metric">Margem vs. Graham: <strong class="mono ${corClasseMargem(mGra)}">${formataPct(mGra)}</strong></span>` : ''}
               ${ehValido(tetoGordon) ? `<span class="vhud-metric">Margem vs. Gordon: <strong class="mono ${corClasseMargem(mGor)}">${formataPct(mGor)}</strong></span>` : ''}
@@ -2557,9 +2645,9 @@
     if (obj.periodo && DIAS_PERIODO[obj.periodo]) {
       visualState.periodo = obj.periodo;
     }
-    if (obj.modo && ['preco', 'margem_bazin', 'variacao'].includes(obj.modo)) {
+    if (obj.modo && ['preco', 'lucro_cotacao', 'margem_bazin', 'variacao'].includes(obj.modo)) {
       visualState.modoPreco = obj.modo;
-    } else if (obj.m && ['preco', 'margem_bazin', 'variacao'].includes(obj.m)) {
+    } else if (obj.m && ['preco', 'lucro_cotacao', 'margem_bazin', 'variacao'].includes(obj.m)) {
       visualState.modoPreco = obj.m;
     }
     const cmpRaw = obj.comparar || obj.c;
@@ -2731,6 +2819,16 @@
     });
 
     qSel('#visual-ceiling-legend')?.addEventListener('click', (e) => {
+      const bMedia = e.target.closest('[data-vmedia-toggle]');
+      if (bMedia) {
+        const k = bMedia.dataset.vmediaToggle;
+        if (k in visualState.mediasVisiveis) {
+          visualState.mediasVisiveis[k] = !visualState.mediasVisiveis[k];
+          salvarPrefsVisual();
+          renderizarVisaoGrafica();
+          return;
+        }
+      }
       const bFreq = e.target.closest('[data-vlucro-freq]');
       if (bFreq) {
         visualState.frequenciaLucro = bFreq.dataset.vlucroFreq;
