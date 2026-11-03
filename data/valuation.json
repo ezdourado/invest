@@ -273,7 +273,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 16.14,
+      "preco": 16.15,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -282,7 +282,7 @@
         "tem_extraordinario": false,
         "teto": 30.7935,
         "teto_sem_extra": 30.7935,
-        "margem_seguranca": 0.4758634127332067,
+        "margem_seguranca": 0.47553866887492496,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.1311,
@@ -299,9 +299,9 @@
         "margem_projetada_barsi": 0.4761
       },
       "graham": 42.43945098608133,
-      "margem_graham": 0.6196934780024991,
+      "margem_graham": 0.6194578481871351,
       "gordon": 35.10458999999999,
-      "margem_gordon": 0.5402310638010583,
+      "margem_gordon": 0.5399462007674779,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -1132,7 +1132,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 38.32,
+      "preco": 38.44,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -1141,7 +1141,7 @@
         "tem_extraordinario": false,
         "teto": 31.313373333333335,
         "teto_sem_extra": 31.313373333333335,
-        "margem_seguranca": -0.22375828346823484,
+        "margem_seguranca": -0.2275905119133336,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.8027,
@@ -1158,9 +1158,9 @@
         "margem_projetada_barsi": 0.3457
       },
       "graham": 42.33373654663618,
-      "margem_graham": 0.09481177127406465,
+      "margem_graham": 0.09197715260373297,
       "gordon": 31.135297280511185,
-      "margem_gordon": -0.23075747935723115,
+      "margem_gordon": -0.23461162595229546,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -2253,7 +2253,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 42.74,
+      "preco": 42.79,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -2262,7 +2262,7 @@
         "tem_extraordinario": false,
         "teto": 31.313373333333335,
         "teto_sem_extra": 31.313373333333335,
-        "margem_seguranca": -0.36491203119604276,
+        "margem_seguranca": -0.3665087930481672,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.8027,
@@ -2279,9 +2279,9 @@
         "margem_projetada_barsi": 0.2703
       },
       "graham": 42.33373654663618,
-      "margem_graham": -0.00959668308315444,
+      "margem_graham": -0.010777774195792598,
       "gordon": 31.135297280511185,
-      "margem_gordon": -0.3727185456087699,
+      "margem_gordon": -0.37432444002337995,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -2386,7 +2386,7 @@
         "ev": 1116577857536.0,
         "capital_investido": 737511162144.9099,
         "g_perpetuidade": 0.0374,
-        "pl": 10.1,
+        "pl": 10.12,
         "pvp": 2.27,
         "psr": null,
         "ev_ebit": null,
@@ -2407,7 +2407,7 @@
         "fco_12m": 158994000000.0,
         "capex_12m": -9523000000.0,
         "fcf_12m": 149471000000.0,
-        "fcf_yield": 0.3173,
+        "fcf_yield": 0.3169,
         "conversao_fcf_lucro": 3.2085
       },
       "pct_abaixo_teto_5a": 0.7148,
@@ -3372,7 +3372,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 13.53,
+      "preco": 13.56,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -3381,7 +3381,7 @@
         "tem_extraordinario": false,
         "teto": 18.637576666666664,
         "teto_sem_extra": 18.637576666666664,
-        "margem_seguranca": 0.27190105008287013,
+        "margem_seguranca": 0.27243760052496085,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.9253,
@@ -3398,9 +3398,9 @@
         "margem_projetada_barsi": 0.3338
       },
       "graham": 29.447678176725578,
-      "margem_graham": 0.5391826846734131,
+      "margem_graham": 0.5395222700200061,
       "gordon": 21.24683739999999,
-      "margem_gordon": 0.36131671059900866,
+      "margem_gordon": 0.3617873688815444,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -3525,7 +3525,7 @@
         "ev": 681920167936.0,
         "capital_investido": 627772163423.32,
         "g_perpetuidade": 0.045,
-        "pl": 5.93,
+        "pl": 5.92,
         "pvp": 0.81,
         "psr": null,
         "ev_ebit": null,
@@ -4465,7 +4465,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 12.46,
+      "preco": 12.49,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -4474,7 +4474,7 @@
         "tem_extraordinario": false,
         "teto": 16.928823333333337,
         "teto_sem_extra": 16.928823333333337,
-        "margem_seguranca": 0.26397719707630807,
+        "margem_seguranca": 0.26220507154759937,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.8404,
@@ -4491,9 +4491,9 @@
         "margem_projetada_barsi": 0.325
       },
       "graham": 29.447678176725578,
-      "margem_graham": 0.5768766581452268,
+      "margem_graham": 0.5758579021054482,
       "gordon": 19.298858599999996,
-      "margem_gordon": 0.35436596234763834,
+      "margem_gordon": 0.3528114662698237,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -4618,7 +4618,7 @@
         "ev": 669763829760.0,
         "capital_investido": 628052039136.91,
         "g_perpetuidade": 0.045,
-        "pl": 5.44,
+        "pl": 5.45,
         "pvp": 0.74,
         "psr": null,
         "ev_ebit": null,
@@ -4639,7 +4639,7 @@
         "fco_12m": 14558313000.0,
         "capex_12m": -11229421000.0,
         "fcf_12m": 3328892000.0,
-        "fcf_yield": 0.0239,
+        "fcf_yield": 0.0238,
         "conversao_fcf_lucro": 0.2793
       },
       "pct_abaixo_teto_5a": 0.9468,
@@ -5556,7 +5556,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 24.6,
+      "preco": 24.65,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -5565,7 +5565,7 @@
         "tem_extraordinario": false,
         "teto": 34.10633333333334,
         "teto_sem_extra": 34.10633333333334,
-        "margem_seguranca": 0.2787263362620824,
+        "margem_seguranca": 0.27726033288050134,
         "veredito": "verde",
         "por_ano": {
           "2021": 2.8359,
@@ -5582,9 +5582,9 @@
         "margem_projetada_barsi": 0.2811
       },
       "graham": 47.195015626652776,
-      "margem_graham": 0.47875851563215777,
+      "margem_graham": 0.4776990817208411,
       "gordon": 27.967193333333327,
-      "margem_gordon": 0.12039797105131965,
+      "margem_gordon": 0.11861016204939154,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -5679,7 +5679,7 @@
         "ev": 261691899904.0,
         "capital_investido": 269190550737.5,
         "g_perpetuidade": 0.025,
-        "pl": 6.6,
+        "pl": 6.61,
         "pvp": 0.93,
         "psr": null,
         "ev_ebit": null,
@@ -6277,7 +6277,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 12.24,
+      "preco": 12.34,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -6286,7 +6286,7 @@
         "tem_extraordinario": false,
         "teto": 17.864333333333335,
         "teto_sem_extra": 17.864333333333335,
-        "margem_seguranca": 0.31483589274718715,
+        "margem_seguranca": 0.3092381467728995,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.4855,
@@ -6303,9 +6303,9 @@
         "margem_projetada_barsi": 0.4704
       },
       "graham": 23.629118688601146,
-      "margem_graham": 0.48199506882562393,
+      "margem_graham": 0.47776300239446073,
       "gordon": 17.495793543307087,
-      "margem_gordon": 0.30040326723663585,
+      "margem_gordon": 0.29468760765523583,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -6400,8 +6400,8 @@
         "ev": 216840617984.0,
         "capital_investido": 218811602548.06,
         "g_perpetuidade": 0.0365,
-        "pl": 6.55,
-        "pvp": 0.92,
+        "pl": 6.6,
+        "pvp": 0.93,
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
@@ -6421,7 +6421,7 @@
         "fco_12m": 55521526000.0,
         "capex_12m": -4786501000.0,
         "fcf_12m": 50735025000.0,
-        "fcf_yield": 0.5536,
+        "fcf_yield": 0.5491,
         "conversao_fcf_lucro": 8.1456
       },
       "pct_abaixo_teto_5a": 0.9468,
@@ -6996,7 +6996,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 12.32,
+      "preco": 12.3,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -7005,7 +7005,7 @@
         "tem_extraordinario": false,
         "teto": 16.241,
         "teto_sem_extra": 16.241,
-        "margem_seguranca": 0.2414260205652361,
+        "margem_seguranca": 0.24265747183055225,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.3504,
@@ -7022,9 +7022,9 @@
         "margem_projetada_barsi": 0.4136
       },
       "graham": 23.629118688601146,
-      "margem_graham": 0.4786094156806934,
+      "margem_graham": 0.47945582896692596,
       "gordon": 18.514739999999996,
-      "margem_gordon": 0.33458422856599646,
+      "margem_gordon": 0.33566444897416853,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -7119,7 +7119,7 @@
         "ev": 216952930304.0,
         "capital_investido": 220654261624.03003,
         "g_perpetuidade": 0.045,
-        "pl": 6.59,
+        "pl": 6.58,
         "pvp": 0.93,
         "psr": null,
         "ev_ebit": null,
@@ -7716,7 +7716,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 12.4,
+      "preco": 12.38,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -7725,7 +7725,7 @@
         "tem_extraordinario": false,
         "teto": 12.231560000000002,
         "teto_sem_extra": 12.231560000000002,
-        "margem_seguranca": -0.013770933552220532,
+        "margem_seguranca": -0.012135819143265373,
         "veredito": "amarelo",
         "por_ano": {
           "2021": 0.3034,
@@ -7742,9 +7742,9 @@
         "margem_projetada_barsi": -0.3537
       },
       "graham": 17.45628826526418,
-      "margem_graham": 0.28965426031177305,
+      "margem_graham": 0.29079997924675405,
       "gordon": 13.943978399999999,
-      "margem_gordon": 0.11072725126998179,
+      "margem_gordon": 0.11216156215503018,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -7846,7 +7846,7 @@
         "ev": 143696000000.0,
         "capital_investido": 97876000000.0,
         "g_perpetuidade": 0.045,
-        "pl": 7.65,
+        "pl": 7.64,
         "pvp": 1.48,
         "psr": 16.47,
         "ev_ebit": 334.18,
@@ -9471,7 +9471,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 21.97,
+      "preco": 21.98,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -9480,7 +9480,7 @@
         "tem_extraordinario": false,
         "teto": 28.304000000000006,
         "teto_sem_extra": 28.304000000000006,
-        "margem_seguranca": 0.22378462408140212,
+        "margem_seguranca": 0.22343131712832123,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.2542,
@@ -9497,9 +9497,9 @@
         "margem_projetada_barsi": 0.4413
       },
       "graham": 47.948034370555796,
-      "margem_graham": 0.5417956066726385,
+      "margem_graham": 0.5415870475495945,
       "gordon": 32.26656,
-      "margem_gordon": 0.3191093193696508,
+      "margem_gordon": 0.3187994009897553,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -9576,7 +9576,7 @@
         "capital_investido": 9029091927.52,
         "g_perpetuidade": 0.045,
         "pl": 5.8,
-        "pvp": 0.81,
+        "pvp": 0.82,
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
@@ -10066,7 +10066,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 12.3,
+      "preco": 12.31,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -10075,7 +10075,7 @@
         "tem_extraordinario": false,
         "teto": 17.835666666666665,
         "teto_sem_extra": 17.835666666666665,
-        "margem_seguranca": 0.31037060571513997,
+        "margem_seguranca": 0.30980993141084334,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.9539,
@@ -10092,9 +10092,9 @@
         "margem_projetada_barsi": 0.3128
       },
       "graham": 48.81342028581894,
-      "margem_graham": 0.7480201156161691,
+      "margem_graham": 0.7478152539215481,
       "gordon": 20.33265999999999,
-      "margem_gordon": 0.39506193483784185,
+      "margem_gordon": 0.3945701152726694,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -10760,7 +10760,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 16.56,
+      "preco": 16.71,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -10769,7 +10769,7 @@
         "tem_extraordinario": false,
         "teto": 17.835666666666665,
         "teto_sem_extra": 17.835666666666665,
-        "margem_seguranca": 0.07152335208477392,
+        "margem_seguranca": 0.0631132375203243,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.9539,
@@ -10786,9 +10786,9 @@
         "margem_projetada_barsi": 0.0749
       },
       "graham": 48.81342028581894,
-      "margem_graham": 0.660749033707623,
+      "margem_graham": 0.6576761082883078,
       "gordon": 20.33265999999999,
-      "margem_gordon": 0.18554680007436278,
+      "margem_gordon": 0.17816950659677538,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -10868,7 +10868,7 @@
         "ev": 36334522368.0,
         "capital_investido": 35263297349.84,
         "g_perpetuidade": 0.045,
-        "pl": 4.42,
+        "pl": 4.46,
         "pvp": 0.59,
         "psr": null,
         "ev_ebit": null,
@@ -10889,7 +10889,7 @@
         "fco_12m": 14842234000.0,
         "capex_12m": -1541401000.0,
         "fcf_12m": 13300833000.0,
-        "fcf_yield": 1.9639,
+        "fcf_yield": 1.9463,
         "conversao_fcf_lucro": 8.1013
       },
       "pct_abaixo_teto_5a": 0.9011,
@@ -11452,7 +11452,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 9.23,
+      "preco": 9.13,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -11461,7 +11461,7 @@
         "tem_extraordinario": false,
         "teto": 9.020130000000002,
         "teto_sem_extra": 9.020130000000002,
-        "margem_seguranca": -0.023266848703954224,
+        "margem_seguranca": -0.012180533983434718,
         "veredito": "amarelo",
         "por_ano": {
           "2021": 0.3111,
@@ -11478,9 +11478,9 @@
         "margem_projetada_barsi": 0.2922
       },
       "graham": 14.409996530186952,
-      "margem_graham": 0.3594724342462938,
+      "margem_graham": 0.36641206117753655,
       "gordon": 10.2829482,
-      "margem_gordon": 0.10239750113688208,
+      "margem_gordon": 0.112122338611022,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -11592,8 +11592,8 @@
         "ev": 10240762880.0,
         "capital_investido": 8886258730.0,
         "g_perpetuidade": 0.045,
-        "pl": 7.21,
-        "pvp": 1.28,
+        "pl": 7.13,
+        "pvp": 1.27,
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
@@ -11613,7 +11613,7 @@
         "fco_12m": 612887000.0,
         "capex_12m": -189674000.0,
         "fcf_12m": 423213000.0,
-        "fcf_yield": 0.1319,
+        "fcf_yield": 0.1334,
         "conversao_fcf_lucro": 0.956
       },
       "pct_abaixo_teto_5a": 0.9544,
@@ -12518,7 +12518,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 9.15,
+      "preco": 9.14,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -12527,7 +12527,7 @@
         "tem_extraordinario": false,
         "teto": 9.020130000000002,
         "teto_sem_extra": 9.020130000000002,
-        "margem_seguranca": -0.01439779692753858,
+        "margem_seguranca": -0.013289165455486649,
         "veredito": "amarelo",
         "por_ano": {
           "2021": 0.3111,
@@ -12544,9 +12544,9 @@
         "margem_projetada_barsi": 0.2983
       },
       "graham": 14.409996530186952,
-      "margem_graham": 0.36502413579128806,
+      "margem_graham": 0.3657180984844123,
       "gordon": 10.2829482,
-      "margem_gordon": 0.11017737111619404,
+      "margem_gordon": 0.11114985486360802,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -12658,7 +12658,7 @@
         "ev": 10223387648.0,
         "capital_investido": 7727546450.66,
         "g_perpetuidade": 0.045,
-        "pl": 7.15,
+        "pl": 7.14,
         "pvp": 1.27,
         "psr": null,
         "ev_ebit": null,
@@ -12679,7 +12679,7 @@
         "fco_12m": 612887000.0,
         "capex_12m": -189674000.0,
         "fcf_12m": 423213000.0,
-        "fcf_yield": 0.1325,
+        "fcf_yield": 0.1327,
         "conversao_fcf_lucro": 0.956
       },
       "pct_abaixo_teto_5a": 0.8517,
@@ -13584,7 +13584,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 5.22,
+      "preco": 5.21,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -13593,7 +13593,7 @@
         "tem_extraordinario": false,
         "teto": 6.578000000000001,
         "teto_sem_extra": 6.578000000000001,
-        "margem_seguranca": 0.2064457281848588,
+        "margem_seguranca": 0.20796594709638203,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.3155,
@@ -13610,9 +13610,9 @@
         "margem_projetada_barsi": 0.2186
       },
       "graham": 11.99399849924953,
-      "margem_graham": 0.5647823367389434,
+      "margem_graham": 0.5656160870517041,
       "gordon": 7.498919999999999,
-      "margem_gordon": 0.3038997615656654,
+      "margem_gordon": 0.3052332869266507,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -13688,7 +13688,7 @@
         "ev": 18149128192.0,
         "capital_investido": 16349809628.04,
         "g_perpetuidade": 0.045,
-        "pl": 5.44,
+        "pl": 5.43,
         "pvp": 0.78,
         "psr": null,
         "ev_ebit": null,
@@ -14196,7 +14196,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 50.55,
+      "preco": 50.72,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -14205,7 +14205,7 @@
         "tem_extraordinario": false,
         "teto": 13.613166666666666,
         "teto_sem_extra": 13.613166666666666,
-        "margem_seguranca": -2.7133167644070078,
+        "margem_seguranca": -2.7258046743961115,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.3933,
@@ -14222,9 +14222,9 @@
         "margem_projetada_barsi": -2.7115
       },
       "graham": 46.40457951538835,
-      "margem_graham": -0.08933214195458822,
+      "margem_graham": -0.09299557349034057,
       "gordon": 11.162796666666663,
-      "margem_gordon": -3.5284350785451326,
+      "margem_gordon": -3.54366423706843,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -14298,8 +14298,8 @@
         "ev": 258197962752.0,
         "capital_investido": 74145652913.19995,
         "g_perpetuidade": 0.025,
-        "pl": 10.8,
-        "pvp": 2.47,
+        "pl": 10.84,
+        "pvp": 2.48,
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
@@ -14806,7 +14806,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 16.83,
+      "preco": 16.82,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -14815,7 +14815,7 @@
         "tem_extraordinario": false,
         "teto": 4.537916666666667,
         "teto_sem_extra": 4.537916666666667,
-        "margem_seguranca": -2.708750344320998,
+        "margem_seguranca": -2.7065466899274626,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.1311,
@@ -14832,9 +14832,9 @@
         "margem_projetada_barsi": -1.4569
       },
       "graham": 15.471974663888254,
-      "margem_graham": -0.08777323939660973,
+      "margem_graham": -0.08712690948609494,
       "gordon": 5.173224999999999,
-      "margem_gordon": -2.2532897757201753,
+      "margem_gordon": -2.251356745550407,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -14908,7 +14908,7 @@
         "ev": 96552951808.0,
         "capital_investido": 25706603983.440002,
         "g_perpetuidade": 0.045,
-        "pl": 10.79,
+        "pl": 10.78,
         "pvp": 2.47,
         "psr": null,
         "ev_ebit": null,
@@ -14929,7 +14929,7 @@
         "fco_12m": 60290133000.0,
         "capex_12m": -915436000.0,
         "fcf_12m": 59813534000.0,
-        "fcf_yield": 0.3067,
+        "fcf_yield": 0.3069,
         "conversao_fcf_lucro": 3.2866
       },
       "pct_abaixo_teto_5a": 0.0038,
@@ -15414,7 +15414,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 22.18,
+      "preco": 22.2,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -15423,7 +15423,7 @@
         "tem_extraordinario": false,
         "teto": 4.537916666666667,
         "teto_sem_extra": 4.537916666666667,
-        "margem_seguranca": -3.88770544486273,
+        "margem_seguranca": -3.892112753649802,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.1311,
@@ -15440,9 +15440,9 @@
         "margem_projetada_barsi": -2.238
       },
       "graham": 15.471974663888254,
-      "margem_graham": -0.43355974152209187,
+      "margem_graham": -0.4348524013431217,
       "gordon": 5.173224999999999,
-      "margem_gordon": -3.287460916546256,
+      "margem_gordon": -3.291326976885793,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -15516,8 +15516,8 @@
         "ev": 118385278976.0,
         "capital_investido": 55390369739.47998,
         "g_perpetuidade": 0.045,
-        "pl": 14.22,
-        "pvp": 3.25,
+        "pl": 14.23,
+        "pvp": 3.26,
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
@@ -16023,7 +16023,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 56.8,
+      "preco": 56.75,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -16032,7 +16032,7 @@
         "tem_extraordinario": false,
         "teto": 23.009500000000003,
         "teto_sem_extra": 23.009500000000003,
-        "margem_seguranca": -1.4685456007301327,
+        "margem_seguranca": -1.4663725852365324,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.6496,
@@ -16049,9 +16049,9 @@
         "margem_projetada_barsi": -1.2756
       },
       "graham": 61.3147453717293,
-      "margem_graham": 0.0736322942280527,
+      "margem_graham": 0.07444775875778148,
       "gordon": 26.230829999999994,
-      "margem_gordon": -1.1653908778334505,
+      "margem_gordon": -1.1634847238916959,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -16127,7 +16127,7 @@
         "ev": 8127265280.0,
         "capital_investido": 2150178184.6399994,
         "g_perpetuidade": 0.045,
-        "pl": 8.58,
+        "pl": 8.57,
         "pvp": 2.25,
         "psr": null,
         "ev_ebit": null,
@@ -16617,7 +16617,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 47.01,
+      "preco": 46.98,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -16626,7 +16626,7 @@
         "tem_extraordinario": false,
         "teto": 20.917666666666666,
         "teto_sem_extra": 20.917666666666666,
-        "margem_seguranca": -1.2473825952544102,
+        "margem_seguranca": -1.245948400873265,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.5905,
@@ -16643,9 +16643,9 @@
         "margem_projetada_barsi": -1.0718
       },
       "graham": 61.3147453717293,
-      "margem_graham": 0.233300249148957,
+      "margem_graham": 0.2337895278667943,
       "gordon": 23.84613999999999,
-      "margem_gordon": -0.9713882414512376,
+      "margem_gordon": -0.970130176204619,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -16742,7 +16742,7 @@
         "fco_12m": 909266000.0,
         "capex_12m": -163566000.0,
         "fcf_12m": 745700000.0,
-        "fcf_yield": 0.1228,
+        "fcf_yield": 0.1229,
         "conversao_fcf_lucro": 0.738
       },
       "pct_abaixo_teto_5a": 0.4335,
@@ -17209,7 +17209,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 9.85,
+      "preco": 9.95,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -17218,7 +17218,7 @@
         "tem_extraordinario": false,
         "teto": 21.700000000000003,
         "teto_sem_extra": 21.700000000000003,
-        "margem_seguranca": 0.5460829493087558,
+        "margem_seguranca": 0.5414746543778802,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.0,
@@ -17235,9 +17235,9 @@
         "margem_projetada_barsi": 0.5457
       },
       "graham": 16.23828808711066,
-      "margem_graham": 0.39340896360752725,
+      "margem_graham": 0.38725067897410115,
       "gordon": 17.793999999999997,
-      "margem_gordon": 0.4464426211082387,
+      "margem_gordon": 0.44082274924131726,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -17313,8 +17313,8 @@
         "ev": -241635000.0,
         "capital_investido": 2500092928.0,
         "g_perpetuidade": 0.025,
-        "pl": 6.48,
-        "pvp": 1.28,
+        "pl": 6.55,
+        "pvp": 1.29,
         "psr": 3.13,
         "ev_ebit": -49.63,
         "ev_ebitda": -15.2,
@@ -17827,7 +17827,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 9.68,
+      "preco": 9.79,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -17836,7 +17836,7 @@
         "tem_extraordinario": false,
         "teto": 4.700333333333334,
         "teto_sem_extra": 4.700333333333334,
-        "margem_seguranca": -1.0594284093326711,
+        "margem_seguranca": -1.0828310048932694,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -17853,9 +17853,9 @@
         "margem_projetada_barsi": -0.0744
       },
       "graham": 19.444131505418287,
-      "margem_graham": 0.5021634163859374,
+      "margem_graham": 0.4965061824812322,
       "gordon": 5.35838,
-      "margem_gordon": -0.8065161485374309,
+      "margem_gordon": -0.827044741134447,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Bancos ficam fora do ranking Greenblatt (EBIT/EV não se aplica).",
       "sustentabilidade": {
@@ -17931,8 +17931,8 @@
         "ev": 11259591680.0,
         "capital_investido": 9568493929.63,
         "g_perpetuidade": 0.045,
-        "pl": 4.08,
-        "pvp": 1.37,
+        "pl": 4.13,
+        "pvp": 1.38,
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
@@ -18445,7 +18445,7 @@
       "setor": "bancos",
       "categoria": "besst",
       "besst": true,
-      "preco": 8.57,
+      "preco": 8.51,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -18471,7 +18471,7 @@
         "margem_projetada_barsi": 0.053
       },
       "graham": 19.444131505418287,
-      "margem_graham": 0.5592500494243268,
+      "margem_graham": 0.5623358133723478,
       "gordon": null,
       "margem_gordon": null,
       "rank_greenblatt": null,
@@ -18538,8 +18538,8 @@
         "ev": 10982385664.0,
         "capital_investido": 9639554581.94,
         "g_perpetuidade": 0.045,
-        "pl": 3.62,
-        "pvp": 1.21,
+        "pl": 3.59,
+        "pvp": 1.2,
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
@@ -18559,7 +18559,7 @@
         "fco_12m": 1558717000.0,
         "capex_12m": -13012000.0,
         "fcf_12m": 1545705000.0,
-        "fcf_yield": 0.7219,
+        "fcf_yield": 0.7269,
         "conversao_fcf_lucro": 2.5647
       },
       "pct_abaixo_teto_5a": null,
@@ -22390,7 +22390,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 38.88,
+      "preco": 39.0,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -22399,7 +22399,7 @@
         "tem_extraordinario": false,
         "teto": 63.44799999999999,
         "teto_sem_extra": 63.44799999999999,
-        "margem_seguranca": 0.38721472702055215,
+        "margem_seguranca": 0.385323414449628,
         "veredito": "verde",
         "por_ano": {
           "2021": 4.5037,
@@ -22416,9 +22416,9 @@
         "margem_projetada_barsi": 0.3858
       },
       "graham": 49.88252198916971,
-      "margem_graham": 0.22056867917701775,
+      "margem_graham": 0.21816302695225553,
       "gordon": 52.02735999999999,
-      "margem_gordon": 0.25270088661042933,
+      "margem_gordon": 0.25039440786539985,
       "rank_greenblatt": 93,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -22509,7 +22509,7 @@
         "ev": 24052400000.0,
         "capital_investido": 18484620000.0,
         "g_perpetuidade": 0.025,
-        "pl": 8.24,
+        "pl": 8.26,
         "pvp": 1.66,
         "psr": 3.04,
         "ev_ebit": 9.86,
@@ -23137,7 +23137,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 13.09,
+      "preco": 13.13,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -23146,7 +23146,7 @@
         "tem_extraordinario": false,
         "teto": 21.149000000000004,
         "teto_sem_extra": 21.149000000000004,
-        "margem_seguranca": 0.38105820606175245,
+        "margem_seguranca": 0.37916686368149805,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.5013,
@@ -23163,9 +23163,9 @@
         "margem_projetada_barsi": 0.2792
       },
       "graham": 16.609884105555945,
-      "margem_graham": 0.2119150310253253,
+      "margem_graham": 0.2095068263836914,
       "gordon": 24.109859999999998,
-      "margem_gordon": 0.45706860180855463,
+      "margem_gordon": 0.45540952954517355,
       "rank_greenblatt": 97,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -23256,7 +23256,7 @@
         "ev": 24159200000.0,
         "capital_investido": 18484620000.0,
         "g_perpetuidade": 0.045,
-        "pl": 8.34,
+        "pl": 8.36,
         "pvp": 1.68,
         "psr": 3.07,
         "ev_ebit": 9.91,
@@ -23277,7 +23277,7 @@
         "fco_12m": 1702363000.0,
         "capex_12m": -49853000.0,
         "fcf_12m": 1652510000.0,
-        "fcf_yield": 0.1222,
+        "fcf_yield": 0.1218,
         "conversao_fcf_lucro": 1.0166
       },
       "pct_abaixo_teto_5a": 1.0,
@@ -23882,7 +23882,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 12.79,
+      "preco": 12.82,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -23891,7 +23891,7 @@
         "tem_extraordinario": false,
         "teto": 21.149000000000004,
         "teto_sem_extra": 21.149000000000004,
-        "margem_seguranca": 0.3952432739136604,
+        "margem_seguranca": 0.39382476712846953,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.5013,
@@ -23908,9 +23908,9 @@
         "margem_projetada_barsi": 0.2957
       },
       "graham": 16.609884105555945,
-      "margem_graham": 0.22997656583757914,
+      "margem_graham": 0.22817041235635369,
       "gordon": 24.109859999999998,
-      "margem_gordon": 0.46951164378391247,
+      "margem_gordon": 0.4682673395863766,
       "rank_greenblatt": 90,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -24001,7 +24001,7 @@
         "ev": 23745800000.0,
         "capital_investido": 18484620000.0,
         "g_perpetuidade": 0.045,
-        "pl": 8.15,
+        "pl": 8.17,
         "pvp": 1.64,
         "psr": 2.97,
         "ev_ebit": 9.74,
@@ -24022,7 +24022,7 @@
         "fco_12m": 1702363000.0,
         "capex_12m": -49853000.0,
         "fcf_12m": 1652510000.0,
-        "fcf_yield": 0.125,
+        "fcf_yield": 0.1247,
         "conversao_fcf_lucro": 1.0166
       },
       "pct_abaixo_teto_5a": 1.0,
@@ -24627,7 +24627,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 24.6,
+      "preco": 24.58,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -24636,7 +24636,7 @@
         "tem_extraordinario": false,
         "teto": 33.80566666666667,
         "teto_sem_extra": 33.80566666666667,
-        "margem_seguranca": 0.2723113481960618,
+        "margem_seguranca": 0.27290296498614636,
         "veredito": "verde",
         "por_ano": {
           "2021": 3.5889,
@@ -24653,9 +24653,9 @@
         "margem_projetada_barsi": 0.1479
       },
       "graham": 53.31969382882839,
-      "margem_graham": 0.5386320094227641,
+      "margem_graham": 0.5390071053500627,
       "gordon": 38.53845999999999,
-      "margem_gordon": 0.36167662122461547,
+      "margem_gordon": 0.3621955833211809,
       "rank_greenblatt": 81,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -24767,7 +24767,7 @@
         "ev": 33382800000.0,
         "capital_investido": 38127800000.0,
         "g_perpetuidade": 0.045,
-        "pl": 6.14,
+        "pl": 6.13,
         "pvp": 0.78,
         "psr": 1.63,
         "ev_ebit": 7.23,
@@ -25305,7 +25305,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 33.22,
+      "preco": 33.05,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -25314,7 +25314,7 @@
         "tem_extraordinario": false,
         "teto": 33.80566666666667,
         "teto_sem_extra": 33.80566666666667,
-        "margem_seguranca": 0.017324511669641232,
+        "margem_seguranca": 0.022353254385359556,
         "veredito": "verde",
         "por_ano": {
           "2021": 3.5889,
@@ -25331,9 +25331,9 @@
         "margem_projetada_barsi": -0.1507
       },
       "graham": 53.31969382882839,
-      "margem_graham": 0.37696566475708226,
+      "margem_graham": 0.3801539801391201,
       "gordon": 38.53845999999999,
-      "margem_gordon": 0.1380039576049483,
+      "margem_gordon": 0.14241513542575385,
       "rank_greenblatt": 95,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -25445,7 +25445,7 @@
         "ev": 40155900000.0,
         "capital_investido": 38127800000.0,
         "g_perpetuidade": 0.045,
-        "pl": 8.28,
+        "pl": 8.24,
         "pvp": 1.05,
         "psr": 2.27,
         "ev_ebit": 8.69,
@@ -25466,7 +25466,7 @@
         "fco_12m": -1384185000.0,
         "capex_12m": -43630000.0,
         "fcf_12m": -1427815000.0,
-        "fcf_yield": -0.065,
+        "fcf_yield": -0.0654,
         "conversao_fcf_lucro": -0.6353
       },
       "pct_abaixo_teto_5a": 0.8175,
@@ -25981,7 +25981,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 26.27,
+      "preco": 26.23,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -25990,7 +25990,7 @@
         "tem_extraordinario": false,
         "teto": 29.114286666666672,
         "teto_sem_extra": 29.114286666666672,
-        "margem_seguranca": 0.09769384698417267,
+        "margem_seguranca": 0.09906774291567752,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.2773,
@@ -26007,9 +26007,9 @@
         "margem_projetada_barsi": -0.6196
       },
       "graham": 25.841826560829634,
-      "margem_graham": -0.016569008315355665,
+      "margem_graham": -0.015021130114647124,
       "gordon": 33.1902868,
-      "margem_gordon": 0.2085033745475198,
+      "margem_gordon": 0.2097085464172609,
       "rank_greenblatt": 84,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -26084,8 +26084,8 @@
         "ev": 62033800000.0,
         "capital_investido": 39852400000.0,
         "g_perpetuidade": 0.045,
-        "pl": 9.38,
-        "pvp": 2.48,
+        "pl": 9.37,
+        "pvp": 2.47,
         "psr": 2.72,
         "ev_ebit": 10.4,
         "ev_ebitda": 8.26,
@@ -26604,7 +26604,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 9.92,
+      "preco": 9.93,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -26613,7 +26613,7 @@
         "tem_extraordinario": false,
         "teto": 15.35721,
         "teto_sem_extra": 15.35721,
-        "margem_seguranca": 0.35404933578429937,
+        "margem_seguranca": 0.35339817584053357,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.6585,
@@ -26630,9 +26630,9 @@
         "margem_projetada_barsi": 0.5299
       },
       "graham": 19.222252729584014,
-      "margem_graham": 0.4839314548844412,
+      "margem_graham": 0.4834112244962199,
       "gordon": 14.18401985901639,
-      "margem_gordon": 0.30062139657156994,
+      "margem_gordon": 0.29991637781811387,
       "rank_greenblatt": 88,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -26766,7 +26766,7 @@
         "ev": 48088700000.0,
         "capital_investido": 48452200000.0,
         "g_perpetuidade": 0.0329,
-        "pl": 6.16,
+        "pl": 6.17,
         "pvp": 0.97,
         "psr": 0.66,
         "ev_ebit": 8.0,
@@ -27448,7 +27448,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 15.84,
+      "preco": 15.88,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -27457,7 +27457,7 @@
         "tem_extraordinario": false,
         "teto": 15.35721,
         "teto_sem_extra": 15.35721,
-        "margem_seguranca": -0.03143735092507035,
+        "margem_seguranca": -0.034041990700133716,
         "veredito": "amarelo",
         "por_ano": {
           "2021": 0.6585,
@@ -27474,9 +27474,9 @@
         "margem_projetada_barsi": 0.3113
       },
       "graham": 19.222252729584014,
-      "margem_graham": 0.17595506505741426,
+      "margem_graham": 0.1738741435045289,
       "gordon": 12.023342112643675,
-      "margem_gordon": -0.3174373524099218,
+      "margem_gordon": -0.3207642144109571,
       "rank_greenblatt": 102,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -27610,8 +27610,8 @@
         "ev": 66346900000.0,
         "capital_investido": 48452200000.0,
         "g_perpetuidade": 0.0217,
-        "pl": 9.84,
-        "pvp": 1.55,
+        "pl": 9.86,
+        "pvp": 1.56,
         "psr": 1.08,
         "ev_ebit": 11.04,
         "ev_ebitda": 8.7,
@@ -28291,7 +28291,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 13.89,
+      "preco": 13.91,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -28300,7 +28300,7 @@
         "tem_extraordinario": false,
         "teto": 13.026333333333335,
         "teto_sem_extra": 13.026333333333335,
-        "margem_seguranca": -0.06630159420660701,
+        "margem_seguranca": -0.0678369456741471,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 1.1905,
@@ -28317,9 +28317,9 @@
         "margem_projetada_barsi": -0.0644
       },
       "graham": 13.824841771246426,
-      "margem_graham": -0.004713126546525386,
+      "margem_graham": -0.00615979771505887,
       "gordon": 7.859002914572864,
-      "margem_gordon": -0.767399777170705,
+      "margem_gordon": -0.7699446292616634,
       "rank_greenblatt": 106,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -28394,7 +28394,7 @@
         "ev": 62725800000.0,
         "capital_investido": 44140000000.0,
         "g_perpetuidade": 0.0005,
-        "pl": 13.23,
+        "pl": 13.25,
         "pvp": 1.72,
         "psr": 1.53,
         "ev_ebit": 11.55,
@@ -28920,7 +28920,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 41.3,
+      "preco": 41.39,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -28929,7 +28929,7 @@
         "tem_extraordinario": false,
         "teto": 51.25833333333334,
         "teto_sem_extra": 51.25833333333334,
-        "margem_seguranca": 0.19427735327589027,
+        "margem_seguranca": 0.192521541212811,
         "veredito": "verde",
         "por_ano": {
           "2021": 3.7014,
@@ -28946,9 +28946,9 @@
         "margem_projetada_barsi": 0.3355
       },
       "graham": 48.07990224615686,
-      "margem_graham": 0.14101322859280144,
+      "margem_graham": 0.13914134458731353,
       "gordon": 58.4345,
-      "margem_gordon": 0.29322574848762295,
+      "margem_gordon": 0.291685562467378,
       "rank_greenblatt": 24,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -29034,8 +29034,8 @@
         "ev": 75843300000.0,
         "capital_investido": 50281100000.0,
         "g_perpetuidade": 0.045,
-        "pl": 7.93,
-        "pvp": 2.09,
+        "pl": 7.94,
+        "pvp": 2.1,
         "psr": 1.06,
         "ev_ebit": 6.42,
         "ev_ebitda": 5.44,
@@ -29506,7 +29506,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 42.72,
+      "preco": 42.94,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -29515,7 +29515,7 @@
         "tem_extraordinario": false,
         "teto": 37.00364,
         "teto_sem_extra": 37.00364,
-        "margem_seguranca": -0.1544810186241138,
+        "margem_seguranca": -0.16042637967508064,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 3.5909,
@@ -29532,9 +29532,9 @@
         "margem_projetada_barsi": -0.1509
       },
       "graham": 51.20190182014726,
-      "margem_graham": 0.165655991645407,
+      "margem_graham": 0.1613592762465772,
       "gordon": 30.342984799999993,
-      "margem_gordon": -0.40790368124891946,
+      "margem_gordon": -0.4151541215549766,
       "rank_greenblatt": 63,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -29609,8 +29609,8 @@
         "ev": 55536500000.0,
         "capital_investido": 52727400000.0,
         "g_perpetuidade": 0.025,
-        "pl": 14.19,
-        "pvp": 1.1,
+        "pl": 14.27,
+        "pvp": 1.11,
         "psr": 0.61,
         "ev_ebit": 7.33,
         "ev_ebitda": 5.66,
@@ -30211,7 +30211,7 @@
         "fco_12m": 6090478000.0,
         "capex_12m": -5768631000.0,
         "fcf_12m": 321847000.0,
-        "fcf_yield": 0.0158,
+        "fcf_yield": 0.0159,
         "conversao_fcf_lucro": 0.241
       },
       "pct_abaixo_teto_5a": 0.5399,
@@ -30666,7 +30666,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 10.54,
+      "preco": 10.65,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -30675,7 +30675,7 @@
         "tem_extraordinario": false,
         "teto": 7.40061,
         "teto_sem_extra": 7.40061,
-        "margem_seguranca": -0.4242069234833343,
+        "margem_seguranca": -0.43907056310223075,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.7182,
@@ -30692,9 +30692,9 @@
         "margem_projetada_barsi": -1.0153
       },
       "graham": 10.222035022440492,
-      "margem_graham": -0.031105839185786067,
+      "margem_graham": -0.041866905818654924,
       "gordon": 7.371007560000001,
-      "margem_gordon": -0.42992663000334763,
+      "margem_gordon": -0.4448499629540469,
       "rank_greenblatt": 74,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -30769,8 +30769,8 @@
         "ev": 60804900000.0,
         "capital_investido": 52727400000.0,
         "g_perpetuidade": 0.0375,
-        "pl": 17.57,
-        "pvp": 1.36,
+        "pl": 17.75,
+        "pvp": 1.38,
         "psr": 0.75,
         "ev_ebit": 8.02,
         "ev_ebitda": 6.2,
@@ -31246,7 +31246,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 31.55,
+      "preco": 31.81,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -31255,7 +31255,7 @@
         "tem_extraordinario": false,
         "teto": 15.10866666666667,
         "teto_sem_extra": 15.10866666666667,
-        "margem_seguranca": -1.0882054449984553,
+        "margem_seguranca": -1.105414111106208,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.72,
@@ -31272,9 +31272,9 @@
         "margem_projetada_barsi": -1.9025
       },
       "graham": 18.83225955641011,
-      "margem_graham": -0.6753167566268506,
+      "margem_graham": -0.6891228535118895,
       "gordon": 12.389106666666665,
-      "margem_gordon": -1.546592006095678,
+      "margem_gordon": -1.567578184275864,
       "rank_greenblatt": 101,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -31360,8 +31360,8 @@
         "ev": 95207200000.0,
         "capital_investido": 80276200000.0,
         "g_perpetuidade": 0.025,
-        "pl": 41.51,
-        "pvp": 1.52,
+        "pl": 41.86,
+        "pvp": 1.53,
         "psr": 0.76,
         "ev_ebit": 9.86,
         "ev_ebitda": 7.54,
@@ -31826,7 +31826,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 46.3,
+      "preco": 46.33,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -31835,7 +31835,7 @@
         "tem_extraordinario": false,
         "teto": 30.415666666666663,
         "teto_sem_extra": 30.415666666666663,
-        "margem_seguranca": -0.5222418271285633,
+        "margem_seguranca": -0.5232281609258388,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 2.3789,
@@ -31852,9 +31852,9 @@
         "margem_projetada_barsi": 0.2776
       },
       "graham": 66.31336969269469,
-      "margem_graham": 0.30179992036959385,
+      "margem_graham": 0.3013475229097901,
       "gordon": 21.14341240274599,
-      "margem_gordon": -1.189807355504583,
+      "margem_gordon": -1.1912262371604174,
       "rank_greenblatt": 115,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -32387,7 +32387,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 30.7,
+      "preco": 30.77,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -32396,7 +32396,7 @@
         "tem_extraordinario": false,
         "teto": 20.20303333333333,
         "teto_sem_extra": 20.20303333333333,
-        "margem_seguranca": -0.5195737933742625,
+        "margem_seguranca": -0.5230386196132266,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.7468,
@@ -32413,9 +32413,9 @@
         "margem_projetada_barsi": -0.519
       },
       "graham": 52.63749851579195,
-      "margem_graham": 0.41676559742310715,
+      "margem_graham": 0.4154357469937787,
       "gordon": 16.566487333333328,
-      "margem_gordon": -0.8531387724076376,
+      "margem_gordon": -0.8573641702600329,
       "rank_greenblatt": 44,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -32491,7 +32491,7 @@
         "ev": 19873000000.0,
         "capital_investido": 19163230000.0,
         "g_perpetuidade": 0.025,
-        "pl": 7.29,
+        "pl": 7.31,
         "pvp": 1.05,
         "psr": 2.07,
         "ev_ebit": 6.54,
@@ -33035,7 +33035,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 9.99,
+      "preco": 10.05,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -33044,7 +33044,7 @@
         "tem_extraordinario": false,
         "teto": 6.734343333333334,
         "teto_sem_extra": 6.734343333333334,
-        "margem_seguranca": -0.48344085020910216,
+        "margem_seguranca": -0.49235040486501275,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.2489,
@@ -33061,9 +33061,9 @@
         "margem_projetada_barsi": -0.4333
       },
       "graham": 17.524982168321884,
-      "margem_graham": 0.42995662397546397,
+      "margem_graham": 0.4265329400353767,
       "gordon": 7.677151399999999,
-      "margem_gordon": -0.30126390369219525,
+      "margem_gordon": -0.30907930251316945,
       "rank_greenblatt": 43,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -33139,8 +33139,8 @@
         "ev": 19658700000.0,
         "capital_investido": 19163230000.0,
         "g_perpetuidade": 0.045,
-        "pl": 7.14,
-        "pvp": 1.02,
+        "pl": 7.18,
+        "pvp": 1.03,
         "psr": 2.02,
         "ev_ebit": 6.47,
         "ev_ebitda": 6.05,
@@ -33160,7 +33160,7 @@
         "fco_12m": 1865722000.0,
         "capex_12m": -123410000.0,
         "fcf_12m": 1792729000.0,
-        "fcf_yield": 0.1815,
+        "fcf_yield": 0.1804,
         "conversao_fcf_lucro": 1.7203
       },
       "pct_abaixo_teto_5a": 0.0,
@@ -33681,7 +33681,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 10.88,
+      "preco": 10.65,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -33690,7 +33690,7 @@
         "tem_extraordinario": false,
         "teto": 6.734343333333334,
         "teto_sem_extra": 6.734343333333334,
-        "margem_seguranca": -0.6215389473757152,
+        "margem_seguranca": -0.5814459514241179,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.2489,
@@ -33707,9 +33707,9 @@
         "margem_projetada_barsi": -0.561
       },
       "graham": 17.524982168321884,
-      "margem_graham": 0.3768895229041108,
+      "margem_graham": 0.39229610063450365,
       "gordon": 7.677151399999999,
-      "margem_gordon": -0.4224025854172945,
+      "margem_gordon": -0.38723329072291085,
       "rank_greenblatt": 46,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -33785,8 +33785,8 @@
         "ev": 20291600000.0,
         "capital_investido": 19163230000.0,
         "g_perpetuidade": 0.045,
-        "pl": 7.8,
-        "pvp": 1.12,
+        "pl": 7.61,
+        "pvp": 1.09,
         "psr": 2.15,
         "ev_ebit": 6.67,
         "ev_ebitda": 6.25,
@@ -33806,7 +33806,7 @@
         "fco_12m": 1865722000.0,
         "capex_12m": -123410000.0,
         "fcf_12m": 1792729000.0,
-        "fcf_yield": 0.166,
+        "fcf_yield": 0.1702,
         "conversao_fcf_lucro": 1.7203
       },
       "pct_abaixo_teto_5a": 0.0,
@@ -34327,7 +34327,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 10.53,
+      "preco": 10.54,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -34336,7 +34336,7 @@
         "tem_extraordinario": false,
         "teto": 11.856666666666667,
         "teto_sem_extra": 11.856666666666667,
-        "margem_seguranca": 0.11189204385718313,
+        "margem_seguranca": 0.11104863649142548,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.0,
@@ -34355,7 +34355,7 @@
       "graham": null,
       "margem_graham": null,
       "gordon": 9.722466666666666,
-      "margem_gordon": -0.08305848310099635,
+      "margem_gordon": -0.08408702866899348,
       "rank_greenblatt": 118,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -34427,7 +34427,7 @@
         "ev": 31433000000.0,
         "capital_investido": 31522700000.0,
         "g_perpetuidade": 0.025,
-        "pl": -10.12,
+        "pl": -10.13,
         "pvp": 0.96,
         "psr": 0.85,
         "ev_ebit": 28.44,
@@ -35441,7 +35441,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 170.37,
+      "preco": 171.99,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -35450,7 +35450,7 @@
         "tem_extraordinario": false,
         "teto": 82.03999999999999,
         "teto_sem_extra": 82.03999999999999,
-        "margem_seguranca": -1.0766699171136034,
+        "margem_seguranca": -1.09641638225256,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 4.7304,
@@ -35467,9 +35467,9 @@
         "margem_projetada_barsi": 0.245
       },
       "graham": 236.56658787749382,
-      "margem_graham": 0.2798222203372767,
+      "margem_graham": 0.27297425412812243,
       "gordon": 93.52559999999998,
-      "margem_gordon": -0.8216402781698277,
+      "margem_gordon": -0.8389617388180353,
       "rank_greenblatt": 99,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -35609,8 +35609,8 @@
         "ev": 11795500000.0,
         "capital_investido": 9400120000.0,
         "g_perpetuidade": 0.045,
-        "pl": 7.51,
-        "pvp": 1.55,
+        "pl": 7.58,
+        "pvp": 1.57,
         "psr": 0.53,
         "ev_ebit": 10.03,
         "ev_ebitda": 7.46,
@@ -38443,7 +38443,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 26.6,
+      "preco": 26.33,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -38452,7 +38452,7 @@
         "tem_extraordinario": false,
         "teto": 114.39860000000002,
         "teto_sem_extra": 114.39860000000002,
-        "margem_seguranca": 0.7674796719540274,
+        "margem_seguranca": 0.7698398406973512,
         "veredito": "verde",
         "por_ano": {
           "2021": 20.86,
@@ -38469,9 +38469,9 @@
         "margem_projetada_barsi": 0.1526
       },
       "graham": 25.66788849905656,
-      "margem_graham": -0.03631430380327944,
+      "margem_graham": -0.025795324027832498,
       "gordon": 93.80685199999998,
-      "margem_gordon": 0.7164386243341796,
+      "margem_gordon": 0.7193168788992087,
       "rank_greenblatt": 79,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -38547,8 +38547,8 @@
         "ev": 1646640000.0,
         "capital_investido": 663096000.0,
         "g_perpetuidade": 0.025,
-        "pl": 11.98,
-        "pvp": 2.02,
+        "pl": 11.86,
+        "pvp": 2.0,
         "psr": 4.24,
         "ev_ebit": 12.9,
         "ev_ebitda": 12.12,
@@ -38568,7 +38568,7 @@
         "fco_12m": null,
         "capex_12m": null,
         "fcf_12m": 151854000.0,
-        "fcf_yield": 0.0792,
+        "fcf_yield": 0.08,
         "conversao_fcf_lucro": 0.6995
       },
       "pct_abaixo_teto_5a": 1.0,
@@ -39035,7 +39035,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 22.72,
+      "preco": 22.9,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -39044,7 +39044,7 @@
         "tem_extraordinario": false,
         "teto": 103.99866666666667,
         "teto_sem_extra": 103.99866666666667,
-        "margem_seguranca": 0.7815356607135989,
+        "margem_seguranca": 0.7798048692931961,
         "veredito": "verde",
         "por_ano": {
           "2021": 18.9636,
@@ -39061,9 +39061,9 @@
         "margem_projetada_barsi": 0.2762
       },
       "graham": 25.66788849905656,
-      "margem_graham": 0.11484733148832682,
+      "margem_graham": 0.10783467830469562,
       "gordon": 85.27890666666664,
-      "margem_gordon": 0.7335800740409743,
+      "margem_gordon": 0.7314693527965805,
       "rank_greenblatt": 68,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -39139,8 +39139,8 @@
         "ev": 1356150000.0,
         "capital_investido": 663096000.0,
         "g_perpetuidade": 0.025,
-        "pl": 10.23,
-        "pvp": 1.72,
+        "pl": 10.32,
+        "pvp": 1.74,
         "psr": 3.6,
         "ev_ebit": 10.62,
         "ev_ebitda": 9.98,
@@ -39160,7 +39160,7 @@
         "fco_12m": null,
         "capex_12m": null,
         "fcf_12m": 151854000.0,
-        "fcf_yield": 0.0927,
+        "fcf_yield": 0.092,
         "conversao_fcf_lucro": 0.6995
       },
       "pct_abaixo_teto_5a": 1.0,
@@ -40219,7 +40219,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 4.94,
+      "preco": 5.05,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -40228,7 +40228,7 @@
         "tem_extraordinario": false,
         "teto": 9.532,
         "teto_sem_extra": 9.532,
-        "margem_seguranca": 0.4817456986991187,
+        "margem_seguranca": 0.47020562316407893,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.41,
@@ -40245,9 +40245,9 @@
         "margem_projetada_barsi": 0.3448
       },
       "graham": 6.16607654834093,
-      "margem_graham": 0.19884225223749827,
+      "margem_graham": 0.18100270724683537,
       "gordon": 10.866479999999997,
-      "margem_gordon": 0.5453909637711567,
+      "margem_gordon": 0.535268090494806,
       "rank_greenblatt": 18,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -40320,8 +40320,8 @@
         "ev": 17589200000.0,
         "capital_investido": 11685190000.0,
         "g_perpetuidade": 0.045,
-        "pl": 6.96,
-        "pvp": 2.08,
+        "pl": 7.11,
+        "pvp": 2.12,
         "psr": 0.87,
         "ev_ebit": 5.92,
         "ev_ebitda": 4.89,
@@ -40341,7 +40341,7 @@
         "fco_12m": 1290241000.0,
         "capex_12m": null,
         "fcf_12m": 1290241000.0,
-        "fcf_yield": 0.1182,
+        "fcf_yield": 0.1157,
         "conversao_fcf_lucro": 0.822
       },
       "pct_abaixo_teto_5a": 1.0,
@@ -43372,8 +43372,8 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 33.49,
-      "data_ult_cot": "30/10/2026",
+      "preco": 31.51,
+      "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
         "dpa": 4.165360000000001,
@@ -43381,7 +43381,7 @@
         "tem_extraordinario": false,
         "teto": 69.42266666666669,
         "teto_sem_extra": 69.42266666666669,
-        "margem_seguranca": 0.5175927170760751,
+        "margem_seguranca": 0.5461136612441663,
         "veredito": "verde",
         "por_ano": {
           "2021": 5.486,
@@ -43398,9 +43398,9 @@
         "margem_projetada_barsi": 0.1031
       },
       "graham": 32.79941310450539,
-      "margem_graham": -0.021054855258972643,
+      "margem_graham": 0.03931207855448708,
       "gordon": 56.92658666666666,
-      "margem_gordon": 0.411698435458628,
+      "margem_gordon": 0.44648007468800743,
       "rank_greenblatt": 80,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -43468,7 +43468,7 @@
       },
       "fundamentos": {
         "empresa": "ENERGISA MT ON",
-        "data_ult_cot": "30/10/2026",
+        "data_ult_cot": "03/11/2026",
         "ult_balanco": "30/06/2026",
         "lpa": 2.63,
         "vpa": 18.18,
@@ -43476,8 +43476,8 @@
         "ev": 16099200000.0,
         "capital_investido": 12746340000.0,
         "g_perpetuidade": 0.025,
-        "pl": 12.73,
-        "pvp": 1.84,
+        "pl": 11.98,
+        "pvp": 1.73,
         "psr": 0.77,
         "ev_ebit": 8.93,
         "ev_ebitda": 7.26,
@@ -43497,7 +43497,7 @@
         "fco_12m": 875346000.0,
         "capex_12m": -2028832000.0,
         "fcf_12m": -1153486000.0,
-        "fcf_yield": -0.1573,
+        "fcf_yield": -0.1672,
         "conversao_fcf_lucro": -1.3222
       },
       "pct_abaixo_teto_5a": 0.3954,
@@ -43970,7 +43970,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 2.48,
+      "preco": 2.47,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -43979,7 +43979,7 @@
         "tem_extraordinario": false,
         "teto": 2.3160000000000003,
         "teto_sem_extra": 2.3160000000000003,
-        "margem_seguranca": -0.07081174438687378,
+        "margem_seguranca": -0.06649395509499131,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.4411,
@@ -43996,9 +43996,9 @@
         "margem_projetada_barsi": 0.6026
       },
       "graham": 13.966925216381737,
-      "margem_graham": 0.8224376545604167,
+      "margem_graham": 0.8231536317597699,
       "gordon": 2.6402399999999995,
-      "margem_gordon": 0.06069145229221568,
+      "margem_gordon": 0.06447898675877925,
       "rank_greenblatt": 91,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -44485,7 +44485,7 @@
       "setor": "energia",
       "categoria": "besst",
       "besst": true,
-      "preco": 25.13,
+      "preco": 25.21,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -44511,7 +44511,7 @@
         "margem_projetada_barsi": -5.1293
       },
       "graham": 10.852994978345839,
-      "margem_graham": -1.3154898763097183,
+      "margem_graham": -1.3228611134806207,
       "gordon": null,
       "margem_gordon": null,
       "rank_greenblatt": 112,
@@ -44578,8 +44578,8 @@
         "ev": 69796600000.0,
         "capital_investido": 40181400000.0,
         "g_perpetuidade": 0.045,
-        "pl": 50.26,
-        "pvp": 2.4,
+        "pl": 50.42,
+        "pvp": 2.41,
         "psr": 2.61,
         "ev_ebit": 22.05,
         "ev_ebitda": 12.05,
@@ -44983,7 +44983,7 @@
       "setor": "saneamento",
       "categoria": "besst",
       "besst": true,
-      "preco": 29.82,
+      "preco": 29.77,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -44992,7 +44992,7 @@
         "tem_extraordinario": false,
         "teto": 25.422666666666668,
         "teto_sem_extra": 25.422666666666668,
-        "margem_seguranca": -0.17296900403839088,
+        "margem_seguranca": -0.1710022552053285,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 1.0916,
@@ -45009,9 +45009,9 @@
         "margem_projetada_barsi": -0.3831
       },
       "graham": 36.8876503724485,
-      "margem_graham": 0.1915993645864565,
+      "margem_graham": 0.19295483178198558,
       "gordon": 20.846586666666663,
-      "margem_gordon": -0.43045000492486724,
+      "margem_gordon": -0.4280515307382058,
       "rank_greenblatt": 22,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -45083,7 +45083,7 @@
         "ev": 11911700000.0,
         "capital_investido": 14691470000.0,
         "g_perpetuidade": 0.025,
-        "pl": 19.75,
+        "pl": 19.72,
         "pvp": 0.74,
         "psr": 1.24,
         "ev_ebit": 4.68,
@@ -45555,7 +45555,7 @@
       "setor": "saneamento",
       "categoria": "besst",
       "besst": true,
-      "preco": 5.96,
+      "preco": 5.94,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -45564,7 +45564,7 @@
         "tem_extraordinario": false,
         "teto": 5.179,
         "teto_sem_extra": 5.179,
-        "margem_seguranca": -0.15080131299478658,
+        "margem_seguranca": -0.14693956362232094,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.2224,
@@ -45581,9 +45581,9 @@
         "margem_projetada_barsi": -1.9505
       },
       "graham": 7.353060587265686,
-      "margem_graham": 0.18945316317374591,
+      "margem_graham": 0.19217311900202189,
       "gordon": 4.122645214007782,
-      "margem_gordon": -0.4456737581369645,
+      "margem_gordon": -0.4408225039150285,
       "rank_greenblatt": 21,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -45655,7 +45655,7 @@
         "ev": 11700100000.0,
         "capital_investido": 14691470000.0,
         "g_perpetuidade": 0.0229,
-        "pl": 19.87,
+        "pl": 19.8,
         "pvp": 0.74,
         "psr": 1.21,
         "ev_ebit": 4.6,
@@ -46696,7 +46696,7 @@
       "setor": "saneamento",
       "categoria": "besst",
       "besst": true,
-      "preco": 47.29,
+      "preco": 47.4,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -46705,7 +46705,7 @@
         "tem_extraordinario": false,
         "teto": 30.92633333333334,
         "teto_sem_extra": 30.92633333333334,
-        "margem_seguranca": -0.5291175804869633,
+        "margem_seguranca": -0.5326744198579416,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.9447,
@@ -46722,9 +46722,9 @@
         "margem_projetada_barsi": -0.5633
       },
       "graham": 42.20094785665365,
-      "margem_graham": -0.1205909440857258,
+      "margem_graham": -0.12319752061034897,
       "gordon": 35.25602,
-      "margem_gordon": -0.3413312109534769,
+      "margem_gordon": -0.3444512454894228,
       "rank_greenblatt": 98,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -46814,8 +46814,8 @@
         "ev": 26150500000.0,
         "capital_investido": 16709980000.0,
         "g_perpetuidade": 0.045,
-        "pl": 13.91,
-        "pvp": 2.03,
+        "pl": 13.94,
+        "pvp": 2.04,
         "psr": 2.11,
         "ev_ebit": 11.68,
         "ev_ebitda": 8.05,
@@ -47430,7 +47430,7 @@
       "setor": "saneamento",
       "categoria": "besst",
       "besst": true,
-      "preco": 23.87,
+      "preco": 24.03,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -47439,7 +47439,7 @@
         "tem_extraordinario": false,
         "teto": 6.73451,
         "teto_sem_extra": 6.73451,
-        "margem_seguranca": -2.5444301070159523,
+        "margem_seguranca": -2.5681883314450493,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0772,
@@ -47456,9 +47456,9 @@
         "margem_projetada_barsi": -1.1293
       },
       "graham": 25.54874752311745,
-      "margem_graham": 0.06570762506453418,
+      "margem_graham": 0.05944508715126754,
       "gordon": 7.677341399999999,
-      "margem_gordon": -2.1091492166806605,
+      "margem_gordon": -2.1299897644254826,
       "rank_greenblatt": 71,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -47528,8 +47528,8 @@
         "ev": 121517000000.0,
         "capital_investido": 79390700000.0,
         "g_perpetuidade": 0.045,
-        "pl": 10.52,
-        "pvp": 1.87,
+        "pl": 10.59,
+        "pvp": 1.88,
         "psr": 2.14,
         "ev_ebit": 9.6,
         "ev_ebitda": 8.01,
@@ -47982,7 +47982,7 @@
       "setor": "saneamento",
       "categoria": "besst",
       "besst": true,
-      "preco": 15.45,
+      "preco": 15.5,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -48008,7 +48008,7 @@
         "margem_projetada_barsi": -19.8784
       },
       "graham": 4.228563585900063,
-      "margem_graham": -2.653722992724353,
+      "margem_graham": -2.6655473389791244,
       "gordon": null,
       "margem_gordon": null,
       "rank_greenblatt": 117,
@@ -48069,8 +48069,8 @@
         "ev": 10993800000.0,
         "capital_investido": 7078760000.0,
         "g_perpetuidade": 0.01,
-        "pl": 171.67,
-        "pvp": 1.75,
+        "pl": 172.22,
+        "pvp": 1.76,
         "psr": 5.85,
         "ev_ebit": 31.46,
         "ev_ebitda": 20.05,
@@ -48962,7 +48962,7 @@
       "setor": "seguros",
       "categoria": "besst",
       "besst": true,
-      "preco": 40.67,
+      "preco": 40.82,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -48971,7 +48971,7 @@
         "tem_extraordinario": false,
         "teto": 44.14533333333333,
         "teto_sem_extra": 44.14533333333333,
-        "margem_seguranca": 0.0787248180253103,
+        "margem_seguranca": 0.07532695037603068,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.9957,
@@ -48988,9 +48988,9 @@
         "margem_projetada_barsi": 0.0797
       },
       "graham": 24.434488944931918,
-      "margem_graham": -0.6644506087955474,
+      "margem_graham": -0.6705894726096445,
       "gordon": 40.38808945347119,
-      "margem_gordon": -0.006980041649496351,
+      "margem_gordon": -0.010694007871463969,
       "rank_greenblatt": 23,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -49061,8 +49061,8 @@
         "ev": 73741754368.0,
         "capital_investido": 10890300000.0,
         "g_perpetuidade": 0.0323,
-        "pl": 8.6,
-        "pvp": 7.25,
+        "pl": 8.63,
+        "pvp": 7.28,
         "psr": null,
         "ev_ebit": null,
         "ev_ebitda": null,
@@ -49539,7 +49539,7 @@
       "setor": "seguros",
       "categoria": "besst",
       "besst": true,
-      "preco": 21.11,
+      "preco": 21.19,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -49548,7 +49548,7 @@
         "tem_extraordinario": false,
         "teto": 14.059333333333335,
         "teto_sem_extra": 14.059333333333335,
-        "margem_seguranca": -0.5014936696856179,
+        "margem_seguranca": -0.5071838399165441,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.2446,
@@ -49565,9 +49565,9 @@
         "margem_projetada_barsi": 0.0352
       },
       "graham": 12.50139992160878,
-      "margem_graham": -0.6886108861705303,
+      "margem_graham": -0.6950101694909304,
       "gordon": 15.294109565217394,
-      "margem_gordon": -0.3802699601426543,
+      "margem_gordon": -0.3855007321375105,
       "rank_greenblatt": null,
       "motivo_exclusao_greenblatt": "Múltiplos operacionais não positivos (EBIT, EV e Capital Investido devem ser > 0).",
       "sustentabilidade": {
@@ -49656,8 +49656,8 @@
         "ev": 62849600000.0,
         "capital_investido": 12504240000.0,
         "g_perpetuidade": 0.0425,
-        "pl": 13.98,
-        "pvp": 4.59,
+        "pl": 14.03,
+        "pvp": 4.61,
         "psr": null,
         "ev_ebit": -379.92,
         "ev_ebitda": -384.96,
@@ -50152,7 +50152,7 @@
       "setor": "seguros",
       "categoria": "besst",
       "besst": true,
-      "preco": 44.37,
+      "preco": 44.45,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -50161,7 +50161,7 @@
         "tem_extraordinario": false,
         "teto": 25.149833333333333,
         "teto_sem_extra": 25.149833333333333,
-        "margem_seguranca": -0.764226403090809,
+        "margem_seguranca": -0.7674073386834904,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 1.4447,
@@ -50178,9 +50178,9 @@
         "margem_projetada_barsi": 0.1175
       },
       "graham": 56.5557689365108,
-      "margem_graham": 0.21546464959552547,
+      "margem_graham": 0.21405011662206677,
       "gordon": 28.670809999999996,
-      "margem_gordon": -0.5475670202550958,
+      "margem_gordon": -0.5503573146346409,
       "rank_greenblatt": 1,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -50294,7 +50294,7 @@
         "ev": 14448400000.0,
         "capital_investido": 1640100000.0,
         "g_perpetuidade": 0.045,
-        "pl": 7.78,
+        "pl": 7.8,
         "pvp": 1.78,
         "psr": 0.68,
         "ev_ebit": 0.41,
@@ -50850,7 +50850,7 @@
       "setor": "seguros",
       "categoria": "besst",
       "besst": true,
-      "preco": 5.83,
+      "preco": 5.78,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -50859,7 +50859,7 @@
         "tem_extraordinario": false,
         "teto": 8.182666666666668,
         "teto_sem_extra": 8.182666666666668,
-        "margem_seguranca": 0.287518331432296,
+        "margem_seguranca": 0.293628808864266,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.6088,
@@ -50876,9 +50876,9 @@
         "margem_projetada_barsi": 0.4437
       },
       "graham": 11.365606011119688,
-      "margem_graham": 0.4870489092885901,
+      "margem_graham": 0.4914481467732506,
       "gordon": 9.32824,
-      "margem_gordon": 0.37501608020376825,
+      "margem_gordon": 0.38037614812654896,
       "rank_greenblatt": 2,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -50962,8 +50962,8 @@
         "ev": 920665000.0,
         "capital_investido": 722948000.0,
         "g_perpetuidade": 0.045,
-        "pl": 4.7,
-        "pvp": 1.26,
+        "pl": 4.66,
+        "pvp": 1.25,
         "psr": 0.74,
         "ev_ebit": 1.49,
         "ev_ebitda": 1.27,
@@ -51446,7 +51446,7 @@
       "setor": "seguros",
       "categoria": "besst",
       "besst": true,
-      "preco": 55.94,
+      "preco": 56.57,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -51539,8 +51539,8 @@
         "ev": 362450336.0,
         "capital_investido": 5328370000.0,
         "g_perpetuidade": 0.025,
-        "pl": -31.08,
-        "pvp": 0.86,
+        "pl": -31.43,
+        "pvp": 0.87,
         "psr": 1.02,
         "ev_ebit": null,
         "ev_ebitda": null,
@@ -51969,7 +51969,7 @@
       "setor": "telecom",
       "categoria": "besst",
       "besst": true,
-      "preco": 30.73,
+      "preco": 30.47,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -51978,7 +51978,7 @@
         "tem_extraordinario": true,
         "teto": 20.944666666666667,
         "teto_sem_extra": 20.944666666666667,
-        "margem_seguranca": -0.4671992870102174,
+        "margem_seguranca": -0.45478562561670427,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 1.7313,
@@ -51995,9 +51995,9 @@
         "margem_projetada_barsi": -0.464
       },
       "graham": 30.62976493543494,
-      "margem_graham": -0.0032724725369700385,
+      "margem_graham": 0.005216002661845899,
       "gordon": 17.17462666666666,
-      "margem_gordon": -0.7892674231831925,
+      "margem_gordon": -0.7741288117276887,
       "rank_greenblatt": 100,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -52148,8 +52148,8 @@
         "ev": 110195000000.0,
         "capital_investido": 76769600000.0,
         "g_perpetuidade": 0.025,
-        "pl": 14.99,
-        "pvp": 1.51,
+        "pl": 14.86,
+        "pvp": 1.5,
         "psr": 1.6,
         "ev_ebit": 10.98,
         "ev_ebitda": 4.33,
@@ -52878,7 +52878,7 @@
       "setor": "telecom",
       "categoria": "besst",
       "besst": true,
-      "preco": 19.73,
+      "preco": 19.77,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -52887,7 +52887,7 @@
         "tem_extraordinario": false,
         "teto": 17.974333333333337,
         "teto_sem_extra": 17.974333333333337,
-        "margem_seguranca": -0.09767631622869624,
+        "margem_seguranca": -0.09990171170001641,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.4329,
@@ -52904,9 +52904,9 @@
         "margem_projetada_barsi": -130.5333
       },
       "graham": 1.5385057685949701,
-      "margem_graham": -11.824131311524615,
+      "margem_graham": -11.85013056405685,
       "gordon": 10.796474934934936,
-      "margem_gordon": -0.8274483216886106,
+      "margem_gordon": -0.8311532346570618,
       "rank_greenblatt": 121,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -53000,7 +53000,7 @@
         "ev": 43723300000.0,
         "capital_investido": 23134710000.0,
         "g_perpetuidade": 0.0001,
-        "pl": 1973.0,
+        "pl": 1977.0,
         "pvp": 1.88,
         "psr": 58.61,
         "ev_ebit": 120.8,
@@ -53598,7 +53598,7 @@
       "setor": "telecom",
       "categoria": "besst",
       "besst": true,
-      "preco": 5.1,
+      "preco": 5.15,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -53607,7 +53607,7 @@
         "tem_extraordinario": false,
         "teto": 4.2730966666666665,
         "teto_sem_extra": 4.2730966666666665,
-        "margem_seguranca": -0.19351383734980637,
+        "margem_seguranca": -0.20521495340225562,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0758,
@@ -53624,9 +53624,9 @@
         "margem_projetada_barsi": -0.1916
       },
       "graham": 6.199193495931548,
-      "margem_graham": 0.17731233855709372,
+      "margem_graham": 0.1692467732488298,
       "gordon": 3.5039392666666656,
-      "margem_gordon": -0.4555046796948862,
+      "margem_gordon": -0.46977433341738534,
       "rank_greenblatt": 37,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -53738,8 +53738,8 @@
         "ev": 2471150000.0,
         "capital_investido": 1579651000.0,
         "g_perpetuidade": 0.025,
-        "pl": 9.11,
-        "pvp": 1.67,
+        "pl": 9.2,
+        "pvp": 1.69,
         "psr": 1.62,
         "ev_ebit": 7.14,
         "ev_ebitda": 3.79,
@@ -54816,7 +54816,7 @@
       "setor": "telecom",
       "categoria": "besst",
       "besst": true,
-      "preco": 2.25,
+      "preco": 2.22,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -54825,7 +54825,7 @@
         "tem_extraordinario": false,
         "teto": 0.274,
         "teto_sem_extra": 0.274,
-        "margem_seguranca": -7.211678832116788,
+        "margem_seguranca": -7.102189781021898,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -54842,9 +54842,9 @@
         "margem_projetada_barsi": -2.125
       },
       "graham": 3.3674916480965473,
-      "margem_graham": 0.33184689521893906,
+      "margem_graham": 0.3407556032826865,
       "gordon": 0.22793837837837835,
-      "margem_gordon": -8.871088914500364,
+      "margem_gordon": -8.739474395640359,
       "rank_greenblatt": 104,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -54915,7 +54915,7 @@
         "ev": 2740010000.0,
         "capital_investido": 3267650000.0,
         "g_perpetuidade": 0.026,
-        "pl": 16.07,
+        "pl": 15.86,
         "pvp": 0.62,
         "psr": 0.58,
         "ev_ebit": 9.84,
@@ -55322,7 +55322,7 @@
       "setor": "petróleo e gás",
       "categoria": "dividendos",
       "besst": false,
-      "preco": 50.55,
+      "preco": 50.7,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -55331,7 +55331,7 @@
         "tem_extraordinario": false,
         "teto": 134.82333333333335,
         "teto_sem_extra": 134.82333333333335,
-        "margem_seguranca": 0.6250648997453458,
+        "margem_seguranca": 0.6239523326822756,
         "veredito": "verde",
         "por_ano": {
           "2021": 5.6478,
@@ -55348,9 +55348,9 @@
         "margem_projetada_barsi": -0.0295
       },
       "graham": 93.22496983104902,
-      "margem_graham": 0.4577632999869947,
+      "margem_graham": 0.4561542890077276,
       "gordon": 153.6986,
-      "margem_gordon": 0.6711095611801279,
+      "margem_gordon": 0.6701336251598908,
       "rank_greenblatt": 11,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -55450,8 +55450,8 @@
         "ev": 992134000000.0,
         "capital_investido": 793719000000.0,
         "g_perpetuidade": 0.045,
-        "pl": 4.88,
-        "pvp": 1.35,
+        "pl": 4.9,
+        "pvp": 1.36,
         "psr": 1.24,
         "ev_ebit": 4.23,
         "ev_ebitda": 3.08,
@@ -56210,7 +56210,7 @@
       "setor": "petróleo e gás",
       "categoria": "dividendos",
       "besst": false,
-      "preco": 57.77,
+      "preco": 58.04,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -56219,7 +56219,7 @@
         "tem_extraordinario": false,
         "teto": 134.82233333333335,
         "teto_sem_extra": 134.82233333333335,
-        "margem_seguranca": 0.571510160285017,
+        "margem_seguranca": 0.569507524717715,
         "veredito": "verde",
         "por_ano": {
           "2021": 5.6478,
@@ -56236,9 +56236,9 @@
         "margem_projetada_barsi": -0.1766
       },
       "graham": 93.22496983104902,
-      "margem_graham": 0.3803162381849393,
+      "margem_graham": 0.3774200184222586,
       "gordon": 153.69745999999998,
-      "margem_gordon": 0.6241317195482605,
+      "margem_gordon": 0.622375021682206,
       "rank_greenblatt": 12,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -56338,8 +56338,8 @@
         "ev": 1086220000000.0,
         "capital_investido": 793719000000.0,
         "g_perpetuidade": 0.045,
-        "pl": 5.58,
-        "pvp": 1.55,
+        "pl": 5.61,
+        "pvp": 1.56,
         "psr": 1.41,
         "ev_ebit": 4.63,
         "ev_ebitda": 3.37,
@@ -57098,7 +57098,7 @@
       "setor": "mineração",
       "categoria": "dividendos",
       "besst": false,
-      "preco": 61.06,
+      "preco": 60.96,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -57107,7 +57107,7 @@
         "tem_extraordinario": false,
         "teto": 137.50533333333334,
         "teto_sem_extra": 137.50533333333334,
-        "margem_seguranca": 0.5559444966983099,
+        "margem_seguranca": 0.5566717412173103,
         "veredito": "verde",
         "por_ano": {
           "2021": 14.6359,
@@ -57124,9 +57124,9 @@
         "margem_projetada_barsi": -7.9269
       },
       "graham": 21.992424832200744,
-      "margem_graham": -1.7764105352583732,
+      "margem_graham": -1.7718635150565085,
       "gordon": 112.75437333333332,
-      "margem_gordon": 0.45846889841257293,
+      "margem_gordon": 0.4593557819723296,
       "rank_greenblatt": 17,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -57202,7 +57202,7 @@
         "ev": 343167000000.0,
         "capital_investido": 262608000000.0,
         "g_perpetuidade": 0.025,
-        "pl": 124.61,
+        "pl": 124.41,
         "pvp": 1.39,
         "psr": 1.28,
         "ev_ebit": 5.23,
@@ -57746,7 +57746,7 @@
       "setor": "mineração",
       "categoria": "dividendos",
       "besst": false,
-      "preco": 4.66,
+      "preco": 4.67,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -57755,7 +57755,7 @@
         "tem_extraordinario": false,
         "teto": 11.165666666666667,
         "teto_sem_extra": 11.165666666666667,
-        "margem_seguranca": 0.5826491924649968,
+        "margem_seguranca": 0.5817535898737201,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.4684,
@@ -57772,9 +57772,9 @@
         "margem_projetada_barsi": 0.2336
       },
       "graham": 3.6140351409470277,
-      "margem_graham": -0.2894174567375363,
+      "margem_graham": -0.292184446988046,
       "gordon": 6.819226666666666,
-      "margem_gordon": 0.31663805475498685,
+      "margem_gordon": 0.31517161281240097,
       "rank_greenblatt": 14,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -57873,8 +57873,8 @@
         "ev": 27424800000.0,
         "capital_investido": 8364510000.0,
         "g_perpetuidade": 0.0016,
-        "pl": 10.84,
-        "pvp": 3.45,
+        "pl": 10.86,
+        "pvp": 3.46,
         "psr": 1.52,
         "ev_ebit": 5.68,
         "ev_ebitda": 4.43,
@@ -58423,7 +58423,7 @@
       "setor": "papel e celulose",
       "categoria": "dividendos",
       "besst": false,
-      "preco": 17.38,
+      "preco": 17.36,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -58432,7 +58432,7 @@
         "tem_extraordinario": false,
         "teto": 19.67321666666667,
         "teto_sem_extra": 19.67321666666667,
-        "margem_seguranca": 0.1165654150778598,
+        "margem_seguranca": 0.11758202564739044,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.3294,
@@ -58449,9 +58449,9 @@
         "margem_projetada_barsi": -2.2305
       },
       "graham": 8.228973204476972,
-      "margem_graham": -1.1120496528709574,
+      "margem_graham": -1.1096192159861809,
       "gordon": 16.132037666666662,
-      "margem_gordon": -0.07735924990504946,
+      "margem_gordon": -0.07611948091781698,
       "rank_greenblatt": 114,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -58545,7 +58545,7 @@
         "ev": 46988300000.0,
         "capital_investido": 35400450000.0,
         "g_perpetuidade": 0.025,
-        "pl": 45.74,
+        "pl": 45.68,
         "pvp": 2.19,
         "psr": 1.03,
         "ev_ebit": 20.17,
@@ -59791,7 +59791,7 @@
       "setor": "papel e celulose",
       "categoria": "dividendos",
       "besst": false,
-      "preco": 8.16,
+      "preco": 8.3,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -59800,7 +59800,7 @@
         "tem_extraordinario": false,
         "teto": 10.356666666666667,
         "teto_sem_extra": 10.356666666666667,
-        "margem_seguranca": 0.21210170582555524,
+        "margem_seguranca": 0.19858384293530734,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.3539,
@@ -59817,9 +59817,9 @@
         "margem_projetada_barsi": 0.0685
       },
       "graham": 9.524704719832528,
-      "margem_graham": 0.14328052784575174,
+      "margem_graham": 0.1285819094509484,
       "gordon": 7.506305112960761,
-      "margem_gordon": -0.08708610657333087,
+      "margem_gordon": -0.1057370936959126,
       "rank_greenblatt": 64,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -59896,8 +59896,8 @@
         "ev": 2755840000.0,
         "capital_investido": 2481480000.0,
         "g_perpetuidade": 0.0159,
-        "pl": 12.95,
-        "pvp": 1.27,
+        "pl": 13.17,
+        "pvp": 1.3,
         "psr": 1.02,
         "ev_ebit": 7.51,
         "ev_ebitda": 4.59,
@@ -60476,7 +60476,7 @@
       "setor": "siderurgia",
       "categoria": "dividendos",
       "besst": false,
-      "preco": 25.52,
+      "preco": 25.54,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -60485,7 +60485,7 @@
         "tem_extraordinario": false,
         "teto": 26.84840666666667,
         "teto_sem_extra": 26.84840666666667,
-        "margem_seguranca": 0.049478044755480316,
+        "margem_seguranca": 0.048733121593063,
         "veredito": "verde",
         "por_ano": {
           "2021": 2.4365,
@@ -60502,9 +60502,9 @@
         "margem_projetada_barsi": -0.9496
       },
       "graham": 29.18909042776085,
-      "margem_graham": 0.1257007455179655,
+      "margem_graham": 0.12501555801445297,
       "gordon": 20.991070600000004,
-      "margem_gordon": -0.21575504586221508,
+      "margem_gordon": -0.21670783194831397,
       "rank_greenblatt": 62,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -60594,7 +60594,7 @@
         "ev": 57386400000.0,
         "capital_investido": 62340760000.0,
         "g_perpetuidade": 0.0216,
-        "pl": 18.63,
+        "pl": 18.64,
         "pvp": 0.92,
         "psr": 0.71,
         "ev_ebit": 6.96,
@@ -61144,7 +61144,7 @@
       "setor": "siderurgia",
       "categoria": "dividendos",
       "besst": false,
-      "preco": 11.25,
+      "preco": 11.23,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -61153,7 +61153,7 @@
         "tem_extraordinario": false,
         "teto": 15.025386666666668,
         "teto_sem_extra": 15.025386666666668,
-        "margem_seguranca": 0.2512671886868802,
+        "margem_seguranca": 0.25259826924032575,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.74,
@@ -61170,9 +61170,9 @@
         "margem_projetada_barsi": -0.7689
       },
       "graham": 15.62291586100367,
-      "margem_graham": 0.2799039500634383,
+      "margem_graham": 0.28118412081888106,
       "gordon": 12.027753462320732,
-      "margem_gordon": 0.064663236136091,
+      "margem_gordon": 0.06632605704962681,
       "rank_greenblatt": 5,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -61262,7 +61262,7 @@
         "ev": 22311700000.0,
         "capital_investido": 27276770000.0,
         "g_perpetuidade": 0.0233,
-        "pl": 15.41,
+        "pl": 15.38,
         "pvp": 0.76,
         "psr": 0.21,
         "ev_ebit": 2.71,
@@ -61842,7 +61842,7 @@
       "setor": "química",
       "categoria": "dividendos",
       "besst": false,
-      "preco": 50.12,
+      "preco": 50.13,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -61851,7 +61851,7 @@
         "tem_extraordinario": false,
         "teto": 149.83548333333334,
         "teto_sem_extra": 149.83548333333334,
-        "margem_seguranca": 0.6654997942743647,
+        "margem_seguranca": 0.6654330544088968,
         "veredito": "verde",
         "por_ano": {
           "2021": 12.7641,
@@ -61868,9 +61868,9 @@
         "margem_projetada_barsi": -0.5065
       },
       "graham": 30.622638684476552,
-      "margem_graham": -0.6366976248002818,
+      "margem_graham": -0.6370241805913435,
       "gordon": 122.8650963333333,
-      "margem_gordon": 0.592072919846786,
+      "margem_gordon": 0.5919915297669471,
       "rank_greenblatt": 86,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -63133,7 +63133,7 @@
       "setor": "serviços financeiros",
       "categoria": "dividendos",
       "besst": false,
-      "preco": 13.38,
+      "preco": 13.36,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -63142,7 +63142,7 @@
         "tem_extraordinario": false,
         "teto": 9.440443333333334,
         "teto_sem_extra": 9.440443333333334,
-        "margem_seguranca": -0.417306320006864,
+        "margem_seguranca": -0.41518777543286256,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.9729,
@@ -63159,9 +63159,9 @@
         "margem_projetada_barsi": -0.0053
       },
       "graham": 9.40656685512839,
-      "margem_graham": -0.4224105570147865,
+      "margem_graham": -0.4202843827890543,
       "gordon": 10.762105399999998,
-      "margem_gordon": -0.24325115790075832,
+      "margem_gordon": -0.24139278546742374,
       "rank_greenblatt": 39,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -63238,8 +63238,8 @@
         "ev": 66205200000.0,
         "capital_investido": 17135660000.0,
         "g_perpetuidade": 0.045,
-        "pl": 12.62,
-        "pvp": 3.61,
+        "pl": 12.6,
+        "pvp": 3.6,
         "psr": 5.65,
         "ev_ebit": 9.3,
         "ev_ebitda": 8.82,
@@ -64463,7 +64463,7 @@
       "setor": "consumo e calçados",
       "categoria": "dividendos",
       "besst": false,
-      "preco": 3.52,
+      "preco": 3.53,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -64472,7 +64472,7 @@
         "tem_extraordinario": false,
         "teto": 15.569666666666665,
         "teto_sem_extra": 15.569666666666665,
-        "margem_seguranca": 0.7739193731400801,
+        "margem_seguranca": 0.7732770986319553,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.8655,
@@ -64489,9 +64489,9 @@
         "margem_projetada_barsi": 0.6123
       },
       "graham": 7.159888267284623,
-      "margem_graham": 0.5083722163537401,
+      "margem_graham": 0.5069755465138359,
       "gordon": 12.767126666666663,
-      "margem_gordon": 0.7242919184635123,
+      "margem_gordon": 0.7235086568682382,
       "rank_greenblatt": 107,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -64568,7 +64568,7 @@
         "ev": 2855620000.0,
         "capital_investido": 2855142000.0,
         "g_perpetuidade": 0.025,
-        "pl": 5.5,
+        "pl": 5.52,
         "pvp": 0.99,
         "psr": 1.26,
         "ev_ebit": 11.13,
@@ -65237,7 +65237,7 @@
       "setor": "bens industriais",
       "categoria": "demais",
       "besst": false,
-      "preco": 48.36,
+      "preco": 48.55,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -65246,7 +65246,7 @@
         "tem_extraordinario": false,
         "teto": 15.866666666666667,
         "teto_sem_extra": 15.866666666666667,
-        "margem_seguranca": -2.0478991596638654,
+        "margem_seguranca": -2.0598739495798317,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.423,
@@ -65263,9 +65263,9 @@
         "margem_projetada_barsi": -2.0453
       },
       "graham": 12.619181827678053,
-      "margem_graham": -2.8322611291589816,
+      "margem_graham": -2.847317572801252,
       "gordon": 13.010666666666664,
-      "margem_gordon": -2.716950194712032,
+      "margem_gordon": -2.731553597048576,
       "rank_greenblatt": 58,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -65387,8 +65387,8 @@
         "ev": 200397000000.0,
         "capital_investido": 17371800000.0,
         "g_perpetuidade": 0.025,
-        "pl": 32.46,
-        "pvp": 10.18,
+        "pl": 32.58,
+        "pvp": 10.22,
         "psr": 4.98,
         "ev_ebit": 23.75,
         "ev_ebitda": 21.08,
@@ -66015,7 +66015,7 @@
       "setor": "aviação e defesa",
       "categoria": "demais",
       "besst": false,
-      "preco": 103.92,
+      "preco": 104.32,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -66024,7 +66024,7 @@
         "tem_extraordinario": false,
         "teto": 2.619333333333334,
         "teto_sem_extra": 2.619333333333334,
-        "margem_seguranca": -38.67421735810638,
+        "margem_seguranca": -38.82692797149401,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -66041,9 +66041,9 @@
         "margem_projetada_barsi": -5.7002
       },
       "graham": 41.39755427558493,
-      "margem_graham": -1.5102932242856912,
+      "margem_graham": -1.5199556308456823,
       "gordon": 2.98604,
-      "margem_gordon": -33.80194505097052,
+      "margem_gordon": -33.93590172938072,
       "rank_greenblatt": 67,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -66135,8 +66135,8 @@
         "ev": 75347000000.0,
         "capital_investido": 19488030000.0,
         "g_perpetuidade": 0.045,
-        "pl": 32.99,
-        "pvp": 4.3,
+        "pl": 33.12,
+        "pvp": 4.31,
         "psr": 1.67,
         "ev_ebit": 15.57,
         "ev_ebitda": 12.04,
@@ -66577,7 +66577,7 @@
       "setor": "bens industriais",
       "categoria": "demais",
       "besst": false,
-      "preco": 3.64,
+      "preco": 3.65,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -66586,7 +66586,7 @@
         "tem_extraordinario": false,
         "teto": 6.957066666666667,
         "teto_sem_extra": 6.957066666666667,
-        "margem_seguranca": 0.476790984706198,
+        "margem_seguranca": 0.47535359730154475,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.0811,
@@ -66603,9 +66603,9 @@
         "margem_projetada_barsi": 0.4763
       },
       "graham": 8.557102313283393,
-      "margem_graham": 0.5746223585115323,
+      "margem_graham": 0.5734537386173333,
       "gordon": 4.462133917109458,
-      "margem_gordon": 0.18424680486551404,
+      "margem_gordon": 0.18200572465910067,
       "rank_greenblatt": 16,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -66686,8 +66686,8 @@
         "ev": 6436610000.0,
         "capital_investido": 6052150000.0,
         "g_perpetuidade": 0.0059,
-        "pl": 3.79,
-        "pvp": 1.07,
+        "pl": 3.8,
+        "pvp": 1.08,
         "psr": 0.51,
         "ev_ebit": 4.72,
         "ev_ebitda": 4.21,
@@ -67218,7 +67218,7 @@
       "setor": "bens industriais",
       "categoria": "demais",
       "besst": false,
-      "preco": 20.43,
+      "preco": 20.39,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -67227,7 +67227,7 @@
         "tem_extraordinario": false,
         "teto": 8.284333333333334,
         "teto_sem_extra": 8.284333333333334,
-        "margem_seguranca": -1.4661006719510719,
+        "margem_seguranca": -1.4612722810123524,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.3001,
@@ -67244,9 +67244,9 @@
         "margem_projetada_barsi": -2.3112
       },
       "graham": 14.50399944842801,
-      "margem_graham": -0.4085769978579439,
+      "margem_graham": -0.40581913785234836,
       "gordon": 9.444139999999997,
-      "margem_gordon": -1.1632462034658535,
+      "margem_gordon": -1.1590107728178538,
       "rank_greenblatt": 53,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -67319,7 +67319,7 @@
         "ev": 6863050000.0,
         "capital_investido": 3728930000.0,
         "g_perpetuidade": 0.045,
-        "pl": 19.64,
+        "pl": 19.61,
         "pvp": 2.27,
         "psr": 1.04,
         "ev_ebit": 8.91,
@@ -67809,7 +67809,7 @@
       "setor": "bens industriais",
       "categoria": "demais",
       "besst": false,
-      "preco": 14.16,
+      "preco": 14.24,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -67818,7 +67818,7 @@
         "tem_extraordinario": false,
         "teto": 10.784,
         "teto_sem_extra": 10.784,
-        "margem_seguranca": -0.3130563798219584,
+        "margem_seguranca": -0.3204747774480711,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.432,
@@ -67837,7 +67837,7 @@
       "graham": null,
       "margem_graham": null,
       "gordon": 8.84288,
-      "margem_gordon": -0.6012882680755592,
+      "margem_gordon": -0.6103350944488675,
       "rank_greenblatt": 119,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -67913,7 +67913,7 @@
         "ev": 3819770000.0,
         "capital_investido": 4192050000.0,
         "g_perpetuidade": 0.025,
-        "pl": -2.42,
+        "pl": -2.44,
         "pvp": 0.82,
         "psr": 0.2,
         "ev_ebit": 43.15,
@@ -68379,7 +68379,7 @@
       "setor": "tecnologia e hardware",
       "categoria": "demais",
       "besst": false,
-      "preco": 13.99,
+      "preco": 14.0,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -68388,7 +68388,7 @@
         "tem_extraordinario": false,
         "teto": 10.506666666666666,
         "teto_sem_extra": 10.506666666666666,
-        "margem_seguranca": -0.331535532994924,
+        "margem_seguranca": -0.33248730964467016,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.1645,
@@ -68405,9 +68405,9 @@
         "margem_projetada_barsi": 0.3026
       },
       "graham": 21.018634589335246,
-      "margem_graham": 0.3344001514209463,
+      "margem_graham": 0.3339243831231771,
       "gordon": 11.977599999999997,
-      "margem_gordon": -0.16801362543414403,
+      "margem_gordon": -0.16884851723216698,
       "rank_greenblatt": 33,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -68495,7 +68495,7 @@
         "ev": 3876930000.0,
         "capital_investido": 2699211000.0,
         "g_perpetuidade": 0.045,
-        "pl": 7.32,
+        "pl": 7.33,
         "pvp": 1.36,
         "psr": 0.99,
         "ev_ebit": 6.77,
@@ -69015,7 +69015,7 @@
       "setor": "bens industriais",
       "categoria": "demais",
       "besst": false,
-      "preco": 15.82,
+      "preco": 15.8,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -69024,7 +69024,7 @@
         "tem_extraordinario": false,
         "teto": 6.116666666666667,
         "teto_sem_extra": 6.116666666666667,
-        "margem_seguranca": -1.586376021798365,
+        "margem_seguranca": -1.5831062670299727,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.1873,
@@ -69041,9 +69041,9 @@
         "margem_projetada_barsi": 0.17
       },
       "graham": 18.648324321504063,
-      "margem_graham": 0.1516664056642676,
+      "margem_graham": 0.15273888808441388,
       "gordon": 6.972999999999998,
-      "margem_gordon": -1.268750896314356,
+      "margem_gordon": -1.2658826903771696,
       "rank_greenblatt": 31,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -69126,8 +69126,8 @@
         "ev": 4870620000.0,
         "capital_investido": 3106400000.0,
         "g_perpetuidade": 0.045,
-        "pl": 8.24,
-        "pvp": 1.97,
+        "pl": 8.23,
+        "pvp": 1.96,
         "psr": 1.91,
         "ev_ebit": 6.96,
         "ev_ebitda": 4.84,
@@ -69670,7 +69670,7 @@
       "setor": "petróleo e gás",
       "categoria": "demais",
       "besst": false,
-      "preco": 68.28,
+      "preco": 67.95,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -69679,7 +69679,7 @@
         "tem_extraordinario": false,
         "teto": 0.24200000000000002,
         "teto_sem_extra": 0.24200000000000002,
-        "margem_seguranca": -281.14876033057845,
+        "margem_seguranca": -279.78512396694214,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -69696,9 +69696,9 @@
         "margem_projetada_barsi": -2.6988
       },
       "graham": 56.77578268945308,
-      "margem_graham": -0.20262542875844836,
+      "margem_graham": -0.19681309144898312,
       "gordon": 0.27587999999999996,
-      "margem_gordon": -246.49891257068293,
+      "margem_gordon": -245.30274032187913,
       "rank_greenblatt": 105,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -69767,8 +69767,8 @@
         "ev": 84143900000.0,
         "capital_investido": 49983300000.0,
         "g_perpetuidade": 0.045,
-        "pl": 15.41,
-        "pvp": 2.11,
+        "pl": 15.34,
+        "pvp": 2.1,
         "psr": 2.92,
         "ev_ebit": 13.25,
         "ev_ebitda": 6.51,
@@ -70179,7 +70179,7 @@
       "setor": "petróleo e gás",
       "categoria": "demais",
       "besst": false,
-      "preco": 10.64,
+      "preco": 10.62,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -70188,7 +70188,7 @@
         "tem_extraordinario": false,
         "teto": 18.065666666666665,
         "teto_sem_extra": 18.065666666666665,
-        "margem_seguranca": 0.41103751130136346,
+        "margem_seguranca": 0.41214458364854145,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.0,
@@ -70205,9 +70205,9 @@
         "margem_projetada_barsi": 0.5346
       },
       "graham": 24.04074666061768,
-      "margem_graham": 0.5574180723167844,
+      "margem_graham": 0.5582499932334822,
       "gordon": 14.24168982005141,
-      "margem_gordon": 0.2528976452626047,
+      "margem_gordon": 0.2543019729970736,
       "rank_greenblatt": 69,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -70309,7 +70309,7 @@
         "ev": 4779510000.0,
         "capital_investido": 5975910000.0,
         "g_perpetuidade": 0.0222,
-        "pl": 6.26,
+        "pl": 6.25,
         "pvp": 0.7,
         "psr": 1.09,
         "ev_ebit": 6.59,
@@ -70793,7 +70793,7 @@
       "setor": "petróleo e gás",
       "categoria": "demais",
       "besst": false,
-      "preco": 17.61,
+      "preco": 17.59,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -70802,7 +70802,7 @@
         "tem_extraordinario": false,
         "teto": 1.2833333333333334,
         "teto_sem_extra": 1.2833333333333334,
-        "margem_seguranca": -12.722077922077919,
+        "margem_seguranca": -12.706493506493505,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -70819,9 +70819,9 @@
         "margem_projetada_barsi": -14.5841
       },
       "graham": 8.449141968271098,
-      "margem_graham": -1.084235306511655,
+      "margem_graham": -1.0818682022453159,
       "gordon": 1.0523333333333331,
-      "margem_gordon": -15.734241368387712,
+      "margem_gordon": -15.71523598352867,
       "rank_greenblatt": 57,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -70890,7 +70890,7 @@
         "ev": 19012300000.0,
         "capital_investido": 22737700000.0,
         "g_perpetuidade": 0.025,
-        "pl": 146.75,
+        "pl": 146.58,
         "pvp": 0.67,
         "psr": 0.69,
         "ev_ebit": 6.44,
@@ -71308,7 +71308,7 @@
       "setor": "combustíveis e distribuição",
       "categoria": "demais",
       "besst": false,
-      "preco": 28.91,
+      "preco": 28.89,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -71317,7 +71317,7 @@
         "tem_extraordinario": false,
         "teto": 21.340016666666667,
         "teto_sem_extra": 21.340016666666667,
-        "margem_seguranca": -0.3547318379164027,
+        "margem_seguranca": -0.3537946315255924,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 1.8825,
@@ -71334,9 +71334,9 @@
         "margem_projetada_barsi": -0.1342
       },
       "graham": 43.17254335801864,
-      "margem_graham": 0.33036143457528294,
+      "margem_graham": 0.3308246919709417,
       "gordon": 24.32761899999999,
-      "margem_gordon": -0.18836126133017828,
+      "margem_gordon": -0.18753915046104638,
       "rank_greenblatt": 27,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -71447,8 +71447,8 @@
         "ev": 51619500000.0,
         "capital_investido": 39674000000.0,
         "g_perpetuidade": 0.045,
-        "pl": 6.89,
-        "pvp": 1.48,
+        "pl": 6.85,
+        "pvp": 1.47,
         "psr": 0.17,
         "ev_ebit": 6.16,
         "ev_ebitda": 5.39,
@@ -71973,7 +71973,7 @@
       "setor": "combustíveis e distribuição",
       "categoria": "demais",
       "besst": false,
-      "preco": 30.69,
+      "preco": 30.81,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -71982,7 +71982,7 @@
         "tem_extraordinario": false,
         "teto": 13.243000000000002,
         "teto_sem_extra": 13.243000000000002,
-        "margem_seguranca": -1.317450728686853,
+        "margem_seguranca": -1.3265121196103598,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.64,
@@ -71999,9 +71999,9 @@
         "margem_projetada_barsi": -0.4949
       },
       "graham": 33.500410445246786,
-      "margem_graham": 0.0838918212611195,
+      "margem_graham": 0.08030977559645143,
       "gordon": 15.097019999999999,
-      "margem_gordon": -1.032851516391977,
+      "margem_gordon": -1.0408001049213687,
       "rank_greenblatt": 19,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -72075,7 +72075,7 @@
         "ev": 45752000000.0,
         "capital_investido": 28271000000.0,
         "g_perpetuidade": 0.045,
-        "pl": 9.9,
+        "pl": 9.94,
         "pvp": 1.91,
         "psr": 0.23,
         "ev_ebit": 5.99,
@@ -72553,7 +72553,7 @@
       "setor": "combustíveis e distribuição",
       "categoria": "demais",
       "besst": false,
-      "preco": 2.27,
+      "preco": 2.29,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -72562,7 +72562,7 @@
         "tem_extraordinario": false,
         "teto": 6.468166666666667,
         "teto_sem_extra": 6.468166666666667,
-        "margem_seguranca": 0.6490504779819115,
+        "margem_seguranca": 0.6459584117086243,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.6322,
@@ -72581,7 +72581,7 @@
       "graham": null,
       "margem_graham": null,
       "gordon": 5.303896666666665,
-      "margem_gordon": 0.5720127780267211,
+      "margem_gordon": 0.5682419654983222,
       "rank_greenblatt": 35,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -72652,8 +72652,8 @@
         "ev": 56774300000.0,
         "capital_investido": 52500660000.0,
         "g_perpetuidade": 0.025,
-        "pl": -1.01,
-        "pvp": 1.82,
+        "pl": -1.02,
+        "pvp": 1.83,
         "psr": 0.23,
         "ev_ebit": 6.05,
         "ev_ebitda": 4.28,
@@ -73672,7 +73672,7 @@
       "setor": "saúde e farmácia",
       "categoria": "demais",
       "besst": false,
-      "preco": 14.65,
+      "preco": 14.71,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -73681,7 +73681,7 @@
         "tem_extraordinario": false,
         "teto": 5.066846666666668,
         "teto_sem_extra": 5.066846666666668,
-        "margem_seguranca": -1.8913446495979742,
+        "margem_seguranca": -1.9031863341697068,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.2095,
@@ -73698,9 +73698,9 @@
         "margem_projetada_barsi": -1.0899
       },
       "graham": 8.489522954795516,
-      "margem_graham": -0.725656444774036,
+      "margem_graham": -0.7327239797014383,
       "gordon": 5.7762052,
-      "margem_gordon": -1.5362672364894518,
+      "margem_gordon": -1.5466546790962346,
       "rank_greenblatt": 51,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -73806,8 +73806,8 @@
         "ev": 29470700000.0,
         "capital_investido": 10090480000.0,
         "g_perpetuidade": 0.045,
-        "pl": 19.03,
-        "pvp": 3.52,
+        "pl": 19.1,
+        "pvp": 3.54,
         "psr": 0.59,
         "ev_ebit": 9.91,
         "ev_ebitda": 5.81,
@@ -74410,7 +74410,7 @@
       "setor": "saúde e hospitais",
       "categoria": "demais",
       "besst": false,
-      "preco": 31.0,
+      "preco": 31.15,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -74419,7 +74419,7 @@
         "tem_extraordinario": false,
         "teto": 23.912666666666663,
         "teto_sem_extra": 23.912666666666663,
-        "margem_seguranca": -0.29638406423373964,
+        "margem_seguranca": -0.30265689035099963,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 1.4597,
@@ -74436,9 +74436,9 @@
         "margem_projetada_barsi": -0.2933
       },
       "graham": 21.15345716425568,
-      "margem_graham": -0.465481493605813,
+      "margem_graham": -0.47257253309100233,
       "gordon": 19.60838666666666,
-      "margem_gordon": -0.5809561758948046,
+      "margem_gordon": -0.5886059638426827,
       "rank_greenblatt": 28,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -74530,8 +74530,8 @@
         "ev": 78591400000.0,
         "capital_investido": 28352380000.0,
         "g_perpetuidade": 0.025,
-        "pl": 14.42,
-        "pvp": 3.35,
+        "pl": 14.49,
+        "pvp": 3.37,
         "psr": 1.23,
         "ev_ebit": 7.39,
         "ev_ebitda": 6.29,
@@ -75086,7 +75086,7 @@
       "setor": "saúde e planos",
       "categoria": "demais",
       "besst": false,
-      "preco": 4.09,
+      "preco": 4.16,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -75095,7 +75095,7 @@
         "tem_extraordinario": false,
         "teto": 3.1300000000000003,
         "teto_sem_extra": 3.1300000000000003,
-        "margem_seguranca": -0.30670926517571867,
+        "margem_seguranca": -0.3290734824281149,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.939,
@@ -75114,7 +75114,7 @@
       "graham": null,
       "margem_graham": null,
       "gordon": 2.5665999999999998,
-      "margem_gordon": -0.5935478843606329,
+      "margem_gordon": -0.6208213200342868,
       "rank_greenblatt": 75,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -75191,7 +75191,7 @@
         "ev": 7135320000.0,
         "capital_investido": 53086570000.0,
         "g_perpetuidade": 0.025,
-        "pl": -11.69,
+        "pl": -11.89,
         "pvp": 0.04,
         "psr": 0.07,
         "ev_ebit": 5.22,
@@ -75627,7 +75627,7 @@
       "setor": "saúde e diagnósticos",
       "categoria": "demais",
       "besst": false,
-      "preco": 20.1,
+      "preco": 20.3,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -75636,7 +75636,7 @@
         "tem_extraordinario": false,
         "teto": 15.158223333333334,
         "teto_sem_extra": 15.158223333333334,
-        "margem_seguranca": -0.3260129210393391,
+        "margem_seguranca": -0.33920707945764095,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.9122,
@@ -75653,9 +75653,9 @@
         "margem_projetada_barsi": -0.3294
       },
       "graham": 16.951327381653627,
-      "margem_graham": -0.18574785015090758,
+      "margem_graham": -0.19754633622206086,
       "gordon": 12.42974313333333,
-      "margem_gordon": -0.6170889280967554,
+      "margem_gordon": -0.6331793651922455,
       "rank_greenblatt": 85,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -75730,8 +75730,8 @@
         "ev": 14710900000.0,
         "capital_investido": 8927440000.0,
         "g_perpetuidade": 0.025,
-        "pl": 15.58,
-        "pvp": 2.03,
+        "pl": 15.74,
+        "pvp": 2.05,
         "psr": 1.27,
         "ev_ebit": 10.7,
         "ev_ebitda": 6.43,
@@ -76238,7 +76238,7 @@
       "setor": "saúde e farmácia",
       "categoria": "demais",
       "besst": false,
-      "preco": 20.72,
+      "preco": 20.74,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -76247,7 +76247,7 @@
         "tem_extraordinario": false,
         "teto": 20.11733333333333,
         "teto_sem_extra": 20.11733333333333,
-        "margem_seguranca": -0.029957582184517557,
+        "margem_seguranca": -0.030951749734888692,
         "veredito": "amarelo",
         "por_ano": {
           "2021": 1.2339,
@@ -76264,9 +76264,9 @@
         "margem_projetada_barsi": -0.1956
       },
       "graham": 34.830568470813105,
-      "margem_graham": 0.4051202461032845,
+      "margem_graham": 0.40454603784662746,
       "gordon": 22.933759999999992,
-      "margem_gordon": 0.09652843668024756,
+      "margem_gordon": 0.09565635988167638,
       "rank_greenblatt": 89,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -76374,7 +76374,7 @@
         "ev": 20565300000.0,
         "capital_investido": 20360460000.0,
         "g_perpetuidade": 0.045,
-        "pl": 8.06,
+        "pl": 8.07,
         "pvp": 0.99,
         "psr": 1.66,
         "ev_ebit": 8.12,
@@ -76954,7 +76954,7 @@
       "setor": "transporte e locação",
       "categoria": "demais",
       "besst": false,
-      "preco": 27.4,
+      "preco": 27.26,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -76963,7 +76963,7 @@
         "tem_extraordinario": false,
         "teto": 22.824,
         "teto_sem_extra": 22.824,
-        "margem_seguranca": -0.20049071153172085,
+        "margem_seguranca": -0.19435681738520855,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.4435,
@@ -76980,9 +76980,9 @@
         "margem_projetada_barsi": 0.1831
       },
       "graham": 40.67614472882109,
-      "margem_graham": 0.32638650534189584,
+      "margem_graham": 0.3298283261175211,
       "gordon": 24.828542608695653,
-      "margem_gordon": -0.10356859972939972,
+      "margem_gordon": -0.09792992805195035,
       "rank_greenblatt": 76,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -77073,8 +77073,8 @@
         "ev": 65797400000.0,
         "capital_investido": 61589300000.0,
         "g_perpetuidade": 0.0425,
-        "pl": 8.98,
-        "pvp": 1.14,
+        "pl": 8.94,
+        "pvp": 1.13,
         "psr": 0.68,
         "ev_ebit": 7.74,
         "ev_ebitda": 4.47,
@@ -77629,7 +77629,7 @@
       "setor": "transporte e locação",
       "categoria": "demais",
       "besst": false,
-      "preco": 5.64,
+      "preco": 5.59,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -77638,7 +77638,7 @@
         "tem_extraordinario": false,
         "teto": 10.067,
         "teto_sem_extra": 10.067,
-        "margem_seguranca": 0.43975365054137283,
+        "margem_seguranca": 0.4447203734975663,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.5209,
@@ -77655,9 +77655,9 @@
         "margem_projetada_barsi": 0.4734
       },
       "graham": 16.38409289524446,
-      "margem_graham": 0.6557636705272203,
+      "margem_graham": 0.6588154110367308,
       "gordon": 11.476379999999997,
-      "margem_gordon": 0.5085558338082217,
+      "margem_gordon": 0.5129126083311984,
       "rank_greenblatt": 29,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -77735,7 +77735,7 @@
         "ev": 22869600000.0,
         "capital_investido": 24675440000.0,
         "g_perpetuidade": 0.045,
-        "pl": 4.66,
+        "pl": 4.62,
         "pvp": 0.57,
         "psr": 0.16,
         "ev_ebit": 5.47,
@@ -78225,7 +78225,7 @@
       "setor": "transporte e locação",
       "categoria": "demais",
       "besst": false,
-      "preco": 2.37,
+      "preco": 2.33,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -78234,7 +78234,7 @@
         "tem_extraordinario": false,
         "teto": 4.01,
         "teto_sem_extra": 4.01,
-        "margem_seguranca": 0.40897755610972564,
+        "margem_seguranca": 0.4189526184538653,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.1961,
@@ -78251,9 +78251,9 @@
         "margem_projetada_barsi": 0.1713
       },
       "graham": 4.65290232005788,
-      "margem_graham": 0.49064049984816394,
+      "margem_graham": 0.49923728466085315,
       "gordon": 4.571399999999999,
-      "margem_gordon": 0.4815592597453732,
+      "margem_gordon": 0.49030931443321507,
       "rank_greenblatt": 26,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -78324,8 +78324,8 @@
         "ev": 14638200000.0,
         "capital_investido": 15182730000.0,
         "g_perpetuidade": 0.045,
-        "pl": 6.97,
-        "pvp": 0.84,
+        "pl": 6.85,
+        "pvp": 0.82,
         "psr": 0.46,
         "ev_ebit": 5.25,
         "ev_ebitda": 3.67,
@@ -78772,7 +78772,7 @@
       "setor": "transporte e logística",
       "categoria": "demais",
       "besst": false,
-      "preco": 13.6,
+      "preco": 13.68,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -78781,7 +78781,7 @@
         "tem_extraordinario": false,
         "teto": 3.2936666666666667,
         "teto_sem_extra": 3.2936666666666667,
-        "margem_seguranca": -3.1291367270519177,
+        "margem_seguranca": -3.1534257666228114,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -78798,9 +78798,9 @@
         "margem_projetada_barsi": -6.5138
       },
       "graham": 10.74862781940095,
-      "margem_graham": -0.2652777850817766,
+      "margem_graham": -0.27272059558225764,
       "gordon": 3.754779999999999,
-      "margem_gordon": -2.622049760571859,
+      "margem_gordon": -2.6433559356340464,
       "rank_greenblatt": 48,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -78884,8 +78884,8 @@
         "ev": 43068900000.0,
         "capital_investido": 31923500000.0,
         "g_perpetuidade": 0.045,
-        "pl": 20.61,
-        "pvp": 1.75,
+        "pl": 20.73,
+        "pvp": 1.76,
         "psr": 1.78,
         "ev_ebit": 7.33,
         "ev_ebitda": 5.88,
@@ -79320,7 +79320,7 @@
       "setor": "infraestrutura e rodovias",
       "categoria": "demais",
       "besst": false,
-      "preco": 14.08,
+      "preco": 14.01,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -79329,7 +79329,7 @@
         "tem_extraordinario": false,
         "teto": 5.471333333333334,
         "teto_sem_extra": 5.471333333333334,
-        "margem_seguranca": -1.5734129401730228,
+        "margem_seguranca": -1.5606189837943216,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.1659,
@@ -79346,9 +79346,9 @@
         "margem_projetada_barsi": -0.1822
       },
       "graham": 25.081865959294177,
-      "margem_graham": 0.43863825670503576,
+      "margem_graham": 0.44142911764471243,
       "gordon": 6.237319999999999,
-      "margem_gordon": -1.2573797720815996,
+      "margem_gordon": -1.246157003328353,
       "rank_greenblatt": 77,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -79422,8 +79422,8 @@
         "ev": 58347000000.0,
         "capital_investido": 48903000000.0,
         "g_perpetuidade": 0.045,
-        "pl": 4.69,
-        "pvp": 1.51,
+        "pl": 4.67,
+        "pvp": 1.5,
         "psr": 1.57,
         "ev_ebit": 8.46,
         "ev_ebitda": 6.86,
@@ -79906,7 +79906,7 @@
       "setor": "papel e celulose",
       "categoria": "demais",
       "besst": false,
-      "preco": 51.21,
+      "preco": 51.03,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -79915,7 +79915,7 @@
         "tem_extraordinario": false,
         "teto": 24.753999999999998,
         "teto_sem_extra": 24.753999999999998,
-        "margem_seguranca": -1.0687565645956212,
+        "margem_seguranca": -1.061485012523229,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -79932,9 +79932,9 @@
         "margem_projetada_barsi": -1.806
       },
       "graham": 75.58907659179334,
-      "margem_graham": 0.32252115902207174,
+      "margem_graham": 0.32490245547542124,
       "gordon": 28.21955999999999,
-      "margem_gordon": -0.8146987408733523,
+      "margem_gordon": -0.8083201864238854,
       "rank_greenblatt": 111,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -80019,7 +80019,7 @@
         "ev": 129820000000.0,
         "capital_investido": 116134700000.0,
         "g_perpetuidade": 0.045,
-        "pl": 7.93,
+        "pl": 7.9,
         "pvp": 1.3,
         "psr": 1.33,
         "ev_ebit": 16.84,
@@ -81042,7 +81042,7 @@
       "setor": "siderurgia",
       "categoria": "demais",
       "besst": false,
-      "preco": 5.22,
+      "preco": 5.25,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -81051,7 +81051,7 @@
         "tem_extraordinario": false,
         "teto": 8.889000000000001,
         "teto_sem_extra": 8.889000000000001,
-        "margem_seguranca": 0.4127573405332434,
+        "margem_seguranca": 0.4093823827202161,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.4257,
@@ -81068,9 +81068,9 @@
         "margem_projetada_barsi": 0.4122
       },
       "graham": 20.939914039938177,
-      "margem_graham": 0.750715309048355,
+      "margem_graham": 0.7492826384107019,
       "gordon": 10.13346,
-      "margem_gordon": 0.48487486011688014,
+      "margem_gordon": 0.481914370807207,
       "rank_greenblatt": 55,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -81142,7 +81142,7 @@
         "ev": 5699390000.0,
         "capital_investido": 20488297000.0,
         "g_perpetuidade": 0.045,
-        "pl": 4.5,
+        "pl": 4.53,
         "pvp": 0.31,
         "psr": 0.26,
         "ev_ebit": 4.07,
@@ -81596,7 +81596,7 @@
       "setor": "materiais e madeira",
       "categoria": "demais",
       "besst": false,
-      "preco": 4.44,
+      "preco": 4.46,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -81605,7 +81605,7 @@
         "tem_extraordinario": false,
         "teto": 6.14862,
         "teto_sem_extra": 6.14862,
-        "margem_seguranca": 0.27788674531846164,
+        "margem_seguranca": 0.2746339829099863,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.2655,
@@ -81624,7 +81624,7 @@
       "graham": null,
       "margem_graham": null,
       "gordon": 5.0418683999999985,
-      "margem_gordon": 0.11937407965666028,
+      "margem_gordon": 0.11540729623169035,
       "rank_greenblatt": 110,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -81696,7 +81696,7 @@
         "ev": 8764840000.0,
         "capital_investido": 11487930000.0,
         "g_perpetuidade": 0.025,
-        "pl": -111.0,
+        "pl": -111.5,
         "pvp": 0.59,
         "psr": 0.5,
         "ev_ebit": 13.2,
@@ -82150,7 +82150,7 @@
       "setor": "bebidas e consumo",
       "categoria": "demais",
       "besst": false,
-      "preco": 14.63,
+      "preco": 14.64,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -82159,7 +82159,7 @@
         "tem_extraordinario": false,
         "teto": 13.181666666666667,
         "teto_sem_extra": 13.181666666666667,
-        "margem_seguranca": -0.10987482614742704,
+        "margem_seguranca": -0.11063345555696047,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.6803,
@@ -82176,9 +82176,9 @@
         "margem_projetada_barsi": -0.1943
       },
       "graham": 11.606743729401455,
-      "margem_graham": -0.2604741123852186,
+      "margem_graham": -0.2613356804729734,
       "gordon": 15.027099999999995,
-      "margem_gordon": 0.026425591098747914,
+      "margem_gordon": 0.025760126704420346,
       "rank_greenblatt": 52,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -82279,7 +82279,7 @@
         "ev": 206877000000.0,
         "capital_investido": 71696300000.0,
         "g_perpetuidade": 0.045,
-        "pl": 14.34,
+        "pl": 14.35,
         "pvp": 2.49,
         "psr": 2.54,
         "ev_ebit": 10.0,
@@ -82769,7 +82769,7 @@
       "setor": "alimentos e consumo",
       "categoria": "demais",
       "besst": false,
-      "preco": 15.36,
+      "preco": 15.46,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -82778,7 +82778,7 @@
         "tem_extraordinario": false,
         "teto": 14.411999999999999,
         "teto_sem_extra": 14.411999999999999,
-        "margem_seguranca": -0.06577851790174857,
+        "margem_seguranca": -0.07271718012767152,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.2,
@@ -82795,9 +82795,9 @@
         "margem_projetada_barsi": -1.5473
       },
       "graham": 32.88306555052311,
-      "margem_graham": 0.5328902660732723,
+      "margem_graham": 0.5298491870763534,
       "gordon": 16.429679999999998,
-      "margem_gordon": 0.06510656324408012,
+      "margem_gordon": 0.059020017431867015,
       "rank_greenblatt": 66,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -82901,8 +82901,8 @@
         "ev": 4552490000.0,
         "capital_investido": 7834908000.0,
         "g_perpetuidade": 0.045,
-        "pl": 8.0,
-        "pvp": 0.61,
+        "pl": 8.05,
+        "pvp": 0.62,
         "psr": 0.5,
         "ev_ebit": 5.83,
         "ev_ebitda": 3.81,
@@ -83553,7 +83553,7 @@
       "setor": "alimentos e proteínas",
       "categoria": "demais",
       "besst": false,
-      "preco": 2.43,
+      "preco": 2.45,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -83562,7 +83562,7 @@
         "tem_extraordinario": false,
         "teto": 7.852,
         "teto_sem_extra": 7.852,
-        "margem_seguranca": 0.6892511462047887,
+        "margem_seguranca": 0.6879775853285787,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.0786,
@@ -83579,9 +83579,9 @@
         "margem_projetada_barsi": 0.3655
       },
       "graham": 4.043884271341108,
-      "margem_graham": 0.39661972591742795,
+      "margem_graham": 0.39414685594167964,
       "gordon": 8.951279999999997,
-      "margem_gordon": 0.7274132861445514,
+      "margem_gordon": 0.7262961274812093,
       "rank_greenblatt": 15,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -83654,8 +83654,8 @@
         "ev": 16914000000.0,
         "capital_investido": 15941690000.0,
         "g_perpetuidade": 0.045,
-        "pl": 5.3,
-        "pvp": 1.54,
+        "pl": 5.33,
+        "pvp": 1.55,
         "psr": 0.04,
         "ev_ebit": 4.46,
         "ev_ebitda": 3.52,
@@ -84108,7 +84108,7 @@
       "setor": "agronegócio",
       "categoria": "demais",
       "besst": false,
-      "preco": 16.7,
+      "preco": 16.65,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -84117,7 +84117,7 @@
         "tem_extraordinario": false,
         "teto": 15.456986666666666,
         "teto_sem_extra": 15.456986666666666,
-        "margem_seguranca": -0.08041757168710766,
+        "margem_seguranca": -0.07718278853834382,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.3903,
@@ -84134,9 +84134,9 @@
         "margem_projetada_barsi": -0.5045
       },
       "graham": 13.81824880366539,
-      "margem_graham": -0.20854677298690721,
+      "margem_graham": -0.2049283694749703,
       "gordon": 12.67472906666666,
-      "margem_gordon": -0.3175824044964733,
+      "margem_gordon": -0.3136375469979808,
       "rank_greenblatt": 65,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -84209,7 +84209,7 @@
         "ev": 15776800000.0,
         "capital_investido": 12712660000.0,
         "g_perpetuidade": 0.025,
-        "pl": 21.41,
+        "pl": 21.35,
         "pvp": 1.53,
         "psr": 0.84,
         "ev_ebit": 8.01,
@@ -85255,7 +85255,7 @@
       "setor": "agronegócio",
       "categoria": "demais",
       "besst": false,
-      "preco": 10.05,
+      "preco": 10.0,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -85264,7 +85264,7 @@
         "tem_extraordinario": false,
         "teto": 2.0700000000000003,
         "teto_sem_extra": 2.0700000000000003,
-        "margem_seguranca": -3.8550724637681157,
+        "margem_seguranca": -3.8309178743961345,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -85281,9 +85281,9 @@
         "margem_projetada_barsi": -1.0468
       },
       "graham": 16.21686622008087,
-      "margem_graham": 0.3802748407978244,
+      "margem_graham": 0.38335805054509897,
       "gordon": 2.3597999999999995,
-      "margem_gordon": -3.2588354945334363,
+      "margem_gordon": -3.237647258242225,
       "rank_greenblatt": 116,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -85354,8 +85354,8 @@
         "ev": 8846700000.0,
         "capital_investido": 8699630000.0,
         "g_perpetuidade": 0.045,
-        "pl": 8.59,
-        "pvp": 1.01,
+        "pl": 8.55,
+        "pvp": 1.0,
         "psr": 0.28,
         "ev_ebit": 22.64,
         "ev_ebitda": 16.52,
@@ -85790,7 +85790,7 @@
       "setor": "varejo alimentar",
       "categoria": "demais",
       "besst": false,
-      "preco": 7.6,
+      "preco": 7.64,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -85799,7 +85799,7 @@
         "tem_extraordinario": false,
         "teto": 1.432,
         "teto_sem_extra": 1.432,
-        "margem_seguranca": -4.307262569832402,
+        "margem_seguranca": -4.335195530726257,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.1103,
@@ -85816,9 +85816,9 @@
         "margem_projetada_barsi": -1.5589
       },
       "graham": 8.655792857965121,
-      "margem_graham": 0.12197529160989261,
+      "margem_graham": 0.11735410893415521,
       "gordon": 1.6324799999999995,
-      "margem_gordon": -3.6554934823091263,
+      "margem_gordon": -3.6799960795844373,
       "rank_greenblatt": 7,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -85890,8 +85890,8 @@
         "ev": 22481600000.0,
         "capital_investido": 18155000000.0,
         "g_perpetuidade": 0.045,
-        "pl": 10.7,
-        "pvp": 1.62,
+        "pl": 10.76,
+        "pvp": 1.63,
         "psr": 0.14,
         "ev_ebit": 3.38,
         "ev_ebitda": 2.65,
@@ -86344,7 +86344,7 @@
       "setor": "varejo alimentar",
       "categoria": "demais",
       "besst": false,
-      "preco": 3.4,
+      "preco": 3.41,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -86353,7 +86353,7 @@
         "tem_extraordinario": false,
         "teto": 1.476666666666667,
         "teto_sem_extra": 1.476666666666667,
-        "margem_seguranca": -1.3024830699774261,
+        "margem_seguranca": -1.3092550790067716,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -86370,9 +86370,9 @@
         "margem_projetada_barsi": -0.7259
       },
       "graham": 8.81127119092359,
-      "margem_graham": 0.6141305917922139,
+      "margem_graham": 0.6129956817680734,
       "gordon": 1.6833999999999998,
-      "margem_gordon": -1.0197219912082691,
+      "margem_gordon": -1.0256623500059407,
       "rank_greenblatt": 30,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -86447,7 +86447,7 @@
         "ev": 9155710000.0,
         "capital_investido": 12277390000.0,
         "g_perpetuidade": 0.045,
-        "pl": 4.79,
+        "pl": 4.8,
         "pvp": 0.7,
         "psr": 0.2,
         "ev_ebit": 4.84,
@@ -86901,7 +86901,7 @@
       "setor": "varejo alimentar",
       "categoria": "demais",
       "besst": false,
-      "preco": 2.1,
+      "preco": 2.11,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -86910,7 +86910,7 @@
         "tem_extraordinario": false,
         "teto": 8.437999999999999,
         "teto_sem_extra": 8.437999999999999,
-        "margem_seguranca": 0.7511258592083432,
+        "margem_seguranca": 0.7499407442521925,
         "veredito": "verde",
         "por_ano": {
           "2021": 2.1769,
@@ -86929,7 +86929,7 @@
       "graham": null,
       "margem_graham": null,
       "gordon": 6.919159999999997,
-      "margem_gordon": 0.6964949502540769,
+      "margem_gordon": 0.6950496881124296,
       "rank_greenblatt": 4,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -87001,7 +87001,7 @@
         "capital_investido": 4069000000.0,
         "g_perpetuidade": 0.025,
         "pl": -0.49,
-        "pvp": 2.53,
+        "pvp": 2.54,
         "psr": 0.06,
         "ev_ebit": 2.81,
         "ev_ebitda": 1.7,
@@ -87413,7 +87413,7 @@
       "setor": "varejo e moda",
       "categoria": "demais",
       "besst": false,
-      "preco": 8.95,
+      "preco": 9.07,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -87422,7 +87422,7 @@
         "tem_extraordinario": false,
         "teto": 10.309753333333335,
         "teto_sem_extra": 10.309753333333335,
-        "margem_seguranca": 0.13188999672155124,
+        "margem_seguranca": 0.12025053299044346,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.3969,
@@ -87439,9 +87439,9 @@
         "margem_projetada_barsi": 0.394
       },
       "graham": 18.51998920086078,
-      "margem_graham": 0.5167383791139567,
+      "margem_graham": 0.5102588936942555,
       "gordon": 11.7531188,
-      "margem_gordon": 0.2384999971241676,
+      "margem_gordon": 0.22828994121968707,
       "rank_greenblatt": 3,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -87518,8 +87518,8 @@
         "ev": 7882310000.0,
         "capital_investido": 9208650000.0,
         "g_perpetuidade": 0.045,
-        "pl": 6.05,
-        "pvp": 0.87,
+        "pl": 6.13,
+        "pvp": 0.88,
         "psr": 0.57,
         "ev_ebit": 2.14,
         "ev_ebitda": 1.58,
@@ -88068,7 +88068,7 @@
       "setor": "varejo e moda",
       "categoria": "demais",
       "besst": false,
-      "preco": 14.01,
+      "preco": 14.04,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -88077,7 +88077,7 @@
         "tem_extraordinario": false,
         "teto": 27.620666666666672,
         "teto_sem_extra": 27.620666666666672,
-        "margem_seguranca": 0.4927711134174894,
+        "margem_seguranca": 0.4916849701914027,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.927,
@@ -88094,9 +88094,9 @@
         "margem_projetada_barsi": -0.2119
       },
       "graham": 37.088482039576654,
-      "margem_graham": 0.6222546939222235,
+      "margem_graham": 0.6214458174638129,
       "gordon": 21.774173881748073,
-      "margem_gordon": 0.3565771966327638,
+      "margem_gordon": 0.3551994176105642,
       "rank_greenblatt": 83,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -88172,7 +88172,7 @@
         "ev": 5090760000.0,
         "capital_investido": 10172100000.0,
         "g_perpetuidade": 0.0222,
-        "pl": 8.92,
+        "pl": 8.94,
         "pvp": 0.36,
         "psr": 0.26,
         "ev_ebit": 6.93,
@@ -88668,7 +88668,7 @@
       "setor": "varejo e moda",
       "categoria": "demais",
       "besst": false,
-      "preco": 6.48,
+      "preco": 6.58,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -88677,7 +88677,7 @@
         "tem_extraordinario": false,
         "teto": 3.0136666666666665,
         "teto_sem_extra": 3.0136666666666665,
-        "margem_seguranca": -1.1502046233823695,
+        "margem_seguranca": -1.1833867934962947,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -88694,9 +88694,9 @@
         "margem_projetada_barsi": 0.256
       },
       "graham": 22.479390561133993,
-      "margem_graham": 0.7117359573260108,
+      "margem_graham": 0.707287438148943,
       "gordon": 3.4355799999999985,
-      "margem_gordon": -0.8861444064757634,
+      "margem_gordon": -0.9152515732423646,
       "rank_greenblatt": 10,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -88766,7 +88766,7 @@
         "ev": 2186410000.0,
         "capital_investido": 3970517000.0,
         "g_perpetuidade": 0.045,
-        "pl": 3.56,
+        "pl": 3.62,
         "pvp": 0.53,
         "psr": 0.25,
         "ev_ebit": 2.25,
@@ -89190,7 +89190,7 @@
       "setor": "varejo e joalheria",
       "categoria": "demais",
       "besst": false,
-      "preco": 16.74,
+      "preco": 16.91,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -89199,7 +89199,7 @@
         "tem_extraordinario": false,
         "teto": 8.256333333333334,
         "teto_sem_extra": 8.256333333333334,
-        "margem_seguranca": -1.0275344180225279,
+        "margem_seguranca": -1.0481246719689934,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.328,
@@ -89216,9 +89216,9 @@
         "margem_projetada_barsi": -0.4481
       },
       "graham": 27.4259730912141,
-      "margem_graham": 0.38962967897891465,
+      "margem_graham": 0.3834311751214723,
       "gordon": 9.412219999999998,
-      "margem_gordon": -0.7785389631776565,
+      "margem_gordon": -0.7966005894464859,
       "rank_greenblatt": 20,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -89289,8 +89289,8 @@
         "ev": 4187900000.0,
         "capital_investido": 3285962000.0,
         "g_perpetuidade": 0.045,
-        "pl": 6.75,
-        "pvp": 1.24,
+        "pl": 6.82,
+        "pvp": 1.25,
         "psr": 1.29,
         "ev_ebit": 5.58,
         "ev_ebitda": 4.63,
@@ -89737,7 +89737,7 @@
       "setor": "consumo e calçados",
       "categoria": "demais",
       "besst": false,
-      "preco": 11.32,
+      "preco": 11.35,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -89746,7 +89746,7 @@
         "tem_extraordinario": false,
         "teto": 34.196000000000005,
         "teto_sem_extra": 34.196000000000005,
-        "margem_seguranca": 0.6689671306585566,
+        "margem_seguranca": 0.6680898350684291,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.35,
@@ -89763,9 +89763,9 @@
         "margem_projetada_barsi": 0.6698
       },
       "graham": 23.40807552961157,
-      "margem_graham": 0.5164062083753946,
+      "margem_graham": 0.5151245993869903,
       "gordon": 28.040719999999997,
-      "margem_gordon": 0.5963013788518982,
+      "margem_gordon": 0.5952315061810111,
       "rank_greenblatt": 32,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -89853,7 +89853,7 @@
         "ev": 4246090000.0,
         "capital_investido": 3231786000.0,
         "g_perpetuidade": 0.025,
-        "pl": 3.88,
+        "pl": 3.89,
         "pvp": 1.36,
         "psr": 0.98,
         "ev_ebit": 6.54,
@@ -90984,7 +90984,7 @@
       "setor": "varejo e e-commerce",
       "categoria": "demais",
       "besst": false,
-      "preco": 5.28,
+      "preco": 5.32,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -90993,7 +90993,7 @@
         "tem_extraordinario": false,
         "teto": 1.4615866666666668,
         "teto_sem_extra": 1.4615866666666668,
-        "margem_seguranca": -2.6125124294146085,
+        "margem_seguranca": -2.639879947819265,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.1476,
@@ -91010,9 +91010,9 @@
         "margem_projetada_barsi": -11.0
       },
       "graham": 5.967851372143914,
-      "margem_graham": 0.11525946764602613,
+      "margem_graham": 0.10855688785546572,
       "gordon": 0.9407133287846481,
-      "margem_gordon": -4.612761973747604,
+      "margem_gordon": -4.655282897791147,
       "rank_greenblatt": 56,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -91083,7 +91083,7 @@
         "ev": 7335150000.0,
         "capital_investido": 14350540000.0,
         "g_perpetuidade": 0.0062,
-        "pl": 48.0,
+        "pl": 48.36,
         "pvp": 0.37,
         "psr": 0.11,
         "ev_ebit": 4.95,
@@ -91507,7 +91507,7 @@
       "setor": "consumo e academias",
       "categoria": "demais",
       "besst": false,
-      "preco": 15.22,
+      "preco": 15.32,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -91516,7 +91516,7 @@
         "tem_extraordinario": false,
         "teto": 6.741999999999999,
         "teto_sem_extra": 6.741999999999999,
-        "margem_seguranca": -1.257490358943934,
+        "margem_seguranca": -1.272322752892317,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -91533,9 +91533,9 @@
         "margem_projetada_barsi": 0.1268
       },
       "graham": 15.692466345351836,
-      "margem_graham": 0.030107845061065317,
+      "margem_graham": 0.023735360468825295,
       "gordon": 4.374985907626207,
-      "margem_gordon": -2.4788683486887195,
+      "margem_gordon": -2.5017255651715624,
       "rank_greenblatt": 47,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -91609,8 +91609,8 @@
         "ev": 14071400000.0,
         "capital_investido": 10585900000.0,
         "g_perpetuidade": 0.0069,
-        "pl": 13.71,
-        "pvp": 1.54,
+        "pl": 13.8,
+        "pvp": 1.55,
         "psr": 1.19,
         "ev_ebit": 7.3,
         "ev_ebitda": 3.63,
@@ -92081,7 +92081,7 @@
       "setor": "turismo e lazer",
       "categoria": "demais",
       "besst": false,
-      "preco": 0.8,
+      "preco": 0.81,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -92579,7 +92579,7 @@
       "setor": "shoppings e imóveis",
       "categoria": "demais",
       "besst": false,
-      "preco": 24.6,
+      "preco": 24.61,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/09/2026",
       "bazin": {
@@ -92588,7 +92588,7 @@
         "tem_extraordinario": false,
         "teto": 14.227333333333336,
         "teto_sem_extra": 14.227333333333336,
-        "margem_seguranca": -0.7290661168642517,
+        "margem_seguranca": -0.729768989269481,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.4989,
@@ -92605,9 +92605,9 @@
         "margem_projetada_barsi": -0.0271
       },
       "graham": 30.365794901500603,
-      "margem_graham": 0.18987795050989,
+      "margem_graham": 0.18954863260359328,
       "gordon": 16.21916,
-      "margem_gordon": -0.5167246639160107,
+      "margem_gordon": -0.5173412186574398,
       "rank_greenblatt": 36,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -93994,7 +93994,7 @@
       "setor": "shoppings e imóveis",
       "categoria": "demais",
       "besst": false,
-      "preco": 21.34,
+      "preco": 21.33,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -94003,7 +94003,7 @@
         "tem_extraordinario": false,
         "teto": 6.850333333333333,
         "teto_sem_extra": 6.850333333333333,
-        "margem_seguranca": -2.1151768770376136,
+        "margem_seguranca": -2.113717094058683,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -94020,9 +94020,9 @@
         "margem_projetada_barsi": -2.1199
       },
       "graham": 28.371817002088534,
-      "margem_graham": 0.24784514159142154,
+      "margem_graham": 0.24819760403678645,
       "gordon": 5.617273333333332,
-      "margem_gordon": -2.798996191509286,
+      "margem_gordon": -2.797215968364249,
       "rank_greenblatt": 87,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -94094,7 +94094,7 @@
         "ev": 8604310000.0,
         "capital_investido": 7075740000.0,
         "g_perpetuidade": 0.025,
-        "pl": 9.93,
+        "pl": 9.92,
         "pvp": 1.28,
         "psr": 4.23,
         "ev_ebit": 9.16,
@@ -94614,7 +94614,7 @@
       "setor": "construção civil",
       "categoria": "demais",
       "besst": false,
-      "preco": 16.47,
+      "preco": 16.61,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -94623,7 +94623,7 @@
         "tem_extraordinario": false,
         "teto": 22.975333333333335,
         "teto_sem_extra": 22.975333333333335,
-        "margem_seguranca": 0.2831442416504658,
+        "margem_seguranca": 0.2770507500797958,
         "veredito": "verde",
         "por_ano": {
           "2021": 1.0873,
@@ -94640,9 +94640,9 @@
         "margem_projetada_barsi": 0.6519
       },
       "graham": 49.93783635681466,
-      "margem_graham": 0.6701899561222688,
+      "margem_graham": 0.6673864706248261,
       "gordon": 26.19187999999999,
-      "margem_gordon": 0.3711791593425136,
+      "margem_gordon": 0.3658339912980662,
       "rank_greenblatt": 92,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -94714,7 +94714,7 @@
         "ev": 12547400000.0,
         "capital_investido": 15966010000.0,
         "g_perpetuidade": 0.045,
-        "pl": 3.66,
+        "pl": 3.69,
         "pvp": 0.67,
         "psr": 0.79,
         "ev_ebit": 7.64,
@@ -95162,7 +95162,7 @@
       "setor": "construção civil",
       "categoria": "demais",
       "besst": false,
-      "preco": 24.94,
+      "preco": 25.1,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -95171,7 +95171,7 @@
         "tem_extraordinario": false,
         "teto": 27.177333333333337,
         "teto_sem_extra": 27.177333333333337,
-        "margem_seguranca": 0.08232350488151899,
+        "margem_seguranca": 0.0764362458911839,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.5653,
@@ -95188,9 +95188,9 @@
         "margem_projetada_barsi": 0.0814
       },
       "graham": 20.768852881177622,
-      "margem_graham": -0.2008366635695418,
+      "margem_graham": -0.20854050744168,
       "gordon": 22.28541333333333,
-      "margem_gordon": -0.11911767697375761,
+      "margem_gordon": -0.1262972611083126,
       "rank_greenblatt": 8,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -95282,8 +95282,8 @@
         "ev": 7687880000.0,
         "capital_investido": 1364469000.0,
         "g_perpetuidade": 0.025,
-        "pl": 6.99,
-        "pvp": 4.64,
+        "pl": 7.03,
+        "pvp": 4.67,
         "psr": 1.3,
         "ev_ebit": 4.75,
         "ev_ebitda": 4.65,
@@ -95802,7 +95802,7 @@
       "setor": "construção civil",
       "categoria": "demais",
       "besst": false,
-      "preco": 7.88,
+      "preco": 7.87,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -95811,7 +95811,7 @@
         "tem_extraordinario": false,
         "teto": 13.677776666666668,
         "teto_sem_extra": 13.677776666666668,
-        "margem_seguranca": 0.42388297513265444,
+        "margem_seguranca": 0.4246140881083744,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.23,
@@ -95828,9 +95828,9 @@
         "margem_projetada_barsi": 0.4257
       },
       "graham": 12.843013665024264,
-      "margem_graham": 0.386436843755775,
+      "margem_graham": 0.3872154772027854,
       "gordon": 10.201717526984128,
-      "margem_gordon": 0.22758104415683456,
+      "margem_gordon": 0.22856127125815837,
       "rank_greenblatt": 6,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -96365,7 +96365,7 @@
       "setor": "construção civil",
       "categoria": "demais",
       "besst": false,
-      "preco": 8.82,
+      "preco": 8.83,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -96374,7 +96374,7 @@
         "tem_extraordinario": false,
         "teto": 10.593843333333334,
         "teto_sem_extra": 10.593843333333334,
-        "margem_seguranca": 0.16744096335198466,
+        "margem_seguranca": 0.1664970188659892,
         "veredito": "verde",
         "por_ano": {
           "2021": 0.3335,
@@ -96391,9 +96391,9 @@
         "margem_projetada_barsi": 0.5461
       },
       "graham": 28.54386098620857,
-      "margem_graham": 0.691001858358912,
+      "margem_graham": 0.6906515203298406,
       "gordon": 11.056571072240802,
-      "margem_gordon": 0.20228433007192007,
+      "margem_gordon": 0.20137989053685423,
       "rank_greenblatt": 103,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -96469,7 +96469,7 @@
         "ev": 2483750000.0,
         "capital_investido": 5230864910.0,
         "g_perpetuidade": 0.0402,
-        "pl": 4.59,
+        "pl": 4.6,
         "pvp": 0.47,
         "psr": 1.73,
         "ev_ebit": 8.56,
@@ -97001,7 +97001,7 @@
       "setor": "construção civil",
       "categoria": "demais",
       "besst": false,
-      "preco": 4.07,
+      "preco": 4.09,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -97010,7 +97010,7 @@
         "tem_extraordinario": false,
         "teto": 3.4523333333333337,
         "teto_sem_extra": 3.4523333333333337,
-        "margem_seguranca": -0.17891281259051844,
+        "margem_seguranca": -0.1847059959447715,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.6401,
@@ -97029,7 +97029,7 @@
       "graham": null,
       "margem_graham": null,
       "gordon": 2.8309133333333327,
-      "margem_gordon": -0.4376985519396571,
+      "margem_gordon": -0.44476340968874617,
       "rank_greenblatt": 42,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -97106,7 +97106,7 @@
         "ev": 10487600000.0,
         "capital_investido": 12786150000.0,
         "g_perpetuidade": 0.025,
-        "pl": -3.99,
+        "pl": -4.01,
         "pvp": 0.5,
         "psr": 0.19,
         "ev_ebit": 5.68,
@@ -97542,7 +97542,7 @@
       "setor": "tecnologia e software",
       "categoria": "demais",
       "besst": false,
-      "preco": 31.6,
+      "preco": 31.66,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -97551,7 +97551,7 @@
         "tem_extraordinario": false,
         "teto": 7.066666666666667,
         "teto_sem_extra": 7.066666666666667,
-        "margem_seguranca": -3.4716981132075473,
+        "margem_seguranca": -3.4801886792452827,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.31,
@@ -97568,9 +97568,9 @@
         "margem_projetada_barsi": -0.6862
       },
       "graham": 22.83411920788713,
-      "margem_graham": -0.3838939751652452,
+      "margem_graham": -0.38652162195353357,
       "gordon": 8.056,
-      "margem_gordon": -2.9225422045680247,
+      "margem_gordon": -2.9299900695134062,
       "rank_greenblatt": 41,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -97646,8 +97646,8 @@
         "ev": 21547700000.0,
         "capital_investido": 8464750000.0,
         "g_perpetuidade": 0.045,
-        "pl": 12.85,
-        "pvp": 3.35,
+        "pl": 12.87,
+        "pvp": 3.36,
         "psr": 2.88,
         "ev_ebit": 8.69,
         "ev_ebitda": 7.5,
@@ -98148,7 +98148,7 @@
       "setor": "tecnologia e software",
       "categoria": "demais",
       "besst": false,
-      "preco": 3.01,
+      "preco": 3.0,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -98157,7 +98157,7 @@
         "tem_extraordinario": false,
         "teto": 0.5863333333333334,
         "teto_sem_extra": 0.5863333333333334,
-        "margem_seguranca": -4.1335986355884025,
+        "margem_seguranca": -4.11654349061967,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -98176,7 +98176,7 @@
       "graham": null,
       "margem_graham": null,
       "gordon": 0.4807933333333333,
-      "margem_gordon": -5.260486140961467,
+      "margem_gordon": -5.239687183682525,
       "rank_greenblatt": 94,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -98249,8 +98249,8 @@
         "ev": 1366800000.0,
         "capital_investido": 2049401000.0,
         "g_perpetuidade": 0.025,
-        "pl": -8.36,
-        "pvp": 0.7,
+        "pl": -8.33,
+        "pvp": 0.69,
         "psr": 1.13,
         "ev_ebit": 7.53,
         "ev_ebitda": 4.2,
@@ -98685,7 +98685,7 @@
       "setor": "educação",
       "categoria": "demais",
       "besst": false,
-      "preco": 8.88,
+      "preco": 8.91,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -98694,7 +98694,7 @@
         "tem_extraordinario": false,
         "teto": 7.615333333333335,
         "teto_sem_extra": 7.615333333333335,
-        "margem_seguranca": -0.16606845837345693,
+        "margem_seguranca": -0.17000787884093474,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.4697,
@@ -98711,9 +98711,9 @@
         "margem_projetada_barsi": -0.5102
       },
       "graham": 9.90727005789183,
-      "margem_graham": 0.10368850873036792,
+      "margem_graham": 0.10066042936797057,
       "gordon": 6.244573333333332,
-      "margem_gordon": -0.42203470533348453,
+      "margem_gordon": -0.42683887663528675,
       "rank_greenblatt": 73,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -98784,8 +98784,8 @@
         "ev": 6762370000.0,
         "capital_investido": 7236760000.0,
         "g_perpetuidade": 0.025,
-        "pl": 21.66,
-        "pvp": 0.83,
+        "pl": 21.73,
+        "pvp": 0.84,
         "psr": 0.44,
         "ev_ebit": 7.2,
         "ev_ebitda": 3.9,
@@ -99226,7 +99226,7 @@
       "setor": "educação",
       "categoria": "demais",
       "besst": false,
-      "preco": 1.4,
+      "preco": 1.39,
       "data_ult_cot": "03/11/2026",
       "ult_balanco": "30/06/2026",
       "bazin": {
@@ -99235,7 +99235,7 @@
         "tem_extraordinario": false,
         "teto": 0.5496966666666666,
         "teto_sem_extra": 0.5496966666666666,
-        "margem_seguranca": -1.54685917687937,
+        "margem_seguranca": -1.5286673256159458,
         "veredito": "vermelho",
         "por_ano": {
           "2021": 0.0,
@@ -99252,9 +99252,9 @@
         "margem_projetada_barsi": 0.3301
       },
       "graham": 7.132496056781244,
-      "margem_graham": 0.8037152787951497,
+      "margem_graham": 0.8051173125180416,
       "gordon": 0.5013330748159056,
-      "margem_gordon": -1.7925546314974203,
+      "margem_gordon": -1.77260781270101,
       "rank_greenblatt": 50,
       "motivo_exclusao_greenblatt": null,
       "sustentabilidade": {
@@ -99339,7 +99339,7 @@
         "ev": 8516890000.0,
         "capital_investido": 18988550000.0,
         "g_perpetuidade": 0.0321,
-        "pl": 4.12,
+        "pl": 4.09,
         "pvp": 0.21,
         "psr": 0.42,
         "ev_ebit": 3.83,
