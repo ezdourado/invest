@@ -2,18 +2,23 @@ name: Atualizar Valuation B3
 
 on:
   schedule:
-    # Aciona a cada 10 minutos (segunda a sexta, 09h00 às 18h50 BRT = 12h às 21h UTC)
-    - cron: "*/10 12-21 * * 1-5"
+    # Pregão B3 (09h00 às 18h35 BRT = 12h às 21h UTC)
+    # Aciona em blocos de 30 min (minutos ímpares :03 e :33 para evitar picos de carga nos servidores do GitHub)
+    # Cada disparo agendado executa 3 ciclos de 10 minutos (0m, 10m, 20m = ~21 min no total),
+    # garantindo atualizações rigorosas de 10 em 10 min mesmo se a fila do GitHub sofrer atrasos.
+    - cron: "3,33 12-21 * * 1-5"
+    # Fechamento consolidado noturno (19h05 BRT = 22h05 UTC)
+    - cron: "5 22 * * 1-5"
   workflow_dispatch:
     inputs:
       ciclos:
-        description: "Quantidade de ciclos de coleta nesta execução (1 = imediato ~40s, 6 = 1 hora contínua)"
+        description: "Quantidade de ciclos de coleta (1 = imediato ~45s, 3 = 30 min contínuos, 6 = 1 hora contínua)"
         required: false
         default: "1"
 
 concurrency:
   group: atualizar-valuation
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -21,7 +26,7 @@ permissions:
 jobs:
   atualizar-valuation:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 60
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
@@ -51,14 +56,21 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # No agendamento automático (cron a cada 10 min), roda exatamente 1 ciclo rápido (~40s).
-          # Isso libera o runner imediatamente e evita bloqueio de concorrência ou timeout.
-          # No acionamento manual (workflow_dispatch), respeita a quantidade de ciclos informada.
+          # No agendamento automático durante o pregão, roda 3 ciclos de 10 min (~21 min de execução).
+          # No fechamento consolidado noturno (22h UTC), roda 1 ciclo único.
+          # No acionamento manual (workflow_dispatch), respeita a quantidade de ciclos informada (padrão 1).
           if [ "$EVENT_NAME" = "schedule" ]; then
-            TOTAL_CICLOS=1
+            HORA_UTC=$(date -u +%H)
+            if [ "$HORA_UTC" -eq 22 ]; then
+              TOTAL_CICLOS=1
+            else
+              TOTAL_CICLOS=3
+            fi
           else
             TOTAL_CICLOS="${INPUT_CICLOS:-1}"
           fi
+
+          echo "Executando $TOTAL_CICLOS ciclo(s) de coleta para este evento ($EVENT_NAME)..."
 
           for (( i=1; i<=TOTAL_CICLOS; i++ )); do
             INICIO_CICLO=$(date +%s)
@@ -70,9 +82,23 @@ jobs:
             if ! git diff --quiet -- data/valuation.json; then
               git add data/valuation.json
               git commit -m "chore: atualiza data/valuation.json ($(date -u +"%H:%M UTC"))"
-              git pull --rebase -X theirs origin main || true
-              git push origin HEAD:main
-              echo "=== [Ciclo $i/$TOTAL_CICLOS] data/valuation.json publicado com sucesso ==="
+              
+              PUSH_OK=false
+              for tentativa in 1 2 3; do
+                git pull --rebase -X theirs origin main || true
+                if git push origin HEAD:main; then
+                  echo "=== [Ciclo $i/$TOTAL_CICLOS] data/valuation.json publicado com sucesso ==="
+                  PUSH_OK=true
+                  break
+                fi
+                echo "Aviso: Push falhou na tentativa $tentativa/3, aguardando 5s para tentar novamente..."
+                sleep 5
+              done
+
+              if [ "$PUSH_OK" != "true" ]; then
+                echo "Erro crítico: Falha ao publicar commit no GitHub após 3 tentativas."
+                exit 1
+              fi
             else
               echo "=== [Ciclo $i/$TOTAL_CICLOS] Sem alterações em data/valuation.json ==="
             fi
