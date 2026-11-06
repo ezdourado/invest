@@ -10,7 +10,6 @@
   --surface-2:       var(--bg-surface-elevated);
   --surface-hover:   var(--bg-surface-hover);
   --border:          var(--border-default);
-  --border-strong:   var(--border-strong);
 
   /* 2. Tipografia & Contraste WCAG AA (Inter puro, sem glifos) */
   --text-strong:     var(--text-primary);
@@ -45,12 +44,6 @@
   --red-line:        var(--verdict-red-border);
 
   /* 5. Séries de Gráficos (sem colisão com vereditos semânticos) */
-  --series-price:    var(--series-price);
-  --series-bazin:    var(--series-bazin);
-  --series-consenso: var(--series-consenso);
-  --series-barsi:    var(--series-barsi);
-  --series-graham:   var(--series-graham);
-  --series-gordon:   var(--series-gordon);
   --series-cmp-1:    #38bdf8;
   --series-cmp-2:    #c084fc;
   --series-cmp-3:    #f472b6;
@@ -103,7 +96,6 @@ html[data-theme="light"],
   --surface-2:       var(--bg-surface-elevated);
   --surface-hover:   var(--bg-surface-hover);
   --border:          var(--border-default);
-  --border-strong:   var(--border-strong);
 
   --text-strong:     var(--text-primary);
   --text:            var(--text-primary);
@@ -130,12 +122,6 @@ html[data-theme="light"],
   --red-soft:        var(--verdict-red-bg);
   --red-line:        var(--verdict-red-border);
 
-  --series-price:    var(--series-price);
-  --series-bazin:    var(--series-bazin);
-  --series-consenso: var(--series-consenso);
-  --series-barsi:    var(--series-barsi);
-  --series-graham:   var(--series-graham);
-  --series-gordon:   var(--series-gordon);
 
   --scrollbar-track:        var(--bg-app);
   --scrollbar-thumb:        rgba(0, 0, 0, 0.15);
