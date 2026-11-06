@@ -21,6 +21,18 @@
 - Greenblatt: ranking sobre o universo; bancos ficam fora do ranking (EBIT/EV não se aplica), registrando o motivo.
 - Filtro setorial BESST: é atributo e agregação de cobertura por setor (bancos, energia, saneamento, seguros, telecom), não descarta ativos.
 
+## ARQUITETURA
+- Motor (`engine/`): única fonte de cálculo de valuation. Publica `data/valuation.json` no branch `dados` (um commit sobrescrito por ciclo), nunca na `main`, para não disparar deploy do Pages. Orquestração em `.github/scripts/motor.sh` (sessão contínua no pregão; ciclo rápido de cotações a cada 10 min e build completo a cada hora).
+- Frontend (scripts clássicos, nesta ordem de carga):
+  - `nucleo.js`: formatação, datas no fuso da B3, armazenamento local. Sem regras de negócio.
+  - `regras.js`: leitura das regras (faixas de cor, BESST, filtros de qualidade, triagens, análise técnica). Funções puras sobre o payload; não recalcula valuation.
+  - `fonte_dados.js`: busca do JSON (branch `dados` via raw.githubusercontent.com, fallback Pages).
+  - `data.js`: estado, tabela, cards, detalhe e paleta de comandos.
+  - `visao_grafica.js`, `matriz_calendario.js`, `carteira.js`: uma aba cada.
+- O navegador só recalcula o que depende do preço (margens). Teto, DPA, payout e teto histórico vêm prontos do motor.
+- Modelos de referência (Gordon, Consenso, Greenblatt) ficam recolhidos/ocultos por padrão e nunca entram no veredito.
+- Calculadora (`CalculadoraBazin.html`): preenche dados a partir do mesmo JSON do painel. Nenhuma chave de API no cliente.
+
 ## PADRÕES
 - Frontend: HTML/CSS/JS puros, sem build step e sem dependências externas; caminhos relativos (`./assets/...`).
 - Design System: Personalidade sóbria, calma, densa e precisa (nível Linear, Stripe Dashboard e TradingView).
