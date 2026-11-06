@@ -14,8 +14,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="./favicon.png">
   <link rel="preload" href="./assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261106_v13">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261106_v13">
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261106_v14">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261106_v14">
   <style>
     /* Regras prioritárias com proteção absoluta contra cache de CSS */
     .d-bazin-proj-grid {
@@ -266,8 +266,8 @@
                   <label class="cols-menu-item"><input type="checkbox" data-col="alt"><span>Tetos alternativos</span></label>
                   <label class="cols-menu-item"><input type="checkbox" data-col="tec"><span>Técnica</span></label>
                   <label class="cols-menu-item"><input type="checkbox" data-col="graham" checked><span>Graham</span></label>
-                  <label class="cols-menu-item"><input type="checkbox" data-col="gordon" checked><span>Gordon</span></label>
-                  <label class="cols-menu-item"><input type="checkbox" data-col="gb" checked><span>Greenblatt</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="gordon"><span>Gordon (referência)</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="gb"><span>Greenblatt (referência)</span></label>
                 </div>
               </div>
 
@@ -291,7 +291,7 @@
           <div class="filter-chips" id="active-filters"></div>
 
           <div class="table-wrap">
-            <table class="vt hide-col-alt hide-col-tec" id="engine-valuation-table">
+            <table class="vt hide-col-alt hide-col-tec hide-col-gordon hide-col-gb" id="engine-valuation-table">
               <thead>
                 <tr>
                   <th data-sort="ticker" data-tip="Código de negociação, setor e tendência de 12 meses">Ativo · 12m</th>
@@ -893,9 +893,15 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/data.js?v=20261106_v13"></script>
-<script src="./assets/js/visao_grafica.js?v=20261106_v13"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261106_v13"></script>
-  <script src="./assets/js/carteira.js?v=20261106_v13"></script>
+<script src="./assets/js/nucleo.js?v=20261106_v14"></script>
+
+<script src="./assets/js/regras.js?v=20261106_v14"></script>
+
+<script src="./assets/js/fonte_dados.js?v=20261106_v14"></script>
+
+<script src="./assets/js/data.js?v=20261106_v14"></script>
+<script src="./assets/js/visao_grafica.js?v=20261106_v14"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261106_v14"></script>
+  <script src="./assets/js/carteira.js?v=20261106_v14"></script>
 </body>
 </html>

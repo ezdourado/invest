@@ -20,7 +20,12 @@ let state = {
   farolTitle: 'AGUARDANDO DADOS'
 };
 
-const BRAPI_TOKEN = (typeof process !== 'undefined' && process?.env?.BRAPI_TOKEN) || window.BRAPI_TOKEN || 'xkbBiwNYnwJ4pvmPBpTGYB';
+// Fonte única de dados: o mesmo JSON do painel (motor Python). Sem chave de API no cliente.
+const URLS_BASE_PAINEL = [
+  'https://raw.githubusercontent.com/ezdourado/invest/dados/data/valuation.json',
+  './data/valuation.json'
+];
+let cacheBasePainel = null;
 
 let inMemoryRadar = [];
 
@@ -70,40 +75,78 @@ function saveTerminalData(arr) {
   }
 }
 
+async function carregarBasePainel() {
+  if (cacheBasePainel) return cacheBasePainel;
+  for (const url of URLS_BASE_PAINEL) {
+    try {
+      const resp = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store', headers: { Accept: 'application/json' } });
+      if (!resp.ok) continue;
+      const json = await resp.json();
+      if (Array.isArray(json?.ativos)) {
+        cacheBasePainel = json;
+        return json;
+      }
+    } catch (_) { /* tenta a próxima fonte */ }
+  }
+  throw new Error('Base do painel indisponível no momento.');
+}
+
+function definirCampo(id, valor) {
+  const el = document.getElementById(id);
+  if (!el || valor === null || valor === undefined || Number.isNaN(valor)) return;
+  if (el.type === 'checkbox') el.checked = Boolean(valor);
+  else el.value = valor;
+  el.dispatchEvent(new Event(el.type === 'checkbox' ? 'change' : 'input', { bubbles: true }));
+}
+
+// Preenche a calculadora com os dados que o painel já calculou (mesmas regras do motor):
+// cotação, DPA recorrente dos 5 anos fechados, alavancagem, setor bancário, VPA, LPA e payout.
 async function fetchBrapiQuote(symbol) {
   if (!symbol || !symbol.trim()) {
     showQuoteStatus('error', 'Digite um código de ativo válido (ex: VALE3).');
     return;
   }
-
   const cleanSymbol = symbol.trim().toUpperCase();
-  showQuoteStatus('loading', `Buscando cotação de ${cleanSymbol}...`);
+  showQuoteStatus('loading', `Buscando ${cleanSymbol} na base do painel...`);
 
   try {
-    const apiUrl = `https://brapi.dev/api/v2/stocks/quote?symbols=${encodeURIComponent(cleanSymbol)}&token=${encodeURIComponent(BRAPI_TOKEN)}`;
-    const response = await fetch(apiUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
+    const base = await carregarBasePainel();
+    const a = base.ativos.find(x => String(x.ticker).toUpperCase() === cleanSymbol);
+    if (!a) throw new Error(`"${cleanSymbol}" não está na base do painel.`);
 
-    if (!response.ok) {
-      if (response.status === 404) throw new Error(`Ativo "${cleanSymbol}" não localizado na B3.`);
-      else if (response.status === 401 || response.status === 403) throw new Error('Chave da API Brapi expirada ou inválida.');
-      else throw new Error(`Erro de resposta na API (Código ${response.status}).`);
+    const f = a.fundamentos || {};
+    const b = a.bazin || {};
+    const ehBanco = String(a.setor || '').toLowerCase().startsWith('banco');
+
+    onTickerInput(cleanSymbol);
+    onPriceInput(Number(a.preco).toFixed(2));
+    definirCampo('input-is-bank', ehBanco);
+
+    const anos = Object.keys(b.por_ano || {}).sort();
+    if (anos.length === 5) {
+      document.getElementById('toggle-dpa-years')?.click();
+      anos.forEach((ano, i) => {
+        definirCampo(`dpa-y${i + 1}`, Number(b.por_ano[ano]).toFixed(4));
+        const rot = document.getElementById(`dpa-y${i + 1}`)?.closest('.year-input-box')?.querySelector('.year-label');
+        if (rot) rot.textContent = ano;
+      });
+    } else if (b.dpa_sem_extra > 0) {
+      document.getElementById('toggle-dpa-direct')?.click();
+      definirCampo('input-dpa', Number(b.dpa_sem_extra).toFixed(4));
     }
-
-    const json = await response.json();
-    if (!json.results || !Array.isArray(json.results) || json.results.length === 0) {
-      throw new Error(`Cotação para "${cleanSymbol}" não encontrada.`);
+    if (!ehBanco && f.div_liq_ebitda !== null && f.div_liq_ebitda !== undefined) {
+      definirCampo('slider-debt', Math.max(-1, Math.min(6, f.div_liq_ebitda)));
     }
+    if (f.vpa > 0) definirCampo('input-vpa', f.vpa);
+    if (f.lpa) definirCampo('input-lpa', f.lpa);
+    if (f.payout !== null && f.payout !== undefined) definirCampo('input-payout', Math.round(f.payout * 1000) / 10);
+    calculate();
 
-    const item = json.results[0];
-    const data = item.data || item;
-    const price = parseFloat(data.regularMarketPrice ?? data.close ?? data.price ?? 0);
-
-    if (isNaN(price) || price <= 0) throw new Error('Preço de mercado indisponível no momento.');
-
-    onPriceInput(price.toFixed(2));
-    showQuoteStatus('success', `✓ ${cleanSymbol}: Cotação R$ ${price.toFixed(2)} atualizada!`);
+    const quando = base.gerado_em ? new Date(base.gerado_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short', timeStyle: 'short' }) : '';
+    const extra = Object.keys(b.anos_atipicos || {}).length ? ` · ano atípico normalizado: ${Object.keys(b.anos_atipicos).join(', ')}` : '';
+    showQuoteStatus('success', `✓ ${cleanSymbol}: R$ ${Number(a.preco).toFixed(2)} e DPA 5a preenchidos (base de ${quando})${extra}`);
   } catch (err) {
-    showQuoteStatus('error', `✕ ${err.message || 'Falha ao buscar cotação.'}`);
+    showQuoteStatus('error', `✕ ${err.message || 'Falha ao buscar dados.'}`);
   }
 }
 
@@ -261,8 +304,8 @@ function onDebtChange(val) {
 
   badge.textContent = state.debtEbitda.toFixed(2) + 'x';
 
-  if (state.debtEbitda <= 2.5) badge.className = 'slider-val-badge text-green';
-  else if (state.debtEbitda <= 3.5) badge.className = 'slider-val-badge text-yellow';
+  if (state.debtEbitda <= 3.2) badge.className = 'slider-val-badge text-green';
+  else if (state.debtEbitda <= 4.2) badge.className = 'slider-val-badge text-yellow';
   else badge.className = 'slider-val-badge text-red';
 
   calculate();

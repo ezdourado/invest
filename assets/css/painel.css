@@ -4769,3 +4769,11 @@ html[data-theme="light"] .vt tbody tr.row.is-selected td.c-ticker {
   .cart-setor-row { grid-template-columns: 90px minmax(60px, 1fr) 40px; }
   .cart-setor-row .cart-alvo-wrap, .cart-setor-row > .cell-sub { grid-column: span 1; }
 }
+
+/* ---------- Fase 4: outros modelos recolhidos ---------- */
+.d-outros > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 6px; }
+.d-outros > summary::-webkit-details-marker { display: none; }
+.d-outros > summary::before { content: '▸'; color: var(--muted); font-size: 12px; transition: transform 0.15s; }
+.d-outros[open] > summary::before { transform: rotate(90deg); }
+.d-outros-kv { margin-top: 10px; }
+.kv dd.d-outros-nota { grid-column: 1 / -1; text-align: left; color: var(--muted); font-size: 12px; font-family: var(--sans); margin-bottom: 6px; }
