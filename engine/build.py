@@ -9,7 +9,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-from engine.schemas import Ativo, Dividendo, PontoLucro, ResultadoAtivo, Saida
+from engine.schemas import Ativo, Dividendo, PontoLucro, ResultadoAtivo, Saida, SnapshotAnterior
 from engine.sources import (
     CAMINHO_TICKERS_PADRAO,
     carregar_tickers_json,
@@ -374,6 +374,50 @@ def aplicar_cotacoes(
     })
 
 
+def aplicar_snapshot_anterior(
+    nova: Saida,
+    existente: Optional[Saida],
+    agora: datetime | None = None,
+) -> Saida:
+    """Preenche `anterior` de cada ativo com o estado do último pregão anterior a hoje.
+
+    Se a base existente foi gerada num dia anterior (horário B3), o estado dela vira o
+    "anterior". Se foi gerada hoje, o "anterior" dela é mantido. Assim o painel compara
+    sempre com o fechamento do pregão anterior, qualquer que seja a hora do ciclo.
+    """
+    if existente is None:
+        return nova
+    momento = agora if agora is not None else datetime.now(timezone.utc)
+    hoje = momento.astimezone(FUSO_B3).date()
+    dia_existente = existente.gerado_em.astimezone(FUSO_B3).date()
+    mapa = {a.ticker: a for a in existente.ativos}
+
+    ativos: list[ResultadoAtivo] = []
+    for a in nova.ativos:
+        ant = mapa.get(a.ticker)
+        snap: Optional[SnapshotAnterior] = None
+        if ant is not None:
+            if dia_existente < hoje:
+                snap = SnapshotAnterior(
+                    data=dia_existente,
+                    preco=ant.preco,
+                    teto=ant.bazin.teto,
+                    veredito=ant.bazin.veredito,
+                    margem=ant.bazin.margem_seguranca,
+                )
+            else:
+                snap = ant.anterior
+        ativos.append(a.model_copy(update={"anterior": snap}))
+    return nova.model_copy(update={"ativos": ativos})
+
+
+def _ler_saida_existente(caminho: Path) -> Optional[Saida]:
+    try:
+        return Saida.model_validate_json(caminho.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
 def serializar_saida(saida_validada: Saida) -> str:
     """Serializa o objeto Saida validado em JSON legível e compacto."""
     bruto: dict[str, Any] = saida_validada.model_dump(mode="json")
@@ -410,6 +454,7 @@ def main() -> None:
         if not cotacoes:
             raise RuntimeError("Nenhuma cotação obtida no ciclo rápido; arquivo mantido sem alterações.")
         saida = aplicar_cotacoes(saida_atual, cotacoes)
+        saida = aplicar_snapshot_anterior(saida, saida_atual)
         saida_validada = Saida.model_validate(saida.model_dump(mode="json"))
         caminho_saida.write_text(serializar_saida(saida_validada), encoding="utf-8")
         print(f"Cotações atualizadas: {len(cotacoes)}/{len(saida_atual.ativos)} ativos ({caminho_saida})")
@@ -426,6 +471,7 @@ def main() -> None:
             raise RuntimeError("Nenhum ativo válido pôde ser obtido pela fonte de dados.")
 
     saida = construir_saida(ativos)
+    saida = aplicar_snapshot_anterior(saida, _ler_saida_existente(caminho_saida))
     if not args.offline and saida.historico_datas:
         try:
             benches = coletar_benchmarks_historico(saida.historico_datas)
