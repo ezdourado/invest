@@ -14,8 +14,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="./favicon.png">
   <link rel="preload" href="./assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261103_v4">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261103_v4">
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261106_v6">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261106_v6">
   <style>
     /* Regras prioritárias com proteção absoluta contra cache de CSS */
     .d-bazin-proj-grid {
@@ -34,15 +34,16 @@
       padding: 12px 14px !important;
     }
     .more-menu-dropdown,
-    .more-dropdown {
+    .more-dropdown,
+    .cols-menu {
       position: absolute !important;
       top: calc(100% + 6px) !important;
       right: 0 !important;
-      min-width: 220px !important;
       z-index: 1000 !important;
     }
     .more-menu-dropdown.is-hidden,
     .more-dropdown.is-hidden,
+    .cols-menu.is-hidden,
     .is-hidden {
       display: none !important;
     }
@@ -52,8 +53,11 @@
       try {
         var t = localStorage.getItem('painel_valuation_theme');
         if (window.location.search.includes('tema=light') || window.location.hash.includes('tema=light')) t = 'light';
-        if (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) t = 'light';
-        if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        else if (window.location.search.includes('tema=dark') || window.location.hash.includes('tema=dark')) t = 'dark';
+        if (t !== 'light' && t !== 'dark') {
+          t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+        }
+        document.documentElement.setAttribute('data-theme', t);
         var d = localStorage.getItem('painel_valuation_density');
         if (d) document.documentElement.setAttribute('data-density', d);
       } catch (e) {}
@@ -758,8 +762,8 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/data.js?v=20261103_v4"></script>
-<script src="./assets/js/visao_grafica.js?v=20261103_v4"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261103_v4"></script>
+<script src="./assets/js/data.js?v=20261106_v6"></script>
+<script src="./assets/js/visao_grafica.js?v=20261106_v6"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261106_v6"></script>
 </body>
 </html>

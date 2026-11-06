@@ -82,6 +82,8 @@
   --bg-surface-elevated: #1B212A;
   --bg-surface-hover: #222935;
   --bg-surface-active: #28313F;
+  --bg-row-selected: #182334;
+  --bg-row-selected-hover: #1E2C42;
 
   --border-subtle: rgba(255, 255, 255, 0.04);
   --border-default: rgba(255, 255, 255, 0.07);
@@ -157,6 +159,8 @@
   --bg-surface-elevated: #F0F2F5;
   --bg-surface-hover: #E7EBF0;
   --bg-surface-active: #DDE2E9;
+  --bg-row-selected: #EBF2FC;
+  --bg-row-selected-hover: #E0EBFA;
 
   --border-subtle: #ECEEF2;
   --border-default: #E3E6EB;
@@ -223,8 +227,78 @@
 }
 
 /* --------------------------------------------------------------------------
-   4. Suporte a prefers-color-scheme Automático (quando sem seleção manual)
+   4. Suporte a prefers-color-scheme Automático e Forçamento Explícito Dark
    -------------------------------------------------------------------------- */
+html[data-theme="dark"],
+[data-theme="dark"] {
+  --color-scheme: dark;
+  --bg-app: #0F1217;
+  --bg-surface: #151A21;
+  --bg-surface-elevated: #1B212A;
+  --bg-surface-hover: #222935;
+  --bg-surface-active: #28313F;
+  --bg-row-selected: #182334;
+  --bg-row-selected-hover: #1E2C42;
+
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-default: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-focus: #5B8DEF;
+
+  --text-primary: #E7EAEE;
+  --text-secondary: #9AA4B2;
+  --text-muted: #647082;
+  --text-on-accent: #FFFFFF;
+
+  --color-accent: #5B8DEF;
+  --color-accent-hover: #719EF3;
+  --color-accent-subtle: rgba(91, 141, 239, 0.12);
+  --color-accent-border: rgba(91, 141, 239, 0.28);
+
+  --verdict-green-text: #3FB68B;
+  --verdict-green-bg: rgba(63, 182, 139, 0.12);
+  --verdict-green-border: rgba(63, 182, 139, 0.24);
+
+  --verdict-yellow-text: #E0A93B;
+  --verdict-yellow-bg: rgba(224, 169, 59, 0.12);
+  --verdict-yellow-border: rgba(224, 169, 59, 0.24);
+
+  --verdict-red-text: #E5645A;
+  --verdict-red-bg: rgba(229, 100, 90, 0.12);
+  --verdict-red-border: rgba(229, 100, 90, 0.24);
+
+  --verdict-neutral-text: #9AA4B2;
+  --verdict-neutral-bg: rgba(154, 164, 178, 0.10);
+  --verdict-neutral-border: rgba(154, 164, 178, 0.20);
+
+  --signal-bullish-text: #70A2F3;
+  --signal-bullish-bg: rgba(112, 162, 243, 0.12);
+  --signal-bullish-border: rgba(112, 162, 243, 0.24);
+
+  --signal-bearish-text: #C491EC;
+  --signal-bearish-bg: rgba(196, 145, 236, 0.12);
+  --signal-bearish-border: rgba(196, 145, 236, 0.24);
+
+  --signal-neutral-text: #8E9BAE;
+  --signal-neutral-bg: rgba(142, 155, 174, 0.10);
+  --signal-neutral-border: rgba(142, 155, 174, 0.20);
+
+  --series-price: #70A2F3;
+  --series-bazin: #2DD4BF;
+  --series-consenso: #A3E635;
+  --series-barsi: #FB923C;
+  --series-graham: #C084FC;
+  --series-gordon: #F472B6;
+  --series-grid: rgba(255, 255, 255, 0.05);
+  --series-axis: #647082;
+  --series-area-fill: rgba(112, 162, 243, 0.08);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.40);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.50);
+  --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     --color-scheme: light;
@@ -233,6 +307,8 @@
     --bg-surface-elevated: #F0F2F5;
     --bg-surface-hover: #E7EBF0;
     --bg-surface-active: #DDE2E9;
+    --bg-row-selected: #EBF2FC;
+    --bg-row-selected-hover: #E0EBFA;
 
     --border-subtle: #ECEEF2;
     --border-default: #E3E6EB;

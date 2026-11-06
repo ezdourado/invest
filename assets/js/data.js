@@ -514,10 +514,10 @@ function inicializarTema() {
 
 function aplicarTema(tema, persistir = true) {
   const ehLight = tema === 'light';
-  if (ehLight) {
-    document.documentElement.setAttribute('data-theme', 'light');
-  } else {
-    document.documentElement.removeAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', ehLight ? 'light' : 'dark');
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) {
+    metaTheme.setAttribute('content', ehLight ? '#F6F7F9' : '#0F1217');
   }
   const btn = $('#btn-toggle-theme');
   if (btn) {
@@ -533,7 +533,11 @@ function aplicarTema(tema, persistir = true) {
 }
 
 function alternarTema() {
-  const atual = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  const attr = document.documentElement.getAttribute('data-theme');
+  let atual = attr === 'light' || attr === 'dark' ? attr : null;
+  if (!atual) {
+    atual = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+  }
   aplicarTema(atual === 'light' ? 'dark' : 'light', true);
 }
 
@@ -1219,7 +1223,7 @@ function htmlComparativoModelos(a) {
   return `
     <div class="d-block">
       <div class="d-section-title">Preço vs. valor justo por modelo</div>
-      <svg class="vsvg" viewBox="0 0 420 ${totalH}" width="420" height="${totalH}" role="img" aria-label="Comparativo entre preço atual e preços-teto">
+      <svg class="vsvg" viewBox="0 0 420 ${totalH}" width="100%" height="${totalH}" style="max-width: 100%; height: auto; display: block;" role="img" aria-label="Comparativo entre preço atual e preços-teto">
         ${linhasSvg}
         <line x1="${xPreco}" y1="6" x2="${xPreco}" y2="${totalH - 8}" stroke="var(--text-strong)" stroke-width="2" stroke-dasharray="3 2" />
       </svg>
@@ -1316,7 +1320,7 @@ function htmlHistoricoDpaAnual(porAno) {
   return `
     <div class="d-sub-chart">
       <div class="d-sub-title">Proventos recorrentes por ano civil da data-com (R$)</div>
-      <svg class="vsvg" viewBox="0 0 ${svgW} 84" width="${svgW}" height="84" role="img" aria-label="Histórico de proventos por ano civil">
+      <svg class="vsvg" viewBox="0 0 ${svgW} 84" width="${svgW}" height="84" style="max-width: 100%; height: auto; display: block;" role="img" aria-label="Histórico de proventos por ano civil">
         ${colsSvg}
       </svg>
     </div>`;
