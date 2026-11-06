@@ -9,7 +9,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-from engine.schemas import Ativo, Dividendo, ResultadoAtivo, Saida
+from engine.schemas import Ativo, Dividendo, PontoLucro, ResultadoAtivo, Saida
 from engine.sources import (
     CAMINHO_TICKERS_PADRAO,
     carregar_tickers_json,
@@ -24,9 +24,11 @@ from engine.valuation import (
     eh_setor_besst,
     gordon,
     graham,
+    dpa_ultimos_12m,
     margem,
-    proporcao_abaixo_teto,
+    proporcao_abaixo_teto_dinamico,
     ranking_greenblatt,
+    teto_por_ano_historico,
     resolver_categoria_ativo,
     veredito_bazin,
 )
@@ -53,11 +55,39 @@ def _compactar_vetores_historico(json_str: str) -> str:
         r'{ \1 \2 \3 \4 }',
         compactado,
     )
+    compactado = re.sub(
+        r'("(?:por_ano|por_ano_total|anos_atipicos|teto_por_ano)": \{)([^\{\}]*?)(\})',
+        lambda m: m.group(1) + " ".join(l.strip() for l in m.group(2).splitlines() if l.strip()) + m.group(3),
+        compactado,
+    )
     return re.sub(
         r'\{\s+("ano": \d+,[\s\S]*?"tipo": "[^"]+")\s+\}',
         lambda m: '{ ' + re.sub(r'\s+', ' ', m.group(1).strip()) + ' }',
         compactado,
     )
+
+
+def payout_medio_historico(
+    dpa_recorrente_5a: float,
+    historico_lucros: list[PontoLucro],
+    lpa_atual: Optional[float],
+) -> float:
+    """Payout de longo prazo = DPA recorrente médio ÷ LPA médio dos anos fechados disponíveis.
+
+    Usa os LPAs anuais do histórico (até 5); sem pelo menos 2 anos positivos, cai para
+    DPA 5a ÷ LPA atual. O resultado é limitado a [25%, 95%] para evitar projeções absurdas
+    em anos de lucro deprimido; sem dados, assume 50%.
+    """
+    lpas = [p.lpa for p in historico_lucros if p.tipo == "anual" and p.lpa is not None]
+    lpas = lpas[-5:]
+    base: Optional[float] = None
+    if len(lpas) >= 2 and sum(lpas) / len(lpas) > 0:
+        base = dpa_recorrente_5a / (sum(lpas) / len(lpas))
+    elif lpa_atual is not None and lpa_atual > 0:
+        base = dpa_recorrente_5a / lpa_atual
+    if base is None or base <= 0:
+        return 0.50
+    return round(max(0.25, min(0.95, base)), 4)
 
 
 def construir_saida(
@@ -105,31 +135,42 @@ def construir_saida(
             dividendos=ativo.dividendos,
             preco=ativo.preco,
             ano_referencia=ano_ref,
+            data_referencia=hoje_b3,
         )
+        tetos_ano = teto_por_ano_historico(ativo.dividendos, ano_inicial=ano_ref - 10, ano_final=ano_ref)
+        bazin_res = bazin_res.model_copy(update={"teto_por_ano": {str(a): v for a, v in tetos_ano.items()}})
 
         vi_graham = graham(ativo.fundamentos.lpa, ativo.fundamentos.vpa)
         m_graham = margem(vi_graham, ativo.preco) if vi_graham is not None else None
 
+        gb_info = mapa_greenblatt.get(ativo.ticker)
+        f = ativo.fundamentos
+
+        # Payout calculado internamente: proventos com data-com nos últimos 12 meses ÷ LPA 12m
+        # (Fundamentus). O `payoutRatio` do Yahoo para a B3 é inconsistente (ex.: 1.684% na VALE3).
+        total_12m, _ = dpa_ultimos_12m(ativo.dividendos, hoje_b3)
+        payout_calc: Optional[float] = None
+        if f.lpa is not None and f.lpa > 0:
+            payout_calc = round(total_12m / f.lpa, 4)
+
+        g_calc = f.g_perpetuidade
+        if f.roe is not None and f.roe > 0 and payout_calc is not None and 0 <= payout_calc < 1:
+            g_calc = min(0.045, max(0.0, round(f.roe * (1 - payout_calc), 4)))
+
         preco_gordon = gordon(
             dpa=bazin_res.dpa_sem_extra,
             taxa_desconto=taxa_desconto_gordon,
-            g_perpetuidade=ativo.fundamentos.g_perpetuidade,
+            g_perpetuidade=g_calc,
         )
         m_gordon = margem(preco_gordon, ativo.preco) if preco_gordon is not None else None
 
-        gb_info = mapa_greenblatt.get(ativo.ticker)
-        f = ativo.fundamentos
-        payout_calc = f.payout
-        if payout_calc is None and f.lpa is not None and f.lpa > 0 and bazin_res.dpa_sem_extra >= 0:
-            payout_calc = round(bazin_res.dpa_sem_extra / f.lpa, 4)
-
-        # Projeção de Tetos: Consenso Mercado e Fundamentalista Barsi/AGF
-        payout_base = payout_calc
-        if payout_base is None or payout_base < 0.15 or payout_base > 0.95:
-            if f.lpa is not None and f.lpa > 0 and bazin_res.dpa_sem_extra > 0:
-                payout_base = max(0.25, min(0.85, round(bazin_res.dpa_sem_extra / f.lpa, 4)))
-            else:
-                payout_base = 0.50
+        # Projeção de Tetos (direcional, nunca entra no veredito): lucro × payout MÉDIO histórico.
+        # Não pode usar o payout de 12 meses: LPA × (DPA 12m ÷ LPA) devolveria o próprio DPA 12m.
+        payout_base = payout_medio_historico(
+            dpa_recorrente_5a=bazin_res.dpa_sem_extra,
+            historico_lucros=ativo.historico_lucros,
+            lpa_atual=f.lpa,
+        )
 
         # 1. Consenso Mercado (forward_eps * payout)
         dpa_consenso = None
@@ -161,7 +202,7 @@ def construir_saida(
             "margem_projetada_barsi": m_barsi,
         })
 
-        fund_out = f.model_copy(update={"payout": payout_calc})
+        fund_out = f.model_copy(update={"payout": payout_calc, "g_perpetuidade": g_calc})
         categoria_resolvida = resolver_categoria_ativo(ativo.setor, ativo.categoria)
 
         sustentabilidade = avaliar_sustentabilidade(
@@ -181,7 +222,7 @@ def construir_saida(
 
         mp_ativo = mapas_pontos.get(ativo.ticker)
         serie_alinhada: list[Optional[float]] = []
-        serie_5a_calculo: list[Optional[float]] = []
+        pontos_5a: list[tuple[str, Optional[float]]] = []
         if historico_datas and mp_ativo:
             ultimo_conhecido: Optional[float] = None
             for dt_iso in historico_datas:
@@ -189,9 +230,10 @@ def construir_saida(
                     ultimo_conhecido = mp_ativo[dt_iso]
                 serie_alinhada.append(ultimo_conhecido)
                 if dt_iso >= data_corte_5a_iso:
-                    serie_5a_calculo.append(ultimo_conhecido)
+                    pontos_5a.append((dt_iso, ultimo_conhecido))
 
-        pct_abaixo = proporcao_abaixo_teto(serie_5a_calculo or serie_alinhada, bazin_res.teto) if serie_alinhada else None
+        # Cada cotação é comparada ao teto vigente na sua própria data (não ao teto de hoje).
+        pct_abaixo = proporcao_abaixo_teto_dinamico(pontos_5a, tetos_ano) if pontos_5a else None
 
         proventos_5a = sorted(
             [
@@ -294,6 +336,7 @@ def aplicar_cotacoes(
             "veredito": veredito_bazin(b.teto, preco),
             "margem_projetada_consenso": margem(b.teto_projetado_consenso, preco) if b.teto_projetado_consenso else None,
             "margem_projetada_barsi": margem(b.teto_projetado_barsi, preco) if b.teto_projetado_barsi else None,
+            "margem_12m": margem(b.teto_12m, preco) if b.teto_12m else None,
         })
 
         fund = a.fundamentos

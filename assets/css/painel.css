@@ -4643,3 +4643,60 @@ html[data-theme="light"] .vt tbody tr.row.is-selected td.c-ticker {
 }
 
 
+
+/* ---------- Ficha de realidade do dividendo (gaveta de detalhe) ---------- */
+.frd-tetos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.frd-teto {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.frd-teto.is-oficial { border-color: var(--border-strong); background: var(--surface); }
+.frd-teto-nome { font-size: 12px; font-weight: 500; color: var(--muted); }
+.frd-teto-valor { font-size: 16px; font-weight: 600; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.frd-teto-margem { font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.frd-teto-sub { font-size: 12px; color: var(--muted); }
+.frd-alerta {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border-left: 3px solid var(--border-strong);
+  background: var(--surface);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+}
+.frd-alerta.is-risco { border-left-color: var(--red); }
+.frd-alerta.is-aviso { border-left-color: var(--yellow); }
+.frd-alerta.is-info { border-left-color: var(--accent); }
+.frd-svg { display: block; height: auto; overflow: visible; margin-top: 6px; }
+.frd-base { stroke: var(--border-strong); stroke-width: 1; }
+.frd-eixo { fill: var(--muted); font-family: var(--mono); font-size: 11px; }
+.frd-bar-janela { fill: #06b6d4; }
+.frd-bar-rec { fill: #06b6d4; opacity: 0.4; }
+.frd-bar-extra { fill: var(--yellow); }
+.frd-bar-parcial { fill: #06b6d4; opacity: 0.18; stroke: #06b6d4; stroke-dasharray: 2 2; }
+.frd-linha-5a { stroke: var(--text-strong); stroke-width: 1; stroke-dasharray: 4 3; }
+.frd-linha-12m { stroke: var(--red); stroke-width: 1.5; }
+.frd-rotulo-5a, .frd-rotulo-12m { font-family: var(--mono); font-size: 11px; font-weight: 500; }
+.frd-rotulo-5a { fill: var(--text-strong); }
+.frd-rotulo-12m { fill: var(--red); }
+.frd-legenda { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 12px; color: var(--muted); }
+.frd-legenda span { display: inline-flex; align-items: center; gap: 5px; }
+.frd-sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+.frd-sw.frd-bar-janela { background: #06b6d4; }
+.frd-sw.frd-bar-rec { background: #06b6d4; opacity: 0.4; }
+.frd-sw.frd-bar-extra { background: var(--yellow); }
+.frd-sw.frd-bar-parcial { background: transparent; border: 1px dashed #06b6d4; }
+@media (max-width: 480px) {
+  .frd-tetos { grid-template-columns: 1fr; }
+}
