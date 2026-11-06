@@ -103,8 +103,9 @@ function evaluateBazinClassic({ dpaMode, directDpa, yearsDpa, price, hasDyMedio,
   const precoTeto = dpa / kDecimal;
   const margemSeguranca = precoTeto > 0 ? (((precoTeto - price) / precoTeto) * 100) : -100;
 
-  const levOk = isBank || debtEbitda <= 2.5;
-  const levCritica = !isBank && debtEbitda > 3.5;
+  // Mesmas faixas do motor (pilar de alavancagem do Score Anti-Cilada): até 3,2x ok, acima de 4,2x crítico.
+  const levOk = isBank || debtEbitda <= 3.2;
+  const levCritica = !isBank && debtEbitda > 4.2;
   const precoSobTeto = price <= precoTeto;
   const dyHistOk = !hasDyMedio || dyMedio >= 6.0;
 
