@@ -6,6 +6,9 @@ const STORAGE_KEY_PAINEL_TICKERS = 'painel_valuation_selected_tickers';
 const STORAGE_KEY_PAINEL_SORT = 'painel_valuation_sort';
 const STORAGE_KEY_PAINEL_DENSITY = 'painel_valuation_density';
 const STORAGE_KEY_THEME = 'painel_valuation_theme';
+const STORAGE_KEY_COLUNAS = 'painel_valuation_colunas_ajustes';
+const STORAGE_KEY_TRIAGEM = 'painel_valuation_triagem';
+const COLUNAS_OPCIONAIS = ['dpa', 'falta', 'sustent', 'tend', 'alt', 'tec', 'graham', 'gordon', 'gb'];
 const DIAS_BASE_DESATUALIZADA = 3;
 const PREGAO_INICIO_MIN = 10 * 60;            // 10h00 BRT
 const PREGAO_FIM_MIN = 18 * 60;               // 18h00 BRT
@@ -178,7 +181,8 @@ const OPCOES_ORDENACAO = [
   { key: 'margem', dir: 'desc', label: 'Maior margem Bazin' },
   { key: 'margem_consenso', dir: 'desc', label: 'Maior margem Projetada (Consenso)' },
   { key: 'margem_barsi', dir: 'desc', label: 'Maior margem Projetada (Barsi/AGF)' },
-  { key: 'faltateto', dir: 'desc', label: 'Maior folga até o teto (R$)' },
+  { key: 'faltateto', dir: 'desc', label: 'Menor Preço / Teto' },
+  { key: 'tendencia', dir: 'asc', label: 'Maior queda do dividendo (12m / 5a)' },
   { key: 'sustentabilidade', dir: 'desc', label: 'Maior Score Anti-Cilada' },
   { key: 'margem', dir: 'asc', label: 'Menor margem Bazin' },
   { key: 'dy', dir: 'desc', label: 'Maior DPA / preço' },
@@ -196,6 +200,7 @@ const painelState = {
   filtroSetor: 'todos',
   filtroVeredito: 'todos',
   filtroTech: 'todos',
+  triagem: 'todas',
   termo: '',
   sort: { key: 'margem', dir: 'desc' },
   densidade: 'confortavel',
@@ -604,7 +609,9 @@ function valorOrdenacao(a, key) {
     case 'preco': return a.preco;
     case 'dpa': return a.bazin?.dpa_sem_extra;
     case 'teto': return a.bazin?.teto > 0 ? a.bazin.teto : null;
-    case 'faltateto': return diferencaAteTeto(a);
+    // Ordem decrescente = mais barato frente ao teto primeiro (menor Preço/Teto).
+    case 'faltateto': return a.bazin?.teto > 0 && a.preco > 0 ? -(a.preco / a.bazin.teto) : null;
+    case 'tendencia': return a.bazin?.razao_12m_5a;
     case 'margem': return a.bazin?.teto > 0 ? a.bazin?.margem_seguranca : null;
     case 'margem_consenso': return a.margem_consenso ?? a.bazin?.margem_projetada_consenso;
     case 'margem_barsi': return a.margem_barsi ?? a.bazin?.margem_projetada_barsi;
@@ -634,12 +641,81 @@ function ordenar(lista) {
   });
 }
 
+/* ---------- Triagens prontas (fluxo Bazin) ---------- */
+
+function margemAtivo(a) {
+  return a.bazin?.teto > 0 && valido(a.bazin?.margem_seguranca) ? a.bazin.margem_seguranca : null;
+}
+
+function dividendoSemQueda(a) {
+  const r = a.bazin?.razao_12m_5a;
+  return !valido(r) || r >= 0.7;
+}
+
+// Abaixo do teto + score Forte/Moderado + dividendo recente sem queda.
+function passaFiltroQualidade(a) {
+  const nivel = a.sustentabilidade?.nivel;
+  return a.bazin?.veredito === 'verde' && (nivel === 'forte' || nivel === 'moderado') && dividendoSemQueda(a);
+}
+
+function diasAteDataCom(a) {
+  const dc = a.proxima_data_com?.data_com;
+  if (!dc) return null;
+  const hoje = new Date(hojeIsoSaoPaulo() + 'T12:00:00Z');
+  const alvo = new Date(String(dc).slice(0, 10) + 'T12:00:00Z');
+  return Math.round((alvo - hoje) / 86400000);
+}
+
+const TRIAGENS = {
+  todas: { rotulo: 'Todas', filtro: () => true },
+  classico: {
+    rotulo: 'Bazin clássico',
+    tip: 'Abaixo do teto, pagou nos 5 anos fechados, Score Anti-Cilada ≥ 75 e dividendo dos últimos 12 meses ≥ 70% da média.',
+    filtro: a => a.bazin?.veredito === 'verde' && (a.sustentabilidade?.anos_pagos_5a ?? 0) >= 5 && (a.sustentabilidade?.nota ?? 0) >= 75 && dividendoSemQueda(a)
+  },
+  qualificada: {
+    rotulo: 'Oportunidades qualificadas',
+    tip: 'Abaixo do teto, Score Anti-Cilada Forte ou Moderado e dividendo recente sem queda.',
+    filtro: passaFiltroQualidade
+  },
+  armadilha: {
+    rotulo: 'Possíveis armadilhas',
+    tip: 'Margem ≥ 15% (parece barato), mas o dividendo dos últimos 12 meses caiu abaixo de 70% da média ou o Score Anti-Cilada está em Risco.',
+    filtro: a => (margemAtivo(a) ?? -9) >= 0.15 && (!dividendoSemQueda(a) || a.sustentabilidade?.nivel === 'alerta')
+  },
+  perto: {
+    rotulo: 'Perto do teto (±5%)',
+    tip: 'Margem entre −5% e +5%: candidatos a entrar ou sair da zona de compra.',
+    filtro: a => { const m = margemAtivo(a); return m !== null && m >= -0.05 && m <= 0.05; }
+  },
+  datacom: {
+    rotulo: 'Data-com em até 15 dias',
+    tip: 'Data-com anunciada nos próximos 15 dias e preço abaixo do teto.',
+    filtro: a => { const d = diasAteDataCom(a); return d !== null && d >= 0 && d <= 15 && (margemAtivo(a) ?? -9) >= 0; }
+  },
+  mudou: {
+    rotulo: 'Mudou desde o último pregão',
+    tip: 'Papéis que mudaram de faixa (veredito) ou tiveram o teto recalculado desde o fechamento anterior.',
+    filtro: a => !!htmlMudancaPregao(a)
+  }
+};
+
+function definirTriagem(id) {
+  painelState.triagem = TRIAGENS[id] ? id : 'todas';
+  gravarStorage(STORAGE_KEY_TRIAGEM, painelState.triagem);
+  const sel = $('#select-triagem');
+  if (sel) sel.value = painelState.triagem;
+  renderizarTabela();
+}
+
 function ativosVisiveis() {
   const q = painelState.termo.trim().toLowerCase();
   const fv = painelState.filtroVeredito;
   const ft = painelState.filtroTech || 'todos';
+  const triagem = TRIAGENS[painelState.triagem] || TRIAGENS.todas;
   const lista = ativosSelecionados().filter(a => {
     if (!passaFiltroSetor(a)) return false;
+    if (!triagem.filtro(a)) return false;
     if (fv !== 'todos') {
       if (fv === 'bullish' || fv === 'bearish') {
         const t = calcularAnaliseTecnica(a);
@@ -741,9 +817,18 @@ function renderizarKpis() {
   const comBazin = sel.filter(a => valido(a.bazin?.margem_seguranca) && a.bazin?.teto > 0);
   const medMargem = mediana(comBazin.map(a => a.bazin.margem_seguranca));
   const ordenadosMargem = [...comBazin].sort((a, b) => b.bazin.margem_seguranca - a.bazin.margem_seguranca);
-  const melhor = ordenadosMargem[0] || null;
+  // Melhor oportunidade = maior margem entre os que passam no filtro de qualidade do dividendo:
+  // abaixo do teto, score Forte/Moderado e dividendo recente sem queda (12m ≥ 70% da média 5a).
+  const qualificados = ordenadosMargem.filter(passaFiltroQualidade);
+  const melhor = qualificados[0] || null;
   const pior = ordenadosMargem.length ? ordenadosMargem[ordenadosMargem.length - 1] : null;
   const pctCompra = total ? Math.round((cont.verde / total) * 100) : 0;
+  const mud = mudancasDesdePregao(sel);
+  const temSnapshot = !!mud.dataRef;
+  const qtdMud = mud.entraram.length + mud.sairam.length + mud.tetoMudou.length;
+  const linhaMud = (rotulo, lista, cls) => lista.length
+    ? `<span class="${cls}">${rotulo}: ${lista.slice(0, 4).map(esc).join(', ')}${lista.length > 4 ? ` +${lista.length - 4}` : ''}</span>`
+    : '';
 
   el.innerHTML = `
     <div class="kpi is-clickable" data-kpi-verdict="verde" data-tip="Clique para filtrar apenas os papéis negociados abaixo do preço-teto Bazin">
@@ -752,28 +837,34 @@ function renderizarKpis() {
         <span class="verdict verdict-verde"><span class="verdict-icon" aria-hidden="true">▲</span>${pctCompra}%</span>
       </div>
       <div class="kpi-value t-green">${cont.verde}<span class="kpi-value-sub">de ${total} papéis</span></div>
-      <div class="kpi-foot">${cont.amarelo} próximos do teto · ${cont.vermelho} acima do teto</div>
+      <div class="kpi-foot">${cont.amarelo} próximos · ${cont.vermelho} acima do teto · margem mediana <span class="mono ${classeMargem(medMargem)}">${fmtPct(medMargem)}</span></div>
     </div>
 
-    <div class="kpi ${melhor ? 'is-clickable' : ''}" ${melhor ? `data-kpi-detail="${esc(melhor.ticker)}"` : ''} data-tip="Ativo selecionado com a maior margem de segurança Bazin. Clique para abrir o Raio-X.">
+    <div class="kpi ${melhor ? 'is-clickable' : ''}" ${melhor ? `data-kpi-detail="${esc(melhor.ticker)}"` : ''} data-tip="Maior margem Bazin entre os papéis que passam no filtro de qualidade: abaixo do teto, Score Anti-Cilada Forte ou Moderado e dividendo dos últimos 12 meses ≥ 70% da média de 5 anos. Clique para abrir o Raio-X.">
       <div class="kpi-label">
-        <span>Melhor oportunidade</span>
+        <span>Melhor oportunidade qualificada</span>
         ${melhor ? `<span class="mono t-green">${fmtPct(melhor.bazin.margem_seguranca)}</span>` : ''}
       </div>
       <div class="kpi-value">${melhor ? esc(melhor.ticker) : '—'}</div>
-      <div class="kpi-foot">${melhor ? `Preço ${fmtReal(melhor.preco)} vs. Teto ${fmtReal(melhor.bazin.teto)}` : 'Selecione ativos para comparar'}</div>
+      <div class="kpi-foot">${melhor
+        ? `Preço ${fmtReal(melhor.preco)} vs. Teto ${fmtReal(melhor.bazin.teto)} · score ${melhor.sustentabilidade?.nota ?? '—'}`
+        : (comBazin.length ? 'Nenhum papel abaixo do teto passa no filtro de qualidade' : 'Selecione ativos para comparar')}</div>
     </div>
 
-    <div class="kpi" data-tip="Mediana da margem de segurança Bazin = (Teto − Preço) ÷ Teto entre os papéis com teto Bazin calculado">
-      <div class="kpi-label"><span>Margem Bazin mediana</span></div>
-      <div class="kpi-value ${classeMargem(medMargem)}">${fmtPct(medMargem)}</div>
-      <div class="kpi-foot">${comBazin.length} de ${total} papéis com DPA 5a recorrente</div>
+    <div class="kpi ${qtdMud ? 'is-clickable' : ''}" ${qtdMud ? 'data-kpi-triagem="mudou"' : ''} data-tip="${temSnapshot ? `Mudanças desde o fechamento do pregão de ${esc(fmtDataIso(mud.dataRef))}: papéis que entraram ou saíram da zona de compra e tetos recalculados (novo provento ou revisão). Clique para filtrar.` : 'A comparação com o pregão anterior aparece a partir do primeiro ciclo do próximo pregão.'}">
+      <div class="kpi-label"><span>Mudou desde o último pregão</span>${temSnapshot ? `<span class="mono t-dim">${esc(fmtDataIso(mud.dataRef).slice(0, 5))}</span>` : ''}</div>
+      <div class="kpi-value">${temSnapshot ? qtdMud : '—'}<span class="kpi-value-sub">${temSnapshot ? (qtdMud === 1 ? 'mudança' : 'mudanças') : ''}</span></div>
+      <div class="kpi-foot kpi-foot-stack">${temSnapshot
+        ? (qtdMud
+          ? [linhaMud('Entraram', mud.entraram, 't-green'), linhaMud('Saíram', mud.sairam, 't-red'), linhaMud('Teto mudou', mud.tetoMudou, 't-yellow')].filter(Boolean).join('')
+          : 'Nenhum papel mudou de faixa nem de teto')
+        : 'Disponível a partir do próximo pregão'}</div>
     </div>
 
-    <div class="kpi ${pior ? 'is-clickable' : ''}" ${pior ? `data-kpi-detail="${esc(pior.ticker)}"` : ''} data-tip="Ativo selecionado mais distante acima do preço-teto Bazin. Clique para abrir o Raio-X.">
+    <div class="kpi ${pior ? 'is-clickable' : ''}" ${pior ? `data-kpi-detail="${esc(pior.ticker)}"` : ''} data-tip="Papel do painel mais caro em relação ao próprio teto Bazin (maior Preço ÷ Teto). Não é medida de risco do negócio. Clique para abrir o Raio-X.">
       <div class="kpi-label">
-        <span>Maior risco / mais caro</span>
-        ${pior ? `<span class="mono ${classeMargem(pior.bazin.margem_seguranca)}">${fmtPct(pior.bazin.margem_seguranca)}</span>` : ''}
+        <span>Mais esticado</span>
+        ${pior ? `<span class="mono ${classeMargem(pior.bazin.margem_seguranca)}">${fmtMultiplo(pior.preco / pior.bazin.teto)} o teto</span>` : ''}
       </div>
       <div class="kpi-value">${pior ? esc(pior.ticker) : '—'}</div>
       <div class="kpi-foot">${pior ? `Preço ${fmtReal(pior.preco)} vs. Teto ${fmtReal(pior.bazin.teto)}` : 'Sem dados no painel'}</div>
@@ -920,22 +1011,86 @@ function htmlVeredito(v) {
   return `<span class="verdict verdict-${k}"><span class="verdict-icon" aria-hidden="true">${ICONE_VEREDITO[k]}</span><span>${ROTULO_VEREDITO[k]}</span></span>`;
 }
 
-function htmlSubTetosProjetados(a) {
-  const tc = a.teto_consenso ?? a.bazin?.teto_projetado_consenso;
-  const tb = a.teto_barsi ?? a.bazin?.teto_projetado_barsi;
-  if (!tc && !tb) return '';
-  const mc = a.margem_consenso ?? a.bazin?.margem_projetada_consenso;
-  const mb = a.margem_barsi ?? a.bazin?.margem_projetada_barsi;
+function fmtMultiplo(v) {
+  if (!valido(v)) return '—';
+  return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '×';
+}
 
-  const tipCons = tc ? `Consenso Mercado: ${fmtReal(tc)} (${mc != null ? (mc >= 0 ? '+' : '') + Math.round(mc * 100) + '%' : '—'})` : '';
-  const tipBarsi = tb ? `Fundamentalista Barsi/AGF: ${fmtReal(tb)} (${mb != null ? (mb >= 0 ? '+' : '') + Math.round(mb * 100) + '%' : '—'})` : '';
-
+/* Preço ÷ Teto com marcador: escala de 0 a 2× o teto, traço central = teto */
+function htmlPrecoTeto(a, falta) {
+  const teto = a.bazin?.teto;
+  if (!(teto > 0) || !(a.preco > 0)) return '<span class="t-dim">—</span>';
+  const r = a.preco / teto;
+  const cls = r <= 1 ? 't-green' : (r <= 1.0526 ? 't-yellow' : 't-red');
+  const cor = r <= 1 ? 'var(--green)' : (r <= 1.0526 ? 'var(--yellow)' : 'var(--red)');
+  const W = 72;
+  const x = Math.max(3, Math.min(W - 3, (Math.min(r, 2) / 2) * W));
+  const tip = `Preço ${fmtReal(a.preco)} = ${fmtMultiplo(r)} o teto ${fmtReal(teto)} · ${valido(falta) ? (falta >= 0 ? `faltam ${fmtReal(falta)} de folga` : `${fmtReal(-falta)} acima do teto`) : ''}${r > 2 ? ' (fora da escala: acima de 2×)' : ''}`;
   return `
-    <div class="sub-tetos-wrap">
-      ${tc ? `<span class="sub-teto sub-teto-consenso" data-tip="${esc(tipCons)}">Cons. <strong>${fmtReal(tc)}</strong></span>` : ''}
-      ${tb ? `<span class="sub-teto sub-teto-barsi" data-tip="${esc(tipBarsi)}">Barsi <strong>${fmtReal(tb)}</strong></span>` : ''}
-    </div>
-  `;
+    <div class="pt-cell" data-tip="${esc(tip)}">
+      <span class="mono ${cls}">${fmtMultiplo(r)}</span>
+      <svg class="pt-svg" width="${W}" height="8" viewBox="0 0 ${W} 8" aria-hidden="true">
+        <rect x="0" y="3" width="${W}" height="2" rx="1" fill="var(--border-strong)" />
+        <line x1="${W / 2}" y1="0" x2="${W / 2}" y2="8" stroke="var(--text-strong)" stroke-width="1" />
+        <circle cx="${x}" cy="4" r="3" fill="${cor}" />
+      </svg>
+    </div>`;
+}
+
+/* DPA 12m ÷ DPA 5a: alerta de dividendo recente em queda */
+function htmlTendenciaDividendo(a) {
+  const r = a.bazin?.razao_12m_5a;
+  if (!valido(r)) return '<span class="t-dim">—</span>';
+  let cls = 't-green';
+  let rotulo = 'estável';
+  if (r < 0.7) { cls = 't-red'; rotulo = 'em queda'; }
+  else if (r < 0.95) { cls = 't-yellow'; rotulo = 'oscilando'; }
+  else if (r > 1.3) { cls = ''; rotulo = 'acima da média'; }
+  const tip = `Últimos 12 meses: ${fmtReal(a.bazin.dpa_12m)} vs. média 5a ${fmtReal(a.bazin.dpa_sem_extra)} (${fmtPctSimples(r, 0)}): ${rotulo}`;
+  return `<div class="cell-stack" data-tip="${esc(tip)}"><span class="mono ${cls}">${fmtPctSimples(r, 0)}</span><span class="cell-sub">${rotulo}</span></div>`;
+}
+
+function htmlTetosAlternativos(a) {
+  const b = a.bazin || {};
+  const tl = a.teto_barsi ?? b.teto_projetado_barsi;
+  const linha = (rotulo, v, tip) => valido(v) && v > 0
+    ? `<span class="alt-teto" data-tip="${esc(tip)}"><span class="cell-sub">${rotulo}</span> <span class="mono ${classeMargem((v - a.preco) / v)}">${fmtReal(v)}</span></span>`
+    : '';
+  const html = linha('12m', b.teto_12m, 'Teto 12 meses: DPA dos últimos 12 meses ÷ 6%') +
+    linha('Lucro', tl, 'Teto pelo lucro: LPA atual × payout médio histórico ÷ 6% (direcional)');
+  return html ? `<div class="cell-stack">${html}</div>` : '<span class="t-dim">—</span>';
+}
+
+/* Selo de mudança desde o fechamento do pregão anterior (veredito ou teto) */
+function htmlMudancaPregao(a) {
+  const ant = a.anterior;
+  const b = a.bazin || {};
+  if (!ant || !(b.teto > 0)) return '';
+  if (ant.veredito !== b.veredito) {
+    const entrou = b.veredito === 'verde';
+    return `<span class="tag tag-mudou ${entrou ? 'is-entrou' : 'is-saiu'}" data-tip="Desde o pregão de ${esc(fmtDataIso(ant.data))}: ${esc(ROTULO_VEREDITO[ant.veredito] || ant.veredito)} → ${esc(ROTULO_VEREDITO[b.veredito] || b.veredito)} (preço ${fmtReal(ant.preco)} → ${fmtReal(a.preco)})">${entrou ? 'Entrou' : 'Mudou'}</span>`;
+  }
+  if (ant.teto > 0 && Math.abs(b.teto - ant.teto) / ant.teto > 0.005) {
+    return `<span class="tag tag-mudou is-teto" data-tip="Teto mudou desde o pregão de ${esc(fmtDataIso(ant.data))}: ${fmtReal(ant.teto)} → ${fmtReal(b.teto)} (novo provento ou revisão do histórico)">Teto Δ</span>`;
+  }
+  return '';
+}
+
+function mudancasDesdePregao(lista) {
+  const entraram = [];
+  const sairam = [];
+  const tetoMudou = [];
+  let dataRef = null;
+  lista.forEach(a => {
+    const ant = a.anterior;
+    const b = a.bazin || {};
+    if (!ant || !(b.teto > 0)) return;
+    dataRef = dataRef || ant.data;
+    if (ant.veredito !== 'verde' && b.veredito === 'verde') entraram.push(a.ticker);
+    else if (ant.veredito === 'verde' && b.veredito !== 'verde') sairam.push(a.ticker);
+    if (ant.teto > 0 && Math.abs(b.teto - ant.teto) / ant.teto > 0.005) tetoMudou.push(a.ticker);
+  });
+  return { entraram, sairam, tetoMudou, dataRef };
 }
 
 /* Barra divergente centrada no zero via SVG (sem style inline) */
@@ -1049,6 +1204,7 @@ function renderizarChipsFiltro() {
   const el = $('#active-filters');
   if (!el) return;
   const chips = [];
+  if (painelState.triagem && painelState.triagem !== 'todas') chips.push({ tipo: 'triagem', label: `Triagem: ${TRIAGENS[painelState.triagem]?.rotulo || painelState.triagem}` });
   if (painelState.filtroSetor !== 'todos') chips.push({ tipo: 'setor', label: `Setor: ${nomeSetor(painelState.filtroSetor)}` });
   if (painelState.filtroVeredito !== 'todos') chips.push({ tipo: 'veredito', label: `Situação: ${ROTULO_VEREDITO[painelState.filtroVeredito]}` });
   if (painelState.filtroTech && painelState.filtroTech !== 'todos') chips.push({ tipo: 'tech', label: `Técnica: ${painelState.filtroTech === 'bullish' ? 'Bullish' : 'Bearish'}` });
@@ -1079,7 +1235,7 @@ function renderizarTabela() {
 
   if (totalSel === 0) {
     tbody.innerHTML = `
-      <tr class="row-empty"><td colspan="12" class="empty">
+      <tr class="row-empty"><td colspan="15" class="empty">
         <strong>Nenhum ativo selecionado no seu painel</strong>
         Escolha as ações que deseja monitorar (setores BESST, pagadoras de dividendos ou Demais papéis).
         <div class="empty-actions">
@@ -1094,7 +1250,7 @@ function renderizarTabela() {
 
   if (lista.length === 0) {
     tbody.innerHTML = `
-      <tr class="row-empty"><td colspan="12" class="empty">
+      <tr class="row-empty"><td colspan="15" class="empty">
         <strong>Nenhum ativo corresponde ao filtro selecionado</strong>
         Ajuste o termo de busca, o setor ou a situação frente ao teto.
         <div class="empty-actions"><button type="button" class="btn btn-primary" data-empty-action="limpar-filtros">Limpar filtros</button></div>
@@ -1114,9 +1270,11 @@ function renderizarTabela() {
     const dpaCell = b.tem_extraordinario
       ? `<div class="cell-stack"><span>${fmtReal(b.dpa_sem_extra)}</span><span class="cell-sub">c/ extra ${fmtReal(b.dpa)}</span></div>`
       : fmtReal(b.dpa_sem_extra);
-    const faltaCell = valido(falta)
-      ? `<span class="${falta >= 0 ? 't-green' : 't-red'}">${fmtRealSinal(falta)}</span>`
-      : `<span class="t-dim">—</span>`;
+    const faltaCell = htmlPrecoTeto(a, falta);
+    const textoMargem = valido(m) && m < -1 && a.preco > 0
+      ? `${fmtMultiplo(a.preco / b.teto)} o teto`
+      : fmtPct(m);
+    const mudou = htmlMudancaPregao(a);
 
     const isSelected = painelState.ativoSelecionado === a.ticker;
 
@@ -1125,7 +1283,7 @@ function renderizarTabela() {
         <td class="c-ticker" data-label="Ativo">
           <div class="asset-cell-wrap">
             <div class="asset">
-              <span class="asset-ticker" ${a.empresa ? `data-tip="${esc(a.empresa)}"` : ''}>${esc(a.ticker)} ${extra} ${htmlBadgeTecnico(a)}</span>
+              <span class="asset-ticker" ${a.empresa ? `data-tip="${esc(a.empresa)}"` : ''}>${esc(a.ticker)} ${extra} ${mudou}</span>
               <span class="asset-sector">${esc(a.empresa || a.setor)} ${catTag}</span>
             </div>
             ${htmlSparkline12m(a)}
@@ -1136,18 +1294,20 @@ function renderizarTabela() {
         <td class="num c-teto" data-label="Teto Bazin">
           <div class="c-teto-stack">
             <span class="teto-val-hist">${b.teto > 0 ? fmtReal(b.teto) : '<span class="t-dim" data-tip="Sem DPA recorrente nos últimos 5 anos fechados">—</span>'}</span>
-            ${htmlSubTetosProjetados(a)}
           </div>
         </td>
-        <td class="num c-falta" data-label="Falta até o teto">${faltaCell}</td>
+        <td class="num c-falta" data-label="Preço / Teto">${faltaCell}</td>
         <td class="num c-margem" data-label="Margem Bazin">
           <div class="margin-cell" data-tip="Preço ${fmtReal(a.preco)} vs. Teto Bazin ${fmtReal(b.teto)}">
-            <span class="margin-val ${classeMargem(m)}">${fmtPct(m)}</span>
+            <span class="margin-val ${classeMargem(m)}">${textoMargem}</span>
             ${htmlBarraMargem(m)}
           </div>
         </td>
         <td class="c-verdict" data-label="Situação">${b.teto > 0 ? htmlVeredito(b.veredito) : '<span class="tag">Sem teto Bazin</span>'}</td>
         <td class="c-sustent" data-label="Anti-Cilada">${htmlSustentabilidadeTabela(a)}</td>
+        <td class="num c-tend" data-label="Div. 12m / 5a">${htmlTendenciaDividendo(a)}</td>
+        <td class="num c-alt" data-label="Tetos alternativos">${htmlTetosAlternativos(a)}</td>
+        <td class="c-tec" data-label="Técnica">${htmlBadgeTecnico(a) || '<span class="t-dim">—</span>'}</td>
         <td class="num c-graham" data-label="Graham">${valido(a.graham) ? fmtReal(a.graham) : '<span class="t-dim">—</span>'}</td>
         <td class="num c-gordon" data-label="Gordon">${valido(a.gordon) ? fmtReal(a.gordon) : '<span class="t-dim">—</span>'}</td>
         <td class="num c-gb" data-label="Greenblatt">${htmlGreenblatt(a)}</td>
@@ -1960,15 +2120,23 @@ function aplicarVisaoSalva(tipo) {
   try { localStorage.setItem('painel_valuation_saved_view', tipo); } catch(e) {}
   const tabela = $('#engine-valuation-table');
   if (!tabela) return;
-  tabela.classList.remove('hide-col-dpa', 'hide-col-falta', 'hide-col-graham', 'hide-col-gordon', 'hide-col-gb', 'hide-col-sustent');
+  COLUNAS_OPCIONAIS.forEach(c => tabela.classList.remove(`hide-col-${c}`));
 
+  // Base de toda visão: tetos alternativos e sinal técnico ficam ocultos (opcionais).
+  tabela.classList.add('hide-col-alt', 'hide-col-tec');
   if (tipo === 'valuation') {
     tabela.classList.add('hide-col-dpa', 'hide-col-gb');
+    tabela.classList.remove('hide-col-alt');
   } else if (tipo === 'dividendos') {
     tabela.classList.add('hide-col-graham', 'hide-col-gordon', 'hide-col-gb');
   } else if (tipo === 'qualidade') {
     tabela.classList.add('hide-col-dpa', 'hide-col-falta');
   }
+  // Ajustes manuais do menu "Colunas" valem sobre a visão até ela ser trocada.
+  const ajustes = lerStorage(STORAGE_KEY_COLUNAS, {});
+  Object.entries(ajustes || {}).forEach(([col, visivel]) => {
+    if (COLUNAS_OPCIONAIS.includes(col)) tabela.classList.toggle(`hide-col-${col}`, !visivel);
+  });
   sincronizarCheckboxesColunas();
 }
 
@@ -2427,7 +2595,7 @@ function exibirErro(msg) {
   );
   const tbody = $('#engine-valuation-tbody');
   if (tbody) {
-    tbody.innerHTML = `<tr class="row-empty"><td colspan="11" class="empty"><strong>Dados temporariamente indisponíveis</strong>${esc(msg)}</td></tr>`;
+    tbody.innerHTML = `<tr class="row-empty"><td colspan="15" class="empty"><strong>Dados temporariamente indisponíveis</strong>${esc(msg)}</td></tr>`;
   }
 }
 
@@ -2650,6 +2818,7 @@ function bindEventos() {
 
   // Visões Salvas & Colunas
   $('#select-saved-views')?.addEventListener('change', (e) => {
+    gravarStorage(STORAGE_KEY_COLUNAS, {}); // trocar de visão descarta ajustes manuais
     aplicarVisaoSalva(e.target.value);
   });
   $('#btn-toggle-cols-menu')?.addEventListener('click', (e) => {
@@ -2663,6 +2832,9 @@ function bindEventos() {
     const tabela = $('#engine-valuation-table');
     if (!tabela) return;
     tabela.classList.toggle(`hide-col-${col}`, !chk.checked);
+    const ajustes = lerStorage(STORAGE_KEY_COLUNAS, {}) || {};
+    ajustes[col] = chk.checked;
+    gravarStorage(STORAGE_KEY_COLUNAS, ajustes);
   });
 
   // Filtro de Análise Técnica
@@ -2820,14 +2992,24 @@ function bindEventos() {
       definirFiltroVeredito(painelState.filtroVeredito === alvo ? 'todos' : alvo);
       return;
     }
+    const t = e.target.closest('[data-kpi-triagem]');
+    if (t) {
+      const alvo = t.dataset.kpiTriagem;
+      definirTriagem(painelState.triagem === alvo ? 'todas' : alvo);
+      return;
+    }
     const d = e.target.closest('[data-kpi-detail]');
     if (d) abrirDetalhe(d.dataset.kpiDetail);
   });
+
+  $('#select-triagem')?.addEventListener('change', (e) => definirTriagem(e.target.value));
 
   $('#active-filters')?.addEventListener('click', (e) => {
     const b = e.target.closest('[data-clear-filter]');
     if (!b) return;
     const tipo = b.dataset.clearFilter;
+    if (tipo === 'triagem') definirTriagem('todas');
+    if (tipo === 'tech') definirFiltroTech('todos');
     if (tipo === 'setor') { painelState.filtroSetor = 'todos'; renderizarBesst(); renderizarTabela(); }
     if (tipo === 'veredito') definirFiltroVeredito('todos');
     if (tipo === 'termo') { painelState.termo = ''; $('#input-filter-table').value = ''; renderizarTabela(); }
@@ -2966,6 +3148,15 @@ window.addEventListener('DOMContentLoaded', () => {
   inicializarTema();
   const sortSalvo = lerStorage(STORAGE_KEY_PAINEL_SORT, null);
   if (sortSalvo?.key && sortSalvo?.dir) painelState.sort = sortSalvo;
+  const triagemSalva = lerStorage(STORAGE_KEY_TRIAGEM, 'todas');
+  painelState.triagem = TRIAGENS[triagemSalva] ? triagemSalva : 'todas';
+  const selTriagem = $('#select-triagem');
+  if (selTriagem) {
+    selTriagem.innerHTML = Object.entries(TRIAGENS)
+      .map(([id, t]) => `<option value="${id}" ${t.tip ? `title="${esc(t.tip)}"` : ''}>${id === 'todas' ? 'Triagem: Todas' : esc(t.rotulo)}</option>`)
+      .join('');
+    selTriagem.value = painelState.triagem;
+  }
   const densSalva = lerStorage(STORAGE_KEY_PAINEL_DENSITY, 'confortavel');
   painelState.densidade = densSalva === 'compacta' ? 'compacta' : 'confortavel';
   const visaoSalva = lerStorage('painel_valuation_saved_view', 'padrao');
