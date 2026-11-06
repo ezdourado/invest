@@ -4753,8 +4753,8 @@ html[data-theme="light"] .vt tbody tr.row.is-selected td.c-ticker {
 .cart-setor-row { display: grid; grid-template-columns: 112px minmax(80px, 1fr) 44px auto 92px; gap: 10px; align-items: center; font-size: 13px; }
 .cart-setor-nome { color: var(--text); }
 .cart-setor-row .cart-setor-bar { width: 100% !important; height: 10px !important; display: block; overflow: visible; }
-.cart-setor-trilho { fill: var(--border); }
-.cart-setor-fill { fill: #06b6d4; }
+.cart-setor-trilho { fill: var(--border); stroke: none; }
+.cart-setor-fill { fill: #06b6d4; stroke: none; }
 .cart-setor-alvo { stroke: var(--text-strong); stroke-width: 2; }
 .cart-setor-pct { text-align: right; color: var(--text-strong); }
 .cart-alvo-wrap { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); }
