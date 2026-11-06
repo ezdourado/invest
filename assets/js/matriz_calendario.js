@@ -797,7 +797,7 @@
               <tr class="vcmp-row" data-mopen-detail="${escH(a.ticker)}">
                 <td data-label="Ativo"><span class="asset-ticker">${escH(a.ticker)}</span></td>
                 <td class="num mono" data-label="DY sobre o preço">${fPctSimples(a.bazin.dpa_sem_extra / a.preco)}</td>
-                ${margens.map((m, i) => `<td class="num mono sens-cell ${classeSensibilidade(m)}" data-label="${fPctSimples(TAXAS_SENSIBILIDADE[i], 0)}" data-tip="${escH(a.ticker)} com DY exigido de ${fPctSimples(TAXAS_SENSIBILIDADE[i], 0)}: teto ${fReal(a.bazin.dpa_sem_extra / TAXAS_SENSIBILIDADE[i])}, margem ${fPct(m)}">${fPct(m, 0)}</td>`).join('')}
+                ${margens.map((m, i) => `<td class="num mono sens-cell ${classeSensibilidade(m)}" data-label="${fPctSimples(TAXAS_SENSIBILIDADE[i], 0)}" data-tip="${escH(a.ticker)} com DY exigido de ${fPctSimples(TAXAS_SENSIBILIDADE[i], 0)}: teto ${fReal(a.bazin.dpa_sem_extra / TAXAS_SENSIBILIDADE[i])}, margem ${fPct(m)}">${Math.abs(m) < 0.005 ? '0%' : fPct(m, 0)}</td>`).join('')}
               </tr>`).join('')}
           </tbody>
         </table>
