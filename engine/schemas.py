@@ -152,9 +152,17 @@ class ResultadoBazin(BaseModel):
     tem_extraordinario: bool = False
     teto: float = Field(..., ge=0)
     teto_sem_extra: Optional[float] = None
+    teto_com_extra: Optional[float] = None
     margem_seguranca: Optional[float] = None
     veredito: VereditoCor
-    por_ano: Optional[dict[str, float]] = None
+    por_ano: Optional[dict[str, float]] = None  # recorrente por ano (anos atípicos normalizados)
+    por_ano_total: Optional[dict[str, float]] = None  # tudo o que foi pago por ano
+    anos_atipicos: dict[str, float] = Field(default_factory=dict)  # ano -> excedente removido
+    teto_por_ano: dict[str, float] = Field(default_factory=dict)  # teto vigente em cada ano civil
+    dpa_12m: Optional[float] = None  # recorrente, data-com nos últimos 12 meses
+    teto_12m: Optional[float] = None
+    margem_12m: Optional[float] = None
+    razao_12m_5a: Optional[float] = None  # DPA 12m ÷ DPA 5a (< 0,7 = dividendo recente em queda)
     dpa_projetado_consenso: Optional[float] = None
     teto_projetado_consenso: Optional[float] = None
     margem_projetada_consenso: Optional[float] = None

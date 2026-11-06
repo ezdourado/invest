@@ -11,6 +11,11 @@
 - Margem de segurança = (teto - preço) / teto (teto no denominador).
 - Bonificações nunca entram no DPA.
 - Dividendos extraordinários: calcular DPA com e sem eles e sinalizar.
+  - Como a fonte quase nunca rotula extraordinários, um ano da janela cujo total recorrente supere 2× a mediana dos anos pagos (mínimo 3 anos pagos) é "ano atípico": o excedente sobre a mediana sai do DPA sem extra e é exibido como extraordinário.
+- Teto histórico: o teto vigente em cada ano civil usa a mesma regra do teto atual (5 anos fechados anteriores, anos atípicos normalizados). "Tempo abaixo do teto" compara cada cotação com o teto vigente na sua data.
+- Payout: calculado internamente = proventos com data-com nos últimos 12 meses ÷ LPA 12m. Nunca usar `payoutRatio` do Yahoo.
+- DPA 12m e "Teto 12 meses": checagem de realidade do teto de 5 anos; nunca entram no veredito. Razão DPA 12m ÷ DPA 5a < 70% sinaliza dividendo recente em queda.
+- Teto pelo lucro: LPA atual × payout médio histórico (DPA 5a ÷ LPA médio anual, limitado a 25%–95%); direcional, nunca entra no veredito.
 - Bazin projetivo: apenas direcional, nunca entra no veredito.
 - Graham: referência secundária para financeiras e holdings.
 - Greenblatt: ranking sobre o universo; bancos ficam fora do ranking (EBIT/EV não se aplica), registrando o motivo.

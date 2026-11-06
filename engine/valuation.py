@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
-from dataclasses import dataclass
-from datetime import date
+import statistics
+from dataclasses import dataclass, field
+from datetime import date, timedelta
 from typing import Iterable, Optional
 
 from engine.schemas import (
@@ -25,6 +26,11 @@ from engine.schemas import (
 
 TAXA_BAZIN_FIXA: float = 0.06
 JANELA_ANOS_DPA: int = 5
+# Ano atípico: proventos recorrentes do ano acima de LIMIAR × mediana dos anos com pagamento
+# da janela. A fonte (Fundamentus) quase nunca rotula dividendos extraordinários, então eles
+# são detectados pelo padrão anual; o excedente sobre o patamar recorrente sai do DPA "sem extra".
+LIMIAR_ANO_ATIPICO: float = 2.0
+MIN_ANOS_DETECCAO_ATIPICO: int = 3
 SETORES_BESST: frozenset[str] = frozenset(
     {"bancos", "energia", "saneamento", "seguros", "telecom"}
 )
@@ -39,6 +45,7 @@ class ResultadoDPA:
     tem_extraordinario: bool
     por_ano: dict[int, float]
     por_ano_sem_extra: dict[int, float]
+    anos_atipicos: dict[int, float] = field(default_factory=dict)  # ano -> excedente removido
 
 
 @dataclass(frozen=True)
@@ -115,6 +122,87 @@ def _eh_banco(setor: str) -> bool:
     return s in {"banco", "bancos", "bancario", "bancário"} or s.startswith("banco")
 
 
+def normalizar_anos_atipicos(
+    por_ano: dict[int, float],
+    limiar: float = LIMIAR_ANO_ATIPICO,
+) -> tuple[dict[int, float], dict[int, float]]:
+    """Substitui anos atípicos pelo patamar recorrente (mediana dos anos com pagamento).
+
+    Retorna (por_ano_normalizado, {ano: excedente_removido}). Só atua com pelo menos
+    MIN_ANOS_DETECCAO_ATIPICO anos com pagamento, para não confundir histórico curto com pico.
+    """
+    positivos = [v for v in por_ano.values() if v > 0]
+    if len(positivos) < MIN_ANOS_DETECCAO_ATIPICO:
+        return dict(por_ano), {}
+    patamar = statistics.median(positivos)
+    if patamar <= 0:
+        return dict(por_ano), {}
+    normalizado: dict[int, float] = {}
+    excedentes: dict[int, float] = {}
+    for ano, valor in por_ano.items():
+        if valor > limiar * patamar:
+            normalizado[ano] = patamar
+            excedentes[ano] = valor - patamar
+        else:
+            normalizado[ano] = valor
+    return normalizado, excedentes
+
+
+def dpa_ultimos_12m(dividendos: Iterable[Dividendo], data_referencia: date) -> tuple[float, float]:
+    """Soma os proventos com data-com nos últimos 12 meses: (total, recorrente sem extraordinários rotulados)."""
+    inicio = data_referencia - timedelta(days=365)
+    total = 0.0
+    recorrente = 0.0
+    for d in dividendos:
+        if inicio < d.data_com <= data_referencia:
+            total += d.valor
+            if d.tipo != "extraordinario":
+                recorrente += d.valor
+    return total, recorrente
+
+
+def teto_por_ano_historico(
+    dividendos: Iterable[Dividendo],
+    ano_inicial: int,
+    ano_final: int,
+) -> dict[int, float]:
+    """Teto Bazin vigente em cada ano civil, com a mesma regra do teto atual (5 anos fechados anteriores).
+
+    Anos cuja janela começa antes do primeiro provento conhecido ficam de fora (falta de histórico
+    na fonte não pode virar teto artificialmente baixo).
+    """
+    lista = list(dividendos)
+    if not lista:
+        return {}
+    primeiro_ano = min(d.data_com.year for d in lista)
+    resultado: dict[int, float] = {}
+    for ano in range(ano_inicial, ano_final + 1):
+        if ano - JANELA_ANOS_DPA < primeiro_ano:
+            continue
+        res = dpa_retroativo(lista, ano_referencia=ano)
+        resultado[ano] = round(teto_bazin(res.dpa_sem_extra), 4)
+    return resultado
+
+
+def proporcao_abaixo_teto_dinamico(
+    pontos: Iterable[tuple[str, Optional[float]]],
+    teto_por_ano: dict[int, float],
+) -> Optional[float]:
+    """Proporção de cotações abaixo do teto VIGENTE na data de cada cotação (não o teto de hoje)."""
+    total = 0
+    abaixo = 0
+    for dt_iso, preco in pontos:
+        if preco is None or preco <= 0 or math.isnan(preco):
+            continue
+        teto = teto_por_ano.get(int(dt_iso[:4]))
+        if not teto or teto <= 0:
+            continue
+        total += 1
+        if preco <= teto:
+            abaixo += 1
+    return round(abaixo / total, 4) if total else None
+
+
 def dpa_retroativo(
     dividendos: Iterable[Dividendo],
     ano_referencia: int,
@@ -150,6 +238,10 @@ def dpa_retroativo(
         else:
             por_ano_sem_extra[ano_com] += div.valor
 
+    por_ano_sem_extra, anos_atipicos = normalizar_anos_atipicos(por_ano_sem_extra)
+    if anos_atipicos:
+        tem_extraordinario = True
+
     soma_total = sum(por_ano.values())
     soma_sem_extra = sum(por_ano_sem_extra.values())
 
@@ -159,6 +251,7 @@ def dpa_retroativo(
         tem_extraordinario=tem_extraordinario,
         por_ano=por_ano,
         por_ano_sem_extra=por_ano_sem_extra,
+        anos_atipicos=anos_atipicos,
     )
 
 
@@ -192,22 +285,44 @@ def avaliar_bazin(
     dividendos: Iterable[Dividendo],
     preco: float,
     ano_referencia: int,
+    data_referencia: Optional[date] = None,
 ) -> ResultadoBazin:
-    """Executa a avaliação completa de Bazin para um ativo (com e sem extraordinários)."""
-    res_dpa = dpa_retroativo(dividendos, ano_referencia=ano_referencia)
+    """Executa a avaliação completa de Bazin para um ativo (com e sem extraordinários).
+
+    Com `data_referencia`, calcula também o DPA dos últimos 12 meses e o teto correspondente,
+    usados como "checagem de realidade" do teto de 5 anos (nunca entram no veredito).
+    """
+    lista = list(dividendos)
+    res_dpa = dpa_retroativo(lista, ano_referencia=ano_referencia)
     teto_principal = teto_bazin(res_dpa.dpa_sem_extra)
     teto_com_extra = teto_bazin(res_dpa.dpa)
     m_seguranca = margem(teto_principal, preco)
+
+    dpa_12m_rec: Optional[float] = None
+    teto_12m: Optional[float] = None
+    razao_12m_5a: Optional[float] = None
+    if data_referencia is not None:
+        _, dpa_12m_rec = dpa_ultimos_12m(lista, data_referencia)
+        teto_12m = teto_bazin(dpa_12m_rec)
+        if res_dpa.dpa_sem_extra > 0:
+            razao_12m_5a = round(dpa_12m_rec / res_dpa.dpa_sem_extra, 4)
 
     return ResultadoBazin(
         dpa=res_dpa.dpa,
         dpa_sem_extra=res_dpa.dpa_sem_extra,
         tem_extraordinario=res_dpa.tem_extraordinario,
         teto=teto_principal,
-        teto_sem_extra=teto_principal if res_dpa.tem_extraordinario else teto_com_extra,
+        teto_sem_extra=teto_principal,
+        teto_com_extra=teto_com_extra,
         margem_seguranca=m_seguranca,
         veredito=veredito_bazin(teto_principal, preco),
         por_ano={str(ano): round(val, 4) for ano, val in res_dpa.por_ano_sem_extra.items()},
+        por_ano_total={str(ano): round(val, 4) for ano, val in res_dpa.por_ano.items()},
+        anos_atipicos={str(ano): round(val, 4) for ano, val in res_dpa.anos_atipicos.items()},
+        dpa_12m=round(dpa_12m_rec, 4) if dpa_12m_rec is not None else None,
+        teto_12m=round(teto_12m, 2) if teto_12m is not None else None,
+        margem_12m=margem(teto_12m, preco) if teto_12m else None,
+        razao_12m_5a=razao_12m_5a,
     )
 
 

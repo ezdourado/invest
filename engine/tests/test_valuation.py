@@ -480,8 +480,104 @@ def test_historico_10_anos_nao_altera_calculos_5_anos_e_benchmarks() -> None:
 
     assert r5.bazin.teto == r10.bazin.teto == 20.0
     assert r5.bazin.margem_seguranca == r10.bazin.margem_seguranca
-    assert r5.pct_abaixo_teto_5a == r10.pct_abaixo_teto_5a
+    # O tempo abaixo do teto compara cada cotação com o teto VIGENTE na sua data:
+    # sem histórico anterior a 2021 (5a), só 2026 tem janela completa -> 1 ponto (19 <= 20).
+    assert r5.pct_abaixo_teto_5a == pytest.approx(1.0)
+    # Com 10a: tetos 2022=64, 2023=12, 2024=12, 2025=16, 2026=20 (2018 atípico normalizado em 2023)
+    # pontos: 15<=64 ok, 18>12, 25>12, 19>16, 19<=20 ok -> 2/5
+    assert r10.bazin.teto_por_ano["2022"] == pytest.approx(64.0)
+    assert r10.bazin.teto_por_ano["2023"] == pytest.approx(12.0)
+    assert r10.pct_abaixo_teto_5a == pytest.approx(0.4)
     assert len(r10.historico_precos) > len(r5.historico_precos)
     assert len(r10.proventos_historico) == 7
     assert "CDI" in saida_10a.benchmarks_historico
 
+
+
+def test_ano_atipico_e_normalizado_pelo_patamar_recorrente() -> None:
+    """Ano com proventos > 2x a mediana dos anos pagos é tratado como extraordinário."""
+    dividendos = [
+        Dividendo(data_com=date(2021, 5, 1), valor=5.65, tipo="dividendo"),
+        Dividendo(data_com=date(2022, 5, 1), valor=16.66, tipo="dividendo"),  # pico não rotulado
+        Dividendo(data_com=date(2023, 5, 1), valor=7.13, tipo="dividendo"),
+        Dividendo(data_com=date(2024, 5, 1), valor=7.77, tipo="dividendo"),
+        Dividendo(data_com=date(2025, 5, 1), valor=3.23, tipo="dividendo"),
+    ]
+    res = dpa_retroativo(dividendos, ano_referencia=2026)
+
+    assert res.tem_extraordinario is True
+    assert set(res.anos_atipicos) == {2022}
+    assert res.por_ano_sem_extra[2022] == pytest.approx(7.13)  # mediana dos 5 anos
+    assert res.anos_atipicos[2022] == pytest.approx(16.66 - 7.13)
+    assert res.dpa_sem_extra == pytest.approx((5.65 + 7.13 + 7.13 + 7.77 + 3.23) / 5)
+    assert res.dpa == pytest.approx((5.65 + 16.66 + 7.13 + 7.77 + 3.23) / 5)
+
+
+def test_crescimento_gradual_nao_e_atipico() -> None:
+    """Dividendo que cresce de forma consistente (nenhum ano > 2x a mediana) não é cortado."""
+    dividendos = [
+        Dividendo(data_com=date(2021 + i, 5, 1), valor=v, tipo="dividendo")
+        for i, v in enumerate([1.0, 1.3, 1.6, 2.0, 2.4])
+    ]
+    res = dpa_retroativo(dividendos, ano_referencia=2026)
+    assert res.anos_atipicos == {}
+    assert res.dpa_sem_extra == pytest.approx(8.3 / 5)
+
+
+def test_historico_curto_nao_dispara_deteccao() -> None:
+    """Com menos de 3 anos pagos não há base para dizer que um ano é atípico."""
+    dividendos = [
+        Dividendo(data_com=date(2024, 5, 1), valor=0.5, tipo="dividendo"),
+        Dividendo(data_com=date(2025, 5, 1), valor=3.0, tipo="dividendo"),
+    ]
+    res = dpa_retroativo(dividendos, ano_referencia=2026)
+    assert res.anos_atipicos == {}
+    assert res.dpa_sem_extra == pytest.approx(3.5 / 5)
+
+
+def test_dpa_12m_e_razao_com_media_5a() -> None:
+    """DPA 12m e razão 12m/5a revelam corte recente que a média de 5 anos esconde."""
+    dividendos = [
+        Dividendo(data_com=date(2021 + i, 6, 1), valor=2.0, tipo="dividendo") for i in range(5)
+    ] + [
+        Dividendo(data_com=date(2026, 3, 1), valor=0.5, tipo="dividendo"),
+        Dividendo(data_com=date(2026, 9, 1), valor=0.4, tipo="jcp"),
+        Dividendo(data_com=date(2026, 10, 1), valor=3.0, tipo="extraordinario"),
+    ]
+    bazin = avaliar_bazin(dividendos, preco=20.0, ano_referencia=2026, data_referencia=date(2026, 11, 6))
+
+    assert bazin.teto == pytest.approx(2.0 / 0.06)
+    assert bazin.dpa_12m == pytest.approx(0.9)  # extraordinário rotulado fica de fora
+    assert bazin.teto_12m == pytest.approx(15.0)
+    assert bazin.razao_12m_5a == pytest.approx(0.45)
+    assert bazin.margem_12m == pytest.approx((15.0 - 20.0) / 15.0)
+    assert bazin.veredito == "verde"  # o veredito continua só pelo Bazin de 5 anos
+
+
+def test_payout_calculado_pelos_proventos_12m() -> None:
+    """Payout = proventos (data-com) dos últimos 12 meses / LPA, ignorando o payout da fonte."""
+    from engine.build import construir_saida
+
+    dividendos = [
+        Dividendo(data_com=date(2026, 4, 1), valor=1.0, tipo="dividendo"),
+        Dividendo(data_com=date(2026, 8, 1), valor=0.5, tipo="jcp"),
+        Dividendo(data_com=date(2025, 4, 1), valor=9.0, tipo="dividendo"),  # fora dos 12 meses
+    ]
+    ativo = Ativo(
+        ticker="VALE3", setor="mineracao", preco=60.0, dividendos=dividendos,
+        fundamentos=Fundamentos(lpa=5.0, payout=16.84, roe=0.2),
+    )
+    saida = construir_saida([ativo], ano_referencia=2026, data_referencia=date(2026, 11, 6))
+    assert saida.ativos[0].fundamentos.payout == pytest.approx(0.30)
+
+
+def test_payout_medio_historico_nao_e_circular() -> None:
+    """O teto pelo lucro usa payout de longo prazo (DPA 5a ÷ LPA médio), não o payout 12m."""
+    from engine.build import payout_medio_historico
+    from engine.schemas import PontoLucro
+
+    lucros = [PontoLucro(ano=a, lucro_liquido=1.0, lpa=v, tipo="anual") for a, v in [(2022, 4.0), (2023, 5.0), (2024, 6.0)]]
+    assert payout_medio_historico(3.0, lucros, lpa_atual=2.0) == pytest.approx(0.6)  # 3 / média(4,5,6)
+    assert payout_medio_historico(3.0, [], lpa_atual=4.0) == pytest.approx(0.75)  # sem histórico: DPA 5a / LPA atual
+    assert payout_medio_historico(9.0, [], lpa_atual=1.0) == pytest.approx(0.95)  # limitado
+    assert payout_medio_historico(0.0, [], lpa_atual=None) == pytest.approx(0.50)
