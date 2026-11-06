@@ -7,6 +7,9 @@ const STORAGE_KEY_PAINEL_SORT = 'painel_valuation_sort';
 const STORAGE_KEY_PAINEL_DENSITY = 'painel_valuation_density';
 const STORAGE_KEY_THEME = 'painel_valuation_theme';
 const DIAS_BASE_DESATUALIZADA = 3;
+const PREGAO_INICIO_MIN = 10 * 60;            // 10h00 BRT
+const PREGAO_FIM_MIN = 18 * 60;               // 18h00 BRT
+const MINUTOS_BASE_ATRASADA_PREGAO = 25;      // motor roda a cada 10 min; > 25 min = atraso real
 
 const CARTEIRA_EXECUTIVA_PADRAO = [
   'BBAS3', 'ITUB4', 'TAEE11', 'CPFE3', 'EGIE3', 'SBSP3',
@@ -364,6 +367,34 @@ function obterDataRealUltimaCotacao(universo) {
 }
 window.obterDataRealUltimaCotacao = obterDataRealUltimaCotacao;
 
+function agoraSaoPaulo() {
+  try {
+    const partes = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Sao_Paulo',
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23'
+    }).formatToParts(new Date());
+    const map = {};
+    partes.forEach(p => { map[p.type] = p.value; });
+    const diaUtil = !['Sat', 'Sun'].includes(map.weekday);
+    return { diaUtil, minutosDia: (parseInt(map.hour, 10) % 24) * 60 + parseInt(map.minute, 10) };
+  } catch (_) {
+    const d = new Date(Date.now() - 3 * 3600 * 1000);
+    const dow = d.getUTCDay();
+    return { diaUtil: dow >= 1 && dow <= 5, minutosDia: d.getUTCHours() * 60 + d.getUTCMinutes() };
+  }
+}
+
+function fmtIdadeBase(min) {
+  if (min < 1) return 'menos de 1 min';
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 48) return `${h} h${min % 60 && h < 6 ? ` ${min % 60} min` : ''}`;
+  return `${Math.floor(h / 24)} dias`;
+}
+
 function hojeIsoSaoPaulo() {
   try {
     const partes = new Intl.DateTimeFormat('pt-BR', {
@@ -647,7 +678,7 @@ function atualizarStatusBase() {
   const dataCotCurta = fmtDataCurtaBr(dataUltCotRaw) || infoGerado.dataCurta;
 
   const dias = infoGerado.dateObj ? (Date.now() - infoGerado.dateObj.getTime()) / 86400000 : 0;
-  const estado = dias > DIAS_BASE_DESATUALIZADA ? 'is-stale' : 'is-ok';
+  const minutosBase = infoGerado.dateObj ? Math.max(0, Math.round((Date.now() - infoGerado.dateObj.getTime()) / 60000)) : null;
 
   // Identifica se a base foi gerada hoje
   const hojeBr = hojeIsoSaoPaulo(); // 'YYYY-MM-DD'
@@ -655,32 +686,36 @@ function atualizarStatusBase() {
   const hojeCurta = `${partesHoje[2]}/${partesHoje[1]}`;
   const ehHoje = infoGerado.dataCurta === hojeCurta;
 
-  // Horário de Brasília da geração
-  const horaSp = infoGerado.dateObj ? (infoGerado.dateObj.getUTCHours() - 3 + 24) % 24 : 12;
-  const diaSemanaSp = infoGerado.dateObj ? ((infoGerado.dateObj.getUTCDay() + (infoGerado.dateObj.getUTCHours() < 3 ? -1 : 0) + 7) % 7) : 1;
-  const ehDiaUtil = diaSemanaSp >= 1 && diaSemanaSp <= 5;
-  const emPregao = ehHoje && ehDiaUtil && (horaSp >= 10 && horaSp < 18);
+  // Estado do pregão avaliado AGORA (não no momento da geração da base)
+  const agoraSp = agoraSaoPaulo();
+  const pregaoAberto = agoraSp.diaUtil && agoraSp.minutosDia >= PREGAO_INICIO_MIN && agoraSp.minutosDia < PREGAO_FIM_MIN;
+  const atrasada = pregaoAberto && minutosBase !== null && minutosBase > MINUTOS_BASE_ATRASADA_PREGAO;
+  const estado = (dias > DIAS_BASE_DESATUALIZADA || atrasada) ? 'is-stale' : 'is-ok';
+  const idade = minutosBase !== null ? fmtIdadeBase(minutosBase) : '';
 
   const pill = $('#status-pill');
   if (pill) {
     pill.classList.remove('is-ok', 'is-stale', 'is-error', 'is-live');
     pill.classList.add(estado);
-    if (emPregao) pill.classList.add('is-live');
+    if (pregaoAberto && !atrasada) pill.classList.add('is-live');
 
-    const tipStatus = emPregao
-      ? `Pregão B3 em andamento: Cotações atualizadas a cada 10 min (delay padrão B3). Sincronização às ${infoGerado.hora} de hoje (${infoGerado.dataCompleta}). Indicadores contábeis e dividendos utilizam o fechamento oficial consolidado.`
-      : (ehHoje && horaSp >= 18
-        ? `Pregão B3 encerrado: Cotações finais de fechamento de hoje (${infoGerado.dataCompleta}) consolidadas às ${infoGerado.hora}. Atualizações automáticas de 10 em 10 min ocorrem em dias úteis das 10h às 18h.`
-        : `Último pregão consolidado: ${dataUltCotRaw || dataCotCurta}. Base gerada em ${infoGerado.dataCompleta} às ${infoGerado.hora}. As cotações ao vivo atualizam de 10 em 10 min nos dias úteis durante o pregão (10h–18h).`);
+    const tipStatus = pregaoAberto
+      ? (atrasada
+        ? `Pregão B3 aberto, mas a base não é atualizada há ${idade} (última sincronização: ${infoGerado.dataCompleta} às ${infoGerado.hora}). O motor deveria atualizar a cada 10 min — verifique a aba Actions do repositório. Clique para buscar de novo.`
+        : `Pregão B3 em andamento: cotações (delay de ~15 min da fonte) sincronizadas às ${infoGerado.hora}, há ${idade}. O motor atualiza a cada 10 min; proventos e fundamentos são recalculados a cada hora.`)
+      : `Pregão fechado. Base sincronizada em ${infoGerado.dataCompleta} às ${infoGerado.hora} (há ${idade}); última cotação: ${dataUltCotRaw || dataCotCurta}. Atualizações automáticas a cada 10 min nos dias úteis, das 10h às 18h.`;
     pill.setAttribute('data-tip', tipStatus);
   }
 
-  const dataExibir = ehHoje ? infoGerado.dataCurta : dataCotCurta;
-  const statusHtml = emPregao
-    ? `<span class="status-live-dot" aria-hidden="true"></span><span class="t-green" style="font-weight:600">Pregão B3</span> · <span class="mono">${esc(dataExibir)} ${esc(infoGerado.hora)}</span>`
-    : (ehHoje && horaSp >= 18
-      ? `<span>Fechamento B3</span> · <span class="mono">${esc(dataExibir)} ${esc(infoGerado.hora)}</span>`
-      : `<span>Cotações B3</span> · <span class="mono">${esc(dataCotCurta)}</span>`);
+  const dataExibir = ehHoje ? infoGerado.hora : `${infoGerado.dataCurta} ${infoGerado.hora}`;
+  let statusHtml;
+  if (pregaoAberto && !atrasada) {
+    statusHtml = `<span class="status-live-dot" aria-hidden="true"></span><span class="status-text-full"><span class="t-green" style="font-weight:600">Pregão B3</span> · <span class="mono">${esc(dataExibir)}</span> · há ${esc(idade)}</span><span class="status-text-mobile mono">${esc(dataExibir)}</span>`;
+  } else if (atrasada) {
+    statusHtml = `<span class="status-text-full">Base atrasada · <span class="mono">${esc(dataExibir)}</span> · há ${esc(idade)}</span><span class="status-text-mobile">Atrasada</span>`;
+  } else {
+    statusHtml = `<span class="status-text-full">Cotações B3 · <span class="mono">${esc(dataExibir)}</span></span><span class="status-text-mobile mono">${esc(infoGerado.dataCurta)}</span>`;
+  }
 
   renderizarStatus(estado, statusHtml);
 

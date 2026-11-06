@@ -1,20 +1,29 @@
 name: Atualizar Valuation B3
 
+# Por que não um cron a cada 10 min?
+# O GitHub trata `schedule` como "melhor esforço": em horários de pico ele atrasa disparos
+# por horas ou simplesmente os descarta (na prática, ~1 a 3 de ~20 disparos por dia rodavam).
+# Por isso a atualização roda como UMA sessão contínua durante o pregão (.github/scripts/motor.sh):
+#   - basta um disparo pegar para cobrir o dia inteiro;
+#   - crons de redundância a cada hora reiniciam a sessão se ela cair (se já houver uma
+#     rodando, ficam na fila do grupo de concorrência e assumem quando ela terminar);
+#   - perto do limite de 6 h do runner, a sessão dispara a própria continuação.
+
 on:
   schedule:
-    # Pregão B3 (09h00 às 18h35 BRT = 12h às 21h UTC)
-    # Aciona em blocos de 30 min (minutos ímpares :03 e :33 para evitar picos de carga nos servidores do GitHub)
-    # Cada disparo agendado executa 3 ciclos de 10 minutos (0m, 10m, 20m = ~21 min no total),
-    # garantindo atualizações rigorosas de 10 em 10 min mesmo se a fila do GitHub sofrer atrasos.
-    - cron: "3,33 12-21 * * 1-5"
-    # Fechamento consolidado noturno (19h05 BRT = 22h05 UTC)
-    - cron: "5 22 * * 1-5"
+    # Abertura da sessão (09h50 BRT = 12h50 UTC)
+    - cron: "50 12 * * 1-5"
+    # Redundância horária durante o pregão (11h07 a 17h07 BRT)
+    - cron: "7 14-20 * * 1-5"
+    # Fechamento consolidado (18h25 BRT = 21h25 UTC)
+    - cron: "25 21 * * 1-5"
   workflow_dispatch:
     inputs:
-      ciclos:
-        description: "Quantidade de ciclos de coleta (1 = imediato ~45s, 3 = 30 min contínuos, 6 = 1 hora contínua)"
-        required: false
-        default: "1"
+      modo:
+        description: "completo = build único agora · cotacoes = só preços (~15 s) · sessao = laço contínuo do pregão"
+        type: choice
+        options: [completo, cotacoes, sessao]
+        default: completo
 
 concurrency:
   group: atualizar-valuation
@@ -22,11 +31,12 @@ concurrency:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   atualizar-valuation:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 355
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
@@ -46,70 +56,15 @@ jobs:
           pip install -r engine/requirements.txt
 
       - name: Executar testes unitários do motor
-        run: python -m pytest -v engine/tests/test_valuation.py
+        run: python -m pytest -q engine/tests
 
-      - name: Executar atualização de cotações e valuation
+      - name: Executar motor de atualização
         env:
+          GH_TOKEN: ${{ github.token }}
           EVENT_NAME: ${{ github.event_name }}
-          INPUT_CICLOS: ${{ github.event.inputs.ciclos }}
+          BRANCH: ${{ github.ref_name }}
+          MODO: ${{ github.event.inputs.modo || (github.event.schedule == '25 21 * * 1-5' && 'completo') || 'sessao' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          # No agendamento automático durante o pregão, roda 3 ciclos de 10 min (~21 min de execução).
-          # No fechamento consolidado noturno (22h UTC), roda 1 ciclo único.
-          # No acionamento manual (workflow_dispatch), respeita a quantidade de ciclos informada (padrão 1).
-          if [ "$EVENT_NAME" = "schedule" ]; then
-            HORA_UTC=$(date -u +%H)
-            if [ "$HORA_UTC" -eq 22 ]; then
-              TOTAL_CICLOS=1
-            else
-              TOTAL_CICLOS=3
-            fi
-          else
-            TOTAL_CICLOS="${INPUT_CICLOS:-1}"
-          fi
-
-          echo "Executando $TOTAL_CICLOS ciclo(s) de coleta para este evento ($EVENT_NAME)..."
-
-          for (( i=1; i<=TOTAL_CICLOS; i++ )); do
-            INICIO_CICLO=$(date +%s)
-            echo "=== [Ciclo $i/$TOTAL_CICLOS] Iniciando coleta em $(date -u +"%Y-%m-%dT%H:%M:%SZ") ==="
-
-            git pull --rebase -X theirs origin main || true
-            python -m engine.build
-
-            if ! git diff --quiet -- data/valuation.json; then
-              git add data/valuation.json
-              git commit -m "chore: atualiza data/valuation.json ($(date -u +"%H:%M UTC"))"
-              
-              PUSH_OK=false
-              for tentativa in 1 2 3; do
-                git pull --rebase -X theirs origin main || true
-                if git push origin HEAD:main; then
-                  echo "=== [Ciclo $i/$TOTAL_CICLOS] data/valuation.json publicado com sucesso ==="
-                  PUSH_OK=true
-                  break
-                fi
-                echo "Aviso: Push falhou na tentativa $tentativa/3, aguardando 5s para tentar novamente..."
-                sleep 5
-              done
-
-              if [ "$PUSH_OK" != "true" ]; then
-                echo "Erro crítico: Falha ao publicar commit no GitHub após 3 tentativas."
-                exit 1
-              fi
-            else
-              echo "=== [Ciclo $i/$TOTAL_CICLOS] Sem alterações em data/valuation.json ==="
-            fi
-
-            if [ "$i" -lt "$TOTAL_CICLOS" ]; then
-              FIM_CICLO=$(date +%s)
-              DECORRIDO=$(( FIM_CICLO - INICIO_CICLO ))
-              ESPERA=$(( 600 - DECORRIDO ))
-              if [ "$ESPERA" -gt 0 ]; then
-                echo "Aguardando ${ESPERA}s até o próximo ciclo de 10 minutos..."
-                sleep "$ESPERA"
-              fi
-            fi
-          done
+          bash .github/scripts/motor.sh
