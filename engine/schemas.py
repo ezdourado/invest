@@ -171,6 +171,18 @@ class ResultadoBazin(BaseModel):
     margem_projetada_barsi: Optional[float] = None
 
 
+class SnapshotAnterior(BaseModel):
+    """Estado do ativo no fim do pregão anterior, para destacar o que mudou desde então."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    data: date
+    preco: float
+    teto: float
+    veredito: VereditoCor
+    margem: Optional[float] = None
+
+
 class ResultadoAtivo(BaseModel):
     """Resultado consolidado de valuation e raio-x fundamentalista de um ativo."""
 
@@ -207,6 +219,7 @@ class ResultadoAtivo(BaseModel):
     historico_precos: list[Optional[float]] = Field(default_factory=list)
     proventos_historico: list[Dividendo] = Field(default_factory=list)
     historico_lucros: list[PontoLucro] = Field(default_factory=list)
+    anterior: Optional[SnapshotAnterior] = None
 
 
 class Saida(BaseModel):

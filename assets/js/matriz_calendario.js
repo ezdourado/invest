@@ -394,23 +394,34 @@
    * ABA 3: MATRIZ DESCONTO × QUALIDADE
    * ========================================================================== */
 
+  /* Eixos Y de "qualidade". Para quem investe por dividendos, qualidade também é a
+   * sustentabilidade do provento (Score Anti-Cilada) e a tendência recente (12m ÷ 5a). */
+  const EIXOS_Y = {
+    roe: { nome: 'ROE', ref: 0.15, min: -0.12, max: 0.48, fmt: v => fPctSimples(v), fmtTick: v => fPctSimples(v, 0),
+      valor: a => (a.fundamentos || {}).roe },
+    roic: { nome: 'ROIC', ref: 0.12, min: -0.12, max: 0.48, fmt: v => fPctSimples(v), fmtTick: v => fPctSimples(v, 0),
+      valor: a => (ehBancoSetor(a.setor) ? null : (a.fundamentos || {}).roic) },
+    score: { nome: 'Score Anti-Cilada', ref: 0.75, min: 0, max: 1, fmt: v => `${Math.round(v * 100)}/100`, fmtTick: v => String(Math.round(v * 100)),
+      valor: a => { const s = obterSustentabilidadeAtivo(a); return s && s.nivel !== 'sem_dividendo' && numOk(s.nota) ? s.nota / 100 : null; } },
+    tendencia: { nome: 'Dividendo 12m ÷ 5a', ref: 0.7, min: 0, max: 1.6, fmt: v => fPctSimples(v, 0), fmtTick: v => fPctSimples(v, 0),
+      valor: a => { const r = a.bazin?.razao_12m_5a; return numOk(r) ? Math.min(r, 1.6) : null; } }
+  };
+
+  function eixoY() {
+    return EIXOS_Y[state.matrizY] || EIXOS_Y.roe;
+  }
+
   function extrairMetricasMatriz(a) {
-    const f = a.fundamentos || {};
     const mBazin = a.bazin ? (numOk(a.bazin.margem) ? a.bazin.margem : a.bazin.margem_seguranca) : null;
     const tBazin = a.bazin ? (numOk(a.bazin.preco_teto) ? a.bazin.preco_teto : a.bazin.teto) : null;
     const valX = state.matrizX === 'graham' ? a.margem_graham : mBazin;
     const tetoRef = state.matrizX === 'graham' ? a.graham : tBazin;
-    let valY = null;
-    if (state.matrizY === 'roic') {
-      valY = ehBancoSetor(a.setor) ? null : f.roic;
-    } else {
-      valY = f.roe;
-    }
+    const valY = eixoY().valor(a);
     return { valX, valY, tetoRef };
   }
 
   function limiarQualidadeY() {
-    return state.matrizY === 'roic' ? 0.12 : 0.15;
+    return eixoY().ref;
   }
 
   function classificarQuadrante(x, y, refY) {
@@ -455,7 +466,7 @@
     const hud = qs('#matriz-hud');
     if (!hud) return;
     const nomeX = state.matrizX === 'graham' ? 'Margem vs. Graham' : 'Margem Bazin';
-    const nomeY = state.matrizY === 'roic' ? 'ROIC' : 'ROE';
+    const nomeY = eixoY().nome;
 
     if (!ponto) {
       hud.classList.remove('vhud-floating');
@@ -463,7 +474,7 @@
       hud.innerHTML = `
         <span class="vhud-date">${totalPlotados} papéis plotados</span>
         <span class="vhud-metric">Eixo X: <strong>${nomeX}</strong> (Corte = 0%)</span>
-        <span class="vhud-metric">Eixo Y: <strong>${nomeY}</strong> (Corte = ${fPctSimples(refY, 0)})</span>
+        <span class="vhud-metric">Eixo Y: <strong>${nomeY}</strong> (Corte = ${eixoY().fmtTick(refY)})</span>
         ${excluidos > 0 ? `<span class="t-dim">· ${excluidos} fora (sem ${state.matrizX === 'graham' ? 'teto Graham' : 'DPA/teto Bazin'} ou ${nomeY})</span>` : ''}
         <span class="t-dim">Passe o cursor, navegue com Tab ou clique em um ponto para abrir o Raio-X</span>
       `;
@@ -478,7 +489,7 @@
       <span class="vhud-date mono">${escH(a.ticker)}</span>
       <span class="vhud-metric"><strong>${escH(a.empresa || a.setor)}</strong></span>
       <span class="vhud-metric">${nomeX}: <strong class="${ponto.valX >= 0 ? 't-green' : 't-red'} mono">${fPct(ponto.valX)}</strong> (${escH(verTxt)})</span>
-      <span class="vhud-metric">${nomeY}: <strong class="mono">${fPctSimples(ponto.valY)}</strong></span>
+      <span class="vhud-metric">${nomeY}: <strong class="mono">${eixoY().fmt(ponto.valY)}</strong></span>
       <span class="vhud-metric">Anti-Cilada: <strong class="mono">${sust.nota}/100 (${escH(sust.rotulo)})</strong></span>
     `;
   }
@@ -492,6 +503,7 @@
     sincronizarControlesMatriz();
 
     const { lista: baseEscopo, usouFallbackTodos } = filtrarPorEscopo(state.matrizEscopo);
+    renderizarSensibilidadeDy(baseEscopo);
     const refY = limiarQualidadeY();
     const qBusca = state.matrizBusca.trim().toLowerCase();
 
@@ -558,7 +570,7 @@
       state.matrizPontosRender = [];
       renderizarHudMatriz(null, 0, excluidosSemDados);
       const nomeX = state.matrizX === 'graham' ? 'Margem vs. Graham' : 'Margem Bazin';
-      const nomeY = state.matrizY === 'roic' ? 'ROIC' : 'ROE';
+      const nomeY = eixoY().nome;
       wrapSvg.innerHTML = `
         <div class="vchart-empty">
           Nenhum ativo no escopo atual possui simultaneamente <strong>${nomeX}</strong> e <strong>${nomeY}</strong> válidos.
@@ -589,8 +601,8 @@
 
     const domMinX = Math.max(-0.85, Math.floor((minXRaw - 0.05) * 20) / 20);
     const domMaxX = Math.min(0.68, Math.ceil((maxXRaw + 0.05) * 20) / 20);
-    const domMinY = Math.max(-0.12, Math.floor((minYRaw - 0.02) * 20) / 20);
-    const domMaxY = Math.min(0.48, Math.ceil((maxYRaw + 0.04) * 20) / 20);
+    const domMinY = Math.max(eixoY().min, Math.floor((minYRaw - 0.02) * 20) / 20);
+    const domMaxY = Math.min(eixoY().max, Math.ceil((maxYRaw + 0.04) * 20) / 20);
 
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     const mapX = (x) => (padL + 18) + ((clamp(x, domMinX, domMaxX) - domMinX) / (domMaxX - domMinX || 1)) * (plotW - 36);
@@ -608,7 +620,7 @@
     ticksX.sort((a, b) => a - b);
 
     const ticksY = [];
-    const stepY = (domMaxY - domMinY) > 0.42 ? 0.10 : 0.05;
+    const stepY = (domMaxY - domMinY) > 0.9 ? 0.20 : ((domMaxY - domMinY) > 0.42 ? 0.10 : 0.05);
     for (let v = Math.ceil(domMinY / stepY) * stepY; v <= domMaxY + 1e-6; v += stepY) {
       ticksY.push(Number(v.toFixed(2)));
     }
@@ -643,7 +655,7 @@
     }
 
     const nomeXCurto = state.matrizX === 'graham' ? 'Margem vs. Graham' : 'Margem Bazin (K=6%)';
-    const nomeYCurto = state.matrizY === 'roic' ? 'ROIC' : 'ROE';
+    const nomeYCurto = eixoY().nome;
 
     const corteX = clamp(xZero, padL, padL + plotW);
     const corteY = clamp(yRef, padT, padT + plotH);
@@ -669,7 +681,7 @@
         const py = mapY(ty);
         return `
           <line x1="${padL}" y1="${py.toFixed(1)}" x2="${padL + plotW}" y2="${py.toFixed(1)}" class="vchart-grid-line"/>
-          <text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text">${fPctSimples(ty, 0)}</text>
+          <text x="${padL - 8}" y="${(py + 4).toFixed(1)}" text-anchor="end" class="vsvg-axis-text">${eixoY().fmtTick(ty)}</text>
         `;
       })
     ].join('');
@@ -696,7 +708,7 @@
       const halo = p.matchBusca
         ? `<circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${(p.r + 4.8).toFixed(1)}" fill="none" stroke="${cor}" stroke-width="1.8" opacity="0.75" pointer-events="none"/>`
         : '';
-      const ariaLbl = `${p.ticker}: ${nomeXCurto} ${fPct(p.valX)}, ${nomeYCurto} ${fPctSimples(p.valY)}, Anti-Cilada ${p.sust.nota}/100`;
+      const ariaLbl = `${p.ticker}: ${nomeXCurto} ${fPct(p.valX)}, ${nomeYCurto} ${eixoY().fmt(p.valY)}, Anti-Cilada ${p.sust.nota}/100`;
       return `
         ${anelCilada}
         ${halo}
@@ -725,7 +737,7 @@
         ` : ''}
         ${yRef >= padT && yRef <= padT + plotH ? `
           <line x1="${padL}" y1="${yRef.toFixed(1)}" x2="${padL + plotW}" y2="${yRef.toFixed(1)}" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.8"/>
-          <text x="${(padL + 8).toFixed(1)}" y="${(yRef - 6).toFixed(1)}" class="vsvg-ceil-label" fill="#60a5fa">${nomeYCurto} = ${fPctSimples(refY, 0)}</text>
+          <text x="${(padL + 8).toFixed(1)}" y="${(yRef - 6).toFixed(1)}" class="vsvg-ceil-label" fill="#60a5fa">${nomeYCurto} = ${eixoY().fmtTick(refY)}</text>
         ` : ''}
         ${watermarksSvg}
         <rect class="v-hit-area" id="matriz-hit-rect" x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="transparent"/>
@@ -739,6 +751,58 @@
     renderizarHudMatriz(null, renderPts.length, excluidosSemDados);
     conectarInteracaoSvgMatriz(width, padR);
     renderizarTabelaMatriz(renderPts, usouFallbackTodos);
+  }
+
+  /* Sensibilidade: quanto da margem resiste se você exigir mais do que os 6% de Bazin.
+   * Teto(k) = DPA 5a ÷ k; margem(k) = 1 − Preço ÷ Teto(k). O veredito oficial continua em 6%. */
+  const TAXAS_SENSIBILIDADE = [0.06, 0.07, 0.08, 0.09, 0.10];
+
+  function classeSensibilidade(m) {
+    if (m >= 0.30) return 'sens-g3';
+    if (m >= 0.15) return 'sens-g2';
+    if (m >= 0) return 'sens-g1';
+    if (m >= -0.05) return 'sens-y';
+    if (m >= -0.25) return 'sens-r1';
+    return 'sens-r2';
+  }
+
+  function renderizarSensibilidadeDy(base) {
+    const wrap = qs('#matriz-sensibilidade');
+    if (!wrap) return;
+    const linhas = (base || [])
+      .filter(a => numOk(a.bazin?.dpa_sem_extra) && a.bazin.dpa_sem_extra > 0 && numOk(a.preco) && a.preco > 0)
+      .map(a => ({ a, margens: TAXAS_SENSIBILIDADE.map(k => 1 - a.preco / (a.bazin.dpa_sem_extra / k)) }))
+      .sort((x, y) => y.margens[0] - x.margens[0])
+      .slice(0, 40);
+    if (!linhas.length) {
+      wrap.innerHTML = '';
+      return;
+    }
+    const resistem = TAXAS_SENSIBILIDADE.map((_, i) => linhas.filter(l => l.margens[i] >= 0).length);
+    wrap.innerHTML = `
+      <div class="vsub-table-head">
+        <span>Sensibilidade ao DY exigido · margem Bazin se o teto fosse calculado com outra taxa (${linhas.length} ativos)</span>
+      </div>
+      <div class="table-wrap">
+        <table class="vt vcmp-table sens-table">
+          <thead>
+            <tr>
+              <th>Ativo</th>
+              <th class="num">DY sobre o preço</th>
+              ${TAXAS_SENSIBILIDADE.map((k, i) => `<th class="num" data-tip="Teto = DPA 5a ÷ ${fPctSimples(k, 0)}. ${resistem[i]} de ${linhas.length} continuam abaixo do teto.">${fPctSimples(k, 0)}${i === 0 ? ' (Bazin)' : ''}<span class="cell-sub">${resistem[i]} abaixo</span></th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${linhas.map(({ a, margens }) => `
+              <tr class="vcmp-row" data-mopen-detail="${escH(a.ticker)}">
+                <td data-label="Ativo"><span class="asset-ticker">${escH(a.ticker)}</span></td>
+                <td class="num mono" data-label="DY sobre o preço">${fPctSimples(a.bazin.dpa_sem_extra / a.preco)}</td>
+                ${margens.map((m, i) => `<td class="num mono sens-cell ${classeSensibilidade(m)}" data-label="${fPctSimples(TAXAS_SENSIBILIDADE[i], 0)}" data-tip="${escH(a.ticker)} com DY exigido de ${fPctSimples(TAXAS_SENSIBILIDADE[i], 0)}: teto ${fReal(a.bazin.dpa_sem_extra / TAXAS_SENSIBILIDADE[i])}, margem ${fPct(m)}">${Math.abs(m) < 0.005 ? '0%' : fPct(m, 0)}</td>`).join('')}
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <p class="d-note">Leitura: um papel que continua verde em 8%–10% tem folga mesmo para quem exige mais renda (ou desconfia do DPA histórico). A coluna "DY sobre o preço" é o DPA médio de 5 anos ÷ cotação atual.</p>`;
   }
 
   function conectarInteracaoSvgMatriz(vbWidth, padR) {
@@ -855,7 +919,7 @@
 
     const nomeX = state.matrizX === 'graham' ? 'Margem vs. Graham' : 'Margem Bazin';
     const nomeTeto = state.matrizX === 'graham' ? 'Graham' : 'Teto Bazin';
-    const nomeY = state.matrizY === 'roic' ? 'ROIC' : 'ROE';
+    const nomeY = eixoY().nome;
     const tituloFiltro = state.matrizQuadrante === 'todos'
       ? 'Todos os quadrantes'
       : QUADRANTES_META[state.matrizQuadrante]?.titulo;
@@ -894,7 +958,7 @@
                     <span class="mquad-pill ${qm.classe}">${escH(qm.titulo)}</span>
                   </td>
                   <td class="num ${p.valX >= 0 ? 't-green' : 't-red'}" data-label="${nomeX}">${fPct(p.valX)}</td>
-                  <td class="num ${p.valY >= limiarQualidadeY() ? 't-green' : ''}" data-label="${nomeY}">${fPctSimples(p.valY)}</td>
+                  <td class="num ${p.valY >= limiarQualidadeY() ? 't-green' : ''}" data-label="${nomeY}">${eixoY().fmt(p.valY)}</td>
                   <td data-label="Anti-Cilada">${htmlSeloSustentabilidade(a)}</td>
                   <td class="num" data-label="Preço / ${nomeTeto}">
                     <div class="cell-stack">
@@ -1326,6 +1390,13 @@
       }
     });
 
+    qs('#matriz-sensibilidade')?.addEventListener('click', (e) => {
+      const row = e.target.closest('[data-mopen-detail]');
+      if (!row) return;
+      const fnDet = window.abrirDetalheAtivo || window.abrirDetalhe;
+      if (typeof fnDet === 'function') fnDet(row.dataset.mopenDetail);
+    });
+
     // --- Eventos do Calendário ---
     qs('#cal-scope-group')?.addEventListener('click', (e) => {
       const b = e.target.closest('[data-cscope]');
@@ -1426,7 +1497,7 @@
   window.aplicarEstadoMatrizCalendario = function (params) {
     if (!params) return;
     if (params.x && ['bazin', 'graham'].includes(params.x)) state.matrizX = params.x;
-    if (params.y && ['roe', 'roic'].includes(params.y)) state.matrizY = params.y;
+    if (params.y && Object.keys(EIXOS_Y).includes(params.y)) state.matrizY = params.y;
     if (params.escopo && ['painel', 'besst', 'dividendos', 'demais', 'todos'].includes(params.escopo)) {
       state.matrizEscopo = params.escopo;
       state.calEscopo = params.escopo;

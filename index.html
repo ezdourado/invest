@@ -14,8 +14,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="./favicon.png">
   <link rel="preload" href="./assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261106_v7">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261106_v10">
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261106_v12">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261106_v12">
   <style>
     /* Regras prioritárias com proteção absoluta contra cache de CSS */
     .d-bazin-proj-grid {
@@ -221,6 +221,14 @@
                 </button>
               </div>
 
+              <!-- Triagens prontas do fluxo Bazin -->
+              <div class="select-wrap views-select-wrap">
+                <span class="sr-only">Triagem</span>
+                <select id="select-triagem" aria-label="Triagens prontas" data-tip="Triagens prontas: Bazin clássico, oportunidades qualificadas, possíveis armadilhas, perto do teto, data-com próxima e mudanças desde o último pregão">
+                  <option value="todas">Triagem: Todas</option>
+                </select>
+              </div>
+
               <!-- Filtro de Análise Técnica (Neutro) -->
               <div class="segmented" role="group" aria-label="Filtrar por análise técnica neutra" id="tech-signal-filter">
                 <button type="button" class="seg-btn is-active" data-tech="todos">Técnica: Todas</button>
@@ -248,8 +256,11 @@
                 <div class="cols-menu is-hidden" id="cols-menu" role="menu">
                   <div class="cols-menu-head">Colunas Visíveis</div>
                   <label class="cols-menu-item"><input type="checkbox" data-col="dpa" checked><span>DPA 5a</span></label>
-                  <label class="cols-menu-item"><input type="checkbox" data-col="falta" checked><span>Falta até teto</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="falta" checked><span>Preço / Teto</span></label>
                   <label class="cols-menu-item"><input type="checkbox" data-col="sustent" checked><span>Anti-Cilada</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="tend" checked><span>Div. 12m / 5a</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="alt"><span>Tetos alternativos</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="tec"><span>Técnica</span></label>
                   <label class="cols-menu-item"><input type="checkbox" data-col="graham" checked><span>Graham</span></label>
                   <label class="cols-menu-item"><input type="checkbox" data-col="gordon" checked><span>Gordon</span></label>
                   <label class="cols-menu-item"><input type="checkbox" data-col="gb" checked><span>Greenblatt</span></label>
@@ -276,17 +287,20 @@
           <div class="filter-chips" id="active-filters"></div>
 
           <div class="table-wrap">
-            <table class="vt" id="engine-valuation-table">
+            <table class="vt hide-col-alt hide-col-tec" id="engine-valuation-table">
               <thead>
                 <tr>
                   <th data-sort="ticker" data-tip="Código de negociação, setor e tendência de 12 meses">Ativo · 12m</th>
                   <th data-sort="preco" class="num" data-tip="Última cotação de fechamento na B3">Preço</th>
                   <th data-sort="dpa" class="num c-dpa" data-tip="Média anual de dividendos e JCP nos últimos 5 anos civis fechados">DPA 5a</th>
                   <th data-sort="teto" class="num" data-tip="Preço-teto Bazin (K = 6% fixo): DPA 5a ÷ 0,06">Teto Bazin</th>
-                  <th data-sort="faltateto" class="num c-falta" data-tip="Diferença em reais até o Teto Bazin (Teto − Preço). Positivo = abaixo do teto.">Falta até teto</th>
+                  <th data-sort="faltateto" class="num c-falta" data-tip="Preço ÷ Teto Bazin. Abaixo de 1,00× = negociando abaixo do teto. A barra mostra o preço (ponto) na escala de 0 a 2× o teto; o traço central é o teto.">Preço / Teto</th>
                   <th data-sort="margem" class="num" data-tip="Margem de segurança Bazin = (Teto − Preço) ÷ Teto">Margem Bazin</th>
                   <th data-sort="veredito" data-tip="Posição atual do preço em relação ao Teto Bazin">Situação</th>
                   <th data-sort="sustentabilidade" class="c-sustent" data-tip="Score Anti-Cilada (0–100): regularidade 5a, cobertura pelo lucro, alavancagem e tendência">Anti-Cilada</th>
+                  <th data-sort="tendencia" class="num c-tend" data-tip="DPA dos últimos 12 meses ÷ DPA médio de 5 anos. Abaixo de 70% = dividendo recente em queda: o teto oficial pode estar superestimado.">Div. 12m / 5a</th>
+                  <th class="num c-alt" data-tip="Tetos direcionais (não entram no veredito): Teto 12 meses (DPA 12m ÷ 6%) e Teto pelo lucro (LPA × payout médio ÷ 6%)">Tetos alternativos</th>
+                  <th class="c-tec" data-tip="Sinal técnico semanal (IFR e médias móveis). Disciplina separada do método Bazin.">Técnica</th>
                   <th data-sort="graham" class="num c-graham th-secondary" data-tip="Valor intrínseco de Graham √(22,5 × LPA × VPA)">Graham</th>
                   <th data-sort="gordon" class="num c-gordon th-secondary" data-tip="Preço justo de Gordon: DPA × (1+g) ÷ (k − g)">Gordon</th>
                   <th data-sort="greenblatt" class="num c-gb th-secondary" data-tip="Posição no ranking Greenblatt (EBIT/EV + ROIC). Bancos não participam.">Greenblatt</th>
@@ -294,9 +308,9 @@
                 </tr>
               </thead>
               <tbody id="engine-valuation-tbody">
-                <tr class="row-skeleton"><td colspan="12"><div class="skeleton"></div></td></tr>
-                <tr class="row-skeleton"><td colspan="12"><div class="skeleton"></div></td></tr>
-                <tr class="row-skeleton"><td colspan="12"><div class="skeleton"></div></td></tr>
+                <tr class="row-skeleton"><td colspan="15"><div class="skeleton"></div></td></tr>
+                <tr class="row-skeleton"><td colspan="15"><div class="skeleton"></div></td></tr>
+                <tr class="row-skeleton"><td colspan="15"><div class="skeleton"></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -555,6 +569,8 @@
           <div class="segmented" id="matriz-yaxis-group" role="group" aria-label="Eixo Y de Qualidade">
             <button type="button" class="seg-btn is-active" data-my="roe" data-tip="Eixo vertical: ROE (Retorno sobre Patrimônio, referência ≥ 15%)">Y: ROE</button>
             <button type="button" class="seg-btn" data-my="roic" data-tip="Eixo vertical: ROIC operacional (referência ≥ 12%; bancos ficam fora)">Y: ROIC</button>
+            <button type="button" class="seg-btn" data-my="score" data-tip="Eixo vertical: Score Anti-Cilada (referência ≥ 75 = Forte). Qualidade do dividendo, não só do negócio.">Y: Anti-Cilada</button>
+            <button type="button" class="seg-btn" data-my="tendencia" data-tip="Eixo vertical: dividendo dos últimos 12 meses ÷ média de 5 anos (referência ≥ 70%). Abaixo do corte = dividendo recente em queda.">Y: Div. 12m/5a</button>
           </div>
 
           <button type="button" class="chip" id="matriz-notrap-btn" data-tip="Oculta ativos classificados como Risco Cilada (Score Anti-Cilada < 50)">
@@ -584,6 +600,9 @@
 
       <!-- Tabela ranqueada do quadrante ativo -->
       <div class="vcompare-table-wrap" id="matriz-table-wrap"></div>
+
+      <!-- Sensibilidade da margem ao DY exigido -->
+      <div class="vcompare-table-wrap" id="matriz-sensibilidade"></div>
     </section>
 
   </div>
@@ -791,8 +810,8 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/data.js?v=20261106_v10"></script>
-<script src="./assets/js/visao_grafica.js?v=20261106_v10"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261106_v7"></script>
+<script src="./assets/js/data.js?v=20261106_v12"></script>
+<script src="./assets/js/visao_grafica.js?v=20261106_v12"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261106_v12"></script>
 </body>
 </html>

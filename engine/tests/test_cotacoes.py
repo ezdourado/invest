@@ -77,3 +77,25 @@ def test_mesmo_dia_sobrescreve_ultimo_ponto():
 
     assert out.historico_datas == ["2026-10-26", "2026-11-05"]
     assert out.ativos[0].historico_precos == [38.0, 42.0]
+
+
+def test_snapshot_anterior_vira_no_primeiro_ciclo_do_dia():
+    """Base gerada ontem vira o 'anterior'; um segundo ciclo no mesmo dia preserva esse anterior."""
+    from engine.build import aplicar_snapshot_anterior
+
+    ontem = _saida_base()  # gerada em 04/11 18h BRT, TAEE11 a 40,00 (verde)
+    hoje_cedo = datetime(2026, 11, 5, 14, 0, tzinfo=timezone.utc)
+    ciclo1 = aplicar_cotacoes(ontem, {"TAEE11": (52.5, date(2026, 11, 5))}, agora=hoje_cedo)
+    ciclo1 = aplicar_snapshot_anterior(ciclo1, ontem, agora=hoje_cedo)
+
+    snap = ciclo1.ativos[0].anterior
+    assert snap is not None
+    assert snap.data == date(2026, 11, 4)
+    assert snap.preco == pytest.approx(40.0)
+    assert snap.veredito == "verde"
+    assert ciclo1.ativos[0].bazin.veredito == "amarelo"  # mudou de faixa desde o pregão anterior
+
+    hoje_tarde = datetime(2026, 11, 5, 19, 0, tzinfo=timezone.utc)
+    ciclo2 = aplicar_cotacoes(ciclo1, {"TAEE11": (53.0, date(2026, 11, 5))}, agora=hoje_tarde)
+    ciclo2 = aplicar_snapshot_anterior(ciclo2, ciclo1, agora=hoje_tarde)
+    assert ciclo2.ativos[0].anterior == snap  # continua comparando com o fechamento de ontem

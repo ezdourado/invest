@@ -4700,3 +4700,33 @@ html[data-theme="light"] .vt tbody tr.row.is-selected td.c-ticker {
 @media (max-width: 480px) {
   .frd-tetos { grid-template-columns: 1fr; }
 }
+
+/* ---------- Fase 2: colunas novas da tabela ---------- */
+.vt.hide-col-tend th.c-tend,
+.vt.hide-col-tend td.c-tend { display: none !important; }
+.vt.hide-col-alt th.c-alt,
+.vt.hide-col-alt td.c-alt { display: none !important; }
+.vt.hide-col-tec th.c-tec,
+.vt.hide-col-tec td.c-tec { display: none !important; }
+.pt-cell { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.pt-cell .mono { font-variant-numeric: tabular-nums; }
+.pt-cell .pt-svg { display: block; overflow: visible; width: 72px !important; height: 8px !important; }
+/* A regra global de ícones (16×16) também achatava a barra divergente da margem. */
+.margin-cell .mbar-svg { display: block; width: 104px !important; height: 5px !important; }
+.alt-teto { display: inline-flex; align-items: baseline; justify-content: flex-end; gap: 6px; white-space: nowrap; }
+.tag-mudou { font-size: 12px; font-weight: 500; padding: 0 6px; border-radius: 4px; border: 1px solid var(--border-strong); color: var(--muted); }
+.tag-mudou.is-entrou { color: var(--green); border-color: currentColor; }
+.tag-mudou.is-saiu { color: var(--red); border-color: currentColor; }
+.tag-mudou.is-teto { color: var(--yellow); border-color: currentColor; }
+.kpi-foot-stack { display: flex; flex-direction: column; gap: 2px; }
+
+/* ---------- Matriz: sensibilidade da margem ao DY exigido ---------- */
+#matriz-sensibilidade { margin-top: 16px; }
+.sens-table th .cell-sub { display: block; font-weight: 400; }
+.sens-cell { font-variant-numeric: tabular-nums; }
+.vt.sens-table td.sens-cell.sens-g3 { background: color-mix(in srgb, var(--green) 55%, transparent); color: var(--text-strong); }
+.vt.sens-table td.sens-cell.sens-g2 { background: color-mix(in srgb, var(--green) 36%, transparent); color: var(--text-strong); }
+.vt.sens-table td.sens-cell.sens-g1 { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--text-strong); }
+.vt.sens-table td.sens-cell.sens-y { background: color-mix(in srgb, var(--yellow) 28%, transparent); color: var(--text-strong); }
+.vt.sens-table td.sens-cell.sens-r1 { background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--muted); }
+.vt.sens-table td.sens-cell.sens-r2 { background: color-mix(in srgb, var(--red) 26%, transparent); color: var(--muted); }
