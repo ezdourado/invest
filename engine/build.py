@@ -10,7 +10,13 @@ from pathlib import Path
 from typing import Any, Optional
 
 from engine.schemas import Ativo, Dividendo, ResultadoAtivo, Saida
-from engine.sources import CAMINHO_TICKERS_PADRAO, carregar_tickers_json, coletar_benchmarks_historico, obter_ativos
+from engine.sources import (
+    CAMINHO_TICKERS_PADRAO,
+    carregar_tickers_json,
+    coletar_benchmarks_historico,
+    coletar_cotacoes_lote,
+    obter_ativos,
+)
 from engine.valuation import (
     avaliar_bazin,
     avaliar_sustentabilidade,
@@ -22,6 +28,7 @@ from engine.valuation import (
     proporcao_abaixo_teto,
     ranking_greenblatt,
     resolver_categoria_ativo,
+    veredito_bazin,
 )
 
 TAXA_DESCONTO_GORDON_PADRAO: float = 0.10
@@ -245,6 +252,85 @@ def construir_saida(
     )
 
 
+def aplicar_cotacoes(
+    saida: Saida,
+    cotacoes: dict[str, tuple[float, date]],
+    agora: datetime | None = None,
+) -> Saida:
+    """Atualiza apenas preços e métricas derivadas do preço em uma Saida já calculada.
+
+    Usado no ciclo rápido intradiário: DPA, tetos, proventos e fundamentos contábeis
+    permanecem os do último build completo; só o que depende da cotação é recalculado
+    (margens, veredito, P/L, P/VP e o último ponto da série histórica).
+    Ativos sem cotação nova mantêm os valores anteriores.
+    """
+    momento = agora if agora is not None else datetime.now(timezone.utc)
+    hoje_iso = momento.astimezone(FUSO_B3).date().isoformat()
+
+    datas = list(saida.historico_datas)
+    anexar_data = bool(datas) and hoje_iso > datas[-1]
+    if anexar_data:
+        datas.append(hoje_iso)
+
+    novos_ativos: list[ResultadoAtivo] = []
+    for a in saida.ativos:
+        cot = cotacoes.get(a.ticker)
+        serie = list(a.historico_precos)
+        if anexar_data and serie:
+            serie.append(serie[-1])
+
+        if cot is None or not cot[0] or cot[0] <= 0:
+            novos_ativos.append(a.model_copy(update={"historico_precos": serie}))
+            continue
+
+        preco = round(float(cot[0]), 4)
+        data_cot = cot[1].strftime("%d/%m/%Y")
+        if serie:
+            serie[-1] = round(preco, 2)
+
+        b = a.bazin
+        bazin_novo = b.model_copy(update={
+            "margem_seguranca": margem(b.teto, preco),
+            "veredito": veredito_bazin(b.teto, preco),
+            "margem_projetada_consenso": margem(b.teto_projetado_consenso, preco) if b.teto_projetado_consenso else None,
+            "margem_projetada_barsi": margem(b.teto_projetado_barsi, preco) if b.teto_projetado_barsi else None,
+        })
+
+        fund = a.fundamentos
+        if fund is not None:
+            upd_f: dict[str, Any] = {"data_ult_cot": data_cot}
+            if fund.lpa:
+                upd_f["pl"] = round(preco / fund.lpa, 2)
+            if fund.vpa and fund.vpa > 0:
+                upd_f["pvp"] = round(preco / fund.vpa, 2)
+            fund = fund.model_copy(update=upd_f)
+
+        novos_ativos.append(a.model_copy(update={
+            "preco": preco,
+            "data_ult_cot": data_cot,
+            "fundamentos": fund,
+            "bazin": bazin_novo,
+            "margem_consenso": margem(a.teto_consenso, preco) if a.teto_consenso else None,
+            "margem_barsi": margem(a.teto_barsi, preco) if a.teto_barsi else None,
+            "margem_graham": margem(a.graham, preco) if a.graham else None,
+            "margem_gordon": margem(a.gordon, preco) if a.gordon else None,
+            "historico_precos": serie,
+        }))
+
+    benchmarks = {k: list(v) for k, v in saida.benchmarks_historico.items()}
+    if anexar_data:
+        for k, v in benchmarks.items():
+            if v:
+                v.append(v[-1])
+
+    return saida.model_copy(update={
+        "gerado_em": momento,
+        "historico_datas": datas,
+        "benchmarks_historico": benchmarks,
+        "ativos": novos_ativos,
+    })
+
+
 def serializar_saida(saida_validada: Saida) -> str:
     """Serializa o objeto Saida validado em JSON legível e compacto."""
     bruto: dict[str, Any] = saida_validada.model_dump(mode="json")
@@ -265,10 +351,26 @@ def main() -> None:
         default=CAMINHO_TICKERS_PADRAO,
         help="Caminho para o arquivo JSON com a lista de tickers e setores.",
     )
+    parser.add_argument(
+        "--cotacoes",
+        action="store_true",
+        help="Ciclo rápido: atualiza só as cotações (e métricas derivadas) do data/valuation.json existente.",
+    )
     args = parser.parse_args()
 
     raiz_projeto = Path(__file__).resolve().parent.parent
     caminho_saida = raiz_projeto / "data" / "valuation.json"
+
+    if args.cotacoes:
+        saida_atual = Saida.model_validate_json(caminho_saida.read_text(encoding="utf-8"))
+        cotacoes = coletar_cotacoes_lote([a.ticker for a in saida_atual.ativos])
+        if not cotacoes:
+            raise RuntimeError("Nenhuma cotação obtida no ciclo rápido; arquivo mantido sem alterações.")
+        saida = aplicar_cotacoes(saida_atual, cotacoes)
+        saida_validada = Saida.model_validate(saida.model_dump(mode="json"))
+        caminho_saida.write_text(serializar_saida(saida_validada), encoding="utf-8")
+        print(f"Cotações atualizadas: {len(cotacoes)}/{len(saida_atual.ativos)} ativos ({caminho_saida})")
+        return
 
     if args.offline:
         caminho_exemplo = Path(__file__).resolve().parent / "exemplo_ativos.json"

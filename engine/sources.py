@@ -414,6 +414,50 @@ def _coletar_agenda_investidor10(
     return dict(resultado)
 
 
+def coletar_cotacoes_lote(tickers_b3: list[str]) -> dict[str, tuple[float, date]]:
+    """Baixa em uma única requisição a última cotação diária (com delay padrão) de todos os tickers.
+
+    Retorna {ticker: (preço, data do pregão)}; tickers sem dado válido ficam de fora.
+    """
+    unicos = list(dict.fromkeys(t.replace(".SA", "").strip().upper() for t in tickers_b3 if t.strip()))
+    if not unicos:
+        return {}
+    yf_symbols = [f"{t}.SA" for t in unicos]
+    resultado: dict[str, tuple[float, date]] = {}
+    try:
+        df = yf.download(
+            yf_symbols,
+            period="5d",
+            interval="1d",
+            auto_adjust=False,
+            progress=False,
+            threads=True,
+            group_by="column",
+        )
+    except Exception:
+        return {}
+    if df is None or df.empty or "Close" not in df:
+        return {}
+
+    closes = df["Close"]
+    for t_b3, sym in zip(unicos, yf_symbols):
+        if hasattr(closes, "columns"):
+            if sym not in closes.columns:
+                continue
+            serie = closes[sym].dropna()
+        else:
+            serie = closes.dropna()
+        if serie.empty:
+            continue
+        v = _limpar_float(serie.iloc[-1])
+        if v is None or v <= 0:
+            continue
+        idx_dt = serie.index[-1]
+        dt_cot = idx_dt.date() if hasattr(idx_dt, "date") else date.fromisoformat(str(idx_dt)[:10])
+        resultado[t_b3] = (v, dt_cot)
+    return resultado
+
+
 def _coletar_historico_5a_lote(tickers_b3: list[str]) -> dict[str, list[tuple[str, float]]]:
     """Baixa em lote a série semanal de 10 anos (`Close` com `auto_adjust=False`) para os tickers."""
     if not tickers_b3:
