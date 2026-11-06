@@ -39,8 +39,8 @@
     },
     barsi: {
       chave: 'barsi',
-      nome: 'Teto Barsi/AGF',
-      curto: 'Barsi/AGF',
+      nome: 'Teto pelo lucro (LPA × payout médio)',
+      curto: 'Lucro',
       cor: '#f97316',
       swatchCls: 'is-barsi',
       dash: '4 3',
@@ -273,10 +273,11 @@
     sidebarRecolhida: Boolean(prefsSalvas.sidebarRecolhida),
     tetosVisiveis: {
       bazin: prefsSalvas.tetosVisiveis?.bazin !== false,
-      consenso: prefsSalvas.tetosVisiveis?.consenso !== false,
+      // Consenso e Gordon são referência teórica: desligados até o usuário ligar.
+      consenso: prefsSalvas.tetosVisiveis?.consenso === true,
       barsi: prefsSalvas.tetosVisiveis?.barsi !== false,
       graham: prefsSalvas.tetosVisiveis?.graham !== false,
-      gordon: prefsSalvas.tetosVisiveis?.gordon !== false
+      gordon: prefsSalvas.tetosVisiveis?.gordon === true
     },
     mediasVisiveis: {
       mma21: Boolean(prefsSalvas.mediasVisiveis?.mma21),
@@ -437,53 +438,13 @@
       return datas.map(d => ({ data: d, teto: null }));
     }
 
-    // Fonte preferencial: teto vigente em cada ano calculado no motor com a MESMA regra do teto
-    // atual (média dos 5 anos fechados anteriores, anos atípicos normalizados).
-    const tetoPorAno = ativo.bazin?.teto_por_ano;
-    if (tetoPorAno && Object.keys(tetoPorAno).length) {
-      return datas.map(dtIso => {
-        const v = tetoPorAno[dtIso.slice(0, 4)];
-        return { data: dtIso, teto: ehValido(v) && v > 0 ? Math.round(v * 100) / 100 : null };
-      });
-    }
-
-    // Compatibilidade com bases antigas (sem teto_por_ano).
-    const provs = Array.isArray(ativo.proventos_historico)
-      ? ativo.proventos_historico.filter(p => p && ehValido(p.valor) && p.valor > 0 && p.tipo !== 'extraordinario')
-      : [];
-    const porAno = ativo.bazin?.por_ano || {};
-
+    // Teto vigente em cada ano, calculado no motor com a MESMA regra do teto atual (média dos
+    // 5 anos fechados anteriores, anos atípicos normalizados). O navegador não recalcula Bazin.
+    // Anos sem histórico suficiente na fonte ficam sem teto (linha interrompida).
+    const tetoPorAno = ativo.bazin?.teto_por_ano || {};
     return datas.map(dtIso => {
-      const dtObj = new Date(dtIso + 'T12:00:00Z');
-      const dt365Ant = new Date(dtObj.getTime() - 365.25 * 86400000).toISOString().slice(0, 10);
-      const provs12m = provs.filter(p => p.data_com <= dtIso && p.data_com > dt365Ant);
-      const soma12m = provs12m.reduce((acc, p) => acc + p.valor, 0);
-
-      const anoAtual = dtObj.getUTCFullYear();
-      const anosDisponiveis = Object.keys(porAno)
-        .map(Number)
-        .filter(a => a < anoAtual && ehValido(porAno[String(a)]));
-
-      let tetoPonto = null;
-      if (anosDisponiveis.length >= 2) {
-        const ultimosAnos = anosDisponiveis.slice(-5);
-        const somaAnos = ultimosAnos.reduce((acc, a) => acc + porAno[String(a)], 0);
-        const dpaAnual = somaAnos / ultimosAnos.length;
-        if (dpaAnual > 0) {
-          tetoPonto = dpaAnual / 0.06;
-        }
-      } else if (soma12m > 0) {
-        tetoPonto = soma12m / 0.06;
-      }
-
-      if (!tetoPonto || tetoPonto <= 0) {
-        tetoPonto = tetoAtualFixo;
-      }
-
-      return {
-        data: dtIso,
-        teto: Math.round(tetoPonto * 100) / 100
-      };
+      const v = tetoPorAno[dtIso.slice(0, 4)];
+      return { data: dtIso, teto: ehValido(v) && v > 0 ? Math.round(v * 100) / 100 : null };
     });
   }
 

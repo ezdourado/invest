@@ -20,142 +20,8 @@ const CARTEIRA_EXECUTIVA_PADRAO = [
   'VALE3', 'PETR4', 'WEGE3'
 ];
 
-const SETORES_BESST = [
-  { id: 'bancos', letra: 'B', nome: 'Bancos' },
-  { id: 'energia', letra: 'E', nome: 'Energia' },
-  { id: 'saneamento', letra: 'S', nome: 'Saneamento' },
-  { id: 'seguros', letra: 'S', nome: 'Seguros' },
-  { id: 'telecom', letra: 'T', nome: 'Telecom' }
-];
-
-const CATEGORIAS_EXTRAS = [
-  { id: 'dividendos', letra: 'D', nome: 'Outras Dividendos', desc: 'Commodities, indústria e finanças fora do BESST' },
-  { id: 'demais', letra: '+', nome: 'Demais papéis', desc: 'Crescimento, consumo, saúde, tecnologia e outros setores' }
-];
-
-const ORDEM_VEREDITO = { verde: 0, amarelo: 1, vermelho: 2 };
-const ROTULO_VEREDITO = {
-  verde: 'Abaixo do teto',
-  amarelo: 'Próximo do teto',
-  vermelho: 'Acima do teto',
-  bullish: 'Tendência Bullish',
-  bearish: 'Tendência Bearish'
-};
-
 /* ---------- Análise Técnica (MMA 21, MMA 50, MMA 200, IFR 14 & Score de Tendência) ---------- */
 
-function calcularAnaliseTecnica(a) {
-  if (!a) return null;
-  const precos = (a.historico_precos || []).filter(v => typeof v === 'number' && v > 0);
-  if (!precos.length && a.preco > 0) precos.push(a.preco);
-  if (!precos.length) return null;
-
-  const n = precos.length;
-  const precoAtual = a.preco || precos[n - 1];
-
-  const mma = (periodo) => {
-    if (n < Math.min(periodo, 4)) return null;
-    const slice = precos.slice(-periodo);
-    const soma = slice.reduce((acc, v) => acc + v, 0);
-    return Math.round((soma / slice.length) * 100) / 100;
-  };
-
-  const mma9 = mma(9);
-  const mma21 = mma(21);
-  const mma50 = mma(50);
-  const mma200 = n >= 50 ? mma(200) : null;
-
-  // IFR 14 semanas
-  let ifr14 = null;
-  if (n >= 15) {
-    const periodos = 14;
-    const slice = precos.slice(-periodos - 1);
-    let ganhos = 0;
-    let perdas = 0;
-    for (let i = 1; i < slice.length; i++) {
-      const diff = slice[i] - slice[i - 1];
-      if (diff > 0) ganhos += diff;
-      else perdas += Math.abs(diff);
-    }
-    const mediaGanhos = ganhos / periodos;
-    const mediaPerdas = perdas / periodos;
-    if (mediaPerdas === 0) ifr14 = 100;
-    else {
-      const rs = mediaGanhos / mediaPerdas;
-      ifr14 = Math.round((100 - (100 / (1 + rs))) * 10) / 10;
-    }
-  }
-
-  // Score de Tendência (0 a 100)
-  let score = 0;
-  let maxScore = 0;
-
-  // 1. Preço vs MMA 21 (+25 pts)
-  maxScore += 25;
-  if (mma21 !== null && precoAtual >= mma21) score += 25;
-
-  // 2. Preço vs MMA 50 (+25 pts)
-  maxScore += 25;
-  if (mma50 !== null && precoAtual >= mma50) score += 25;
-
-  // 3. MMA 21 vs MMA 50 (+20 pts)
-  if (mma21 !== null && mma50 !== null) {
-    maxScore += 20;
-    if (mma21 >= mma50) score += 20;
-  }
-
-  // 4. Preço vs MMA 200 (+15 pts)
-  if (mma200 !== null) {
-    maxScore += 15;
-    if (precoAtual >= mma200) score += 15;
-  }
-
-  // 5. IFR Momentum (+15 pts)
-  if (ifr14 !== null) {
-    maxScore += 15;
-    if (ifr14 >= 50 && ifr14 <= 70) score += 15;
-    else if (ifr14 >= 40 && ifr14 < 50) score += 10;
-    else if (ifr14 > 70) score += 8;
-    else if (ifr14 >= 30 && ifr14 < 40) score += 5;
-  }
-
-  const scoreNormalizado = maxScore > 0 ? Math.round((score / maxScore) * 100) : 50;
-
-  let status = 'neutro';
-  let rotulo = 'Tendência Neutra';
-  if (scoreNormalizado >= 65) {
-    status = 'bullish';
-    rotulo = 'Bullish (Tendência de Alta)';
-  } else if (scoreNormalizado <= 35) {
-    status = 'bearish';
-    rotulo = 'Bearish (Tendência de Baixa)';
-  }
-
-  const sinais = [];
-  if (mma21 && mma50 && mma21 > mma50) sinais.push('MMA 21 acima da MMA 50 (Alinhamento altista)');
-  else if (mma21 && mma50 && mma21 < mma50) sinais.push('MMA 21 abaixo da MMA 50 (Pressão vendedora)');
-
-  if (ifr14 !== null) {
-    if (ifr14 < 30) sinais.push(`IFR Sobrevendido (${ifr14}) · Potencial repique`);
-    else if (ifr14 > 70) sinais.push(`IFR Sobrecomprado (${ifr14}) · Cautela no curto prazo`);
-  }
-
-  if (mma200 && precoAtual > mma200) sinais.push('Acima da MMA 200 (Tendência primária de alta)');
-  else if (mma200 && precoAtual < mma200) sinais.push('Abaixo da MMA 200 (Tendência primária de baixa)');
-
-  return {
-    precoAtual,
-    mma9,
-    mma21,
-    mma50,
-    mma200,
-    ifr14,
-    score: scoreNormalizado,
-    status,
-    rotulo,
-    sinais
-  };
-}
 window.calcularAnaliseTecnica = calcularAnaliseTecnica;
 
 function htmlBadgeTecnico(a) {
@@ -179,8 +45,8 @@ const ICONE_VEREDITO = {
 
 const OPCOES_ORDENACAO = [
   { key: 'margem', dir: 'desc', label: 'Maior margem Bazin' },
-  { key: 'margem_consenso', dir: 'desc', label: 'Maior margem Projetada (Consenso)' },
-  { key: 'margem_barsi', dir: 'desc', label: 'Maior margem Projetada (Barsi/AGF)' },
+  { key: 'margem_consenso', dir: 'desc', label: 'Maior margem Consenso (referência)' },
+  { key: 'margem_barsi', dir: 'desc', label: 'Maior margem pelo lucro (LPA × payout médio)' },
   { key: 'faltateto', dir: 'desc', label: 'Menor Preço / Teto' },
   { key: 'tendencia', dir: 'asc', label: 'Maior queda do dividendo (12m / 5a)' },
   { key: 'sustentabilidade', dir: 'desc', label: 'Maior Score Anti-Cilada' },
@@ -232,125 +98,8 @@ window.definirRegraCssDinamica = definirRegraCssDinamica;
 
 const $ = (sel) => document.querySelector(sel);
 
-function esc(str) {
-  return String(str ?? '').replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[c]));
-}
-
-function valido(v) {
-  return v !== null && v !== undefined && typeof v === 'number' && !Number.isNaN(v) && Number.isFinite(v);
-}
-
-function fmtReal(v) {
-  if (!valido(v)) return '—';
-  return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function fmtRealSinal(v) {
-  if (!valido(v)) return '—';
-  const sinal = v > 0 ? '+' : (v < 0 ? '−' : '');
-  const abs = Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return `${sinal}R$ ${abs}`;
-}
-
-function fmtPct(v, casas = 1) {
-  if (!valido(v)) return '—';
-  const pct = v * 100;
-  const sinal = pct > 0 ? '+' : '';
-  return sinal + pct.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) + '%';
-}
-
-function fmtPctSimples(v, casas = 1) {
-  if (!valido(v)) return '—';
-  const pct = v * 100;
-  return pct.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) + '%';
-}
-
-function fmtMult(v, sufixo = 'x') {
-  if (!valido(v)) return '—';
-  return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + sufixo;
-}
-
-function fmtMoedaCompacta(v) {
-  if (!valido(v) || v === 0) return '—';
-  const sinal = v < 0 ? '−' : '';
-  const abs = Math.abs(v);
-  if (abs >= 1e9) return sinal + 'R$ ' + (abs / 1e9).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' bi';
-  if (abs >= 1e6) return sinal + 'R$ ' + (abs / 1e6).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' mi';
-  if (abs >= 1e3) return sinal + 'R$ ' + (abs / 1e3).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' mil';
-  return fmtReal(v);
-}
-
-function urlInvestidor10(ticker) {
-  const clean = String(ticker || '').trim().toLowerCase();
-  return `https://investidor10.com.br/acoes/${encodeURIComponent(clean)}/`;
-}
-
-function debounce(fn, espera = 150) {
-  let timer = null;
-  return function (...args) {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, args), espera);
-  };
-}
 window.debounce = debounce;
 
-/* Parser local seguro para 'YYYY-MM-DD' sem deslocamento de fuso UTC */
-function parseDataLocalIso(iso) {
-  if (!iso || typeof iso !== 'string') return null;
-  const m = iso.slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!m) return null;
-  return { ano: Number(m[1]), mes: Number(m[2]), dia: Number(m[3]) };
-}
-
-function fmtDataIso(iso) {
-  const p = parseDataLocalIso(iso);
-  if (!p) return iso || '—';
-  return `${String(p.dia).padStart(2, '0')}/${String(p.mes).padStart(2, '0')}/${p.ano}`;
-}
-
-function fmtDataCurtaBr(strData) {
-  if (!strData || typeof strData !== 'string') return '';
-  const mIso = strData.slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (mIso) return `${mIso[3]}/${mIso[2]}`;
-  const mBr = strData.trim().match(/^(\d{2})\/(\d{2})(?:\/(\d{2,4}))?$/);
-  if (mBr) return `${mBr[1]}/${mBr[2]}`;
-  return strData;
-}
-
-function formatarDataHoraSaoPaulo(isoUtc) {
-  if (!isoUtc) return { dataCurta: '—', dataCompleta: '—', hora: '—', dateObj: null };
-  const dt = new Date(isoUtc);
-  if (Number.isNaN(dt.getTime())) {
-    return { dataCurta: String(isoUtc), dataCompleta: String(isoUtc), hora: '', dateObj: null };
-  }
-  try {
-    const partes = new Intl.DateTimeFormat('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).formatToParts(dt);
-    const map = {};
-    partes.forEach(p => { map[p.type] = p.value; });
-    return {
-      dataCurta: `${map.day}/${map.month}`,
-      dataCompleta: `${map.day}/${map.month}/${map.year}`,
-      hora: `${map.hour}:${map.minute}`,
-      dateObj: dt
-    };
-  } catch (_) {
-    return {
-      dataCurta: dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-      dataCompleta: dt.toLocaleDateString('pt-BR'),
-      hora: dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-      dateObj: dt
-    };
-  }
-}
 window.formatarDataHoraSaoPaulo = formatarDataHoraSaoPaulo;
 
 function obterDataRealUltimaCotacao(universo) {
@@ -372,162 +121,9 @@ function obterDataRealUltimaCotacao(universo) {
 }
 window.obterDataRealUltimaCotacao = obterDataRealUltimaCotacao;
 
-function agoraSaoPaulo() {
-  try {
-    const partes = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/Sao_Paulo',
-      weekday: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-      hourCycle: 'h23'
-    }).formatToParts(new Date());
-    const map = {};
-    partes.forEach(p => { map[p.type] = p.value; });
-    const diaUtil = !['Sat', 'Sun'].includes(map.weekday);
-    return { diaUtil, minutosDia: (parseInt(map.hour, 10) % 24) * 60 + parseInt(map.minute, 10) };
-  } catch (_) {
-    const d = new Date(Date.now() - 3 * 3600 * 1000);
-    const dow = d.getUTCDay();
-    return { diaUtil: dow >= 1 && dow <= 5, minutosDia: d.getUTCHours() * 60 + d.getUTCMinutes() };
-  }
-}
-
-function fmtIdadeBase(min) {
-  if (min < 1) return 'menos de 1 min';
-  if (min < 60) return `${min} min`;
-  const h = Math.floor(min / 60);
-  if (h < 48) return `${h} h${min % 60 && h < 6 ? ` ${min % 60} min` : ''}`;
-  return `${Math.floor(h / 24)} dias`;
-}
-
-function hojeIsoSaoPaulo() {
-  try {
-    const partes = new Intl.DateTimeFormat('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(new Date());
-    const map = {};
-    partes.forEach(p => { map[p.type] = p.value; });
-    return `${map.year}-${map.month}-${map.day}`;
-  } catch (_) {
-    return new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10);
-  }
-}
 window.hojeIsoSaoPaulo = hojeIsoSaoPaulo;
 
-function diasAteDataIsoB3(isoAlvo) {
-  const pAlvo = parseDataLocalIso(isoAlvo);
-  const pHoje = parseDataLocalIso(hojeIsoSaoPaulo());
-  if (!pAlvo || !pHoje) return null;
-  const tAlvo = Date.UTC(pAlvo.ano, pAlvo.mes - 1, pAlvo.dia);
-  const tHoje = Date.UTC(pHoje.ano, pHoje.mes - 1, pHoje.dia);
-  return Math.round((tAlvo - tHoje) / 86400000);
-}
-
-function classeMargem(v) {
-  if (!valido(v)) return 't-dim';
-  if (v >= 0) return 't-green';
-  if (v >= -0.05) return 't-yellow';
-  return 't-red';
-}
-
-function classeRoe(v) {
-  if (!valido(v)) return 't-dim';
-  if (v >= 0.15) return 't-green';
-  if (v >= 0.08) return 't-yellow';
-  return 't-red';
-}
-
-function classeRoic(v) {
-  if (!valido(v)) return 't-dim';
-  if (v >= 0.12) return 't-green';
-  if (v >= 0.07) return 't-yellow';
-  return 't-red';
-}
-
-function classeAlavancagem(v, limiteBom = 2.5, limiteAlerta = 3.5) {
-  if (!valido(v)) return 't-dim';
-  if (v <= limiteBom) return 't-green';
-  if (v <= limiteAlerta) return 't-yellow';
-  return 't-red';
-}
-
-function classePl(v) {
-  if (!valido(v)) return 't-dim';
-  if (v <= 0) return 't-red';
-  if (v <= 10) return 't-green';
-  if (v <= 15) return '';
-  return 't-yellow';
-}
-
-function classePvp(v) {
-  if (!valido(v)) return 't-dim';
-  if (v <= 0) return 't-red';
-  if (v <= 1.05) return 't-green';
-  if (v <= 2.0) return '';
-  return 't-yellow';
-}
-
-function mapearSetorBesst(setor) {
-  if (!setor) return null;
-  const s = setor.trim().toLowerCase();
-  if (s.startsWith('banco')) return 'bancos';
-  if (s.startsWith('energia') || s.startsWith('eletric') || s.startsWith('elétric')) return 'energia';
-  if (s.startsWith('saneamento')) return 'saneamento';
-  if (s.startsWith('segur')) return 'seguros';
-  if (s.startsWith('telecom')) return 'telecom';
-  return null;
-}
-
-function categoriaDoAtivo(a) {
-  if (!a) return 'dividendos';
-  if (a.categoria === 'demais') return 'demais';
-  if (a.besst || mapearSetorBesst(a.setor)) return 'besst';
-  return 'dividendos';
-}
-
-function nomeSetor(id) {
-  if (id === 'besst') return 'Somente BESST';
-  if (id === 'dividendos') return 'Outras Dividendos';
-  if (id === 'demais') return 'Demais papéis';
-  if (id === 'outros') return 'Fora do BESST';
-  return SETORES_BESST.find(s => s.id === id)?.nome || id;
-}
-
-function mediana(lista) {
-  const v = lista.filter(valido).sort((a, b) => a - b);
-  if (!v.length) return null;
-  const m = Math.floor(v.length / 2);
-  return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
-}
-
-function razaoDpaPreco(a) {
-  const dpa = a.bazin?.dpa_sem_extra;
-  return valido(dpa) && a.preco > 0 ? dpa / a.preco : null;
-}
-
-function diferencaAteTeto(a) {
-  const teto = a?.bazin?.teto;
-  if (!valido(teto) || teto <= 0 || !valido(a?.preco)) return null;
-  return teto - a.preco;
-}
-
 /* ---------- Persistência & Tema ---------- */
-
-function lerStorage(chave, padrao) {
-  try {
-    const raw = localStorage.getItem(chave);
-    return raw ? JSON.parse(raw) : padrao;
-  } catch (_) {
-    return padrao;
-  }
-}
-
-function gravarStorage(chave, valor) {
-  try { localStorage.setItem(chave, JSON.stringify(valor)); } catch (_) { /* modo privado */ }
-}
 
 function inicializarTema() {
   let tema = 'dark';
@@ -642,63 +238,6 @@ function ordenar(lista) {
 }
 
 /* ---------- Triagens prontas (fluxo Bazin) ---------- */
-
-function margemAtivo(a) {
-  return a.bazin?.teto > 0 && valido(a.bazin?.margem_seguranca) ? a.bazin.margem_seguranca : null;
-}
-
-function dividendoSemQueda(a) {
-  const r = a.bazin?.razao_12m_5a;
-  return !valido(r) || r >= 0.7;
-}
-
-// Abaixo do teto + score Forte/Moderado + dividendo recente sem queda.
-function passaFiltroQualidade(a) {
-  const nivel = a.sustentabilidade?.nivel;
-  return a.bazin?.veredito === 'verde' && (nivel === 'forte' || nivel === 'moderado') && dividendoSemQueda(a);
-}
-
-function diasAteDataCom(a) {
-  const dc = a.proxima_data_com?.data_com;
-  if (!dc) return null;
-  const hoje = new Date(hojeIsoSaoPaulo() + 'T12:00:00Z');
-  const alvo = new Date(String(dc).slice(0, 10) + 'T12:00:00Z');
-  return Math.round((alvo - hoje) / 86400000);
-}
-
-const TRIAGENS = {
-  todas: { rotulo: 'Todas', filtro: () => true },
-  classico: {
-    rotulo: 'Bazin clássico',
-    tip: 'Abaixo do teto, pagou nos 5 anos fechados, Score Anti-Cilada ≥ 75 e dividendo dos últimos 12 meses ≥ 70% da média.',
-    filtro: a => a.bazin?.veredito === 'verde' && (a.sustentabilidade?.anos_pagos_5a ?? 0) >= 5 && (a.sustentabilidade?.nota ?? 0) >= 75 && dividendoSemQueda(a)
-  },
-  qualificada: {
-    rotulo: 'Oportunidades qualificadas',
-    tip: 'Abaixo do teto, Score Anti-Cilada Forte ou Moderado e dividendo recente sem queda.',
-    filtro: passaFiltroQualidade
-  },
-  armadilha: {
-    rotulo: 'Possíveis armadilhas',
-    tip: 'Margem ≥ 15% (parece barato), mas o dividendo dos últimos 12 meses caiu abaixo de 70% da média ou o Score Anti-Cilada está em Risco.',
-    filtro: a => (margemAtivo(a) ?? -9) >= 0.15 && (!dividendoSemQueda(a) || a.sustentabilidade?.nivel === 'alerta')
-  },
-  perto: {
-    rotulo: 'Perto do teto (±5%)',
-    tip: 'Margem entre −5% e +5%: candidatos a entrar ou sair da zona de compra.',
-    filtro: a => { const m = margemAtivo(a); return m !== null && m >= -0.05 && m <= 0.05; }
-  },
-  datacom: {
-    rotulo: 'Data-com em até 15 dias',
-    tip: 'Data-com anunciada nos próximos 15 dias e preço abaixo do teto.',
-    filtro: a => { const d = diasAteDataCom(a); return d !== null && d >= 0 && d <= 15 && (margemAtivo(a) ?? -9) >= 0; }
-  },
-  mudou: {
-    rotulo: 'Mudou desde o último pregão',
-    tip: 'Papéis que mudaram de faixa (veredito) ou tiveram o teto recalculado desde o fechamento anterior.',
-    filtro: a => !!htmlMudancaPregao(a)
-  }
-};
 
 function definirTriagem(id) {
   painelState.triagem = TRIAGENS[id] ? id : 'todas';
@@ -1011,11 +550,6 @@ function htmlVeredito(v) {
   return `<span class="verdict verdict-${k}"><span class="verdict-icon" aria-hidden="true">${ICONE_VEREDITO[k]}</span><span>${ROTULO_VEREDITO[k]}</span></span>`;
 }
 
-function fmtMultiplo(v) {
-  if (!valido(v)) return '—';
-  return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '×';
-}
-
 /* Preço ÷ Teto com marcador: escala de 0 a 2× o teto, traço central = teto */
 function htmlPrecoTeto(a, falta) {
   const teto = a.bazin?.teto;
@@ -1074,23 +608,6 @@ function htmlMudancaPregao(a) {
     return `<span class="tag tag-mudou is-teto" data-tip="Teto mudou desde o pregão de ${esc(fmtDataIso(ant.data))}: ${fmtReal(ant.teto)} → ${fmtReal(b.teto)} (novo provento ou revisão do histórico)">Teto Δ</span>`;
   }
   return '';
-}
-
-function mudancasDesdePregao(lista) {
-  const entraram = [];
-  const sairam = [];
-  const tetoMudou = [];
-  let dataRef = null;
-  lista.forEach(a => {
-    const ant = a.anterior;
-    const b = a.bazin || {};
-    if (!ant || !(b.teto > 0)) return;
-    dataRef = dataRef || ant.data;
-    if (ant.veredito !== 'verde' && b.veredito === 'verde') entraram.push(a.ticker);
-    else if (ant.veredito === 'verde' && b.veredito !== 'verde') sairam.push(a.ticker);
-    if (ant.teto > 0 && Math.abs(b.teto - ant.teto) / ant.teto > 0.005) tetoMudou.push(a.ticker);
-  });
-  return { entraram, sairam, tetoMudou, dataRef };
 }
 
 /* Barra divergente centrada no zero via SVG (sem style inline) */
@@ -1389,13 +906,15 @@ function htmlComparativoModelos(a) {
   const tc = a.teto_consenso ?? a.bazin?.teto_projetado_consenso;
   const tb = a.teto_barsi ?? a.bazin?.teto_projetado_barsi;
 
+  // Modelos principais para o método Bazin. Consenso (lucro projetado do Yahoo) e Gordon (k fixo)
+  // ficam em "Outros modelos", como referência teórica.
   const modelos = [
     { nome: 'Teto Bazin (5a)', valor: a.bazin?.teto > 0 ? a.bazin.teto : null, cor: '#06b6d4' },
-    { nome: 'Teto Consenso', valor: (tc && tc > 0) ? tc : null, cor: '#a3e635' },
-    { nome: 'Teto Barsi/AGF', valor: (tb && tb > 0) ? tb : null, cor: '#f97316' },
-    { nome: 'Graham', valor: a.graham, cor: '#a855f7' },
-    { nome: 'Gordon', valor: a.gordon, cor: '#f472b6' }
+    { nome: 'Teto 12 meses', valor: a.bazin?.teto_12m > 0 ? a.bazin.teto_12m : null, cor: '#22d3ee' },
+    { nome: 'Teto pelo lucro', valor: (tb && tb > 0) ? tb : null, cor: '#f97316' },
+    { nome: 'Graham', valor: a.graham, cor: '#a855f7' }
   ];
+  void tc;
   const valores = [a.preco, ...modelos.map(m => m.valor)].filter(valido);
   const max = Math.max(...valores, 1) * 1.12;
   const xBase = 110;
@@ -1426,72 +945,27 @@ function htmlComparativoModelos(a) {
     </div>`;
 }
 
-function htmlBlocoBazinComparativo(a) {
+/* Modelos secundários: referência teórica, recolhidos por padrão. Nenhum entra no veredito. */
+function htmlOutrosModelos(a) {
   const b = a.bazin || {};
   const f = a.fundamentos || {};
-
   const tc = a.teto_consenso ?? b.teto_projetado_consenso;
   const mc = a.margem_consenso ?? b.margem_projetada_consenso;
-  const dc = b.dpa_projetado_consenso;
-
-  const tb = a.teto_barsi ?? b.teto_projetado_barsi;
-  const mb = a.margem_barsi ?? b.margem_projetada_barsi;
-  const db = b.dpa_projetado_barsi;
-
-  const lpaBarsi = (f.vpa && f.roe) ? (f.vpa * f.roe) : null;
-
+  const linha = (rotulo, valor, margemV, nota) => `
+    <dt>${rotulo}</dt>
+    <dd>${valido(valor) && valor > 0 ? `${fmtReal(valor)} <span class="${classeMargem(margemV)}">(${fmtPct(margemV)})</span>` : '—'}</dd>
+    <dd class="d-outros-nota">${nota}</dd>`;
+  const gb = valido(a.rank_greenblatt) ? `#${a.rank_greenblatt}` : (a.motivo_exclusao_greenblatt || 'Fora do ranking');
   return `
-    <div class="d-block">
-      <div class="d-section-title">Bazin: Histórico vs. Projetado (K = 6%)</div>
-      <div class="d-bazin-proj-grid" style="display: flex !important; flex-direction: column !important; gap: 10px !important; width: 100% !important; margin-top: 10px !important;">
-        <!-- Card 1: Bazin Histórico (5a) -->
-        <div class="d-bazin-proj-card is-hist" style="display: flex !important; flex-direction: column !important; gap: 8px !important; width: 100% !important; box-sizing: border-box !important; padding: 12px 14px !important;">
-          <div class="d-bpc-header" style="display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; padding-bottom: 6px !important; border-bottom: 1px solid var(--border) !important;">
-            <span class="d-bpc-badge badge-hist">Histórico 5 Anos</span>
-            <span class="d-bpc-sub">Média dos últimos 5a fechados</span>
-          </div>
-          <div class="d-bpc-body" style="display: flex !important; flex-direction: column !important; gap: 6px !important;">
-            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">DPA Base:</span> <strong class="d-bpc-val">${b.dpa_sem_extra > 0 ? fmtReal(b.dpa_sem_extra) : '—'}</strong></div>
-            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-cyan">${b.teto > 0 ? fmtReal(b.teto) : '—'}</strong></div>
-            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(b.margem_seguranca)}">${fmtPct(b.margem_seguranca)}</span></div>
-          </div>
-        </div>
-
-        <!-- Card 2: Consenso Mercado -->
-        <div class="d-bazin-proj-card is-consenso" style="display: flex !important; flex-direction: column !important; gap: 8px !important; width: 100% !important; box-sizing: border-box !important; padding: 12px 14px !important;">
-          <div class="d-bpc-header" style="display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; padding-bottom: 6px !important; border-bottom: 1px solid var(--border) !important;">
-            <span class="d-bpc-badge badge-consenso">Consenso Mercado</span>
-            <span class="d-bpc-sub">LPA Projetado × Payout</span>
-          </div>
-          <div class="d-bpc-body" style="display: flex !important; flex-direction: column !important; gap: 6px !important;">
-            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">LPA Proj. / Payout:</span> <span class="d-bpc-val">${f.forward_eps ? fmtReal(f.forward_eps) : '—'} · ${fmtPctSimples(f.payout, 0)}</span></div>
-            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">DPA Proj.:</span> <strong class="d-bpc-val">${dc ? fmtReal(dc) : '—'}</strong></div>
-            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-lime">${tc ? fmtReal(tc) : '—'}</strong></div>
-            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(mc)}">${fmtPct(mc)}</span></div>
-          </div>
-        </div>
-
-        <!-- Card 3: Fundamentalista Barsi / AGF -->
-        <div class="d-bazin-proj-card is-barsi" style="display: flex !important; flex-direction: column !important; gap: 8px !important; width: 100% !important; box-sizing: border-box !important; padding: 12px 14px !important;">
-          <div class="d-bpc-header" style="display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; padding-bottom: 6px !important; border-bottom: 1px solid var(--border) !important;">
-            <span class="d-bpc-badge badge-barsi">Fundamentalista Barsi/AGF</span>
-            <span class="d-bpc-sub">(VPA × ROE) × Payout</span>
-          </div>
-          <div class="d-bpc-body" style="display: flex !important; flex-direction: column !important; gap: 6px !important;">
-            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Lucro Teórico:</span> <span class="d-bpc-val">${lpaBarsi ? fmtReal(lpaBarsi) : '—'} · ${fmtPctSimples(f.payout, 0)}</span></div>
-            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">DPA Proj.:</span> <strong class="d-bpc-val">${db ? fmtReal(db) : '—'}</strong></div>
-            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Preço-Teto:</span> <strong class="d-bpc-val t-orange">${tb ? fmtReal(tb) : '—'}</strong></div>
-            <div class="d-bpc-row" style="display: flex !important; justify-content: space-between !important; align-items: center !important;"><span class="d-bpc-label">Margem:</span> <span class="d-bpc-val ${classeMargem(mb)}">${fmtPct(mb)}</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-/* Ficha de realidade do dividendo: o teto de 5 anos ainda se sustenta com o que a empresa paga hoje? */
-function anosAtipicosAtivo(b) {
-  return Object.keys(b?.anos_atipicos || {}).map(Number).sort((x, y) => x - y);
+    <details class="d-block d-outros">
+      <summary class="d-section-title">Outros modelos (referência teórica)</summary>
+      <dl class="kv d-outros-kv">
+        ${linha('Teto Consenso', tc, mc, `Lucro projetado pelo mercado (Yahoo, LPA ${f.forward_eps ? fmtReal(f.forward_eps) : '—'}) × payout médio ÷ 6%. A cobertura de analistas para a B3 nessa fonte é irregular.`)}
+        ${linha('Preço justo Gordon', a.gordon, a.margem_gordon, `DPA 5a × (1 + g) ÷ (k − g), com k = 10% fixo e g = ${valido(f.g_perpetuidade) ? fmtPctSimples(f.g_perpetuidade, 1) : '—'}. Muito sensível a k: com a Selic em dois dígitos, k de 10% tende a superestimar.`)}
+        <dt>Greenblatt</dt><dd>${esc(String(gb))}</dd>
+        <dd class="d-outros-nota">Fórmula Mágica (EBIT/EV + ROIC) sobre o universo; é um ranking de qualidade e preço, não de dividendos.</dd>
+      </dl>
+    </details>`;
 }
 
 function htmlFichaRealidade(a) {
@@ -1612,7 +1086,6 @@ function htmlBarrasDpaAnual(a) {
     </div>`;
 }
 
-
 function htmlBlocoAgendaProventos(a) {
   const prox = a.proxima_data_com;
   const ult = a.ultimo_provento_pago;
@@ -1729,7 +1202,6 @@ function htmlBlocoSustentabilidade(a) {
       </div>
     </div>`;
 }
-
 
 function htmlBlocoAnaliseTecnicaEFluxoCaixa(a) {
   const tech = calcularAnaliseTecnica(a);
@@ -1886,7 +1358,7 @@ function renderizarDetalhe(ticker) {
 
     ${htmlBlocoSustentabilidade(a)}
 
-    ${htmlBlocoBazinComparativo(a)}
+    ${htmlOutrosModelos(a)}
 
     <div class="d-block">
       <div class="d-section-title">Bazin · K = 6%</div>
@@ -1958,7 +1430,7 @@ function renderizarDetalhe(ticker) {
       ` : `
         <dl class="kv">
           <dt data-tip="Quantos anos de geração de caixa operacional (EBITDA) seriam necessários para quitar a dívida líquida. Até 2,5x é considerado saudável.">Dívida Líquida / EBITDA</dt>
-          <dd class="${classeAlavancagem(f.div_liq_ebitda, 2.5, 3.5)}">${valido(f.div_liq_ebitda) ? (f.div_liq_ebitda < 0 ? `${fmtMult(f.div_liq_ebitda)} (Caixa Líq.)` : fmtMult(f.div_liq_ebitda)) : '—'}</dd>
+          <dd class="${classeAlavancagem(f.div_liq_ebitda, 3.2, 4.2)}">${valido(f.div_liq_ebitda) ? (f.div_liq_ebitda < 0 ? `${fmtMult(f.div_liq_ebitda)} (Caixa Líq.)` : fmtMult(f.div_liq_ebitda)) : '—'}</dd>
           <dt data-tip="Dívida Líquida dividida pelo EBIT de 12 meses.">Dívida Líquida / EBIT</dt>
           <dd class="${classeAlavancagem(f.div_liq_ebit, 3.0, 4.0)}">${fmtMult(f.div_liq_ebit)}</dd>
           <dt data-tip="Dívida Líquida sobre o Patrimônio Líquido.">Dívida Líquida / Patrimônio</dt>
@@ -2122,11 +1594,12 @@ function aplicarVisaoSalva(tipo) {
   if (!tabela) return;
   COLUNAS_OPCIONAIS.forEach(c => tabela.classList.remove(`hide-col-${c}`));
 
-  // Base de toda visão: tetos alternativos e sinal técnico ficam ocultos (opcionais).
-  tabela.classList.add('hide-col-alt', 'hide-col-tec');
+  // Base de toda visão: tetos alternativos, sinal técnico e modelos de referência (Gordon,
+  // Greenblatt) ficam ocultos. A visão "Valuation" reexibe os modelos para comparação.
+  tabela.classList.add('hide-col-alt', 'hide-col-tec', 'hide-col-gordon', 'hide-col-gb');
   if (tipo === 'valuation') {
-    tabela.classList.add('hide-col-dpa', 'hide-col-gb');
-    tabela.classList.remove('hide-col-alt');
+    tabela.classList.add('hide-col-dpa');
+    tabela.classList.remove('hide-col-alt', 'hide-col-gordon', 'hide-col-gb');
   } else if (tipo === 'dividendos') {
     tabela.classList.add('hide-col-graham', 'hide-col-gordon', 'hide-col-gb');
   } else if (tipo === 'qualidade') {
@@ -2599,58 +2072,6 @@ function exibirErro(msg) {
   if (tbody) {
     tbody.innerHTML = `<tr class="row-empty"><td colspan="15" class="empty"><strong>Dados temporariamente indisponíveis</strong>${esc(msg)}</td></tr>`;
   }
-}
-
-// O motor publica os dados no branch `dados` (não na main) para não disparar um deploy do
-// GitHub Pages a cada ciclo; esta é a fonte mais fresca. A cópia servida pelo Pages
-// (./data/valuation.json) é só um fallback e pode estar defasada.
-const URL_VALUATION_REMOTO = 'https://raw.githubusercontent.com/ezdourado/invest/dados/data/valuation.json';
-
-async function buscarJsonComCacheBust(urlBase) {
-  const sep = urlBase.includes('?') ? '&' : '?';
-  const resp = await fetch(`${urlBase}${sep}t=${Date.now()}`, {
-    headers: { Accept: 'application/json' },
-    cache: 'no-store'
-  });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const json = await resp.json();
-  if (!json || !Array.isArray(json.ativos)) throw new Error('formato inválido');
-  return json;
-}
-
-async function obterPayloadMaisRecente() {
-  const resultados = await Promise.allSettled([
-    buscarJsonComCacheBust('./data/valuation.json'),
-    buscarJsonComCacheBust(URL_VALUATION_REMOTO)
-  ]);
-
-  const validos = resultados
-    .filter(r => r.status === 'fulfilled' && r.value)
-    .map(r => r.value);
-
-  if (!validos.length) {
-    const primeiroErro = resultados.find(r => r.status === 'rejected')?.reason;
-    throw primeiroErro || new Error('Nenhuma fonte respondeu');
-  }
-
-  if (typeof location !== 'undefined' && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-    const local = resultados[0];
-    if (local.status === 'fulfilled' && local.value) return local.value;
-  }
-
-  validos.sort((a, b) => {
-    const ha = Array.isArray(a.historico_datas) && a.historico_datas.length > 0 ? 1 : 0;
-    const hb = Array.isArray(b.historico_datas) && b.historico_datas.length > 0 ? 1 : 0;
-    if (hb !== ha) return hb - ha;
-    const sa = a.ativos?.[0]?.sustentabilidade ? 1 : 0;
-    const sb = b.ativos?.[0]?.sustentabilidade ? 1 : 0;
-    if (sb !== sa) return sb - sa;
-    const ta = new Date(a.gerado_em || 0).getTime() || 0;
-    const tb = new Date(b.gerado_em || 0).getTime() || 0;
-    return tb - ta;
-  });
-
-  return validos[0];
 }
 
 async function carregarValuationJson(silencioso = false) {
