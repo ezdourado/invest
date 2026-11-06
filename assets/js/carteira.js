@@ -280,7 +280,7 @@
               <span class="cell-sub ${cls}">${rot}</span>
             </div>`;
         }).join('')}
-        <p class="d-note">Alvos somam ${somaAlvos}%${somaAlvos !== 100 ? ' <span class="t-yellow">(ajuste para 100%)</span>' : ''}. Padrão: 20% em cada setor BESST, como na carteira previdenciária de Barsi. O alvo orienta o "Aporte do mês".</p>
+        <p class="d-note">Alvos somam ${somaAlvos}%${somaAlvos !== 100 ? ' <span class="t-yellow">(ajuste para 100%)</span>' : ''}. Padrão: 20% em cada setor BESST, como na carteira previdenciária de Barsi. O alvo orienta o "Aporte do mês"; setores com alvo 0% não recebem sugestão.</p>
       </div>`;
   }
 
@@ -323,16 +323,18 @@
   function candidatosAporte(c) {
     const posse = new Set(c.validas.map(l => l.a.ticker));
     const margemMin = Number(estado.config.margemMinAporte) || 0;
+    const usaAlvos = SETORES.some(s => (Number(estado.alvos[s.id]) || 0) > 0);
     return universo()
       .filter(a => passaFiltroQualidade(a) && (a.bazin?.margem_seguranca ?? -1) >= margemMin)
+      // Setor com alvo 0% é uma escolha explícita de não investir nele: fica fora das sugestões.
+      .filter(a => !usaAlvos || (Number(estado.alvos[setorDe(a)]) || 0) > 0)
       .map(a => {
         const s = setorDe(a);
         const alvo = (Number(estado.alvos[s]) || 0) / 100;
         const atual = c.pesoSetor[s] || 0;
         const gap = alvo - atual;
         let fatorSetor = 1 + Math.max(0, gap) * 2;
-        if (c.validas.length && alvo === 0) fatorSetor = 0.5;
-        else if (gap < -0.05) fatorSetor = 0.6;
+        if (gap < -0.05) fatorSetor = 0.6;
         const nota = (a.sustentabilidade?.nota ?? 50) / 100;
         const pontos = a.bazin.margem_seguranca * nota * fatorSetor;
         return { a, setor: s, alvo, atual, pontos, fatorSetor, temPosicao: posse.has(a.ticker) };
