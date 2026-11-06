@@ -4777,3 +4777,46 @@ html[data-theme="light"] .vt tbody tr.row.is-selected td.c-ticker {
 .d-outros[open] > summary::before { transform: rotate(90deg); }
 .d-outros-kv { margin-top: 10px; }
 .kv dd.d-outros-nota { grid-column: 1 / -1; text-align: left; color: var(--muted); font-size: 12px; font-family: var(--sans); margin-bottom: 6px; }
+
+/* ---------- Revisão mobile (Fases 2–4) ---------- */
+@media (max-width: 980px) {
+  /* Cartão da tabela: tendência do dividendo ao lado da margem; opcionais no fim. */
+  .vt tbody tr.row {
+    grid-template-areas:
+      "ticker  verdict"
+      "preco   teto"
+      "margem  tend"
+      "falta   sustent"
+      "dpa     gb"
+      "graham  gordon"
+      "alt     tec"
+      "actions actions";
+  }
+  .vt tbody td.c-margem { border-right: 1px solid var(--border); }
+  .vt tbody td.c-tend { grid-area: tend; }
+  .vt tbody td.c-alt { grid-area: alt; border-right: 1px solid var(--border); }
+  .vt tbody td.c-tec { grid-area: tec; }
+
+  /* Carteira: as cores de resultado e margem ficam na célula; o modo cartão as apagava. */
+  .vt.cart-table tbody td.t-green { color: var(--green-text, var(--green)); }
+  .vt.cart-table tbody td.t-red { color: var(--red-text, var(--red)); }
+  .vt.cart-table tbody td.t-yellow { color: var(--yellow-text, var(--yellow)); }
+
+  /* Sensibilidade ao DY: continua grade (mapa de calor), com rolagem horizontal. */
+  #matriz-sensibilidade .table-wrap { overflow-x: auto !important; }
+  .vt.sens-table { display: table; min-width: 520px; }
+  .vt.sens-table thead { display: table-header-group; }
+  .vt.sens-table tbody { display: table-row-group; padding: 0; }
+  .vt.sens-table tbody tr { display: table-row; }
+  .vt.sens-table tbody td { display: table-cell; padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--border); }
+  .vt.sens-table tbody td:first-child { text-align: left; }
+  .vt.sens-table tbody td::before { content: none; }
+}
+
+/* Barra Preço/Teto: estilo explícito (a regra global de ícones aplicava fill:none e contorno de 2px). */
+.pt-svg .pt-trilho { fill: var(--border-strong); stroke: none; }
+.pt-svg .pt-teto { stroke: var(--text-strong); stroke-width: 1; fill: none; }
+.pt-svg .pt-ponto { stroke: var(--surface); stroke-width: 1; }
+.pt-svg .pt-ponto.is-verde { fill: var(--green); }
+.pt-svg .pt-ponto.is-amarelo { fill: var(--yellow); }
+.pt-svg .pt-ponto.is-vermelho { fill: var(--red); }

@@ -556,7 +556,7 @@ function htmlPrecoTeto(a, falta) {
   if (!(teto > 0) || !(a.preco > 0)) return '<span class="t-dim">—</span>';
   const r = a.preco / teto;
   const cls = r <= 1 ? 't-green' : (r <= 1.0526 ? 't-yellow' : 't-red');
-  const cor = r <= 1 ? 'var(--green)' : (r <= 1.0526 ? 'var(--yellow)' : 'var(--red)');
+  const faixa = r <= 1 ? 'is-verde' : (r <= 1.0526 ? 'is-amarelo' : 'is-vermelho');
   const W = 72;
   const x = Math.max(3, Math.min(W - 3, (Math.min(r, 2) / 2) * W));
   const tip = `Preço ${fmtReal(a.preco)} = ${fmtMultiplo(r)} o teto ${fmtReal(teto)} · ${valido(falta) ? (falta >= 0 ? `faltam ${fmtReal(falta)} de folga` : `${fmtReal(-falta)} acima do teto`) : ''}${r > 2 ? ' (fora da escala: acima de 2×)' : ''}`;
@@ -564,9 +564,9 @@ function htmlPrecoTeto(a, falta) {
     <div class="pt-cell" data-tip="${esc(tip)}">
       <span class="mono ${cls}">${fmtMultiplo(r)}</span>
       <svg class="pt-svg" width="${W}" height="8" viewBox="0 0 ${W} 8" aria-hidden="true">
-        <rect x="0" y="3" width="${W}" height="2" rx="1" fill="var(--border-strong)" />
-        <line x1="${W / 2}" y1="0" x2="${W / 2}" y2="8" stroke="var(--text-strong)" stroke-width="1" />
-        <circle cx="${x}" cy="4" r="3" fill="${cor}" />
+        <rect class="pt-trilho" x="0" y="3" width="${W}" height="2" rx="1" />
+        <line class="pt-teto" x1="${W / 2}" y1="0" x2="${W / 2}" y2="8" />
+        <circle class="pt-ponto ${faixa}" cx="${x}" cy="4" r="3" />
       </svg>
     </div>`;
 }
