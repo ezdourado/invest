@@ -2836,7 +2836,7 @@
   }
 
   function definirAbaPainel(aba, tickerFoco) {
-    visualState.aba = ['tabela', 'visual', 'matriz', 'calendario'].includes(aba) ? aba : 'tabela';
+    visualState.aba = ['tabela', 'visual', 'matriz', 'calendario', 'carteira'].includes(aba) ? aba : 'tabela';
     const mapa = construirMapaUniverso();
 
     if (tickerFoco) {
@@ -2851,7 +2851,7 @@
 
     const abaAtiva = visualState.aba;
     const ehVisual = abaAtiva === 'visual';
-    ['tabela', 'visual', 'matriz', 'calendario'].forEach(id => {
+    ['tabela', 'visual', 'matriz', 'calendario', 'carteira'].forEach(id => {
       const btn = qSel(`#tab-btn-${id}`);
       const on = abaAtiva === id;
       btn?.classList.toggle('is-active', on);
@@ -2865,7 +2865,8 @@
         tabela: 'KPIs, cobertura BESST, Score Anti-Cilada e tabela comparativa de valuation',
         visual: 'Histórico 5 anos vs. Preços-Teto tracejados (Bazin 6%, Graham, Gordon) e Simulador com Dividendos',
         matriz: 'Quadrantes cruzando Margem de Segurança (Bazin/Graham) vs. Rentabilidade (ROE/ROIC) e filtro Anti-Cilada',
-        calendario: 'Próximas datas-com abertas, pagamentos agendados, últimos pagos e sazonalidade de 12 meses'
+        calendario: 'Próximas datas-com abertas, pagamentos agendados, últimos pagos e sazonalidade de 12 meses',
+        carteira: 'Posições, renda projetada de 12 meses, concentração por setor e sugestão de aporte do mês'
       };
       hintEl.textContent = mapaHints[abaAtiva] || mapaHints.tabela;
     }
@@ -2892,6 +2893,8 @@
       requestAnimationFrame(() => window.renderizarMatrizValuation());
     } else if (abaAtiva === 'calendario' && typeof window.renderizarCalendarioDividendos === 'function') {
       window.renderizarCalendarioDividendos();
+    } else if (abaAtiva === 'carteira' && typeof window.renderizarCarteira === 'function') {
+      window.renderizarCarteira(true);
     }
 
     if (typeof window.sincronizarEstadoUrl === 'function') {

@@ -2208,7 +2208,8 @@ function renderizarResultadosComandos(termo) {
     { id: 'tabela', titulo: 'Ir para Tabela & Triagem', sub: 'Visão executiva em lista com Raio-X' },
     { id: 'visual', titulo: 'Ir para Gráficos & Simulador', sub: 'Histórico de preços, tetos e rendimento acumulado' },
     { id: 'matriz', titulo: 'Ir para Matriz Desconto × Qualidade', sub: 'Gráfico de dispersão Margem vs. ROE/ROIC' },
-    { id: 'calendario', titulo: 'Ir para Calendário de Proventos', sub: 'Datas-com abertas, pagamentos e sazonalidade' }
+    { id: 'calendario', titulo: 'Ir para Calendário de Proventos', sub: 'Datas-com abertas, pagamentos e sazonalidade' },
+    { id: 'carteira', titulo: 'Ir para Carteira & Renda', sub: 'Posições, renda projetada, concentração por setor e aporte do mês' }
   ].filter(ab => !q || ab.titulo.toLowerCase().includes(q) || ab.sub.toLowerCase().includes(q))
     .map(ab => ({
       tipo: 'aba',
@@ -2492,6 +2493,7 @@ function renderizarTudo() {
   if (typeof window.atualizarVisaoGrafica === 'function') window.atualizarVisaoGrafica();
   if (!$('#view-matriz')?.classList.contains('is-hidden') && typeof window.renderizarMatrizValuation === 'function') window.renderizarMatrizValuation();
   if (!$('#view-calendario')?.classList.contains('is-hidden') && typeof window.renderizarCalendarioDividendos === 'function') window.renderizarCalendarioDividendos();
+  if (typeof window.renderizarCarteira === 'function') window.renderizarCarteira();
 }
 
 function alternarTicker(ticker) {
@@ -2686,7 +2688,7 @@ async function carregarValuationJson(silencioso = false) {
 
       const abaHash = hash.get('aba') || hash.get('tab');
       const ativoHash = hash.get('ativo') || hash.get('p') || undefined;
-      if (['tabela', 'visual', 'matriz', 'calendario'].includes(abaHash) && typeof window.definirAbaPainel === 'function') {
+      if (['tabela', 'visual', 'matriz', 'calendario', 'carteira'].includes(abaHash) && typeof window.definirAbaPainel === 'function') {
         window.definirAbaPainel(abaHash, ativoHash);
       }
       if (hash.get('d') && mapa.has(hash.get('d').toUpperCase())) {
@@ -2945,15 +2947,15 @@ function bindEventos() {
     } else if (e.key === '?') {
       e.preventDefault();
       abrirModal('shortcuts-modal');
-    } else if (['1', '2', '3', '4'].includes(e.key) && typeof window.definirAbaPainel === 'function') {
-      const mapaAbas = { '1': 'tabela', '2': 'visual', '3': 'matriz', '4': 'calendario' };
+    } else if (['1', '2', '3', '4', '5'].includes(e.key) && typeof window.definirAbaPainel === 'function') {
+      const mapaAbas = { '1': 'tabela', '2': 'visual', '3': 'matriz', '4': 'calendario', '5': 'carteira' };
       window.definirAbaPainel(mapaAbas[e.key]);
     } else if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && (painelState.modoApresentacao || document.activeElement?.classList.contains('view-tab'))) {
       e.preventDefault();
-      const ordem = ['tabela', 'visual', 'matriz', 'calendario'];
+      const ordem = ['tabela', 'visual', 'matriz', 'calendario', 'carteira'];
       const btnAtivo = document.querySelector('#main-view-tabs .view-tab.is-active');
       const idxAtual = Math.max(0, ordem.indexOf(btnAtivo?.dataset.viewTab || 'tabela'));
-      const proxIdx = e.key === 'ArrowRight' ? (idxAtual + 1) % 4 : (idxAtual + 3) % 4;
+      const proxIdx = e.key === 'ArrowRight' ? (idxAtual + 1) % ordem.length : (idxAtual + ordem.length - 1) % ordem.length;
       if (typeof window.definirAbaPainel === 'function') {
         window.definirAbaPainel(ordem[proxIdx]);
         $(`#tab-btn-${ordem[proxIdx]}`)?.focus();

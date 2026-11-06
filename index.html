@@ -14,8 +14,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="./favicon.png">
   <link rel="preload" href="./assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261106_v12">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261106_v12">
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261106_v13">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261106_v13">
   <style>
     /* Regras prioritárias com proteção absoluta contra cache de CSS */
     .d-bazin-proj-grid {
@@ -99,6 +99,10 @@
         <button type="button" class="view-tab" role="tab" aria-selected="false" aria-controls="view-calendario" id="tab-btn-calendario" data-view-tab="calendario">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/><circle cx="12" cy="15" r="1.5"/></svg>
           <span>Calendário</span>
+        </button>
+        <button type="button" class="view-tab" role="tab" aria-selected="false" aria-controls="view-carteira" id="tab-btn-carteira" data-view-tab="carteira">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg>
+          <span>Carteira</span>
         </button>
       </div>
       <span class="sr-only" id="view-nav-hint">Resumo executivo e tabela comparativa de valuation</span>
@@ -704,6 +708,85 @@
 
   </div>
 
+  <!-- ABA 5: Carteira, renda projetada e aporte do mês (dados só neste navegador) -->
+  <div class="view-pane is-hidden" id="view-carteira" role="tabpanel" aria-labelledby="tab-btn-carteira">
+
+    <section class="card cal-toolbar-card">
+      <div class="cal-toolbar-inner">
+        <div>
+          <h1 class="card-title">Carteira &amp; Renda</h1>
+          <p class="card-sub">Suas posições, renda projetada, concentração BESST e sugestão de aporte. Dados salvos só neste navegador; use Exportar para levar a outro aparelho.</p>
+        </div>
+        <div class="mctrl-bar">
+          <form class="cart-add" id="cart-add-form" autocomplete="off">
+            <input class="cart-input cart-add-ticker" id="cart-add-ticker" list="cart-tickers" placeholder="Ticker" aria-label="Ticker" required>
+            <datalist id="cart-tickers"></datalist>
+            <input class="cart-input" id="cart-add-qtd" type="number" min="1" step="1" placeholder="Qtd." aria-label="Quantidade" required>
+            <input class="cart-input" id="cart-add-pm" type="number" min="0" step="0.01" placeholder="Preço médio" aria-label="Preço médio (vazio = cotação atual)" data-tip="Deixe vazio para usar a cotação atual">
+            <button type="submit" class="btn btn-primary">Adicionar</button>
+          </form>
+          <button type="button" class="btn btn-ghost" id="cart-export" data-tip="Baixar a carteira em JSON">Exportar</button>
+          <label class="btn btn-ghost" data-tip="Carregar uma carteira exportada">Importar<input type="file" id="cart-import-file" accept="application/json,.json" class="sr-only"></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="kpi-grid" id="cart-kpis" aria-label="Resumo da carteira"></section>
+
+    <section class="card">
+      <div class="card-head card-head-wrap">
+        <div>
+          <h2 class="card-title">Posições</h2>
+          <p class="card-sub">Edite quantidade e preço médio direto na tabela · clique na linha para abrir o Raio-X</p>
+        </div>
+        <div class="mctrl-bar cart-config">
+          <label class="select-wrap"><span class="sr-only">Base da renda</span>
+            <select id="cart-base-renda" aria-label="Base da renda projetada" data-tip="Qual DPA usar na projeção de renda. 'Menor' é o conservador: se o dividendo caiu, usa o patamar recente.">
+              <option value="menor">Renda: menor (5a × 12m)</option>
+              <option value="5a">Renda: DPA médio 5a</option>
+              <option value="12m">Renda: DPA 12 meses</option>
+            </select>
+          </label>
+          <label class="chip"><input type="checkbox" id="cart-jcp-liq"> JCP líquido (−15% IR)</label>
+        </div>
+      </div>
+      <div id="cart-posicoes"></div>
+    </section>
+
+    <div class="cal-events-grid">
+      <section class="card">
+        <div class="card-head"><div>
+          <h2 class="card-title">Renda projetada · próximos 12 meses</h2>
+          <p class="card-sub">Pagamentos anunciados + estimativa pela sazonalidade de 5 anos</p>
+        </div></div>
+        <div class="cart-pad" id="cart-renda"></div>
+      </section>
+      <section class="card">
+        <div class="card-head"><div>
+          <h2 class="card-title">Concentração por setor</h2>
+          <p class="card-sub">Peso atual (barra) vs. peso-alvo (traço) · edite o alvo à direita</p>
+        </div></div>
+        <div class="cart-pad" id="cart-setores"></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="card-head card-head-wrap">
+        <div>
+          <h2 class="card-title">Aporte do mês</h2>
+          <p class="card-sub">Oportunidades qualificadas de toda a base, priorizando setores abaixo do seu alvo</p>
+        </div>
+        <div class="mctrl-bar cart-config">
+          <label class="cart-campo">Aporte R$ <input class="cart-input" id="cart-aporte-valor" type="number" min="0" step="100"></label>
+          <label class="cart-campo" data-tip="Margem Bazin mínima para entrar na lista">Margem mín. <input class="cart-input cart-alvo" id="cart-margem-min" type="number" min="0" max="80" step="5">%</label>
+          <label class="chip" data-tip="Avisa quando um papel da carteira ou do painel cruza o teto, e 2 dias antes de uma data-com (enquanto o painel estiver aberto)"><input type="checkbox" id="cart-alertas"> Alertas</label>
+        </div>
+      </div>
+      <div id="cart-aporte"></div>
+    </section>
+
+  </div>
+
   <footer class="main-footer" id="main-footer">
     <div class="footer-legal">
       <strong>Aviso Legal:</strong> Este painel tem caráter exclusivamente analítico e educacional com base em dados públicos da B3 e demonstrações financeiras da CVM. As metodologias de Bazin, Graham, Gordon e Greenblatt são modelos quantitativos teóricos e não constituem recomendação, consultoria ou indicação de compra ou venda de ativos. Retornos passados não garantem rentabilidade futura.
@@ -810,8 +893,9 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/data.js?v=20261106_v12"></script>
-<script src="./assets/js/visao_grafica.js?v=20261106_v12"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261106_v12"></script>
+<script src="./assets/js/data.js?v=20261106_v13"></script>
+<script src="./assets/js/visao_grafica.js?v=20261106_v13"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261106_v13"></script>
+  <script src="./assets/js/carteira.js?v=20261106_v13"></script>
 </body>
 </html>
