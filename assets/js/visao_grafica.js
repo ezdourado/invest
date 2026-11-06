@@ -437,6 +437,17 @@
       return datas.map(d => ({ data: d, teto: null }));
     }
 
+    // Fonte preferencial: teto vigente em cada ano calculado no motor com a MESMA regra do teto
+    // atual (média dos 5 anos fechados anteriores, anos atípicos normalizados).
+    const tetoPorAno = ativo.bazin?.teto_por_ano;
+    if (tetoPorAno && Object.keys(tetoPorAno).length) {
+      return datas.map(dtIso => {
+        const v = tetoPorAno[dtIso.slice(0, 4)];
+        return { data: dtIso, teto: ehValido(v) && v > 0 ? Math.round(v * 100) / 100 : null };
+      });
+    }
+
+    // Compatibilidade com bases antigas (sem teto_por_ano).
     const provs = Array.isArray(ativo.proventos_historico)
       ? ativo.proventos_historico.filter(p => p && ehValido(p.valor) && p.valor > 0 && p.tipo !== 'extraordinario')
       : [];
@@ -1576,7 +1587,7 @@
       const mBaz = temBazin ? principal.bazin.margem_seguranca : null;
       const pctAbaixo = ehValido(diag.pctAbaixo)
         ? diag.pctAbaixo
-        : (ehValido(principal.pct_abaixo_teto_5a) ? principal.pct_abaixo_teto_5a / 100 : null);
+        : (ehValido(principal.pct_abaixo_teto_5a) ? principal.pct_abaixo_teto_5a : null);
       const dpa5a = principal.bazin?.dpa_sem_extra;
       const dy12m = principal.fundamentos?.dy_12m;
 

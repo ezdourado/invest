@@ -1108,7 +1108,7 @@ function renderizarTabela() {
     const falta = diferencaAteTeto(a);
     const cat = categoriaDoAtivo(a);
     const extra = b.tem_extraordinario
-      ? `<span class="tag tag-extra" data-tip="Há dividendos extraordinários nos 5 anos. DPA c/ extra: ${fmtReal(b.dpa)} · s/ extra: ${fmtReal(b.dpa_sem_extra)}">Extra</span>`
+      ? `<span class="tag tag-extra" data-tip="${anosAtipicosAtivo(b).length ? `Ano(s) atípico(s) removido(s) do teto: ${anosAtipicosAtivo(b).join(', ')} (pagamento acima de 2× o patamar recorrente). ` : 'Há dividendos extraordinários nos 5 anos. '}DPA c/ extra: ${fmtReal(b.dpa)} · s/ extra: ${fmtReal(b.dpa_sem_extra)}">Extra</span>`
       : '';
     const catTag = cat === 'demais' ? `<span class="tag tag-demais">Demais</span>` : '';
     const dpaCell = b.tem_extraordinario
@@ -1329,37 +1329,129 @@ function htmlBlocoBazinComparativo(a) {
   `;
 }
 
-function htmlHistoricoDpaAnual(porAno) {
-  if (!porAno || typeof porAno !== 'object') return '';
-  const entradas = Object.entries(porAno).sort((a, b) => Number(a[0]) - Number(b[0]));
-  if (!entradas.length) return '';
-  const maxVal = Math.max(...entradas.map(([, v]) => Number(v) || 0), 0.01);
+/* Ficha de realidade do dividendo: o teto de 5 anos ainda se sustenta com o que a empresa paga hoje? */
+function anosAtipicosAtivo(b) {
+  return Object.keys(b?.anos_atipicos || {}).map(Number).sort((x, y) => x - y);
+}
 
-  const colW = 80;
-  const svgW = entradas.length * colW;
-  const colsSvg = entradas.map(([ano, val], idx) => {
-    const num = Number(val) || 0;
-    const h = Math.max(4, Math.round((num / maxVal) * 44));
-    const x = idx * colW + 14;
-    const y = 62 - h;
+function htmlFichaRealidade(a) {
+  const b = a.bazin || {};
+  if (!(b.teto > 0) && !(b.dpa_12m > 0)) return '';
+
+  const tetoLucro = a.teto_barsi ?? b.teto_projetado_barsi;
+  const tetos = [
+    { id: 'oficial', nome: 'Teto 5 anos', sub: 'Oficial (veredito)', tip: 'Média dos proventos recorrentes dos 5 anos fechados ÷ 6%. É o único que define o veredito.', valor: b.teto, m: b.margem_seguranca },
+    { id: '12m', nome: 'Teto 12 meses', sub: `DPA ${valido(b.dpa_12m) ? fmtReal(b.dpa_12m) : '—'}`, tip: 'Proventos com data-com nos últimos 12 meses ÷ 6%. Mostra se o patamar recente sustenta o teto oficial.', valor: b.teto_12m, m: b.margem_12m },
+    { id: 'lucro', nome: 'Teto pelo lucro', sub: 'LPA × payout médio', tip: 'Lucro por ação atual × payout médio histórico ÷ 6%. Indica o que o lucro de hoje comportaria pagar (direcional).', valor: tetoLucro, m: valido(tetoLucro) && tetoLucro > 0 && a.preco > 0 ? (tetoLucro - a.preco) / tetoLucro : null }
+  ];
+  const cards = tetos.map(t => `
+    <div class="frd-teto ${t.id === 'oficial' ? 'is-oficial' : ''}" data-tip="${esc(t.tip)}">
+      <div class="frd-teto-nome">${esc(t.nome)}</div>
+      <div class="frd-teto-valor mono">${valido(t.valor) && t.valor > 0 ? fmtReal(t.valor) : '—'}</div>
+      <div class="frd-teto-margem mono ${classeMargem(t.m)}">${valido(t.m) ? fmtPct(t.m) : '—'}</div>
+      <div class="frd-teto-sub">${esc(t.sub)}</div>
+    </div>`).join('');
+
+  // Alertas: dividendo recente em queda e anos atípicos removidos do DPA.
+  const alertas = [];
+  const r = b.razao_12m_5a;
+  if (valido(r) && b.dpa_sem_extra > 0) {
+    if (r < 0.7) {
+      alertas.push(`<div class="frd-alerta is-risco"><strong>Dividendo recente em queda.</strong> Os últimos 12 meses pagaram ${fmtPctSimples(r, 0)} da média de 5 anos. O teto oficial se apoia em um patamar que a empresa não está repetindo; confirme se é corte ou só calendário (data-com que ainda não saiu).</div>`);
+    } else if (r > 1.3) {
+      alertas.push(`<div class="frd-alerta is-info"><strong>Dividendo recente acima da média.</strong> Os últimos 12 meses pagaram ${fmtPctSimples(r, 0)} da média de 5 anos (verifique se há pagamento pontual).</div>`);
+    }
+  }
+  const atip = anosAtipicosAtivo(b);
+  if (atip.length) {
+    const lista = atip.map(ano => `${ano} (${fmtReal(b.anos_atipicos[String(ano)])} acima do patamar)`).join(', ');
+    alertas.push(`<div class="frd-alerta is-aviso"><strong>Ano atípico removido do teto:</strong> ${esc(lista)}. O excedente sobre a mediana dos anos pagos foi tratado como extraordinário. Teto incluindo tudo: ${fmtReal(b.teto_com_extra)}.</div>`);
+  }
+
+  return `
+    <div class="d-block frd">
+      <div class="d-section-title">Realidade do dividendo</div>
+      <div class="frd-tetos">${cards}</div>
+      ${alertas.join('')}
+      ${htmlBarrasDpaAnual(a)}
+    </div>`;
+}
+
+function htmlBarrasDpaAnual(a) {
+  const b = a.bazin || {};
+  const provs = Array.isArray(a.proventos_historico) ? a.proventos_historico : [];
+  if (!provs.length) return '';
+
+  const anoAtual = Number(hojeIsoSaoPaulo().slice(0, 4));
+  const atipicos = b.anos_atipicos || {};
+  const janela = new Set(Object.keys(b.por_ano || {}).map(Number));
+  const porAno = new Map();
+  provs.forEach(p => {
+    const ano = Number(String(p.data_com).slice(0, 4));
+    if (!ano || !(p.valor > 0)) return;
+    const reg = porAno.get(ano) || { total: 0, extra: 0 };
+    reg.total += p.valor;
+    if (p.tipo === 'extraordinario') reg.extra += p.valor;
+    porAno.set(ano, reg);
+  });
+  Object.entries(atipicos).forEach(([ano, exc]) => {
+    const reg = porAno.get(Number(ano));
+    if (reg) reg.extra = Math.min(reg.total, reg.extra + exc);
+  });
+  const anos = [...porAno.keys()].sort((x, y) => x - y).slice(-11);
+  if (!anos.length) return '';
+
+  const maxVal = Math.max(...anos.map(an => porAno.get(an).total), b.dpa_sem_extra || 0, 0.01) * 1.1;
+  const W = 420, H = 150, base = 120, topo = 14, alt = base - topo;
+  const passo = W / anos.length;
+  const larg = Math.min(26, passo * 0.62);
+  const yDe = v => base - (v / maxVal) * alt;
+
+  const barras = anos.map((ano, i) => {
+    const reg = porAno.get(ano);
+    const rec = Math.max(0, reg.total - reg.extra);
+    const x = i * passo + (passo - larg) / 2;
+    const parcial = ano === anoAtual;
+    const hRec = (rec / maxVal) * alt;
+    const hExt = (reg.extra / maxVal) * alt;
+    const classeRec = parcial ? 'frd-bar-parcial' : (janela.has(ano) ? 'frd-bar-janela' : 'frd-bar-rec');
+    const tip = `${ano}${parcial ? ' (ano em curso)' : ''}: ${fmtReal(reg.total)} pagos${reg.extra > 0 ? ` · ${fmtReal(reg.extra)} extraordinário/atípico` : ''}`;
     return `
-      <g data-tip="${esc(ano)}: ${esc(fmtReal(num))} por ação">
-        <text x="${x + 26}" y="12" text-anchor="middle" fill="var(--text)" font-family="var(--mono)" font-size="12">${esc(fmtReal(num).replace('R$ ', ''))}</text>
-        <rect x="${x}" y="18" width="52" height="44" rx="4" fill="var(--surface)" />
-        <rect x="${x}" y="${y}" width="52" height="${h}" rx="4" fill="var(--accent)" />
-        <text x="${x + 26}" y="78" text-anchor="middle" fill="var(--muted)" font-family="var(--mono)" font-size="12">${esc(ano)}</text>
-      </g>
-    `;
+      <g data-tip="${esc(tip)}">
+        <rect x="${x}" y="${topo}" width="${larg}" height="${alt}" fill="transparent" />
+        <rect class="${classeRec}" x="${x}" y="${base - hRec}" width="${larg}" height="${Math.max(hRec, 0.5)}" rx="2" />
+        ${hExt > 0 ? `<rect class="frd-bar-extra" x="${x}" y="${base - hRec - hExt}" width="${larg}" height="${hExt}" rx="2" />` : ''}
+        <text x="${x + larg / 2}" y="${base + 14}" text-anchor="middle" class="frd-eixo">${parcial ? `${String(ano).slice(2)}*` : String(ano).slice(2)}</text>
+      </g>`;
   }).join('');
+
+  const linhas = [];
+  if (b.dpa_sem_extra > 0) {
+    const y = yDe(b.dpa_sem_extra);
+    linhas.push(`<line class="frd-linha-5a" x1="0" x2="${W}" y1="${y}" y2="${y}" /><text class="frd-rotulo-5a" x="${W}" y="${y - 4}" text-anchor="end">média 5a ${esc(fmtReal(b.dpa_sem_extra))}</text>`);
+  }
+  if (b.dpa_12m > 0) {
+    const y = yDe(b.dpa_12m);
+    linhas.push(`<line class="frd-linha-12m" x1="0" x2="${W}" y1="${y}" y2="${y}" /><text class="frd-rotulo-12m" x="2" y="${y - 4}">12 meses ${esc(fmtReal(b.dpa_12m))}</text>`);
+  }
 
   return `
     <div class="d-sub-chart">
-      <div class="d-sub-title">Proventos recorrentes por ano civil da data-com (R$)</div>
-      <svg class="vsvg" viewBox="0 0 ${svgW} 84" width="${svgW}" height="84" style="max-width: 100%; height: auto; display: block;" role="img" aria-label="Histórico de proventos por ano civil">
-        ${colsSvg}
+      <div class="d-sub-title">Proventos por ano da data-com (R$ por ação)</div>
+      <svg class="vsvg frd-svg" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Proventos por ano, com parcela extraordinária destacada e médias de 5 anos e 12 meses">
+        <line class="frd-base" x1="0" x2="${W}" y1="${base}" y2="${base}" />
+        ${barras}
+        ${linhas.join('')}
       </svg>
+      <div class="frd-legenda">
+        <span><i class="frd-sw frd-bar-janela"></i>Recorrente (janela do teto)</span>
+        <span><i class="frd-sw frd-bar-rec"></i>Recorrente (anos anteriores)</span>
+        <span><i class="frd-sw frd-bar-extra"></i>Extraordinário / atípico</span>
+        <span><i class="frd-sw frd-bar-parcial"></i>Ano em curso*</span>
+      </div>
     </div>`;
 }
+
 
 function htmlBlocoAgendaProventos(a) {
   const prox = a.proxima_data_com;
@@ -1624,6 +1716,8 @@ function renderizarDetalhe(ticker) {
       </a>
     </div>
 
+    ${htmlFichaRealidade(a)}
+
     ${htmlComparativoModelos(a)}
 
     ${htmlBlocoAnaliseTecnicaEFluxoCaixa(a)}
@@ -1645,9 +1739,10 @@ function renderizarDetalhe(ticker) {
         <dt>Falta até o teto (R$)</dt><dd class="${valido(diferencaAteTeto(a)) ? (diferencaAteTeto(a) >= 0 ? 't-green' : 't-red') : ''}">${fmtRealSinal(diferencaAteTeto(a))}</dd>
         <dt>Margem de segurança</dt><dd class="${classeMargem(b.margem_seguranca)}">${fmtPct(b.margem_seguranca)}</dd>
         <dt>Tempo abaixo do Teto (5a)</dt><dd>${valido(a.pct_abaixo_teto_5a) ? fmtPctSimples(a.pct_abaixo_teto_5a, 0) : '—'}</dd>
-        <dt>Dividendos extraordinários</dt><dd>${b.tem_extraordinario ? '<span class="t-yellow">Sim</span>' : 'Não'}</dd>
+        <dt>Dividendos extraordinários</dt><dd>${b.tem_extraordinario ? `<span class="t-yellow">Sim${anosAtipicosAtivo(b).length ? ` (atípico: ${anosAtipicosAtivo(b).join(', ')})` : ''}</span>` : 'Não'}</dd>
+        <dt>DPA últimos 12 meses</dt><dd>${valido(b.dpa_12m) ? fmtReal(b.dpa_12m) : '—'}</dd>
+        <dt>DPA 12m ÷ DPA 5a</dt><dd class="${valido(b.razao_12m_5a) && b.razao_12m_5a < 0.7 ? 't-red' : ''}">${valido(b.razao_12m_5a) ? fmtPctSimples(b.razao_12m_5a, 0) : '—'}</dd>
       </dl>
-      ${htmlHistoricoDpaAnual(b.por_ano)}
     </div>
 
     <div class="d-block">
