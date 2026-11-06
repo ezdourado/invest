@@ -69,6 +69,8 @@
     }
   };
 
+  const VERSAO_PREFS_TETOS = 2;
+
   const DIAS_PERIODO = {
     '6m': 183,
     '1y': 366,
@@ -273,11 +275,12 @@
     sidebarRecolhida: Boolean(prefsSalvas.sidebarRecolhida),
     tetosVisiveis: {
       bazin: prefsSalvas.tetosVisiveis?.bazin !== false,
-      // Consenso e Gordon são referência teórica: desligados até o usuário ligar.
-      consenso: prefsSalvas.tetosVisiveis?.consenso === true,
+      // Consenso e Gordon são referência teórica: desligados até o usuário ligar. Preferências
+      // salvas antes da versão 2 tinham tudo ligado por padrão, então são ignoradas uma vez.
+      consenso: prefsSalvas.versaoTetos === VERSAO_PREFS_TETOS && prefsSalvas.tetosVisiveis?.consenso === true,
       barsi: prefsSalvas.tetosVisiveis?.barsi !== false,
       graham: prefsSalvas.tetosVisiveis?.graham !== false,
-      gordon: prefsSalvas.tetosVisiveis?.gordon === true
+      gordon: prefsSalvas.versaoTetos === VERSAO_PREFS_TETOS && prefsSalvas.tetosVisiveis?.gordon === true
     },
     mediasVisiveis: {
       mma21: Boolean(prefsSalvas.mediasVisiveis?.mma21),
@@ -310,6 +313,7 @@
       ordemLista: visualState.ordemLista,
       sidebarRecolhida: visualState.sidebarRecolhida,
       tetosVisiveis: visualState.tetosVisiveis,
+      versaoTetos: VERSAO_PREFS_TETOS,
       mediasVisiveis: visualState.mediasVisiveis,
       modoTetoBazin: visualState.modoTetoBazin,
       simCapital: visualState.simCapital,
@@ -2158,9 +2162,9 @@
               ${infoMma}
               ${ehValido(tetoBazinNaData) ? `<span class="vhud-metric">Margem vs. ${labelBazinHud}: <strong class="mono ${corClasseMargem(mBaz)}">${formataPct(mBaz)}</strong></span>` : ''}
               ${visualState.tetosVisiveis.consenso && ehValido(tetoConsenso) ? `<span class="vhud-metric"><i class="dot" style="background:#a3e635;" aria-hidden="true"></i>Consenso (${formataReal(tetoConsenso)}): <strong class="mono ${corClasseMargem(mCons)}">${formataPct(mCons)}</strong></span>` : ''}
-              ${visualState.tetosVisiveis.barsi && ehValido(tetoBarsi) ? `<span class="vhud-metric"><i class="dot" style="background:#f97316;" aria-hidden="true"></i>Barsi (${formataReal(tetoBarsi)}): <strong class="mono ${corClasseMargem(mBars)}">${formataPct(mBars)}</strong></span>` : ''}
+              ${visualState.tetosVisiveis.barsi && ehValido(tetoBarsi) ? `<span class="vhud-metric"><i class="dot" style="background:#f97316;" aria-hidden="true"></i>Lucro (${formataReal(tetoBarsi)}): <strong class="mono ${corClasseMargem(mBars)}">${formataPct(mBars)}</strong></span>` : ''}
               ${ehValido(tetoGraham) ? `<span class="vhud-metric">Margem vs. Graham: <strong class="mono ${corClasseMargem(mGra)}">${formataPct(mGra)}</strong></span>` : ''}
-              ${ehValido(tetoGordon) ? `<span class="vhud-metric">Margem vs. Gordon: <strong class="mono ${corClasseMargem(mGor)}">${formataPct(mGor)}</strong></span>` : ''}
+              ${visualState.tetosVisiveis.gordon && ehValido(tetoGordon) ? `<span class="vhud-metric">Margem vs. Gordon: <strong class="mono ${corClasseMargem(mGor)}">${formataPct(mGor)}</strong></span>` : ''}
             `;
           }
         } else {
