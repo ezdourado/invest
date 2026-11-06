@@ -341,7 +341,8 @@
         const acimaDoAlvo = gap < -0.05;
         return { a, setor: s, alvo, atual, pontos, fatorSetor, acimaDoAlvo, temPosicao: posse.has(a.ticker) };
       })
-      .sort((x, y) => y.pontos - x.pontos)
+      // Primeiro quem pode receber aporte (setor não acima do alvo); depois, pela pontuação.
+      .sort((x, y) => (Number(x.acimaDoAlvo) - Number(y.acimaDoAlvo)) || (y.pontos - x.pontos))
       // Uma linha por empresa (ex.: CEBR3/CEBR5/CEBR6): fica a classe com melhor pontuação.
       .filter((x, i, lista) => lista.findIndex(y => y.a.ticker.slice(0, 4) === x.a.ticker.slice(0, 4)) === i)
       .slice(0, 10);
