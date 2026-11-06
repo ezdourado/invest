@@ -2336,7 +2336,10 @@ function exibirErro(msg) {
   }
 }
 
-const URL_VALUATION_REMOTO = 'https://raw.githubusercontent.com/ezdourado/invest/main/data/valuation.json';
+// O motor publica os dados no branch `dados` (não na main) para não disparar um deploy do
+// GitHub Pages a cada ciclo; esta é a fonte mais fresca. A cópia servida pelo Pages
+// (./data/valuation.json) é só um fallback e pode estar defasada.
+const URL_VALUATION_REMOTO = 'https://raw.githubusercontent.com/ezdourado/invest/dados/data/valuation.json';
 
 async function buscarJsonComCacheBust(urlBase) {
   const sep = urlBase.includes('?') ? '&' : '?';

@@ -8,6 +8,8 @@ name: Atualizar Valuation B3
 #   - crons de redundância a cada hora reiniciam a sessão se ela cair (se já houver uma
 #     rodando, ficam na fila do grupo de concorrência e assumem quando ela terminar);
 #   - perto do limite de 6 h do runner, a sessão dispara a própria continuação.
+# Os dados são publicados no branch `dados`, não na main, para não disparar um deploy do
+# GitHub Pages a cada ciclo (o site lê o JSON direto do branch via raw.githubusercontent.com).
 
 on:
   schedule:
@@ -67,4 +69,5 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          bash .github/scripts/motor.sh
+          cp .github/scripts/motor.sh "$RUNNER_TEMP/motor.sh"
+          bash "$RUNNER_TEMP/motor.sh"
