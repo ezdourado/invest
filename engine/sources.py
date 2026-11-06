@@ -415,7 +415,7 @@ def _coletar_agenda_investidor10(
 
 
 def _coletar_historico_5a_lote(tickers_b3: list[str]) -> dict[str, list[tuple[str, float]]]:
-    """Baixa em lote a série semanal de 5 anos (`Close` com `auto_adjust=False`) para os tickers."""
+    """Baixa em lote a série semanal de 10 anos (`Close` com `auto_adjust=False`) para os tickers."""
     if not tickers_b3:
         return {}
 
@@ -426,7 +426,7 @@ def _coletar_historico_5a_lote(tickers_b3: list[str]) -> dict[str, list[tuple[st
     try:
         df = yf.download(
             yf_symbols,
-            period="5y",
+            period="10y",
             interval="1wk",
             auto_adjust=False,
             progress=False,
@@ -463,6 +463,187 @@ def _coletar_historico_5a_lote(tickers_b3: list[str]) -> dict[str, list[tuple[st
         return {}
 
     return resultado
+
+
+def _coletar_serie_bcb_mensal(codigo_sgs: int, data_inicial_br: str = "01/01/2015") -> dict[tuple[int, int], float]:
+    """Coleta série mensal (% a.m.) do SGS do Banco Central (ex: 4391 = CDI mensal, 433 = IPCA mensal)."""
+    url = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo_sgs}/dados?formato=json&dataInicial={data_inicial_br}"
+    taxas: dict[tuple[int, int], float] = {}
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"},
+        )
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            dados = json.loads(resp.read().decode("utf-8", errors="ignore"))
+        if isinstance(dados, list):
+            for item in dados:
+                dt_str = str(item.get("data", "")).strip()
+                val_str = str(item.get("valor", "")).strip().replace(",", ".")
+                dt_obj = _parse_data_br(dt_str)
+                val_f = _limpar_float(val_str)
+                if dt_obj is not None and val_f is not None:
+                    taxas[(dt_obj.year, dt_obj.month)] = val_f / 100.0
+    except Exception:
+        pass
+    return taxas
+
+
+def _construir_indice_acumulado_mensal(
+    historico_datas: list[str],
+    taxas_mensais: dict[tuple[int, int], float],
+    taxa_anual_fallback: float,
+) -> list[Optional[float]]:
+    """Transforma taxas mensais do BCB em índice acumulado contínuo (base 100.0) nas datas semanais."""
+    if not historico_datas:
+        return []
+    fator_padrao_mensal = (1.0 + taxa_anual_fallback) ** (1.0 / 12.0) - 1.0
+    ultimas_validas = [v for _, v in sorted(taxas_mensais.items())[-3:]] if taxas_mensais else []
+    media_recente = (sum(ultimas_validas) / len(ultimas_validas)) if ultimas_validas else fator_padrao_mensal
+
+    valores: list[Optional[float]] = []
+    acumulado = 100.0
+    dt_ant: Optional[date] = None
+
+    for dt_iso in historico_datas:
+        try:
+            dt_atual = date.fromisoformat(dt_iso[:10])
+        except ValueError:
+            valores.append(round(acumulado, 4))
+            continue
+
+        if dt_ant is not None:
+            dias = max(0, (dt_atual - dt_ant).days)
+            if dias > 0:
+                chave = (dt_atual.year, dt_atual.month)
+                taxa_mes = taxas_mensais.get(chave)
+                if taxa_mes is None or (dt_atual.day <= 10 and taxa_mes < 0.0025 and taxa_anual_fallback > 0.06):
+                    chave_ant = (dt_atual.year - 1, 12) if dt_atual.month == 1 else (dt_atual.year, dt_atual.month - 1)
+                    taxa_mes = taxas_mensais.get(chave_ant, media_recente)
+                fator_diario = (1.0 + taxa_mes) ** (1.0 / 30.4375)
+                acumulado *= fator_diario ** dias
+
+        valores.append(round(acumulado, 4))
+        dt_ant = dt_atual
+
+    return valores
+
+
+def coletar_benchmarks_historico(historico_datas: list[str]) -> dict[str, list[Optional[float]]]:
+    """Coleta séries históricas de 10 anos alinhadas a `historico_datas` para:
+    - CDI (Série BCB 4391 acumulada)
+    - IPCA (Série BCB 433 acumulada)
+    - WRLD11 (WRLD11.SA c/ backcast pré-IPO via VT × USD/BRL)
+    - MUND11 (MUND11.SA c/ backcast pré-IPO via WRLD11.SA e VT × USD/BRL)
+    - B5P211 (B5P211.SA c/ backcast pré-IPO via IMAB11.SA e IPCA + 5,5% a.a.)
+    """
+    if not historico_datas:
+        return {}
+
+    taxas_cdi = _coletar_serie_bcb_mensal(4391, "01/01/2015")
+    taxas_ipca = _coletar_serie_bcb_mensal(433, "01/01/2015")
+
+    serie_cdi = _construir_indice_acumulado_mensal(historico_datas, taxas_cdi, taxa_anual_fallback=0.105)
+    serie_ipca = _construir_indice_acumulado_mensal(historico_datas, taxas_ipca, taxa_anual_fallback=0.048)
+
+    # Série sintética IPCA + 5.5% a.a. para pré-histórico do IMA-B5 / B5P211
+    taxas_ipca_real: dict[tuple[int, int], float] = {}
+    premio_mensal = (1.0 + 0.055) ** (1.0 / 12.0) - 1.0
+    for k, v_ipca in taxas_ipca.items():
+        taxas_ipca_real[k] = (1.0 + v_ipca) * (1.0 + premio_mensal) - 1.0
+    serie_ipca_mais = _construir_indice_acumulado_mensal(historico_datas, taxas_ipca_real, taxa_anual_fallback=0.105)
+    mapa_ipca_mais = {dt: val for dt, val in zip(historico_datas, serie_ipca_mais) if val is not None}
+
+    simbolos_yf = ["WRLD11.SA", "MUND11.SA", "B5P211.SA", "IMAB11.SA", "VT", "BRL=X"]
+    mapas_yf: dict[str, dict[str, float]] = {s: {} for s in simbolos_yf}
+
+    try:
+        df = yf.download(
+            simbolos_yf,
+            period="10y",
+            interval="1wk",
+            auto_adjust=True,
+            progress=False,
+            threads=True,
+        )
+        if df is not None and not df.empty and "Close" in df:
+            closes = df["Close"]
+            for sym in simbolos_yf:
+                if hasattr(closes, "columns") and sym in closes.columns:
+                    for idx_dt, val in closes[sym].items():
+                        v = _limpar_float(val)
+                        if v is not None and v > 0:
+                            dt_iso = idx_dt.date().isoformat() if hasattr(idx_dt, "date") else str(idx_dt)[:10]
+                            mapas_yf[sym][dt_iso] = round(v, 4)
+    except Exception:
+        pass
+
+    def _alinhar_ffill(mapa_bruto: dict[str, float]) -> list[Optional[float]]:
+        out: list[Optional[float]] = []
+        ult: Optional[float] = None
+        chaves_ord = sorted(mapa_bruto.keys())
+        ptr = 0
+        for dt_iso in historico_datas:
+            while ptr < len(chaves_ord) and chaves_ord[ptr] <= dt_iso:
+                ult = mapa_bruto[chaves_ord[ptr]]
+                ptr += 1
+            out.append(ult)
+        return out
+
+    alinhado_wrld = _alinhar_ffill(mapas_yf["WRLD11.SA"])
+    alinhado_mund = _alinhar_ffill(mapas_yf["MUND11.SA"])
+    alinhado_b5p2 = _alinhar_ffill(mapas_yf["B5P211.SA"])
+    alinhado_imab = _alinhar_ffill(mapas_yf["IMAB11.SA"])
+    alinhado_vt = _alinhar_ffill(mapas_yf["VT"])
+    alinhado_brl = _alinhar_ffill(mapas_yf["BRL=X"])
+
+    # Proxy global VT em BRL (VT * USD/BRL)
+    proxy_vt_brl: list[Optional[float]] = []
+    for v_vt, v_brl in zip(alinhado_vt, alinhado_brl):
+        if v_vt is not None and v_brl is not None and v_vt > 0 and v_brl > 0:
+            proxy_vt_brl.append(round(v_vt * v_brl, 4))
+        else:
+            proxy_vt_brl.append(None)
+
+    def _encadear_backcast(serie_principal: list[Optional[float]], serie_proxy: list[Optional[float]]) -> list[Optional[float]]:
+        """Preenche pontos nulos anteriores ao IPO de `serie_principal` escalonando `serie_proxy`."""
+        res = list(serie_principal)
+        idx_ancora: Optional[int] = None
+        for i, (vp, vx) in enumerate(zip(res, serie_proxy)):
+            if vp is not None and vp > 0 and vx is not None and vx > 0:
+                idx_ancora = i
+                break
+        if idx_ancora is not None and idx_ancora > 0:
+            fator = res[idx_ancora] / serie_proxy[idx_ancora]  # type: ignore[operator]
+            for j in range(idx_ancora):
+                if res[j] is None and serie_proxy[j] is not None and serie_proxy[j] > 0:  # type: ignore[operator]
+                    res[j] = round(serie_proxy[j] * fator, 2)  # type: ignore[operator]
+        # Caso a série inteira esteja vazia (ex: modo offline), usa a proxy se existir
+        if all(x is None for x in res) and any(x is not None for x in serie_proxy):
+            res = [round(x, 2) if x is not None else None for x in serie_proxy]
+        # Garante preenchimento inicial se os primeiros 1-2 pontos ainda forem None
+        primeiro_val = next((x for x in res if x is not None and x > 0), None)
+        if primeiro_val is not None:
+            for k in range(len(res)):
+                if res[k] is None:
+                    res[k] = primeiro_val
+                else:
+                    break
+        return res
+
+    serie_wrld_completa = _encadear_backcast(alinhado_wrld, proxy_vt_brl)
+    serie_mund_completa = _encadear_backcast(alinhado_mund, serie_wrld_completa)
+
+    serie_imab_completa = _encadear_backcast(alinhado_imab, [mapa_ipca_mais.get(d) for d in historico_datas])
+    serie_b5p2_completa = _encadear_backcast(alinhado_b5p2, serie_imab_completa)
+
+    return {
+        "CDI": serie_cdi,
+        "IPCA": serie_ipca,
+        "WRLD11": [round(x, 2) if x is not None else None for x in serie_wrld_completa],
+        "MUND11": [round(x, 2) if x is not None else None for x in serie_mund_completa],
+        "B5P211": [round(x, 2) if x is not None else None for x in serie_b5p2_completa],
+    }
 
 
 def _coletar_dados_ativo(symbol_b3: str) -> dict[str, Any]:
@@ -906,7 +1087,7 @@ def obter_ativos(
 
             if not pontos_hist and _coletar_dados_ativo is _COLETAR_DADOS_ATIVO_PADRAO:
                 try:
-                    h_ind = yf.Ticker(f"{ticker_raw}.SA").history(period="5y", interval="1wk", auto_adjust=False)
+                    h_ind = yf.Ticker(f"{ticker_raw}.SA").history(period="10y", interval="1wk", auto_adjust=False)
                     if h_ind is not None and not h_ind.empty and "Close" in h_ind:
                         for idx_dt, val in h_ind["Close"].items():
                             v = _limpar_float(val)

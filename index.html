@@ -14,8 +14,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="./favicon.png">
   <link rel="preload" href="./assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261106_v6">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261106_v6">
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261106_v7">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261106_v7">
   <style>
     /* Regras prioritárias com proteção absoluta contra cache de CSS */
     .d-bazin-proj-grid {
@@ -409,6 +409,7 @@
               <button type="button" class="seg-btn" data-vperiod="2y">2A</button>
               <button type="button" class="seg-btn" data-vperiod="3y">3A</button>
               <button type="button" class="seg-btn is-active" data-vperiod="5y">5A</button>
+              <button type="button" class="seg-btn" data-vperiod="10y">10A</button>
             </div>
 
             <button type="button" class="btn btn-ghost" id="btn-export-visual-png" data-tip="Exportar o gráfico de preços atual como imagem PNG">
@@ -448,6 +449,7 @@
                   <button type="button" class="seg-btn" data-sim-period="2y">2A</button>
                   <button type="button" class="seg-btn" data-sim-period="3y">3A</button>
                   <button type="button" class="seg-btn is-active" data-sim-period="5y">5A</button>
+                  <button type="button" class="seg-btn" data-sim-period="10y">10A</button>
                   <button type="button" class="seg-btn" data-sim-period="max">Máx</button>
                   <button type="button" class="seg-btn" data-sim-period="custom">Personalizado</button>
                 </div>
@@ -484,6 +486,33 @@
               <button type="button" class="chip vsim-tax-btn is-on" id="sim-net-jcp-btn" data-tip="Desconta 15% de Imposto de Renda retido na fonte apenas sobre JCP (Dividendos permanecem isentos)">
                 <i></i><span>JCP líq. 15%</span>
               </button>
+            </div>
+          </div>
+
+          <!-- Barra de Benchmarks Históricos Comparativos -->
+          <div class="vsim-benchmarks-bar" id="sim-benchmarks-bar" role="group" aria-label="Comparar com indicadores de referência">
+            <span class="vsim-bench-label">Comparar com:</span>
+            <div class="vsim-bench-chips" id="sim-benchmarks-group">
+              <button type="button" class="bench-chip is-on" data-sim-bench="CDI" data-tip="Taxa DI (100% do CDI acumulado no período · BCB SGS 4391)">
+                <i class="dot dot-bench-cdi" aria-hidden="true"></i><span>CDI</span>
+              </button>
+              <button type="button" class="bench-chip is-on" data-sim-bench="WRLD11" data-tip="Investo FTSE Global Equities ETF (WRLD11 · Índice Global VT em R$)">
+                <i class="dot dot-bench-wrld11" aria-hidden="true"></i><span>WRLD11</span>
+              </button>
+              <button type="button" class="bench-chip is-on" data-sim-bench="MUND11" data-tip="ETF Global de Ações em Reais (MUND11)">
+                <i class="dot dot-bench-mund11" aria-hidden="true"></i><span>MUND11</span>
+              </button>
+              <button type="button" class="bench-chip is-on" data-sim-bench="B5P211" data-tip="It Now IMA-B5 P2 ETF (B5P211 · Tesouro IPCA+ de curto prazo)">
+                <i class="dot dot-bench-b5p211" aria-hidden="true"></i><span>B5P211</span>
+              </button>
+              <button type="button" class="bench-chip is-on" data-sim-bench="IPCA" data-tip="Inflação Oficial Acumulada (IPCA · IBGE / BCB SGS 433)">
+                <i class="dot dot-bench-ipca" aria-hidden="true"></i><span>IPCA</span>
+              </button>
+            </div>
+            <div class="vsim-bench-actions">
+              <button type="button" class="btn-link-dim" id="btn-sim-bench-all">Todos</button>
+              <span class="t-dim">·</span>
+              <button type="button" class="btn-link-dim" id="btn-sim-bench-none">Limpar</button>
             </div>
           </div>
 
@@ -762,8 +791,8 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/data.js?v=20261106_v6"></script>
-<script src="./assets/js/visao_grafica.js?v=20261106_v6"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261106_v6"></script>
+<script src="./assets/js/data.js?v=20261106_v7"></script>
+<script src="./assets/js/visao_grafica.js?v=20261106_v7"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261106_v7"></script>
 </body>
 </html>

@@ -129,6 +129,7 @@
   { "ticker": "SLCE3", "setor": "agronegócio", "categoria": "demais" },
   { "ticker": "SMTO3", "setor": "agronegócio", "categoria": "demais" },
   { "ticker": "TTEN3", "setor": "agronegócio", "categoria": "demais" },
+  { "ticker": "SOJA3", "setor": "agronegócio", "categoria": "demais" },
   { "ticker": "ASAI3", "setor": "varejo alimentar", "categoria": "demais" },
   { "ticker": "GMAT3", "setor": "varejo alimentar", "categoria": "demais" },
   { "ticker": "PCAR3", "setor": "varejo alimentar", "categoria": "demais" },

@@ -437,3 +437,51 @@ def test_historico_lucros_no_resultado_ativo():
     assert len(saida.ativos) == 1
     assert len(saida.ativos[0].historico_lucros) == 2
     assert saida.ativos[0].historico_lucros[0].periodo == "2T26"
+
+
+def test_historico_10_anos_nao_altera_calculos_5_anos_e_benchmarks() -> None:
+    """Garante que cotações e dividendos de 10 anos entram para visualização sem alterar Bazin 5a nem pct_abaixo_teto_5a."""
+    from datetime import date
+    from engine.build import construir_saida
+
+    divs_5a = [
+        Dividendo(data_com=date(2021, 6, 1), valor=1.20, tipo="dividendo"),
+        Dividendo(data_com=date(2022, 6, 1), valor=1.20, tipo="dividendo"),
+        Dividendo(data_com=date(2023, 6, 1), valor=1.20, tipo="dividendo"),
+        Dividendo(data_com=date(2024, 6, 1), valor=1.20, tipo="dividendo"),
+        Dividendo(data_com=date(2025, 6, 1), valor=1.20, tipo="dividendo"),
+    ]
+    divs_antigos_10a = [
+        Dividendo(data_com=date(2017, 6, 1), valor=9.00, tipo="dividendo"),
+        Dividendo(data_com=date(2018, 6, 1), valor=9.00, tipo="dividendo"),
+    ]
+    pts_5a = [("2022-01-10", 15.0), ("2023-01-10", 18.0), ("2024-01-10", 25.0), ("2025-01-10", 19.0)]
+    pts_10a = [("2017-01-10", 50.0), ("2018-01-10", 55.0), ("2019-01-10", 60.0)] + pts_5a
+
+    ativo_5a = Ativo(ticker="BBSE3", setor="Seguros", preco=19.0, dividendos=divs_5a, pontos_historico=pts_5a)
+    ativo_10a = Ativo(
+        ticker="BBSE3",
+        setor="Seguros",
+        preco=19.0,
+        dividendos=divs_antigos_10a + divs_5a,
+        pontos_historico=pts_10a,
+    )
+
+    saida_5a = construir_saida([ativo_5a], ano_referencia=2026, data_referencia=date(2026, 11, 2))
+    saida_10a = construir_saida(
+        [ativo_10a],
+        ano_referencia=2026,
+        data_referencia=date(2026, 11, 2),
+        benchmarks_historico={"CDI": [100.0] * 8, "IPCA": [100.0] * 8},
+    )
+
+    r5 = saida_5a.ativos[0]
+    r10 = saida_10a.ativos[0]
+
+    assert r5.bazin.teto == r10.bazin.teto == 20.0
+    assert r5.bazin.margem_seguranca == r10.bazin.margem_seguranca
+    assert r5.pct_abaixo_teto_5a == r10.pct_abaixo_teto_5a
+    assert len(r10.historico_precos) > len(r5.historico_precos)
+    assert len(r10.proventos_historico) == 7
+    assert "CDI" in saida_10a.benchmarks_historico
+

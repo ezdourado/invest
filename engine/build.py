@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from engine.schemas import Ativo, Dividendo, ResultadoAtivo, Saida
-from engine.sources import CAMINHO_TICKERS_PADRAO, carregar_tickers_json, obter_ativos
+from engine.sources import CAMINHO_TICKERS_PADRAO, carregar_tickers_json, coletar_benchmarks_historico, obter_ativos
 from engine.valuation import (
     avaliar_bazin,
     avaliar_sustentabilidade,
@@ -37,7 +37,7 @@ def _compactar_vetores_historico(json_str: str) -> str:
         return f"{prefixo}{itens}{sufixo}"
 
     compactado = re.sub(
-        r'("(?:historico_datas|historico_precos|meses_habituais_dividendo)": \[)\s*([^\[\]\{\}]*?)\s*(\])',
+        r'("(?:historico_datas|historico_precos|meses_habituais_dividendo|CDI|IPCA|WRLD11|MUND11|B5P211)": \[)\s*([^\[\]\{\}]*?)\s*(\])',
         _colapsar,
         json_str,
     )
@@ -58,12 +58,14 @@ def construir_saida(
     ano_referencia: int | None = None,
     taxa_desconto_gordon: float = TAXA_DESCONTO_GORDON_PADRAO,
     data_referencia: date | None = None,
+    benchmarks_historico: dict[str, list[Optional[float]]] | None = None,
 ) -> Saida:
     """Calcula valuation completo para a lista de Ativo e retorna o objeto Saida validado."""
     agora = datetime.now(timezone.utc)
     hoje_b3 = data_referencia if data_referencia is not None else datetime.now(FUSO_B3).date()
     ano_ref = ano_referencia if ano_referencia is not None else hoje_b3.year
-    data_corte_proventos = date(ano_ref - 5, 1, 1)
+    data_corte_proventos = date(ano_ref - 10, 1, 1)
+    data_corte_5a_iso = date(ano_ref - 5, hoje_b3.month, min(hoje_b3.day, 28)).isoformat()
 
     conjunto_datas: set[str] = set()
     mapas_pontos: dict[str, dict[str, float]] = {}
@@ -172,16 +174,17 @@ def construir_saida(
 
         mp_ativo = mapas_pontos.get(ativo.ticker)
         serie_alinhada: list[Optional[float]] = []
+        serie_5a_calculo: list[Optional[float]] = []
         if historico_datas and mp_ativo:
             ultimo_conhecido: Optional[float] = None
             for dt_iso in historico_datas:
                 if dt_iso in mp_ativo:
                     ultimo_conhecido = mp_ativo[dt_iso]
-                    serie_alinhada.append(ultimo_conhecido)
-                else:
-                    serie_alinhada.append(ultimo_conhecido)
+                serie_alinhada.append(ultimo_conhecido)
+                if dt_iso >= data_corte_5a_iso:
+                    serie_5a_calculo.append(ultimo_conhecido)
 
-        pct_abaixo = proporcao_abaixo_teto(serie_alinhada, bazin_res.teto) if serie_alinhada else None
+        pct_abaixo = proporcao_abaixo_teto(serie_5a_calculo or serie_alinhada, bazin_res.teto) if serie_alinhada else None
 
         proventos_5a = sorted(
             [
@@ -237,6 +240,7 @@ def construir_saida(
         schema_version="1.0",
         gerado_em=agora,
         historico_datas=historico_datas,
+        benchmarks_historico=benchmarks_historico or {},
         ativos=resultados,
     )
 
@@ -277,6 +281,12 @@ def main() -> None:
             raise RuntimeError("Nenhum ativo válido pôde ser obtido pela fonte de dados.")
 
     saida = construir_saida(ativos)
+    if not args.offline and saida.historico_datas:
+        try:
+            benches = coletar_benchmarks_historico(saida.historico_datas)
+            saida = saida.model_copy(update={"benchmarks_historico": benches})
+        except Exception:
+            pass
     saida_validada = Saida.model_validate(saida.model_dump(mode="json"))
 
     caminho_saida.parent.mkdir(parents=True, exist_ok=True)

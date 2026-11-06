@@ -209,4 +209,5 @@ class Saida(BaseModel):
     schema_version: str = "1.0"
     gerado_em: datetime
     historico_datas: list[str] = Field(default_factory=list)
+    benchmarks_historico: dict[str, list[Optional[float]]] = Field(default_factory=dict)
     ativos: list[ResultadoAtivo] = Field(default_factory=list)

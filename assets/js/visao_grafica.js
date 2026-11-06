@@ -74,7 +74,8 @@
     '1y': 366,
     '2y': 731,
     '3y': 1096,
-    '5y': 1860
+    '5y': 1860,
+    '10y': 3660
   };
 
   const ROTULO_PERIODO = {
@@ -82,7 +83,58 @@
     '1y': '1 ano',
     '2y': '2 anos',
     '3y': '3 anos',
-    '5y': '5 anos'
+    '5y': '5 anos',
+    '10y': '10 anos'
+  };
+
+  const ORDEM_BENCHMARKS = ['CDI', 'WRLD11', 'MUND11', 'B5P211', 'IPCA'];
+
+  const ESTILO_BENCHMARKS = {
+    CDI: {
+      codigo: 'CDI',
+      nome: '100% Taxa DI',
+      curto: 'CDI',
+      cor: '#f59e0b',
+      dash: '6 3',
+      dotCls: 'dot-bench-cdi',
+      taxaAnualFallback: 0.101
+    },
+    WRLD11: {
+      codigo: 'WRLD11',
+      nome: 'ETF Global VT',
+      curto: 'WRLD11',
+      cor: '#10b981',
+      dash: '8 4',
+      dotCls: 'dot-bench-wrld11',
+      taxaAnualFallback: 0.145
+    },
+    MUND11: {
+      codigo: 'MUND11',
+      nome: 'ETF Global',
+      curto: 'MUND11',
+      cor: '#a855f7',
+      dash: '5 3',
+      dotCls: 'dot-bench-mund11',
+      taxaAnualFallback: 0.142
+    },
+    B5P211: {
+      codigo: 'B5P211',
+      nome: 'Tesouro IPCA+',
+      curto: 'B5P211',
+      cor: '#ec4899',
+      dash: '9 3 2 3',
+      dotCls: 'dot-bench-b5p211',
+      taxaAnualFallback: 0.112
+    },
+    IPCA: {
+      codigo: 'IPCA',
+      nome: 'Inflação IBGE',
+      curto: 'IPCA',
+      cor: '#ef4444',
+      dash: '3 3',
+      dotCls: 'dot-bench-ipca',
+      taxaAnualFallback: 0.056
+    }
   };
 
   /* ---------- Helpers Defensivos Autossuficientes ---------- */
@@ -236,7 +288,14 @@
     simLiquidoJcp: prefsSalvas.simLiquidoJcp !== false,
     simPeriodoPreset: prefsSalvas.simPeriodoPreset || '5y',
     simDataInicio: prefsSalvas.simDataInicio || '',
-    simDataFim: prefsSalvas.simDataFim || ''
+    simDataFim: prefsSalvas.simDataFim || '',
+    simBenchmarks: {
+      CDI: prefsSalvas.simBenchmarks?.CDI !== false,
+      WRLD11: prefsSalvas.simBenchmarks?.WRLD11 !== false,
+      MUND11: prefsSalvas.simBenchmarks?.MUND11 !== false,
+      B5P211: prefsSalvas.simBenchmarks?.B5P211 !== false,
+      IPCA: prefsSalvas.simBenchmarks?.IPCA !== false
+    }
   };
 
   function salvarPrefsVisual() {
@@ -257,7 +316,8 @@
       simLiquidoJcp: visualState.simLiquidoJcp,
       simPeriodoPreset: visualState.simPeriodoPreset,
       simDataInicio: visualState.simDataInicio,
-      simDataFim: visualState.simDataFim
+      simDataFim: visualState.simDataFim,
+      simBenchmarks: visualState.simBenchmarks
     });
   }
 
@@ -751,6 +811,9 @@
     } else if (preset === '5y') {
       const t = new Date(maxDisponivel + 'T12:00:00Z').getTime() - 1826.25 * 86400000;
       dtIni = new Date(t).toISOString().slice(0, 10);
+    } else if (preset === '10y') {
+      const t = new Date(maxDisponivel + 'T12:00:00Z').getTime() - 3652.5 * 86400000;
+      dtIni = new Date(t).toISOString().slice(0, 10);
     } else if (preset === 'max') {
       dtIni = minDisponivel;
       dtFim = maxDisponivel;
@@ -1032,6 +1095,102 @@
       proventosRecebidosRS,
       yocAcumulado,
       qtdEventos,
+      cagr,
+      curva
+    };
+  }
+
+  function simularBenchmark(codigo, janela, capitalInicial, datasRef) {
+    const cfg = ESTILO_BENCHMARKS[codigo];
+    if (!cfg || !janela || !Array.isArray(janela.datas) || janela.datas.length < 2) return null;
+
+    const payload = obterPayload();
+    const seriePayload = payload?.benchmarks_historico?.[codigo];
+    const datasAlvo = Array.isArray(datasRef) && datasRef.length >= 2 ? datasRef : janela.datas;
+    const todasDatas = Array.isArray(payload?.historico_datas) ? payload.historico_datas : [];
+    const mapaIdxGlobal = new Map(todasDatas.map((d, i) => [d, i]));
+
+    const pontos = [];
+    let temDadosReais = Array.isArray(seriePayload) && seriePayload.length > 0;
+
+    if (temDadosReais) {
+      let ultVal = null;
+      for (let k = 0; k < datasAlvo.length; k++) {
+        const dt = datasAlvo[k];
+        const idxG = mapaIdxGlobal.get(dt);
+        const v = idxG !== undefined ? seriePayload[idxG] : null;
+        if (ehValido(v) && v > 0) {
+          ultVal = v;
+        }
+        pontos.push({ data: dt, preco: ultVal });
+      }
+      // Backfill inicial se os primeiros pontos forem nulos
+      const primeiroValido = pontos.find(p => ehValido(p.preco) && p.preco > 0)?.preco;
+      if (ehValido(primeiroValido)) {
+        for (let k = 0; k < pontos.length; k++) {
+          if (!ehValido(pontos[k].preco)) pontos[k].preco = primeiroValido;
+          else break;
+        }
+      } else {
+        temDadosReais = false;
+      }
+    }
+
+    if (!temDadosReais) {
+      // Fallback determinístico composto caso o JSON ainda não contenha a série
+      const t0 = new Date(datasAlvo[0] + 'T12:00:00Z').getTime();
+      const taxa = cfg.taxaAnualFallback || 0.10;
+      for (let k = 0; k < datasAlvo.length; k++) {
+        const tk = new Date(datasAlvo[k] + 'T12:00:00Z').getTime();
+        const anos = Math.max(0, (tk - t0) / (365.25 * 86400000));
+        pontos.push({ data: datasAlvo[k], preco: 100 * Math.pow(1 + taxa, anos) });
+      }
+    }
+
+    const validos = pontos.filter(p => ehValido(p.preco) && p.preco > 0);
+    if (validos.length < 2) return null;
+
+    const dataIni = validos[0].data;
+    const dataFim = validos[validos.length - 1].data;
+    const precoIni = validos[0].preco;
+    const precoFim = validos[validos.length - 1].preco;
+
+    const curva = validos.map(pt => {
+      const patTotal = capitalInicial * (pt.preco / precoIni);
+      return {
+        data: pt.data,
+        preco: pt.preco,
+        patTotal,
+        patCotacao: patTotal
+      };
+    });
+
+    const patrimonioFinal = curva[curva.length - 1].patTotal;
+    const lucroTotal = patrimonioFinal - capitalInicial;
+    const retornoTotal = (patrimonioFinal - capitalInicial) / capitalInicial;
+
+    const diasDecorridos = Math.max(14, (new Date(dataFim) - new Date(dataIni)) / 86400000);
+    const anos = diasDecorridos / 365.25;
+    const cagr = anos >= 0.45 && patrimonioFinal > 0
+      ? Math.pow(patrimonioFinal / capitalInicial, 1 / anos) - 1
+      : null;
+
+    return {
+      ehBenchmark: true,
+      codigo,
+      nome: cfg.nome,
+      curto: cfg.curto,
+      cor: cfg.cor,
+      dash: cfg.dash,
+      dotCls: cfg.dotCls,
+      dataIni,
+      dataFim,
+      precoIni,
+      precoFim,
+      capitalInicial,
+      patrimonioFinal,
+      lucroTotal,
+      retornoTotal,
       cagr,
       curva
     };
@@ -2296,6 +2455,13 @@
       }
     }
 
+    document.querySelectorAll('#sim-benchmarks-group [data-sim-bench]').forEach(b => {
+      const code = b.dataset.simBench;
+      const ativo = Boolean(visualState.simBenchmarks?.[code]);
+      b.classList.toggle('is-on', ativo);
+      b.setAttribute('aria-pressed', String(ativo));
+    });
+
     const todosAtivos = [principal, ...ativosCmp];
     const simulacoes = todosAtivos
       .map((a, idx) => ({
@@ -2315,6 +2481,12 @@
     }
 
     const simMain = simulacoes[0].sim;
+    const datasSimMain = simMain.curva.map(p => p.data);
+    const benchmarksTodos = ORDEM_BENCHMARKS
+      .map(cod => simularBenchmark(cod, janelaSim, visualState.simCapital, datasSimMain))
+      .filter(Boolean);
+    const benchmarksAtivos = benchmarksTodos.filter(b => visualState.simBenchmarks?.[b.codigo]);
+
     if (subEl) {
       subEl.textContent = `Aporte inicial de ${formataReal(visualState.simCapital)} em ${principal.ticker} (${fmtDataBr(simMain.dataIni)} a ${fmtDataBr(simMain.dataFim)}) · ${visualState.simReinvestir ? 'reinvestindo proventos na data-com' : 'acumulando proventos em caixa'}`;
     }
@@ -2364,6 +2536,7 @@
       simulacoes.forEach(s => s.sim.curva.forEach(p => valoresY.push(p.patTotal)));
       simMain.curva.forEach(p => valoresY.push(p.patCotacao));
     }
+    benchmarksAtivos.forEach(b => b.curva.forEach(p => valoresY.push(p.patTotal)));
 
     let yMin = Math.min(...valoresY);
     let yMax = Math.max(...valoresY);
@@ -2433,12 +2606,19 @@
       }).join('');
     }
 
+    const curvasBenchSvg = benchmarksAtivos.map(b => {
+      const len = b.curva.length;
+      const xy = b.curva.map((p, i) => ({ x: xDe(i, len), y: yDe(p.patTotal) }));
+      seriesInterativas.push({ cor: b.cor, xy, ticker: b.codigo });
+      return `<path d="${caminhoSvgLinha(xy)}" fill="none" stroke="${b.cor}" stroke-width="1.9" stroke-dasharray="${b.dash}" stroke-linejoin="round" stroke-linecap="round" opacity="0.92" />`;
+    }).join('');
+
     const chDotsSvg = seriesInterativas.map((s, idx) =>
-      `<circle class="v-sim-dot is-hidden" data-sim-idx="${idx}" cx="0" cy="0" r="4.2" fill="${s.cor}" stroke="var(--bg)" stroke-width="1.6" />`
+      `<circle class="v-sim-dot is-hidden" data-sim-idx="${idx}" cx="0" cy="0" r="4.0" fill="${s.cor}" stroke="var(--bg)" stroke-width="1.5" />`
     ).join('');
 
     svgWrap.innerHTML = `
-      <svg class="vsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Evolução do patrimônio simulado com dividendos">
+      <svg class="vsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Evolução do patrimônio simulado com dividendos e benchmarks">
         <defs>
           <linearGradient id="grad-sim-total" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.26" />
@@ -2451,6 +2631,7 @@
         </defs>
         ${gradeSvg}
         ${linhaAporteSvg}
+        ${curvasBenchSvg}
         ${curvasSimSvg}
         ${marcadoresProvSvg}
         ${ticksXSvg}
@@ -2470,14 +2651,21 @@
       const pt = simMain.curva[i];
       const dt = fmtDataBr(pt.data);
 
+      const benchHudHtml = benchmarksAtivos.map(b => {
+        const idxB = Math.min(b.curva.length - 1, Math.round((i / Math.max(1, nPontos - 1)) * (b.curva.length - 1)));
+        const pB = b.curva[idxB];
+        const retB = (pB.patTotal - visualState.simCapital) / visualState.simCapital;
+        return `<span class="vhud-metric"><i class="dot ${b.dotCls}" aria-hidden="true"></i><b>${escHtml(b.curto)}</b>: <strong class="mono">${formataReal(pB.patTotal)} (${formataPct(retB)})</strong></span>`;
+      }).join('');
+
       if (!modoMulti) {
         const retData = (pt.patTotal - visualState.simCapital) / visualState.simCapital;
         if (hudEl) {
           hudEl.innerHTML = `
             <span class="vhud-date mono">${ehUltimo ? `Final (${dt})` : dt}</span>
-            <span class="vhud-metric"><span class="vleg-swatch is-sim-total" aria-hidden="true"></span>Total c/ dividendos: <strong class="mono t-green">${formataReal(pt.patTotal)} (${formataPct(retData)})</strong></span>
-            <span class="vhud-metric"><span class="vleg-swatch is-sim-quote" aria-hidden="true"></span>Apenas cotação: <strong class="mono">${formataReal(pt.patCotacao)}</strong></span>
-            <span class="vhud-metric">Parcela dividendos: <strong class="mono t-green">+${formataReal(Math.max(0, pt.patTotal - pt.patCotacao))}</strong></span>
+            <span class="vhud-metric"><span class="vleg-swatch is-sim-total" aria-hidden="true"></span><b>${escHtml(principal.ticker)}</b> c/ div.: <strong class="mono t-green">${formataReal(pt.patTotal)} (${formataPct(retData)})</strong></span>
+            <span class="vhud-metric"><span class="vleg-swatch is-sim-quote" aria-hidden="true"></span>Só cotação: <strong class="mono">${formataReal(pt.patCotacao)}</strong></span>
+            ${benchHudHtml}
           `;
         }
       } else {
@@ -2488,7 +2676,7 @@
           return `<span class="vhud-metric"><i class="dot ${s.dotCls}" aria-hidden="true"></i><b>${escHtml(s.sim.ativo.ticker)}</b>: <strong class="mono">${formataReal(pSim.patTotal)} (${formataPct(ret)})</strong></span>`;
         }).join('');
         if (hudEl) {
-          hudEl.innerHTML = `<span class="vhud-date mono">${ehUltimo ? `Final (${dt})` : dt}</span>${itens}`;
+          hudEl.innerHTML = `<span class="vhud-date mono">${ehUltimo ? `Final (${dt})` : dt}</span>${itens}${benchHudHtml}`;
         }
       }
     };
@@ -2523,17 +2711,66 @@
     );
 
     if (breakdownWrap) {
-      const ordenadas = [...simulacoes].sort((a, b) => b.sim.patrimonioFinal - a.sim.patrimonioFinal);
-      const linhas = ordenadas.map(item => {
+      const itensTabela = [
+        ...simulacoes.map(item => ({ tipo: 'acao', dotCls: modoMulti ? item.dotCls : 'dot-bazin', sim: item.sim })),
+        ...benchmarksTodos.map(b => ({ tipo: 'bench', dotCls: b.dotCls, sim: b, visivelNoGrafico: Boolean(visualState.simBenchmarks?.[b.codigo]) }))
+      ].sort((a, b) => b.sim.patrimonioFinal - a.sim.patrimonioFinal);
+
+      const linhas = itensTabela.map(item => {
         const s = item.sim;
-        const dotCls = modoMulti ? item.dotCls : 'dot-bazin';
+        const diffPatrimonio = simMain.patrimonioFinal - s.patrimonioFinal;
+        const diffPontosPct = (simMain.retornoTotal - s.retornoTotal) * 100;
+        const sinalDiff = diffPontosPct > 0 ? '+' : '';
+
+        if (item.tipo === 'acao') {
+          const ehPrincipal = s.ativo.ticker.toUpperCase() === principal.ticker.toUpperCase();
+          const colVsMain = ehPrincipal
+            ? `<span class="t-dim">Referência</span>`
+            : `<span class="${diffPontosPct >= 0 ? 't-green' : 't-red'}">${escHtml(principal.ticker)} ${sinalDiff}${diffPontosPct.toFixed(1).replace('.', ',')} p.p.</span>`;
+
+          return `
+            <tr class="vcmp-row" data-vfocus-ticker="${escHtml(s.ativo.ticker)}" title="Clique para focar em ${escHtml(s.ativo.ticker)}">
+              <td data-label="Ativo / Benchmark">
+                <span class="vcmp-ticker">
+                  <i class="dot ${item.dotCls}" aria-hidden="true"></i>
+                  <b class="mono">${escHtml(s.ativo.ticker)}</b>
+                  <small class="vbench-tag is-stock">Ação</small>
+                </span>
+              </td>
+              <td class="num mono" data-label="Preço Ini → Fim">${formataReal(s.precoIni)} → ${formataReal(s.precoFim)}</td>
+              <td class="num mono ${s.retornoCotacao >= 0 ? '' : 't-red'}" data-label="Só Cotação">${formataPct(s.retornoCotacao)}</td>
+              <td class="num mono t-green" data-label="Proventos Caixa">${formataReal(s.proventosRecebidosRS)} <small class="t-muted">(${s.qtdEventos}x)</small></td>
+              <td class="num mono" data-label="Qtd. / Vs. Principal">${s.acoesIniciais.toFixed(1)} → ${s.acoesFinais.toFixed(1)} <small class="t-muted">(${colVsMain})</small></td>
+              <td class="num mono" data-label="Patrimônio Final"><strong>${formataReal(s.patrimonioFinal)}</strong></td>
+              <td class="num mono ${s.retornoTotal >= 0 ? 't-green' : 't-red'}" data-label="Retorno Total">
+                <strong>${formataPct(s.retornoTotal)}</strong>
+                ${ehValido(s.cagr) ? `<small class="t-muted"> (${formataPct(s.cagr)} a.a.)</small>` : ''}
+              </td>
+            </tr>
+          `;
+        }
+
+        const fmtRef = (s.codigo === 'CDI' || s.codigo === 'IPCA')
+          ? `Índice ${s.precoIni.toFixed(0)} → ${s.precoFim.toFixed(0)}`
+          : `${formataReal(s.precoIni)} → ${formataReal(s.precoFim)}`;
+
+        const txtAlpha = diffPontosPct >= 0
+          ? `<span class="t-green">+${diffPontosPct.toFixed(1).replace('.', ',')} p.p. (+${formataReal(diffPatrimonio)})</span>`
+          : `<span class="t-red">${diffPontosPct.toFixed(1).replace('.', ',')} p.p. (${formataReal(diffPatrimonio)})</span>`;
+
         return `
-          <tr class="vcmp-row" data-vfocus-ticker="${escHtml(s.ativo.ticker)}" title="Clique para focar em ${escHtml(s.ativo.ticker)}">
-            <td data-label="Ativo"><span class="vcmp-ticker"><i class="dot ${dotCls}" aria-hidden="true"></i><b class="mono">${escHtml(s.ativo.ticker)}</b></span></td>
-            <td class="num mono" data-label="Preço Ini → Fim">${formataReal(s.precoIni)} → ${formataReal(s.precoFim)}</td>
-            <td class="num mono ${s.retornoCotacao >= 0 ? '' : 't-red'}" data-label="Só Cotação">${formataPct(s.retornoCotacao)}</td>
-            <td class="num mono t-green" data-label="Proventos Recebidos">${formataReal(s.proventosRecebidosRS)} <small class="t-muted">(${s.qtdEventos}x)</small></td>
-            <td class="num mono" data-label="Ações (Ini → Fim)">${s.acoesIniciais.toFixed(1)} → ${s.acoesFinais.toFixed(1)}</td>
+          <tr class="vcmp-row vcmp-row-bench ${item.visivelNoGrafico ? '' : 'is-bench-muted'}" data-vtoggle-bench-row="${escHtml(s.codigo)}" title="Clique para exibir/ocultar ${escHtml(s.curto)} (${escHtml(s.nome)}) na curva do gráfico">
+            <td data-label="Ativo / Benchmark">
+              <span class="vcmp-ticker">
+                <i class="dot ${item.dotCls}" aria-hidden="true"></i>
+                <b class="mono">${escHtml(s.curto)}</b>
+                <small class="vbench-tag">${escHtml(s.nome)}</small>
+              </span>
+            </td>
+            <td class="num mono t-muted" data-label="Preço Ini → Fim">${fmtRef}</td>
+            <td class="num mono ${s.retornoTotal >= 0 ? '' : 't-red'}" data-label="Só Cotação">${formataPct(s.retornoTotal)}</td>
+            <td class="num mono t-dim" data-label="Proventos Caixa">Total Return</td>
+            <td class="num mono" data-label="Alpha (${escHtml(principal.ticker)} vs. Bench)">${txtAlpha}</td>
             <td class="num mono" data-label="Patrimônio Final"><strong>${formataReal(s.patrimonioFinal)}</strong></td>
             <td class="num mono ${s.retornoTotal >= 0 ? 't-green' : 't-red'}" data-label="Retorno Total">
               <strong>${formataPct(s.retornoTotal)}</strong>
@@ -2544,16 +2781,19 @@
       }).join('');
 
       breakdownWrap.innerHTML = `
-        <div class="vsub-table-head">Resumo da Simulação · Aporte de ${formataReal(visualState.simCapital)} (${ROTULO_PERIODO[visualState.periodo]})</div>
+        <div class="vsub-table-head">
+          <span>Comparativo de Rendimento Total vs. Benchmarks · Aporte de ${formataReal(visualState.simCapital)} (${fmtDataBr(simMain.dataIni)} a ${fmtDataBr(simMain.dataFim)})</span>
+          <small class="t-muted">Ordenado pelo maior patrimônio final</small>
+        </div>
         <div class="table-wrap">
           <table class="vt vcmp-table">
             <thead>
               <tr>
-                <th>Ativo</th>
-                <th class="num">Preço Ini → Fim</th>
+                <th>Ativo / Benchmark</th>
+                <th class="num">Cotação / Índice</th>
                 <th class="num">Só Cotação</th>
-                <th class="num">Proventos Caixa</th>
-                <th class="num">Qtd. Ações</th>
+                <th class="num">Proventos</th>
+                <th class="num">Qtd. / Alpha (${escHtml(principal.ticker)})</th>
                 <th class="num">Patrimônio Final</th>
                 <th class="num">Retorno Total</th>
               </tr>
@@ -2697,8 +2937,12 @@
     if (obj.ativo && mapa.has(String(obj.ativo).toUpperCase())) {
       visualState.tickerPrincipal = String(obj.ativo).toUpperCase();
     }
-    if (obj.periodo && DIAS_PERIODO[obj.periodo]) {
-      visualState.periodo = obj.periodo;
+    const perRaw = obj.periodo || obj.per;
+    if (perRaw && DIAS_PERIODO[perRaw]) {
+      visualState.periodo = perRaw;
+      if (['1y', '2y', '3y', '5y', '10y'].includes(perRaw)) {
+        visualState.simPeriodoPreset = perRaw;
+      }
     }
     if (obj.modo && ['preco', 'lucro_cotacao', 'margem_bazin', 'variacao'].includes(obj.modo)) {
       visualState.modoPreco = obj.modo;
@@ -2857,6 +3101,9 @@
       const b = e.target.closest('[data-vperiod]');
       if (b && DIAS_PERIODO[b.dataset.vperiod]) {
         visualState.periodo = b.dataset.vperiod;
+        if (['1y', '2y', '3y', '5y', '10y'].includes(b.dataset.vperiod)) {
+          visualState.simPeriodoPreset = b.dataset.vperiod;
+        }
         salvarPrefsVisual();
         renderizarVisaoGrafica();
         if (typeof window.sincronizarEstadoUrl === 'function') window.sincronizarEstadoUrl();
@@ -2918,6 +3165,16 @@
     qSel('#visual-valuetrap-box')?.addEventListener('click', tratarAbrirDetalhe);
 
     const focarAoClicarLinhaTabela = (e) => {
+      const trBench = e.target.closest('[data-vtoggle-bench-row]');
+      if (trBench) {
+        const cod = trBench.dataset.vtoggleBenchRow;
+        if (cod && ESTILO_BENCHMARKS[cod]) {
+          visualState.simBenchmarks[cod] = !visualState.simBenchmarks[cod];
+          salvarPrefsVisual();
+          renderizarVisaoGrafica();
+        }
+        return;
+      }
       const tr = e.target.closest('[data-vfocus-ticker]');
       if (!tr) return;
       const novo = tr.dataset.vfocusTicker.toUpperCase();
@@ -2932,6 +3189,30 @@
     };
     qSel('#visual-compare-ceilings-wrap')?.addEventListener('click', focarAoClicarLinhaTabela);
     qSel('#sim-breakdown-wrap')?.addEventListener('click', focarAoClicarLinhaTabela);
+
+    // Benchmarks do Simulador
+    qSel('#sim-benchmarks-group')?.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-sim-bench]');
+      if (!b) return;
+      const cod = b.dataset.simBench;
+      if (cod && ESTILO_BENCHMARKS[cod]) {
+        visualState.simBenchmarks[cod] = !visualState.simBenchmarks[cod];
+        salvarPrefsVisual();
+        renderizarVisaoGrafica();
+      }
+    });
+
+    qSel('#btn-sim-bench-all')?.addEventListener('click', () => {
+      ORDEM_BENCHMARKS.forEach(c => { visualState.simBenchmarks[c] = true; });
+      salvarPrefsVisual();
+      renderizarVisaoGrafica();
+    });
+
+    qSel('#btn-sim-bench-none')?.addEventListener('click', () => {
+      ORDEM_BENCHMARKS.forEach(c => { visualState.simBenchmarks[c] = false; });
+      salvarPrefsVisual();
+      renderizarVisaoGrafica();
+    });
 
     // Controles do Simulador
     qSel('#sim-capital-input')?.addEventListener('input', (e) => {
