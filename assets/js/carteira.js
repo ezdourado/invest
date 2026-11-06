@@ -337,9 +337,14 @@
         if (gap < -0.05) fatorSetor = 0.6;
         const nota = (a.sustentabilidade?.nota ?? 50) / 100;
         const pontos = a.bazin.margem_seguranca * nota * fatorSetor;
-        return { a, setor: s, alvo, atual, pontos, fatorSetor, temPosicao: posse.has(a.ticker) };
+        // Setor mais de 5 p.p. acima do alvo: aparece na lista, mas não recebe o aporte.
+        const acimaDoAlvo = gap < -0.05;
+        return { a, setor: s, alvo, atual, pontos, fatorSetor, acimaDoAlvo, temPosicao: posse.has(a.ticker) };
       })
-      .sort((x, y) => y.pontos - x.pontos)
+      // Primeiro quem pode receber aporte (setor não acima do alvo); depois, pela pontuação.
+      .sort((x, y) => (Number(x.acimaDoAlvo) - Number(y.acimaDoAlvo)) || (y.pontos - x.pontos))
+      // Uma linha por empresa (ex.: CEBR3/CEBR5/CEBR6): fica a classe com melhor pontuação.
+      .filter((x, i, lista) => lista.findIndex(y => y.a.ticker.slice(0, 4) === x.a.ticker.slice(0, 4)) === i)
       .slice(0, 10);
   }
 
@@ -349,7 +354,7 @@
     if (!cands.length) {
       return `<p class="d-note">Nenhum papel da base passa no filtro (abaixo do teto com margem ≥ ${fmtPctSimples(estado.config.margemMinAporte, 0)}, score Forte/Moderado e dividendo recente sem queda). Reduza a margem mínima ou aguarde.</p>`;
     }
-    const top = cands.slice(0, 3);
+    const top = cands.filter(x => !x.acimaDoAlvo).slice(0, 3);
     const somaPts = top.reduce((s, x) => s + x.pontos, 0) || 1;
     let sobra = valor;
     const sugest = new Map();
@@ -382,13 +387,13 @@
                   <td class="num mono">${valido(b.razao_12m_5a) ? fmtPctSimples(b.razao_12m_5a, 0) : '—'}</td>
                   <td class="num mono ${x.fatorSetor > 1 ? 't-green' : (x.fatorSetor < 1 ? 't-yellow' : '')}">${fmtPctSimples(x.atual, 0)} → ${fmtPctSimples(x.alvo, 0)}</td>
                   <td class="num mono">${fmtPctSimples(dpaBase(x.a) / x.a.preco, 2)}</td>
-                  <td class="num mono">${q !== undefined ? (q > 0 ? `<strong>${q}</strong> ações · ${fmtReal(q * x.a.preco)}` : '<span class="t-dim">valor insuficiente</span>') : '<span class="t-dim">—</span>'}</td>
+                  <td class="num mono">${q !== undefined ? (q > 0 ? `<strong>${q}</strong> ações · ${fmtReal(q * x.a.preco)}` : '<span class="t-dim">valor insuficiente</span>') : (x.acimaDoAlvo ? '<span class="t-yellow">setor acima do alvo</span>' : '<span class="t-dim">—</span>')}</td>
                 </tr>`;
             }).join('')}
           </tbody>
         </table>
       </div>
-      <p class="d-note">Sugestão divide o aporte entre os 3 primeiros, proporcional à pontuação (margem Bazin × score anti-cilada × prioridade do setor abaixo do alvo). Sobra: ${fmtReal(Math.max(0, sobra))}. É um apoio quantitativo para a sua decisão, não uma recomendação de investimento.</p>`;
+      <p class="d-note">Sugestão divide o aporte entre os 3 primeiros cujo setor não está acima do alvo, proporcional à pontuação (margem Bazin × score anti-cilada × prioridade do setor abaixo do alvo). Uma linha por empresa (a melhor classe de ações). Sobra: ${fmtReal(Math.max(0, sobra))}. É um apoio quantitativo para a sua decisão, não uma recomendação de investimento.</p>`;
   }
 
   function renderizarCarteira(forcar = false) {
