@@ -153,7 +153,26 @@ executar_sessao() {
   build_completo
 }
 
-MODO="${MODO:-sessao}"
+apos_fechamento() {
+  local dow hm
+  dow=$(TZ=America/Sao_Paulo date +%u)
+  hm=$(TZ=America/Sao_Paulo date +%H%M)
+  [ "$dow" -le 5 ] && [ "$((10#$hm))" -ge "$((10#$JANELA_FIM))" ]
+}
+
+# Modo "auto" decide pelo HORÁRIO, nunca pelo nome do agendamento: um "Re-run" reaproveita o
+# evento original (ex.: o cron de fechamento), e um disparo atrasado chega em hora diferente.
+MODO="${MODO:-auto}"
+if [ "$MODO" = "auto" ]; then
+  if em_janela; then
+    MODO="sessao"
+  elif apos_fechamento || [ "${EVENT_NAME:-}" = "workflow_dispatch" ]; then
+    MODO="completo"
+  else
+    log "Evento: ${EVENT_NAME:-?} · fora do pregão e antes da abertura: nada a fazer."
+    exit 0
+  fi
+fi
 log "Evento: ${EVENT_NAME:-?} · modo: $MODO"
 
 case "$MODO" in

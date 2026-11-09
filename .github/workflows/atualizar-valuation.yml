@@ -10,6 +10,14 @@ name: Atualizar Valuation B3
 #   - perto do limite de 6 h do runner, a sessão dispara a própria continuação.
 # Os dados são publicados no branch `dados`, não na main, para não disparar um deploy do
 # GitHub Pages a cada ciclo (o site lê o JSON direto do branch via raw.githubusercontent.com).
+#
+# DISPARO CONFIÁVEL: na prática o GitHub chegou a não entregar NENHUM dos crons abaixo num dia
+# inteiro. O disparo principal deve vir de um agendador externo (ex.: cron-job.org) chamando
+#   POST https://api.github.com/repos/ezdourado/invest/actions/workflows/atualizar-valuation.yml/dispatches
+#   {"ref":"main","inputs":{"modo":"auto"}}
+# com um token fine-grained restrito a este repositório (permissão Actions: read and write).
+# Os crons ficam como reserva. O modo "auto" decide pelo horário, então disparos repetidos,
+# atrasados ou "Re-run" fazem a coisa certa.
 
 on:
   schedule:
@@ -22,10 +30,10 @@ on:
   workflow_dispatch:
     inputs:
       modo:
-        description: "completo = build único agora · cotacoes = só preços (~15 s) · sessao = laço contínuo do pregão"
+        description: "auto = sessão contínua se o pregão estiver aberto, senão build único · sessao · completo = build único · cotacoes = só preços"
         type: choice
-        options: [completo, cotacoes, sessao]
-        default: completo
+        options: [auto, sessao, completo, cotacoes]
+        default: auto
 
 concurrency:
   group: atualizar-valuation
@@ -65,7 +73,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           EVENT_NAME: ${{ github.event_name }}
           BRANCH: ${{ github.ref_name }}
-          MODO: ${{ github.event.inputs.modo || (github.event.schedule == '25 21 * * 1-5' && 'completo') || 'sessao' }}
+          MODO: ${{ github.event.inputs.modo || 'auto' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
