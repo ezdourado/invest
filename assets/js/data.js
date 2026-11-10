@@ -1342,6 +1342,9 @@ function renderizarDetalhe(ticker) {
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/></svg>
         <span>Gráfico &amp; Simulador</span>
       </button>
+      ${b.dpa_sem_extra > 0 ? `<button type="button" class="btn btn-ghost" data-detail-meta="${esc(a.ticker)}" data-tip="Quantas ações e quanto capital para uma renda mensal, comparando com papéis do mesmo setor">
+        <span>Meta de renda</span>
+      </button>` : ''}
       <a class="btn btn-primary" href="${linkInv10}" target="_blank" rel="noopener noreferrer">
         <span>Investidor10</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -2533,6 +2536,12 @@ function bindEventos() {
     if (bCal) {
       fecharGavetas();
       if (typeof window.definirAbaPainel === 'function') window.definirAbaPainel('calendario');
+      return;
+    }
+    const bMeta = e.target.closest('[data-detail-meta]');
+    if (bMeta) {
+      fecharGavetas();
+      if (typeof window.simularMetaRenda === 'function') window.simularMetaRenda(bMeta.dataset.detailMeta);
       return;
     }
     const bChart = e.target.closest('[data-detail-chart]');

@@ -27,8 +27,13 @@
   const PADRAO = {
     posicoes: [],
     alvos: { bancos: 20, energia: 20, saneamento: 20, seguros: 20, telecom: 20, outros: 0 },
-    config: { baseRenda: 'menor', jcpLiquido: true, margemMinAporte: 0.10, aporte: 1000, alertas: true }
+    config: { baseRenda: 'menor', jcpLiquido: true, margemMinAporte: 0.10, aporte: 1000, alertas: true },
+    meta: { rendaMensal: 1000, tickers: [], anos: 10 }
   };
+  const MAX_META = 4;
+  const G_MAX_PROJECAO = 0.12; // crescimento do dividendo usado na projeção é limitado a 12% a.a.
+  const CORES_META = ['#06b6d4', '#f97316', '#a855f7', '#22c55e'];
+  const LIQUIDEZ_MIN_PARES = 5e6; // R$ 5 milhões/dia de volume médio
 
   const $c = sel => document.querySelector(sel);
 
@@ -41,7 +46,8 @@
       return {
         posicoes: Array.isArray(bruto.posicoes) ? bruto.posicoes.filter(p => p && p.ticker) : [],
         alvos: { ...PADRAO.alvos, ...(bruto.alvos || {}) },
-        config: { ...PADRAO.config, ...(bruto.config || {}) }
+        config: { ...PADRAO.config, ...(bruto.config || {}) },
+        meta: { ...PADRAO.meta, ...(bruto.meta || {}) }
       };
     } catch (_) {
       return structuredClone(PADRAO);
@@ -396,6 +402,187 @@
       <p class="d-note">Sugestão divide o aporte entre os 3 primeiros cujo setor não está acima do alvo, proporcional à pontuação (margem Bazin × score anti-cilada × prioridade do setor abaixo do alvo). Uma linha por empresa (a melhor classe de ações). Sobra: ${fmtReal(Math.max(0, sobra))}. É um apoio quantitativo para a sua decisão, não uma recomendação de investimento.</p>`;
   }
 
+  /* ---------- Meta de renda: quantas ações e quanto capital para R$ X/mês, e quem cresce mais ---------- */
+
+  // Crescimento sustentável do dividendo ≈ ROE × (1 − payout): parte do lucro retida e reinvestida.
+  function crescimentoDividendo(a) {
+    const f = a.fundamentos || {};
+    const roe = f.roe;
+    const po = f.payout;
+    if (!valido(roe) || roe <= 0 || !valido(po) || po < 0 || po >= 1) return null;
+    return roe * (1 - po);
+  }
+
+  function calcularMeta(a, rendaMensal, anos) {
+    const dpa = dpaBase(a) * fatorLiquido(a);
+    if (!(dpa > 0) || !(a.preco > 0)) return { a, valido: false };
+    const rendaAnual = rendaMensal * 12;
+    const acoes = Math.ceil(rendaAnual / dpa);
+    const capital = acoes * a.preco;
+    const dy = dpa / a.preco;
+    const gBruto = crescimentoDividendo(a);
+    const g = gBruto === null ? 0 : Math.max(0, Math.min(G_MAX_PROJECAO, gBruto));
+    const serieYoc = Array.from({ length: anos + 1 }, (_, t) => dy * Math.pow(1 + g, t));
+    let acumulado = 0;
+    for (let t = 0; t < anos; t++) acumulado += acoes * dpa * Math.pow(1 + g, t);
+    return {
+      a, valido: true, dpa, acoes, capital, dy, gBruto, g, serieYoc, acumulado,
+      rendaMensalFinal: (acoes * dpa * Math.pow(1 + g, anos)) / 12,
+      emQueda: valido(a.bazin?.razao_12m_5a) && a.bazin.razao_12m_5a < 0.7
+    };
+  }
+
+  // Pares para comparar: mesmo setor BESST (ou mesmo setor da fonte), uma classe por empresa.
+  function sugerirPares(ticker) {
+    const mapa = mapaUniv();
+    const base = mapa.get(String(ticker).toUpperCase());
+    if (!base) return [];
+    const chave = a => mapearSetorBesst(a.setor) || String(a.setor || '').toLowerCase();
+    const raizBase = base.ticker.slice(0, 4);
+    const vistos = new Set([raizBase]);
+    const mesmoSetor = universo().filter(a => chave(a) === chave(base) && a.bazin?.dpa_sem_extra > 0 && a.bazin?.teto > 0);
+    // Para quem vai montar posição relevante, liquidez importa: prioriza papéis com
+    // volume médio ≥ R$ 5 mi/dia; se o setor não tiver nenhum, usa todos.
+    const liquidos = mesmoSetor.filter(a => (a.fundamentos?.liquidez_diaria || 0) >= LIQUIDEZ_MIN_PARES);
+    return (liquidos.length ? liquidos : mesmoSetor)
+      .sort((x, y) => (y.bazin.margem_seguranca ?? -9) - (x.bazin.margem_seguranca ?? -9))
+      .filter(a => { const r = a.ticker.slice(0, 4); if (vistos.has(r)) return false; vistos.add(r); return true; })
+      .slice(0, MAX_META - 1)
+      .map(a => a.ticker);
+  }
+
+  function htmlGraficoYoc(linhas, anos) {
+    const W = 640, H = 230, padL = 44, padR = 96, padT = 14, padB = 30;
+    const maxY = Math.max(...linhas.flatMap(l => l.serieYoc)) * 1.12 || 0.1;
+    const xDe = t => padL + (t / anos) * (W - padL - padR);
+    const yDe = v => padT + (1 - v / maxY) * (H - padT - padB);
+    const passoY = maxY > 0.3 ? 0.1 : (maxY > 0.12 ? 0.04 : 0.02);
+    const ticksY = [];
+    for (let v = 0; v <= maxY + 1e-9; v += passoY) ticksY.push(v);
+    const passoX = anos > 10 ? 5 : (anos > 5 ? 2 : 1);
+    const ticksX = [];
+    for (let t = 0; t <= anos; t += passoX) ticksX.push(t);
+
+    const grade = ticksY.map(v => `
+      <line class="meta-grade" x1="${padL}" x2="${W - padR}" y1="${yDe(v)}" y2="${yDe(v)}" />
+      <text class="frd-eixo" x="${padL - 6}" y="${yDe(v) + 4}" text-anchor="end">${fmtPctSimples(v, 0)}</text>`).join('') +
+      ticksX.map(t => `<text class="frd-eixo" x="${xDe(t)}" y="${H - 10}" text-anchor="middle">${t === 0 ? 'hoje' : `${t}a`}</text>`).join('');
+
+    // Rótulos finais sem sobreposição: ordena pela altura e afasta no mínimo 13 px.
+    const finais = linhas.map((l, i) => ({ i, y: yDe(l.serieYoc[anos]) })).sort((p, q) => p.y - q.y);
+    for (let k = 1; k < finais.length; k++) finais[k].y = Math.max(finais[k].y, finais[k - 1].y + 13);
+    const yRotulo = new Map(finais.map(f => [f.i, f.y]));
+
+    const series = linhas.map((l, i) => {
+      const pts = l.serieYoc.map((v, t) => `${xDe(t).toFixed(1)},${yDe(v).toFixed(1)}`).join(' ');
+      const cor = CORES_META[i % CORES_META.length];
+      return `
+        <polyline class="meta-linha" points="${pts}" style="stroke:${cor}" />
+        <circle class="meta-ponto" cx="${xDe(anos)}" cy="${yDe(l.serieYoc[anos])}" r="3" style="fill:${cor}" />
+        <text class="meta-rotulo" x="${W - padR + 8}" y="${yRotulo.get(i) + 4}" style="fill:${cor}">${esc(l.a.ticker)} ${fmtPctSimples(l.serieYoc[anos], 1)}</text>`;
+    }).join('');
+
+    return `
+      <svg class="vsvg meta-svg" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Rendimento anual sobre o capital investido hoje, projetado ano a ano">
+        ${grade}
+        ${series}
+      </svg>`;
+  }
+
+  function frasesCruzamento(linhas, anos) {
+    if (linhas.length < 2) return [];
+    const lider = [...linhas].sort((x, y) => y.dy - x.dy)[0];
+    const frases = [`<strong>${esc(lider.a.ticker)}</strong> tem o maior DY hoje (${fmtPctSimples(lider.dy, 1)}): é o que exige menos capital para a meta.`];
+    if (lider.gBruto === null) {
+      frases.push(`Não há ROE/payout válidos para estimar o crescimento de ${esc(lider.a.ticker)}; a projeção usa 0%, o que pode subestimá-lo.`);
+    }
+    linhas.forEach(l => {
+      if (l === lider) return;
+      if (l.gBruto === null) {
+        frases.push(`${esc(l.a.ticker)}: sem ROE/payout válidos para estimar o crescimento (projeção com 0%).`);
+        return;
+      }
+      if (l.g <= lider.g) {
+        frases.push(`${esc(l.a.ticker)} rende menos hoje e cresce no máximo o mesmo que ${esc(lider.a.ticker)} (${fmtPctSimples(l.g, 1)} a.a.): não alcança no horizonte.`);
+        return;
+      }
+      const t = Math.log(lider.dy / l.dy) / Math.log((1 + l.g) / (1 + lider.g));
+      if (Number.isFinite(t) && t > 0 && t <= anos) {
+        frases.push(`<strong>${esc(l.a.ticker)}</strong> passa a render mais que ${esc(lider.a.ticker)} sobre o mesmo capital em ~${t < 1 ? 'menos de 1 ano' : `${Math.round(t)} anos`}, crescendo ${fmtPctSimples(l.g, 1)} a.a. contra ${fmtPctSimples(lider.g, 1)}.`);
+      } else if (Number.isFinite(t) && t > anos) {
+        frases.push(`${esc(l.a.ticker)} cresce mais (${fmtPctSimples(l.g, 1)} a.a.), mas só alcançaria ${esc(lider.a.ticker)} em ~${Math.round(t)} anos, além do horizonte de ${anos}.`);
+      }
+    });
+    return frases;
+  }
+
+  function htmlMetaRenda() {
+    const meta = estado.meta;
+    const anos = Number(meta.anos) || 10;
+    const renda = Number(meta.rendaMensal) || 0;
+    const mapa = mapaUniv();
+    const chips = meta.tickers.map((t, i) => `
+      <span class="meta-chip" style="border-color:${CORES_META[i % CORES_META.length]}">
+        <i class="meta-chip-cor" style="background:${CORES_META[i % CORES_META.length]}"></i>${esc(t)}
+        <button type="button" data-meta-remove="${esc(t)}" aria-label="Remover ${esc(t)} da comparação">×</button>
+      </span>`).join('');
+
+    if (!meta.tickers.length) {
+      return `<div class="meta-chips">${chips}</div><div class="cart-vazio"><strong>Escolha até ${MAX_META} papéis para comparar.</strong> Digite um ticker e clique em "Comparar" ou use "Sugerir pares do setor" depois de escolher o primeiro.</div>`;
+    }
+
+    const calc = meta.tickers.map(t => mapa.get(t)).filter(Boolean).map(a => calcularMeta(a, renda, anos));
+    const validas = calc.filter(c => c.valido);
+    const invalidas = calc.filter(c => !c.valido).map(c => c.a.ticker);
+    const menorCapital = Math.min(...validas.map(c => c.capital));
+    const base = { menor: 'menor entre DPA 5a e 12m', '5a': 'DPA médio 5a', '12m': 'DPA 12 meses' }[estado.config.baseRenda];
+
+    const linhasTabela = validas.map((c, i) => {
+      const b = c.a.bazin || {};
+      const cor = CORES_META[meta.tickers.indexOf(c.a.ticker) % CORES_META.length];
+      return `
+        <tr class="row" data-cart-detail="${esc(c.a.ticker)}">
+          <td data-label="Ativo"><div class="asset"><span class="asset-ticker"><i class="meta-chip-cor" style="background:${cor}"></i>${esc(c.a.ticker)}${c.emQueda ? ' <span class="tag tag-mudou is-saiu" data-tip="Dividendo dos últimos 12 meses abaixo de 70% da média de 5 anos">div. em queda</span>' : ''}</span><span class="asset-sector">${esc(c.a.empresa || c.a.setor)}</span></div></td>
+          <td class="num mono" data-label="Preço">${fmtReal(c.a.preco)}</td>
+          <td class="num mono" data-label="DPA usado">${fmtReal(c.dpa)}</td>
+          <td class="num mono" data-label="DY">${fmtPctSimples(c.dy, 2)}</td>
+          <td class="num mono" data-label="Ações necessárias"><strong>${c.acoes.toLocaleString('pt-BR')}</strong></td>
+          <td class="num mono ${c.capital === menorCapital ? 't-green' : ''}" data-label="Capital">${fmtReal(c.capital)}</td>
+          <td class="num mono" data-label="Cresc. div. (g)" data-tip="ROE × (1 − payout). ${c.gBruto === null ? 'Sem ROE/payout válidos: projeção com 0%.' : (c.gBruto > G_MAX_PROJECAO ? `Estimativa bruta ${fmtPctSimples(c.gBruto, 1)}, limitada a ${fmtPctSimples(G_MAX_PROJECAO, 0)} na projeção.` : '')}">${c.gBruto === null ? '—' : fmtPctSimples(c.gBruto, 1)}${c.gBruto !== null && c.gBruto > G_MAX_PROJECAO ? '*' : ''}</td>
+          <td class="num mono" data-label="Renda/mês em ${anos}a">${fmtReal(c.rendaMensalFinal)}</td>
+          <td class="num mono" data-label="Acumulado ${anos}a">${fmtReal(c.acumulado)}</td>
+          <td class="num mono ${classeMargem(b.teto > 0 ? b.margem_seguranca : null)}" data-label="Margem Bazin">${b.teto > 0 ? fmtPct(b.margem_seguranca) : '—'}</td>
+          <td class="num mono" data-label="Score">${c.a.sustentabilidade?.nota ?? '—'}</td>
+        </tr>`;
+    }).join('');
+
+    const frases = frasesCruzamento(validas, anos);
+    return `
+      <div class="meta-chips">${chips}</div>
+      <div class="table-wrap">
+        <table class="vt cart-table">
+          <thead><tr>
+            <th>Ativo</th><th class="num">Preço</th>
+            <th class="num" data-tip="DPA por ação usado na conta (${esc(base)}${estado.config.jcpLiquido ? ', JCP líquido' : ''})">DPA usado</th>
+            <th class="num">DY</th><th class="num">Ações necessárias</th><th class="num" data-tip="Ações × preço = renda anual ÷ DY. Depende só do DY, não do preço da ação.">Capital</th>
+            <th class="num" data-tip="Crescimento sustentável do dividendo ≈ ROE × (1 − payout)">Cresc. div. (g)</th>
+            <th class="num" data-tip="Com o mesmo número de ações, se o dividendo crescer a g">Renda/mês em ${anos}a</th>
+            <th class="num" data-tip="Soma dos proventos recebidos no período, com o mesmo número de ações">Acumulado ${anos}a</th>
+            <th class="num">Margem Bazin</th><th class="num">Score</th>
+          </tr></thead>
+          <tbody>${linhasTabela}</tbody>
+        </table>
+      </div>
+      ${invalidas.length ? `<p class="d-note t-yellow">Sem DPA para calcular: ${invalidas.map(esc).join(', ')}.</p>` : ''}
+      ${validas.length ? `
+        <div class="meta-grafico">
+          <div class="d-sub-title">Rendimento anual sobre o capital investido hoje (yield on cost projetado)</div>
+          ${htmlGraficoYoc(validas, anos)}
+        </div>
+        <ul class="meta-leitura">${frases.map(f => `<li>${f}</li>`).join('')}</ul>` : ''}
+      <p class="d-note">Como ler: o capital para a meta depende só do DY (renda ÷ DY), não do preço da ação; um preço menor só significa mais ações. O que pode fazer a renda crescer é a parte do lucro que a empresa retém e reinveste (g ≈ ROE × (1 − payout)), limitada a ${fmtPctSimples(G_MAX_PROJECAO, 0)} a.a. na projeção. Não inclui valorização da cotação nem reinvestimento dos proventos. Estimativa, não promessa.</p>`;
+  }
+
   function renderizarCarteira(forcar = false) {
     const raiz = $c('#view-carteira');
     if (!raiz || raiz.classList.contains('is-hidden')) return;
@@ -408,6 +595,10 @@
     $c('#cart-setores').innerHTML = htmlSetores(c);
     $c('#cart-renda').innerHTML = htmlRendaMensal(c);
     $c('#cart-aporte').innerHTML = htmlAporte(c);
+    const corpoMeta = $c('#cart-meta-corpo');
+    if (corpoMeta) corpoMeta.innerHTML = htmlMetaRenda();
+    const mr = $c('#meta-renda'); if (mr && document.activeElement !== mr) mr.value = estado.meta.rendaMensal;
+    const ma = $c('#meta-anos'); if (ma) ma.value = String(estado.meta.anos);
     const dl = $c('#cart-tickers');
     if (dl && !dl.childElementCount) {
       dl.innerHTML = universo().map(a => `<option value="${esc(a.ticker)}">${esc(a.empresa || a.setor)}</option>`).join('');
@@ -444,6 +635,29 @@
     renderizarCarteira(true);
   }
 
+  function adicionarMeta(ticker) {
+    const t = String(ticker || '').trim().toUpperCase();
+    if (!t) return;
+    if (!mapaUniv().has(t)) { mostrarToast(`${t} não está na base de dados do painel.`); return; }
+    if (estado.meta.tickers.includes(t)) return;
+    if (estado.meta.tickers.length >= MAX_META) { mostrarToast(`Compare até ${MAX_META} papéis por vez; remova um antes.`); return; }
+    estado.meta.tickers.push(t);
+    gravarEstado();
+    renderizarCarteira(true);
+  }
+
+  // Atalho público: abre a aba Carteira com o papel e seus pares de setor na meta de renda.
+  function simularMetaRenda(ticker) {
+    const t = String(ticker || '').trim().toUpperCase();
+    if (!mapaUniv().has(t)) return;
+    estado.meta.tickers = [t, ...sugerirPares(t)].slice(0, MAX_META);
+    gravarEstado();
+    if (typeof window.definirAbaPainel === 'function') window.definirAbaPainel('carteira');
+    renderizarCarteira(true);
+    requestAnimationFrame(() => $c('#cart-meta')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
+  window.simularMetaRenda = simularMetaRenda;
+
   function exportar() {
     const blob = new Blob([JSON.stringify(estado, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -465,7 +679,8 @@
         estado = {
           posicoes: dados.posicoes.filter(p => p && p.ticker).map(p => ({ ticker: String(p.ticker).toUpperCase(), qtd: Number(p.qtd) || 0, pm: Number(p.pm) || 0 })),
           alvos: { ...PADRAO.alvos, ...(dados.alvos || {}) },
-          config: { ...PADRAO.config, ...(dados.config || {}) }
+          config: { ...PADRAO.config, ...(dados.config || {}) },
+          meta: { ...PADRAO.meta, ...(dados.meta || {}) }
         };
         gravarEstado();
         renderizarCarteira(true);
@@ -513,6 +728,8 @@
       else if (e.target.id === 'cart-jcp-liq') cfg.jcpLiquido = e.target.checked;
       else if (e.target.id === 'cart-margem-min') cfg.margemMinAporte = Math.max(0, Number(e.target.value) || 0) / 100;
       else if (e.target.id === 'cart-aporte-valor') cfg.aporte = Math.max(0, Number(e.target.value) || 0);
+      else if (e.target.id === 'meta-renda') estado.meta.rendaMensal = Math.max(0, Number(e.target.value) || 0);
+      else if (e.target.id === 'meta-anos') estado.meta.anos = Math.max(1, Math.min(30, Number(e.target.value) || 10));
       else if (e.target.id === 'cart-alertas') {
         cfg.alertas = e.target.checked;
         if (cfg.alertas && 'Notification' in window && Notification.permission === 'default') Notification.requestPermission();
@@ -525,7 +742,35 @@
       renderizarCarteira(true);
     });
 
+    $c('#meta-add')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); adicionarMeta(e.target.value); e.target.value = ''; }
+    });
+
     raiz?.addEventListener('click', (e) => {
+      if (e.target.closest('#meta-add-btn')) {
+        const inp = $c('#meta-add');
+        adicionarMeta(inp?.value);
+        if (inp) { inp.value = ''; inp.focus(); }
+        return;
+      }
+      if (e.target.closest('#meta-pares')) {
+        const primeiro = estado.meta.tickers[0] || ($c('#meta-add')?.value || '').trim().toUpperCase();
+        if (!primeiro) { mostrarToast('Escolha primeiro um papel para buscar pares do mesmo setor.'); return; }
+        if (!estado.meta.tickers.includes(primeiro)) adicionarMeta(primeiro);
+        const pares = sugerirPares(primeiro).filter(t => !estado.meta.tickers.includes(t));
+        estado.meta.tickers = [...estado.meta.tickers, ...pares].slice(0, MAX_META);
+        gravarEstado();
+        renderizarCarteira(true);
+        if (!pares.length) mostrarToast(`Nenhum outro papel com DPA no setor de ${primeiro}.`);
+        return;
+      }
+      const rmMeta = e.target.closest('[data-meta-remove]');
+      if (rmMeta) {
+        estado.meta.tickers = estado.meta.tickers.filter(t => t !== rmMeta.dataset.metaRemove);
+        gravarEstado();
+        renderizarCarteira(true);
+        return;
+      }
       const rm = e.target.closest('[data-cart-remove]');
       if (rm) {
         e.stopPropagation();

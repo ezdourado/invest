@@ -14,8 +14,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="./favicon.png">
   <link rel="preload" href="./assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261106_v15">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261106_v15">
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261110_v16">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261110_v16">
   <style>
     /* Regras prioritárias com proteção absoluta contra cache de CSS */
     .d-bazin-proj-grid {
@@ -785,6 +785,30 @@
       <div id="cart-aporte"></div>
     </section>
 
+    <section class="card" id="cart-meta">
+      <div class="card-head card-head-wrap">
+        <div>
+          <h2 class="card-title">Meta de renda</h2>
+          <p class="card-sub">Quantas ações e quanto capital para receber R$ X por mês, e qual papel tende a render mais no futuro</p>
+        </div>
+        <div class="mctrl-bar cart-config">
+          <label class="cart-campo">Renda R$/mês <input class="cart-input" id="meta-renda" type="number" min="0" step="100"></label>
+          <label class="select-wrap"><span class="sr-only">Horizonte</span>
+            <select id="meta-anos" aria-label="Horizonte da projeção">
+              <option value="5">5 anos</option>
+              <option value="10">10 anos</option>
+              <option value="15">15 anos</option>
+              <option value="20">20 anos</option>
+            </select>
+          </label>
+          <input class="cart-input cart-add-ticker" id="meta-add" list="cart-tickers" placeholder="Ticker" aria-label="Ticker para comparar">
+          <button type="button" class="btn btn-ghost" id="meta-add-btn">Comparar</button>
+          <button type="button" class="btn btn-ghost" id="meta-pares" data-tip="Completa a comparação com papéis do mesmo setor (um por empresa), ordenados pela margem Bazin">Sugerir pares do setor</button>
+        </div>
+      </div>
+      <div class="cart-pad" id="cart-meta-corpo"></div>
+    </section>
+
   </div>
 
   <footer class="main-footer" id="main-footer">
@@ -893,15 +917,15 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/nucleo.js?v=20261106_v15"></script>
+<script src="./assets/js/nucleo.js?v=20261110_v16"></script>
 
-<script src="./assets/js/regras.js?v=20261106_v15"></script>
+<script src="./assets/js/regras.js?v=20261110_v16"></script>
 
-<script src="./assets/js/fonte_dados.js?v=20261106_v15"></script>
+<script src="./assets/js/fonte_dados.js?v=20261110_v16"></script>
 
-<script src="./assets/js/data.js?v=20261106_v15"></script>
-<script src="./assets/js/visao_grafica.js?v=20261106_v15"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261106_v15"></script>
-  <script src="./assets/js/carteira.js?v=20261106_v15"></script>
+<script src="./assets/js/data.js?v=20261110_v16"></script>
+<script src="./assets/js/visao_grafica.js?v=20261110_v16"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261110_v16"></script>
+  <script src="./assets/js/carteira.js?v=20261110_v16"></script>
 </body>
 </html>
