@@ -128,7 +128,8 @@ async function fetchBrapiQuote(symbol) {
       anos.forEach((ano, i) => {
         definirCampo(`dpa-y${i + 1}`, Number(b.por_ano[ano]).toFixed(4));
         const rot = document.getElementById(`dpa-y${i + 1}`)?.closest('.year-input-box')?.querySelector('.year-label');
-        if (rot) rot.textContent = ano;
+        // Blocos de 12 meses ('AAAA-MM' = mês final); bases antigas usam o ano civil.
+        if (rot) rot.textContent = /^\d{4}-\d{2}$/.test(ano) ? `12m até ${ano.slice(5)}/${ano.slice(0, 4)}` : ano;
       });
     } else if (b.dpa_sem_extra > 0) {
       document.getElementById('toggle-dpa-direct')?.click();

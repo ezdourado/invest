@@ -14,8 +14,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="./favicon.png">
   <link rel="preload" href="./assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261110_v16">
-  <link rel="stylesheet" href="./assets/css/painel.css?v=20261110_v16">
+  <link rel="stylesheet" href="./assets/css/tokens.css?v=20261110_v17">
+  <link rel="stylesheet" href="./assets/css/painel.css?v=20261110_v17">
   <style>
     /* Regras prioritárias com proteção absoluta contra cache de CSS */
     .d-bazin-proj-grid {
@@ -112,6 +112,12 @@
       <button type="button" class="status-pill" id="status-pill" data-tip="Data de fechamento das cotações na B3 e horário da última sincronização da base (clique para atualizar)">
         <span class="status-dot" aria-hidden="true"></span>
         <span id="status-text"><span class="status-text-full">Carregando base…</span><span class="status-text-mobile">Carregando…</span></span>
+      </button>
+
+      <!-- Lente de extraordinários (teto/margem/DPA/DY médio com ou sem extraordinários) -->
+      <button type="button" class="btn btn-ghost lente-btn" id="btn-lente-extra" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18" /><circle cx="12" cy="12" r="9" /></svg>
+        <span class="lente-txt">Sem extraordinários</span>
       </button>
 
       <!-- Botão Gatilho da Paleta de Comandos -->
@@ -260,6 +266,7 @@
                 <div class="cols-menu is-hidden" id="cols-menu" role="menu">
                   <div class="cols-menu-head">Colunas Visíveis</div>
                   <label class="cols-menu-item"><input type="checkbox" data-col="dpa" checked><span>DPA 5a</span></label>
+                  <label class="cols-menu-item"><input type="checkbox" data-col="dy" checked><span>DY 12m</span></label>
                   <label class="cols-menu-item"><input type="checkbox" data-col="falta" checked><span>Preço / Teto</span></label>
                   <label class="cols-menu-item"><input type="checkbox" data-col="sustent" checked><span>Anti-Cilada</span></label>
                   <label class="cols-menu-item"><input type="checkbox" data-col="tend" checked><span>Div. 12m / 5a</span></label>
@@ -296,8 +303,9 @@
                 <tr>
                   <th data-sort="ticker" data-tip="Código de negociação, setor e tendência de 12 meses">Ativo · 12m</th>
                   <th data-sort="preco" class="num" data-tip="Última cotação de fechamento na B3">Preço</th>
-                  <th data-sort="dpa" class="num c-dpa" data-tip="Média anual de dividendos e JCP nos últimos 5 anos civis fechados">DPA 5a</th>
-                  <th data-sort="teto" class="num" data-tip="Preço-teto Bazin (K = 6% fixo): DPA 5a ÷ 0,06">Teto Bazin</th>
+                  <th data-sort="dpa" class="num c-dpa" data-tip="DPA médio: proventos declarados nos últimos 60 meses ÷ 5 (base do teto)">DPA 5a</th>
+                  <th data-sort="dy" class="num c-dy" data-tip="DY real: proventos declarados (data-com) nos últimos 12 meses ÷ cotação, bruto. Abaixo, o DY médio dos últimos 5 anos (base do teto). * = inclui extraordinário.">DY 12m</th>
+                  <th data-sort="teto" class="num" data-tip="Preço-teto Bazin (K = 6% fixo): DPA médio dos últimos 60 meses ÷ 0,06">Teto Bazin</th>
                   <th data-sort="faltateto" class="num c-falta" data-tip="Preço ÷ Teto Bazin. Abaixo de 1,00× = negociando abaixo do teto. A barra mostra o preço (ponto) na escala de 0 a 2× o teto; o traço central é o teto.">Preço / Teto</th>
                   <th data-sort="margem" class="num" data-tip="Margem de segurança Bazin = (Teto − Preço) ÷ Teto">Margem Bazin</th>
                   <th data-sort="veredito" data-tip="Posição atual do preço em relação ao Teto Bazin">Situação</th>
@@ -312,9 +320,9 @@
                 </tr>
               </thead>
               <tbody id="engine-valuation-tbody">
-                <tr class="row-skeleton"><td colspan="15"><div class="skeleton"></div></td></tr>
-                <tr class="row-skeleton"><td colspan="15"><div class="skeleton"></div></td></tr>
-                <tr class="row-skeleton"><td colspan="15"><div class="skeleton"></div></td></tr>
+                <tr class="row-skeleton"><td colspan="16"><div class="skeleton"></div></td></tr>
+                <tr class="row-skeleton"><td colspan="16"><div class="skeleton"></div></td></tr>
+                <tr class="row-skeleton"><td colspan="16"><div class="skeleton"></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -741,10 +749,10 @@
         </div>
         <div class="mctrl-bar cart-config">
           <label class="select-wrap"><span class="sr-only">Base da renda</span>
-            <select id="cart-base-renda" aria-label="Base da renda projetada" data-tip="Qual DPA usar na projeção de renda. 'Menor' é o conservador: se o dividendo caiu, usa o patamar recente.">
-              <option value="menor">Renda: menor (5a × 12m)</option>
-              <option value="5a">Renda: DPA médio 5a</option>
-              <option value="12m">Renda: DPA 12 meses</option>
+            <select id="cart-base-renda" aria-label="Base da renda projetada" data-tip="Qual DY usar na renda projetada e na meta. Padrão: o DY atual, pago nos últimos 12 meses.">
+              <option value="12m">Renda: DY atual (12 meses)</option>
+              <option value="5a">Renda: DY médio 5a</option>
+              <option value="menor">Renda: conservador (menor dos dois)</option>
             </select>
           </label>
           <label class="chip"><input type="checkbox" id="cart-jcp-liq"> JCP líquido (−15% IR)</label>
@@ -917,15 +925,15 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
-<script src="./assets/js/nucleo.js?v=20261110_v16"></script>
+<script src="./assets/js/nucleo.js?v=20261110_v17"></script>
 
-<script src="./assets/js/regras.js?v=20261110_v16"></script>
+<script src="./assets/js/regras.js?v=20261110_v17"></script>
 
-<script src="./assets/js/fonte_dados.js?v=20261110_v16"></script>
+<script src="./assets/js/fonte_dados.js?v=20261110_v17"></script>
 
-<script src="./assets/js/data.js?v=20261110_v16"></script>
-<script src="./assets/js/visao_grafica.js?v=20261110_v16"></script>
-<script src="./assets/js/matriz_calendario.js?v=20261110_v16"></script>
-  <script src="./assets/js/carteira.js?v=20261110_v16"></script>
+<script src="./assets/js/data.js?v=20261110_v17"></script>
+<script src="./assets/js/visao_grafica.js?v=20261110_v17"></script>
+<script src="./assets/js/matriz_calendario.js?v=20261110_v17"></script>
+  <script src="./assets/js/carteira.js?v=20261110_v17"></script>
 </body>
 </html>

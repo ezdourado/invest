@@ -28,7 +28,7 @@ from engine.valuation import (
     margem,
     proporcao_abaixo_teto_dinamico,
     ranking_greenblatt,
-    teto_por_ano_historico,
+    teto_por_mes_historico,
     resolver_categoria_ativo,
     veredito_bazin,
 )
@@ -56,8 +56,13 @@ def _compactar_vetores_historico(json_str: str) -> str:
         compactado,
     )
     compactado = re.sub(
-        r'("(?:por_ano|por_ano_total|anos_atipicos|teto_por_ano)": \{)([^\{\}]*?)(\})',
+        r'("(?:por_ano|por_ano_total|anos_atipicos|teto_por_ano|teto_por_mes)": \{)([^\{\}]*?)(\})',
         lambda m: m.group(1) + " ".join(l.strip() for l in m.group(2).splitlines() if l.strip()) + m.group(3),
+        compactado,
+    )
+    compactado = re.sub(
+        r'\{\s+("fim": "[^"]+",[^\{\}]*?"na_janela": (?:true|false))\s+\}',
+        lambda m: '{ ' + re.sub(r'\s+', ' ', m.group(1).strip()) + ' }',
         compactado,
     )
     return re.sub(
@@ -137,8 +142,8 @@ def construir_saida(
             ano_referencia=ano_ref,
             data_referencia=hoje_b3,
         )
-        tetos_ano = teto_por_ano_historico(ativo.dividendos, ano_inicial=ano_ref - 10, ano_final=ano_ref)
-        bazin_res = bazin_res.model_copy(update={"teto_por_ano": {str(a): v for a, v in tetos_ano.items()}})
+        tetos_mes = teto_por_mes_historico(ativo.dividendos, inicio=date(ano_ref - 10, 1, 1), fim=hoje_b3)
+        bazin_res = bazin_res.model_copy(update={"teto_por_mes": tetos_mes})
 
         vi_graham = graham(ativo.fundamentos.lpa, ativo.fundamentos.vpa)
         m_graham = margem(vi_graham, ativo.preco) if vi_graham is not None else None
@@ -233,7 +238,7 @@ def construir_saida(
                     pontos_5a.append((dt_iso, ultimo_conhecido))
 
         # Cada cotação é comparada ao teto vigente na sua própria data (não ao teto de hoje).
-        pct_abaixo = proporcao_abaixo_teto_dinamico(pontos_5a, tetos_ano) if pontos_5a else None
+        pct_abaixo = proporcao_abaixo_teto_dinamico(pontos_5a, tetos_mes) if pontos_5a else None
 
         proventos_5a = sorted(
             [

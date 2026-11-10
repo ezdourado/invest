@@ -7,12 +7,14 @@
 
 ## REGRAS DE VALUATION (não negociáveis)
 - Bazin: K = 6% sempre, em qualquer cálculo.
-- DPA retroativo: dividendos reais agrupados por ano civil da data-com, média dos últimos 5 anos fechados. Nunca derivar de DY x preço atual nem de LPA x payout.
+- DPA retroativo (base do teto): dividendos reais declarados (data-com) nos **últimos 60 meses corridos** até hoje, ÷ 5. Agrupados em 5 blocos de 12 meses para detectar períodos atípicos. Substituiu os "5 anos civis fechados" (decisão de 10/11/2026): agrupar por ano civil fazia a data-com de um JCP complementar (ex.: 06/01) mudar o ano em que o provento conta, e ignorava os pagamentos do ano em curso. Nunca derivar de DY x preço atual nem de LPA x payout.
+- DY (o número exibido como "DY" em todo o painel): **real dos últimos 12 meses, bruto** = proventos com data-com nos últimos 12 meses ÷ cotação, calculado pelo motor. A média de 5 anos aparece sempre com o nome "DY médio 5a"; nunca rotular média, projeção ou valor líquido de IR como "DY".
+- Lente de extraordinários: o usuário pode incluir extraordinários na visualização (teto, margem, DPA, DY). O veredito oficial é sempre sem extraordinários; com a lente ligada o painel avisa.
 - Margem de segurança = (teto - preço) / teto (teto no denominador).
 - Bonificações nunca entram no DPA.
 - Dividendos extraordinários: calcular DPA com e sem eles e sinalizar.
-  - Como a fonte quase nunca rotula extraordinários, um ano da janela cujo total recorrente supere 2× a mediana dos anos pagos (mínimo 3 anos pagos) é "ano atípico": o excedente sobre a mediana sai do DPA sem extra e é exibido como extraordinário.
-- Teto histórico: o teto vigente em cada ano civil usa a mesma regra do teto atual (5 anos fechados anteriores, anos atípicos normalizados). "Tempo abaixo do teto" compara cada cotação com o teto vigente na sua data.
+  - Como a fonte quase nunca rotula extraordinários, um bloco de 12 meses da janela cujo total recorrente supere 2× a mediana dos blocos pagos (mínimo 3 blocos pagos) é "período atípico": o excedente sobre a mediana sai do DPA sem extra e é exibido como extraordinário.
+- Teto histórico: o teto vigente em cada mês usa a mesma regra do teto atual (60 meses até o fim do mês anterior, períodos atípicos normalizados). "Tempo abaixo do teto" compara cada cotação com o teto vigente no seu mês.
 - Payout: calculado internamente = proventos com data-com nos últimos 12 meses ÷ LPA 12m. Nunca usar `payoutRatio` do Yahoo.
 - DPA 12m e "Teto 12 meses": checagem de realidade do teto de 5 anos; nunca entram no veredito. Razão DPA 12m ÷ DPA 5a < 70% sinaliza dividendo recente em queda.
 - Teto pelo lucro: LPA atual × payout médio histórico (DPA 5a ÷ LPA médio anual, limitado a 25%–95%); direcional, nunca entra no veredito.

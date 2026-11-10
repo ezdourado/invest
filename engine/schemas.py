@@ -142,6 +142,17 @@ class Ativo(BaseModel):
     historico_lucros: list[PontoLucro] = Field(default_factory=list)
 
 
+class Bloco12m(BaseModel):
+    """Proventos declarados (data-com) em 12 meses corridos terminando no mês `fim` ('AAAA-MM')."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    fim: str
+    total: float = Field(..., ge=0)
+    extra: float = Field(0.0, ge=0)  # extraordinário rotulado + excedente de período atípico
+    na_janela: bool = False  # entra nos 60 meses do teto
+
+
 class ResultadoBazin(BaseModel):
     """Resultado do método Bazin (K = 6% fixo)."""
 
@@ -155,11 +166,15 @@ class ResultadoBazin(BaseModel):
     teto_com_extra: Optional[float] = None
     margem_seguranca: Optional[float] = None
     veredito: VereditoCor
-    por_ano: Optional[dict[str, float]] = None  # recorrente por ano (anos atípicos normalizados)
-    por_ano_total: Optional[dict[str, float]] = None  # tudo o que foi pago por ano
-    anos_atipicos: dict[str, float] = Field(default_factory=dict)  # ano -> excedente removido
-    teto_por_ano: dict[str, float] = Field(default_factory=dict)  # teto vigente em cada ano civil
+    # Blocos de 12 meses da janela do teto, chave 'AAAA-MM' = mês final do bloco (mais antigo primeiro).
+    por_ano: Optional[dict[str, float]] = None  # recorrente por bloco (períodos atípicos normalizados)
+    por_ano_total: Optional[dict[str, float]] = None  # tudo o que foi declarado por bloco
+    anos_atipicos: dict[str, float] = Field(default_factory=dict)  # bloco -> excedente removido
+    teto_por_ano: dict[str, float] = Field(default_factory=dict)  # obsoleto (bases antigas); usar teto_por_mes
+    teto_por_mes: dict[str, float] = Field(default_factory=dict)  # teto vigente em cada mês 'AAAA-MM'
+    historico_12m: list[Bloco12m] = Field(default_factory=list)  # 10 blocos de 12 meses, para gráficos
     dpa_12m: Optional[float] = None  # recorrente, data-com nos últimos 12 meses
+    dpa_12m_total: Optional[float] = None  # tudo o que foi declarado nos últimos 12 meses (DY real)
     teto_12m: Optional[float] = None
     margem_12m: Optional[float] = None
     razao_12m_5a: Optional[float] = None  # DPA 12m ÷ DPA 5a (< 0,7 = dividendo recente em queda)
