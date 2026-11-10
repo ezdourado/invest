@@ -33,6 +33,7 @@
   const MAX_META = 4;
   const G_MAX_PROJECAO = 0.12; // crescimento do dividendo usado na projeção é limitado a 12% a.a.
   const CORES_META = ['#06b6d4', '#f97316', '#a855f7', '#22c55e'];
+  const LIQUIDEZ_MIN_PARES = 5e6; // R$ 5 milhões/dia de volume médio
 
   const $c = sel => document.querySelector(sel);
 
@@ -439,8 +440,11 @@
     const chave = a => mapearSetorBesst(a.setor) || String(a.setor || '').toLowerCase();
     const raizBase = base.ticker.slice(0, 4);
     const vistos = new Set([raizBase]);
-    return universo()
-      .filter(a => chave(a) === chave(base) && a.bazin?.dpa_sem_extra > 0 && a.bazin?.teto > 0)
+    const mesmoSetor = universo().filter(a => chave(a) === chave(base) && a.bazin?.dpa_sem_extra > 0 && a.bazin?.teto > 0);
+    // Para quem vai montar posição relevante, liquidez importa: prioriza papéis com
+    // volume médio ≥ R$ 5 mi/dia; se o setor não tiver nenhum, usa todos.
+    const liquidos = mesmoSetor.filter(a => (a.fundamentos?.liquidez_diaria || 0) >= LIQUIDEZ_MIN_PARES);
+    return (liquidos.length ? liquidos : mesmoSetor)
       .sort((x, y) => (y.bazin.margem_seguranca ?? -9) - (x.bazin.margem_seguranca ?? -9))
       .filter(a => { const r = a.ticker.slice(0, 4); if (vistos.has(r)) return false; vistos.add(r); return true; })
       .slice(0, MAX_META - 1)
@@ -485,19 +489,30 @@
       </svg>`;
   }
 
-  function frasesCruzamento(linhas) {
+  function frasesCruzamento(linhas, anos) {
+    if (linhas.length < 2) return [];
     const lider = [...linhas].sort((x, y) => y.dy - x.dy)[0];
-    const frases = [];
+    const frases = [`<strong>${esc(lider.a.ticker)}</strong> tem o maior DY hoje (${fmtPctSimples(lider.dy, 1)}): é o que exige menos capital para a meta.`];
+    if (lider.gBruto === null) {
+      frases.push(`Não há ROE/payout válidos para estimar o crescimento de ${esc(lider.a.ticker)}; a projeção usa 0%, o que pode subestimá-lo.`);
+    }
     linhas.forEach(l => {
-      if (l === lider || l.g <= lider.g) return;
+      if (l === lider) return;
+      if (l.gBruto === null) {
+        frases.push(`${esc(l.a.ticker)}: sem ROE/payout válidos para estimar o crescimento (projeção com 0%).`);
+        return;
+      }
+      if (l.g <= lider.g) {
+        frases.push(`${esc(l.a.ticker)} rende menos hoje e cresce no máximo o mesmo que ${esc(lider.a.ticker)} (${fmtPctSimples(l.g, 1)} a.a.): não alcança no horizonte.`);
+        return;
+      }
       const t = Math.log(lider.dy / l.dy) / Math.log((1 + l.g) / (1 + lider.g));
-      if (Number.isFinite(t) && t > 0) {
-        frases.push(`<strong>${esc(l.a.ticker)}</strong> passa a render mais que <strong>${esc(lider.a.ticker)}</strong> sobre o mesmo capital em ~${t < 1 ? 'menos de 1 ano' : `${Math.round(t)} anos`}, se crescer ${fmtPctSimples(l.g, 1)} ao ano contra ${fmtPctSimples(lider.g, 1)}.`);
+      if (Number.isFinite(t) && t > 0 && t <= anos) {
+        frases.push(`<strong>${esc(l.a.ticker)}</strong> passa a render mais que ${esc(lider.a.ticker)} sobre o mesmo capital em ~${t < 1 ? 'menos de 1 ano' : `${Math.round(t)} anos`}, crescendo ${fmtPctSimples(l.g, 1)} a.a. contra ${fmtPctSimples(lider.g, 1)}.`);
+      } else if (Number.isFinite(t) && t > anos) {
+        frases.push(`${esc(l.a.ticker)} cresce mais (${fmtPctSimples(l.g, 1)} a.a.), mas só alcançaria ${esc(lider.a.ticker)} em ~${Math.round(t)} anos, além do horizonte de ${anos}.`);
       }
     });
-    if (!frases.length && linhas.length > 1) {
-      frases.push(`<strong>${esc(lider.a.ticker)}</strong> tem o maior DY hoje e não é alcançado no período pelas taxas de crescimento estimadas.`);
-    }
     return frases;
   }
 
@@ -541,7 +556,7 @@
         </tr>`;
     }).join('');
 
-    const frases = frasesCruzamento(validas);
+    const frases = frasesCruzamento(validas, anos);
     return `
       <div class="meta-chips">${chips}</div>
       <div class="table-wrap">
