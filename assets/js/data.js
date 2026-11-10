@@ -988,7 +988,9 @@ function htmlFichaRealidade(a) {
 
   const tetoLucro = a.teto_barsi ?? b.teto_projetado_barsi;
   const tetos = [
-    { id: 'oficial', nome: 'Teto 5 anos', sub: 'Oficial (veredito)', tip: 'DPA médio dos últimos 60 meses (proventos recorrentes) ÷ 6%. É o único que define o veredito.', valor: b.teto, m: b.margem_seguranca },
+    b.lente_extra
+      ? { id: 'oficial', nome: 'Teto 5 anos (c/ extra)', sub: `Oficial: ${fmtReal(a._bazinOficial?.teto)}`, tip: 'Lente de extraordinários ligada: DPA médio dos últimos 60 meses INCLUINDO extraordinários ÷ 6%. O teto oficial (sem extraordinários) é o que define o veredito do método.', valor: b.teto, m: b.margem_seguranca }
+      : { id: 'oficial', nome: 'Teto 5 anos', sub: 'Oficial (veredito)', tip: 'DPA médio dos últimos 60 meses (proventos recorrentes) ÷ 6%. É o único que define o veredito.', valor: b.teto, m: b.margem_seguranca },
     { id: '12m', nome: 'Teto 12 meses', sub: `DY 12m ${fmtPctSimples(dyReal12m(a), 1)}`, tip: 'Proventos com data-com nos últimos 12 meses ÷ 6%. Mostra se o patamar recente sustenta o teto oficial.', valor: b.teto_12m, m: b.margem_12m },
     { id: 'lucro', nome: 'Teto pelo lucro', sub: 'LPA × payout médio', tip: 'Lucro por ação atual × payout médio histórico ÷ 6%. Indica o que o lucro de hoje comportaria pagar (direcional).', valor: tetoLucro, m: valido(tetoLucro) && tetoLucro > 0 && a.preco > 0 ? (tetoLucro - a.preco) / tetoLucro : null }
   ];
