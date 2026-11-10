@@ -445,9 +445,11 @@
     // Teto vigente em cada ano, calculado no motor com a MESMA regra do teto atual (média dos
     // 5 anos fechados anteriores, anos atípicos normalizados). O navegador não recalcula Bazin.
     // Anos sem histórico suficiente na fonte ficam sem teto (linha interrompida).
+    // Teto vigente em cada mês (60 meses até o fim do mês anterior). Bases antigas: por ano.
+    const tetoPorMes = ativo.bazin?.teto_por_mes || {};
     const tetoPorAno = ativo.bazin?.teto_por_ano || {};
     return datas.map(dtIso => {
-      const v = tetoPorAno[dtIso.slice(0, 4)];
+      const v = tetoPorMes[dtIso.slice(0, 7)] ?? tetoPorAno[dtIso.slice(0, 4)];
       return { data: dtIso, teto: ehValido(v) && v > 0 ? Math.round(v * 100) / 100 : null };
     });
   }
@@ -1554,7 +1556,7 @@
         ? diag.pctAbaixo
         : (ehValido(principal.pct_abaixo_teto_5a) ? principal.pct_abaixo_teto_5a : null);
       const dpa5a = principal.bazin?.dpa_sem_extra;
-      const dy12m = principal.fundamentos?.dy_12m;
+      const dy12m = typeof dyReal12m === 'function' ? dyReal12m(principal) : null;
 
       kpisEl.innerHTML = `
         <div class="kpi" data-tip="Margem de segurança Bazin = (Teto − Preço) ÷ Teto, considerando K = 6% fixo">
@@ -1572,10 +1574,10 @@
           <div class="kpi-value">${ehValido(dpa5a) && dpa5a > 0 ? formataReal(dpa5a) : '—'}</div>
           <div class="kpi-foot">${principal.bazin?.tem_extraordinario ? `Com extra: ${formataReal(principal.bazin.dpa)}` : 'Base recorrente (sem extraordinários)'}</div>
         </div>
-        <div class="kpi" data-tip="Dividend Yield acumulado nos últimos 12 meses sobre a cotação atual">
+        <div class="kpi" data-tip="DY real: proventos declarados (data-com) nos últimos 12 meses ÷ cotação atual, bruto, calculado pelo motor">
           <div class="kpi-label"><span>Dividend Yield (12m)</span></div>
           <div class="kpi-value">${ehValido(dy12m) ? formataPctSimples(dy12m, 1) : '—'}</div>
-          <div class="kpi-foot">${ehValido(principal.ult_balanco) || principal.ult_balanco ? `Últ. balanço: ${fmtDataBr(principal.ult_balanco)}` : 'Proventos últimos 12 meses'}</div>
+          <div class="kpi-foot">Pago nos últimos 12 meses (bruto) · médio 5a ${formataPctSimples(typeof dyMedio5a === 'function' ? dyMedio5a(principal) : null, 1)}</div>
         </div>
       `;
     }

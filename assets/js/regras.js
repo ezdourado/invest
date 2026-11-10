@@ -109,7 +109,8 @@ function diferencaAteTeto(a) {
 
 /* Ficha de realidade do dividendo: o teto de 5 anos ainda se sustenta com o que a empresa paga hoje? */
 function anosAtipicosAtivo(b) {
-  return Object.keys(b?.anos_atipicos || {}).map(Number).sort((x, y) => x - y);
+  // Chaves 'AAAA-MM' (bloco de 12 meses); bases antigas usam 'AAAA'. Ordem cronológica.
+  return Object.keys(b?.anos_atipicos || {}).sort();
 }
 
 function margemAtivo(a) {
@@ -137,7 +138,8 @@ function diasAteDataCom(a) {
 
 function mudouDesdePregao(a) {
   const ant = a?.anterior;
-  const b = a?.bazin || {};
+  // Compara sempre com o resultado oficial: a lente de extraordinários não é mudança de mercado.
+  const b = a?._bazinOficial || a?.bazin || {};
   if (!ant || !(b.teto > 0)) return false;
   return ant.veredito !== b.veredito || (ant.teto > 0 && Math.abs(b.teto - ant.teto) / ant.teto > 0.005);
 }
@@ -149,7 +151,7 @@ function mudancasDesdePregao(lista) {
   let dataRef = null;
   lista.forEach(a => {
     const ant = a.anterior;
-    const b = a.bazin || {};
+    const b = a._bazinOficial || a.bazin || {};
     if (!ant || !(b.teto > 0)) return;
     dataRef = dataRef || ant.data;
     if (ant.veredito !== 'verde' && b.veredito === 'verde') entraram.push(a.ticker);
@@ -304,4 +306,74 @@ function calcularAnaliseTecnica(a) {
     rotulo,
     sinais
   };
+}
+
+/* ---------- DY: definições únicas do painel ---------- */
+
+// DY real dos últimos 12 meses: o que a empresa efetivamente declarou (data-com) ÷ cotação, bruto.
+// É um fato, não uma lente: usa sempre o total oficial (inclui extraordinários pagos).
+function dyReal12m(a) {
+  const b = a?._bazinOficial || a?.bazin || {};
+  const d = valido(b.dpa_12m_total) ? b.dpa_12m_total : b.dpa_12m;
+  return valido(d) && a.preco > 0 ? d / a.preco : null;
+}
+
+// Parte recorrente do DY 12m (sem extraordinários rotulados), para comparação.
+function dyRecorrente12m(a) {
+  const b = a?._bazinOficial || a?.bazin || {};
+  return valido(b.dpa_12m) && a.preco > 0 ? b.dpa_12m / a.preco : null;
+}
+
+// DY médio 5a: DPA médio dos últimos 60 meses ÷ cotação. Segue a lente de extraordinários.
+function dyMedio5a(a) {
+  return razaoDpaPreco(a);
+}
+
+// Bloco de 12 meses 'AAAA-MM' (mês final) -> '12m até nov/22'.
+const MESES_CURTOS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+function rotuloBloco12m(chave, curto = false) {
+  const m = /^(\d{4})-(\d{2})$/.exec(String(chave || ''));
+  if (!m) return String(chave || '');
+  const txt = `${MESES_CURTOS[Number(m[2]) - 1]}/${m[1].slice(2)}`;
+  return curto ? txt : `12m até ${txt}`;
+}
+
+/* ---------- Lente de extraordinários ---------- */
+
+function vereditoPorMargem(m) {
+  if (!valido(m)) return 'vermelho';
+  if (m >= 0) return 'verde';
+  if (m >= -0.05) return 'amarelo';
+  return 'vermelho';
+}
+
+// Com a lente ligada, teto/margem/DPA/DY médio passam a INCLUIR extraordinários. O resultado oficial
+// (sem extraordinários, regra do PROJETO.md) fica preservado em `_bazinOficial`.
+function aplicarLenteExtraordinarios(ativos, incluir) {
+  (ativos || []).forEach(a => {
+    if (!a._bazinOficial) a._bazinOficial = a.bazin || {};
+    const b = a._bazinOficial;
+    if (!incluir || !b.tem_extraordinario) {
+      a.bazin = b;
+      return;
+    }
+    const teto = valido(b.teto_com_extra) ? b.teto_com_extra : 0;
+    const m = teto > 0 && a.preco > 0 ? (teto - a.preco) / teto : null;
+    const d12 = valido(b.dpa_12m_total) ? b.dpa_12m_total : b.dpa_12m;
+    const t12 = d12 > 0 ? d12 / 0.06 : null;
+    a.bazin = {
+      ...b,
+      teto,
+      dpa_sem_extra: b.dpa,
+      margem_seguranca: m,
+      veredito: vereditoPorMargem(m),
+      por_ano: b.por_ano_total || b.por_ano,
+      anos_atipicos: {},
+      dpa_12m: d12,
+      teto_12m: t12,
+      margem_12m: t12 ? (t12 - a.preco) / t12 : null,
+      razao_12m_5a: b.dpa > 0 && valido(d12) ? d12 / b.dpa : b.razao_12m_5a,
+      lente_extra: true
+    };
+  });
 }

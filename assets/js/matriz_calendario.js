@@ -788,7 +788,8 @@
           <thead>
             <tr>
               <th>Ativo</th>
-              <th class="num">DY sobre o preço</th>
+              <th class="num" data-tip="Pago nos últimos 12 meses ÷ cotação (bruto)">DY 12m</th>
+              <th class="num" data-tip="DPA médio dos últimos 60 meses ÷ cotação: é a base dos tetos desta tabela">DY médio 5a</th>
               ${TAXAS_SENSIBILIDADE.map((k, i) => `<th class="num" data-tip="Teto = DPA 5a ÷ ${fPctSimples(k, 0)}. ${resistem[i]} de ${linhas.length} continuam abaixo do teto.">${fPctSimples(k, 0)}${i === 0 ? ' (Bazin)' : ''}<span class="cell-sub">${resistem[i]} abaixo</span></th>`).join('')}
             </tr>
           </thead>
@@ -796,13 +797,14 @@
             ${linhas.map(({ a, margens }) => `
               <tr class="vcmp-row" data-mopen-detail="${escH(a.ticker)}">
                 <td data-label="Ativo"><span class="asset-ticker">${escH(a.ticker)}</span></td>
-                <td class="num mono" data-label="DY sobre o preço">${fPctSimples(a.bazin.dpa_sem_extra / a.preco)}</td>
+                <td class="num mono" data-label="DY 12m">${fPctSimples(typeof dyReal12m === 'function' ? dyReal12m(a) : null)}</td>
+                <td class="num mono" data-label="DY médio 5a">${fPctSimples(a.bazin.dpa_sem_extra / a.preco)}</td>
                 ${margens.map((m, i) => `<td class="num mono sens-cell ${classeSensibilidade(m)}" data-label="${fPctSimples(TAXAS_SENSIBILIDADE[i], 0)}" data-tip="${escH(a.ticker)} com DY exigido de ${fPctSimples(TAXAS_SENSIBILIDADE[i], 0)}: teto ${fReal(a.bazin.dpa_sem_extra / TAXAS_SENSIBILIDADE[i])}, margem ${fPct(m)}">${Math.abs(m) < 0.005 ? '0%' : fPct(m, 0)}</td>`).join('')}
               </tr>`).join('')}
           </tbody>
         </table>
       </div>
-      <p class="d-note">Leitura: um papel que continua verde em 8%–10% tem folga mesmo para quem exige mais renda (ou desconfia do DPA histórico). A coluna "DY sobre o preço" é o DPA médio de 5 anos ÷ cotação atual.</p>`;
+      <p class="d-note">Leitura: um papel que continua verde em 8%–10% tem folga mesmo para quem exige mais renda (ou desconfia do DPA histórico). "DY 12m" é o que foi pago nos últimos 12 meses; "DY médio 5a" é a base dos tetos (DPA médio dos últimos 60 meses ÷ cotação).</p>`;
   }
 
   function conectarInteracaoSvgMatriz(vbWidth, padR) {

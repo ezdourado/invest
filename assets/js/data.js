@@ -8,7 +8,8 @@ const STORAGE_KEY_PAINEL_DENSITY = 'painel_valuation_density';
 const STORAGE_KEY_THEME = 'painel_valuation_theme';
 const STORAGE_KEY_COLUNAS = 'painel_valuation_colunas_ajustes';
 const STORAGE_KEY_TRIAGEM = 'painel_valuation_triagem';
-const COLUNAS_OPCIONAIS = ['dpa', 'falta', 'sustent', 'tend', 'alt', 'tec', 'graham', 'gordon', 'gb'];
+const STORAGE_KEY_LENTE_EXTRA = 'painel_valuation_lente_extra';
+const COLUNAS_OPCIONAIS = ['dpa', 'dy', 'falta', 'sustent', 'tend', 'alt', 'tec', 'graham', 'gordon', 'gb'];
 const DIAS_BASE_DESATUALIZADA = 3;
 const PREGAO_INICIO_MIN = 10 * 60;            // 10h00 BRT
 const PREGAO_FIM_MIN = 18 * 60;               // 18h00 BRT
@@ -51,7 +52,7 @@ const OPCOES_ORDENACAO = [
   { key: 'tendencia', dir: 'asc', label: 'Maior queda do dividendo (12m / 5a)' },
   { key: 'sustentabilidade', dir: 'desc', label: 'Maior Score Anti-Cilada' },
   { key: 'margem', dir: 'asc', label: 'Menor margem Bazin' },
-  { key: 'dy', dir: 'desc', label: 'Maior DPA / preço' },
+  { key: 'dy', dir: 'desc', label: 'Maior DY 12m (pago)' },
   { key: 'greenblatt', dir: 'asc', label: 'Melhor Greenblatt' },
   { key: 'graham', dir: 'desc', label: 'Maior margem Graham' },
   { key: 'gordon', dir: 'desc', label: 'Maior margem Gordon' },
@@ -67,6 +68,7 @@ const painelState = {
   filtroVeredito: 'todos',
   filtroTech: 'todos',
   triagem: 'todas',
+  lenteExtra: false,
   termo: '',
   sort: { key: 'margem', dir: 'desc' },
   densidade: 'confortavel',
@@ -216,7 +218,7 @@ function valorOrdenacao(a, key) {
     case 'graham': return a.margem_graham;
     case 'gordon': return a.margem_gordon;
     case 'greenblatt': return a.rank_greenblatt;
-    case 'dy': return razaoDpaPreco(a);
+    case 'dy': return dyReal12m(a);
     default: return null;
   }
 }
@@ -551,6 +553,17 @@ function htmlVeredito(v) {
 }
 
 /* Preço ÷ Teto com marcador: escala de 0 a 2× o teto, traço central = teto */
+/* DY real dos últimos 12 meses (pago) com o DY médio 5a como referência. */
+function htmlDyTabela(a) {
+  const real = dyReal12m(a);
+  const medio = dyMedio5a(a);
+  if (!valido(real) && !valido(medio)) return '<span class="t-dim">—</span>';
+  const rec = dyRecorrente12m(a);
+  const temExtra = valido(real) && valido(rec) && real - rec > 0.0005;
+  const tip = `DY 12m pago: ${fmtPctSimples(real, 2)}${temExtra ? ` (recorrente ${fmtPctSimples(rec, 2)}; o resto foi extraordinário)` : ''} · DY médio 5a: ${fmtPctSimples(medio, 2)}`;
+  return `<div class="cell-stack" data-tip="${esc(tip)}"><span class="mono ${real >= 0.06 ? 't-green' : ''}">${fmtPctSimples(real, 1)}${temExtra ? '*' : ''}</span><span class="cell-sub">médio 5a ${fmtPctSimples(medio, 1)}</span></div>`;
+}
+
 function htmlPrecoTeto(a, falta) {
   const teto = a.bazin?.teto;
   if (!(teto > 0) || !(a.preco > 0)) return '<span class="t-dim">—</span>';
@@ -598,7 +611,7 @@ function htmlTetosAlternativos(a) {
 /* Selo de mudança desde o fechamento do pregão anterior (veredito ou teto) */
 function htmlMudancaPregao(a) {
   const ant = a.anterior;
-  const b = a.bazin || {};
+  const b = a._bazinOficial || a.bazin || {};
   if (!ant || !(b.teto > 0)) return '';
   if (ant.veredito !== b.veredito) {
     const entrou = b.veredito === 'verde';
@@ -752,7 +765,7 @@ function renderizarTabela() {
 
   if (totalSel === 0) {
     tbody.innerHTML = `
-      <tr class="row-empty"><td colspan="15" class="empty">
+      <tr class="row-empty"><td colspan="16" class="empty">
         <strong>Nenhum ativo selecionado no seu painel</strong>
         Escolha as ações que deseja monitorar (setores BESST, pagadoras de dividendos ou Demais papéis).
         <div class="empty-actions">
@@ -767,7 +780,7 @@ function renderizarTabela() {
 
   if (lista.length === 0) {
     tbody.innerHTML = `
-      <tr class="row-empty"><td colspan="15" class="empty">
+      <tr class="row-empty"><td colspan="16" class="empty">
         <strong>Nenhum ativo corresponde ao filtro selecionado</strong>
         Ajuste o termo de busca, o setor ou a situação frente ao teto.
         <div class="empty-actions"><button type="button" class="btn btn-primary" data-empty-action="limpar-filtros">Limpar filtros</button></div>
@@ -808,6 +821,7 @@ function renderizarTabela() {
         </td>
         <td class="num c-preco" data-label="Preço">${fmtReal(a.preco)}</td>
         <td class="num c-dpa" data-label="DPA 5a">${dpaCell}</td>
+        <td class="num c-dy" data-label="DY 12m">${htmlDyTabela(a)}</td>
         <td class="num c-teto" data-label="Teto Bazin">
           <div class="c-teto-stack">
             <span class="teto-val-hist">${b.teto > 0 ? fmtReal(b.teto) : '<span class="t-dim" data-tip="Sem DPA recorrente nos últimos 5 anos fechados">—</span>'}</span>
@@ -974,8 +988,8 @@ function htmlFichaRealidade(a) {
 
   const tetoLucro = a.teto_barsi ?? b.teto_projetado_barsi;
   const tetos = [
-    { id: 'oficial', nome: 'Teto 5 anos', sub: 'Oficial (veredito)', tip: 'Média dos proventos recorrentes dos 5 anos fechados ÷ 6%. É o único que define o veredito.', valor: b.teto, m: b.margem_seguranca },
-    { id: '12m', nome: 'Teto 12 meses', sub: `DPA ${valido(b.dpa_12m) ? fmtReal(b.dpa_12m) : '—'}`, tip: 'Proventos com data-com nos últimos 12 meses ÷ 6%. Mostra se o patamar recente sustenta o teto oficial.', valor: b.teto_12m, m: b.margem_12m },
+    { id: 'oficial', nome: 'Teto 5 anos', sub: 'Oficial (veredito)', tip: 'DPA médio dos últimos 60 meses (proventos recorrentes) ÷ 6%. É o único que define o veredito.', valor: b.teto, m: b.margem_seguranca },
+    { id: '12m', nome: 'Teto 12 meses', sub: `DY 12m ${fmtPctSimples(dyReal12m(a), 1)}`, tip: 'Proventos com data-com nos últimos 12 meses ÷ 6%. Mostra se o patamar recente sustenta o teto oficial.', valor: b.teto_12m, m: b.margem_12m },
     { id: 'lucro', nome: 'Teto pelo lucro', sub: 'LPA × payout médio', tip: 'Lucro por ação atual × payout médio histórico ÷ 6%. Indica o que o lucro de hoje comportaria pagar (direcional).', valor: tetoLucro, m: valido(tetoLucro) && tetoLucro > 0 && a.preco > 0 ? (tetoLucro - a.preco) / tetoLucro : null }
   ];
   const cards = tetos.map(t => `
@@ -998,8 +1012,8 @@ function htmlFichaRealidade(a) {
   }
   const atip = anosAtipicosAtivo(b);
   if (atip.length) {
-    const lista = atip.map(ano => `${ano} (${fmtReal(b.anos_atipicos[String(ano)])} acima do patamar)`).join(', ');
-    alertas.push(`<div class="frd-alerta is-aviso"><strong>Ano atípico removido do teto:</strong> ${esc(lista)}. O excedente sobre a mediana dos anos pagos foi tratado como extraordinário. Teto incluindo tudo: ${fmtReal(b.teto_com_extra)}.</div>`);
+    const lista = atip.map(k => `${rotuloBloco12m(k)} (${fmtReal(b.anos_atipicos[k])} acima do patamar)`).join(', ');
+    alertas.push(`<div class="frd-alerta is-aviso"><strong>Período atípico removido do teto:</strong> ${esc(lista)}. O excedente sobre a mediana dos períodos pagos foi tratado como extraordinário. Teto incluindo tudo: ${fmtReal(b.teto_com_extra)}.</div>`);
   }
 
   return `
@@ -1013,49 +1027,30 @@ function htmlFichaRealidade(a) {
 
 function htmlBarrasDpaAnual(a) {
   const b = a.bazin || {};
-  const provs = Array.isArray(a.proventos_historico) ? a.proventos_historico : [];
-  if (!provs.length) return '';
+  const blocos = Array.isArray(b.historico_12m) ? b.historico_12m : [];
+  if (!blocos.length) return '';
 
-  const anoAtual = Number(hojeIsoSaoPaulo().slice(0, 4));
-  const atipicos = b.anos_atipicos || {};
-  const janela = new Set(Object.keys(b.por_ano || {}).map(Number));
-  const porAno = new Map();
-  provs.forEach(p => {
-    const ano = Number(String(p.data_com).slice(0, 4));
-    if (!ano || !(p.valor > 0)) return;
-    const reg = porAno.get(ano) || { total: 0, extra: 0 };
-    reg.total += p.valor;
-    if (p.tipo === 'extraordinario') reg.extra += p.valor;
-    porAno.set(ano, reg);
-  });
-  Object.entries(atipicos).forEach(([ano, exc]) => {
-    const reg = porAno.get(Number(ano));
-    if (reg) reg.extra = Math.min(reg.total, reg.extra + exc);
-  });
-  const anos = [...porAno.keys()].sort((x, y) => x - y).slice(-11);
-  if (!anos.length) return '';
-
-  const maxVal = Math.max(...anos.map(an => porAno.get(an).total), b.dpa_sem_extra || 0, 0.01) * 1.1;
+  const maxVal = Math.max(...blocos.map(x => x.total), b.dpa_sem_extra || 0, b.dpa_12m || 0, 0.01) * 1.1;
   const W = 420, H = 150, base = 120, topo = 14, alt = base - topo;
-  const passo = W / anos.length;
+  const passo = W / blocos.length;
   const larg = Math.min(26, passo * 0.62);
   const yDe = v => base - (v / maxVal) * alt;
 
-  const barras = anos.map((ano, i) => {
-    const reg = porAno.get(ano);
-    const rec = Math.max(0, reg.total - reg.extra);
+  const barras = blocos.map((bl, i) => {
+    const extra = Math.min(bl.total, bl.extra || 0);
+    const rec = Math.max(0, bl.total - extra);
     const x = i * passo + (passo - larg) / 2;
-    const parcial = ano === anoAtual;
+    const atual = i === blocos.length - 1;
     const hRec = (rec / maxVal) * alt;
-    const hExt = (reg.extra / maxVal) * alt;
-    const classeRec = parcial ? 'frd-bar-parcial' : (janela.has(ano) ? 'frd-bar-janela' : 'frd-bar-rec');
-    const tip = `${ano}${parcial ? ' (ano em curso)' : ''}: ${fmtReal(reg.total)} pagos${reg.extra > 0 ? ` · ${fmtReal(reg.extra)} extraordinário/atípico` : ''}`;
+    const hExt = (extra / maxVal) * alt;
+    const classeRec = bl.na_janela ? 'frd-bar-janela' : 'frd-bar-rec';
+    const tip = `${rotuloBloco12m(bl.fim)}${atual ? ' (últimos 12 meses)' : ''}: ${fmtReal(bl.total)} declarados${extra > 0 ? ` · ${fmtReal(extra)} extraordinário/atípico` : ''}${bl.na_janela ? ' · entra no teto' : ''}`;
     return `
       <g data-tip="${esc(tip)}">
         <rect x="${x}" y="${topo}" width="${larg}" height="${alt}" fill="transparent" />
         <rect class="${classeRec}" x="${x}" y="${base - hRec}" width="${larg}" height="${Math.max(hRec, 0.5)}" rx="2" />
         ${hExt > 0 ? `<rect class="frd-bar-extra" x="${x}" y="${base - hRec - hExt}" width="${larg}" height="${hExt}" rx="2" />` : ''}
-        <text x="${x + larg / 2}" y="${base + 14}" text-anchor="middle" class="frd-eixo">${parcial ? `${String(ano).slice(2)}*` : String(ano).slice(2)}</text>
+        <text x="${x + larg / 2}" y="${base + 14}" text-anchor="middle" class="frd-eixo">${esc(rotuloBloco12m(bl.fim, true))}</text>
       </g>`;
   }).join('');
 
@@ -1071,18 +1066,18 @@ function htmlBarrasDpaAnual(a) {
 
   return `
     <div class="d-sub-chart">
-      <div class="d-sub-title">Proventos por ano da data-com (R$ por ação)</div>
-      <svg class="vsvg frd-svg" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Proventos por ano, com parcela extraordinária destacada e médias de 5 anos e 12 meses">
+      <div class="d-sub-title">Proventos declarados em blocos de 12 meses (R$ por ação)</div>
+      <svg class="vsvg frd-svg" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Proventos em blocos de 12 meses até o mês indicado, com parcela extraordinária destacada e médias de 5 anos e 12 meses">
         <line class="frd-base" x1="0" x2="${W}" y1="${base}" y2="${base}" />
         ${barras}
         ${linhas.join('')}
       </svg>
       <div class="frd-legenda">
-        <span><i class="frd-sw frd-bar-janela"></i>Recorrente (janela do teto)</span>
-        <span><i class="frd-sw frd-bar-rec"></i>Recorrente (anos anteriores)</span>
+        <span><i class="frd-sw frd-bar-janela"></i>Entra no teto (últimos 60 meses)</span>
+        <span><i class="frd-sw frd-bar-rec"></i>Períodos anteriores</span>
         <span><i class="frd-sw frd-bar-extra"></i>Extraordinário / atípico</span>
-        <span><i class="frd-sw frd-bar-parcial"></i>Ano em curso*</span>
       </div>
+      <p class="d-note">Cada barra soma 12 meses até o mês indicado (a última são os últimos 12 meses). Assim a data-com de um JCP complementar em janeiro não “muda de ano”.</p>
     </div>`;
 }
 
@@ -1366,16 +1361,17 @@ function renderizarDetalhe(ticker) {
     <div class="d-block">
       <div class="d-section-title">Bazin · K = 6%</div>
       <dl class="kv">
-        <dt>DPA 5a sem extraordinários</dt><dd>${fmtReal(b.dpa_sem_extra)}</dd>
-        <dt>DPA 5a com extraordinários</dt><dd>${fmtReal(b.dpa)}</dd>
-        <dt>Yield implícito (DPA 5a / Preço)</dt><dd class="${razaoDpaPreco(a) >= 0.06 ? 't-green' : ''}">${fmtPctSimples(razaoDpaPreco(a), 2)}</dd>
+        <dt>DPA médio 60 meses (sem extraordinários)</dt><dd>${fmtReal(b.dpa_sem_extra)}</dd>
+        <dt>DPA médio 60 meses (com extraordinários)</dt><dd>${fmtReal(b.dpa)}</dd>
+        <dt>DY 12 meses (pago, bruto)</dt><dd class="${dyReal12m(a) >= 0.06 ? 't-green' : ''}">${fmtPctSimples(dyReal12m(a), 2)}</dd>
+        <dt>DY médio 5a (DPA médio ÷ preço)</dt><dd class="${dyMedio5a(a) >= 0.06 ? 't-green' : ''}">${fmtPctSimples(dyMedio5a(a), 2)}</dd>
         <div class="sep"></div>
         <dt>Teto (DPA ÷ 6%)</dt><dd>${b.teto > 0 ? fmtReal(b.teto) : '—'}</dd>
         <dt>Falta até o teto (R$)</dt><dd class="${valido(diferencaAteTeto(a)) ? (diferencaAteTeto(a) >= 0 ? 't-green' : 't-red') : ''}">${fmtRealSinal(diferencaAteTeto(a))}</dd>
         <dt>Margem de segurança</dt><dd class="${classeMargem(b.margem_seguranca)}">${fmtPct(b.margem_seguranca)}</dd>
         <dt>Tempo abaixo do Teto (5a)</dt><dd>${valido(a.pct_abaixo_teto_5a) ? fmtPctSimples(a.pct_abaixo_teto_5a, 0) : '—'}</dd>
-        <dt>Dividendos extraordinários</dt><dd>${b.tem_extraordinario ? `<span class="t-yellow">Sim${anosAtipicosAtivo(b).length ? ` (atípico: ${anosAtipicosAtivo(b).join(', ')})` : ''}</span>` : 'Não'}</dd>
-        <dt>DPA últimos 12 meses</dt><dd>${valido(b.dpa_12m) ? fmtReal(b.dpa_12m) : '—'}</dd>
+        <dt>Dividendos extraordinários</dt><dd>${b.tem_extraordinario ? `<span class="t-yellow">Sim${anosAtipicosAtivo(b).length ? ` (atípico: ${anosAtipicosAtivo(b).map(k => rotuloBloco12m(k)).join(', ')})` : ''}</span>` : 'Não'}</dd>
+        <dt>DPA últimos 12 meses (pago)</dt><dd>${valido(b.dpa_12m_total ?? b.dpa_12m) ? fmtReal(b.dpa_12m_total ?? b.dpa_12m) : '—'}</dd>
         <dt>DPA 12m ÷ DPA 5a</dt><dd class="${valido(b.razao_12m_5a) && b.razao_12m_5a < 0.7 ? 't-red' : ''}">${valido(b.razao_12m_5a) ? fmtPctSimples(b.razao_12m_5a, 0) : '—'}</dd>
       </dl>
     </div>
@@ -1398,9 +1394,9 @@ function renderizarDetalhe(ticker) {
           <span class="d-mult-val ${valido(f.ev_ebitda) ? (f.ev_ebitda <= 8 ? 't-green' : (f.ev_ebitda > 12 ? 't-yellow' : '')) : 't-dim'}">${ehBanco ? 'N/A' : fmtMult(f.ev_ebitda)}</span>
           <span class="d-mult-sub">EV/EBIT: ${ehBanco ? 'N/A' : fmtMult(f.ev_ebit)}</span>
         </div>
-        <div class="d-mult-card" data-tip="Dividend Yield dos últimos 12 meses e Payout estimado (DPA 5a ÷ LPA).">
+        <div class="d-mult-card" data-tip="DY real: proventos declarados (data-com) nos últimos 12 meses ÷ cotação, bruto, calculado pelo motor. Payout: proventos 12m ÷ LPA 12m.">
           <span class="d-mult-label">DY (12m)</span>
-          <span class="d-mult-val ${valido(f.dy_12m) && f.dy_12m >= 0.06 ? 't-green' : ''}">${fmtPctSimples(f.dy_12m)}</span>
+          <span class="d-mult-val ${valido(dyReal12m(a)) && dyReal12m(a) >= 0.06 ? 't-green' : ''}">${fmtPctSimples(dyReal12m(a))}</span>
           <span class="d-mult-sub">Payout: ${fmtPctSimples(f.payout, 0)}</span>
         </div>
       </div>
@@ -1960,6 +1956,32 @@ window.alternarModoApresentacao = alternarModoApresentacao;
 
 /* ---------- Orquestração e Ações ---------- */
 
+/* Lente de extraordinários: alterna teto/margem/DPA/DY médio entre "sem" (oficial) e "com". */
+function sincronizarBotaoLente() {
+  const btn = $('#btn-lente-extra');
+  document.body.classList.toggle('lente-extra-on', !!painelState.lenteExtra);
+  if (!btn) return;
+  btn.setAttribute('aria-pressed', String(!!painelState.lenteExtra));
+  btn.classList.toggle('is-active', !!painelState.lenteExtra);
+  const txt = btn.querySelector('.lente-txt');
+  if (txt) txt.textContent = painelState.lenteExtra ? 'Com extraordinários' : 'Sem extraordinários';
+  btn.setAttribute('data-tip', painelState.lenteExtra
+    ? 'Lente ativa: teto, margem, DPA e DY médio INCLUEM dividendos extraordinários e períodos atípicos. O veredito oficial do método (sem extraordinários) não muda. Clique para voltar.'
+    : 'Teto, margem, DPA e DY médio SEM extraordinários (regra oficial de Bazin). Clique para ver incluindo extraordinários.');
+}
+
+function alternarLenteExtra() {
+  painelState.lenteExtra = !painelState.lenteExtra;
+  gravarStorage(STORAGE_KEY_LENTE_EXTRA, painelState.lenteExtra);
+  aplicarLenteExtraordinarios(painelState.universo, painelState.lenteExtra);
+  sincronizarBotaoLente();
+  renderizarTudo();
+  mostrarToast(painelState.lenteExtra
+    ? 'Exibindo valores COM extraordinários (o veredito oficial continua sem eles).'
+    : 'Exibindo valores SEM extraordinários (regra oficial).');
+}
+window.alternarLenteExtra = alternarLenteExtra;
+
 function renderizarTudo() {
   renderizarKpis();
   renderizarBesst();
@@ -2073,7 +2095,7 @@ function exibirErro(msg) {
   );
   const tbody = $('#engine-valuation-tbody');
   if (tbody) {
-    tbody.innerHTML = `<tr class="row-empty"><td colspan="15" class="empty"><strong>Dados temporariamente indisponíveis</strong>${esc(msg)}</td></tr>`;
+    tbody.innerHTML = `<tr class="row-empty"><td colspan="16" class="empty"><strong>Dados temporariamente indisponíveis</strong>${esc(msg)}</td></tr>`;
   }
 }
 
@@ -2083,6 +2105,8 @@ async function carregarValuationJson(silencioso = false) {
     painelState.payload = payload;
     window.VALUATION_DATA = payload;
     painelState.universo = payload.ativos;
+    aplicarLenteExtraordinarios(payload.ativos, painelState.lenteExtra);
+    sincronizarBotaoLente();
     const mapa = mapaUniverso();
 
     let temSalvo = false;
@@ -2580,6 +2604,9 @@ window.addEventListener('DOMContentLoaded', () => {
   inicializarTema();
   const sortSalvo = lerStorage(STORAGE_KEY_PAINEL_SORT, null);
   if (sortSalvo?.key && sortSalvo?.dir) painelState.sort = sortSalvo;
+  painelState.lenteExtra = lerStorage(STORAGE_KEY_LENTE_EXTRA, false) === true;
+  $('#btn-lente-extra')?.addEventListener('click', alternarLenteExtra);
+  sincronizarBotaoLente();
   const triagemSalva = lerStorage(STORAGE_KEY_TRIAGEM, 'todas');
   painelState.triagem = TRIAGENS[triagemSalva] ? triagemSalva : 'todas';
   const selTriagem = $('#select-triagem');

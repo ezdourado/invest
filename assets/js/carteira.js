@@ -27,7 +27,7 @@
   const PADRAO = {
     posicoes: [],
     alvos: { bancos: 20, energia: 20, saneamento: 20, seguros: 20, telecom: 20, outros: 0 },
-    config: { baseRenda: 'menor', jcpLiquido: true, margemMinAporte: 0.10, aporte: 1000, alertas: true },
+    config: { baseRenda: '12m', jcpLiquido: false, margemMinAporte: 0.10, aporte: 1000, alertas: true, versao: 2 },
     meta: { rendaMensal: 1000, tickers: [], anos: 10 }
   };
   const MAX_META = 4;
@@ -39,6 +39,17 @@
 
   /* ---------- Estado ---------- */
 
+  // Versão 2 (10/11/2026): a renda passa a usar por padrão o DY real dos últimos 12 meses, bruto.
+  // Configurações antigas (padrão 'menor' + JCP líquido) são migradas uma vez.
+  function migrarConfig(cfg) {
+    if ((cfg.versao || 1) < 2) {
+      cfg.baseRenda = '12m';
+      cfg.jcpLiquido = false;
+      cfg.versao = 2;
+    }
+    return cfg;
+  }
+
   function lerEstado() {
     try {
       const bruto = JSON.parse(localStorage.getItem(CHAVE) || 'null');
@@ -46,7 +57,7 @@
       return {
         posicoes: Array.isArray(bruto.posicoes) ? bruto.posicoes.filter(p => p && p.ticker) : [],
         alvos: { ...PADRAO.alvos, ...(bruto.alvos || {}) },
-        config: { ...PADRAO.config, ...(bruto.config || {}) },
+        config: migrarConfig({ ...PADRAO.config, ...(bruto.config || {}) }),
         meta: { ...PADRAO.meta, ...(bruto.meta || {}) }
       };
     } catch (_) {
@@ -86,7 +97,8 @@
     return estado.config.jcpLiquido ? 1 - IR_JCP * fracaoJcp(a) : 1;
   }
 
-  // DPA usado na projeção: média 5a, últimos 12m ou o menor dos dois (conservador, padrão).
+  // DPA usado na projeção: '12m' = recorrente pago nos últimos 12 meses (padrão, o DY atual),
+  // '5a' = média dos últimos 60 meses, 'menor' = o menor dos dois (cenário conservador).
   function dpaBase(a) {
     const d5 = a.bazin?.dpa_sem_extra;
     const d12 = a.bazin?.dpa_12m;
@@ -96,6 +108,11 @@
     if (estado.config.baseRenda === '12m') return ok12 ? d12 : (ok5 ? d5 : 0);
     if (ok5 && ok12) return Math.min(d5, d12);
     return ok5 ? d5 : (ok12 ? d12 : 0);
+  }
+
+  function rotuloBase() {
+    const b = { '12m': 'DY atual (pago nos últimos 12 meses)', '5a': 'DY médio dos últimos 5 anos', menor: 'conservador: menor entre 12 meses e média 5a' }[estado.config.baseRenda] || 'DY atual';
+    return `${b}${estado.config.jcpLiquido ? ', JCP líquido de IR' : ', bruto'}`;
   }
 
   // Perfil de pagamento por mês (frações que somam 1) a partir dos 5 anos fechados.
@@ -198,7 +215,7 @@
     const res = c.custo > 0 ? c.total / c.custo - 1 : null;
     const yoc = c.custo > 0 ? c.renda / c.custo : null;
     const dy = c.total > 0 ? c.renda / c.total : null;
-    const base = { menor: 'menor entre DPA 5a e 12m', '5a': 'DPA médio 5a', '12m': 'DPA 12 meses' }[estado.config.baseRenda];
+    const base = rotuloBase();
     return `
       <div class="kpi"><div class="kpi-label"><span>Patrimônio</span></div>
         <div class="kpi-value">${fmtReal(c.total)}</div>
@@ -376,7 +393,7 @@
           <thead><tr>
             <th>#</th><th>Ativo</th><th class="num">Preço</th><th class="num">Margem</th><th class="num">Score</th>
             <th class="num" data-tip="DPA 12m ÷ DPA 5a">Div. 12m/5a</th><th class="num" data-tip="Peso atual do setor na carteira → peso-alvo">Setor (atual → alvo)</th>
-            <th class="num" data-tip="Renda anual por R$ investido hoje (DPA base ÷ preço)">DY na compra</th>
+            <th class="num" data-tip="DY real: pago nos últimos 12 meses ÷ cotação, bruto">DY 12m</th>
             <th class="num">Sugestão</th>
           </tr></thead>
           <tbody>
@@ -392,7 +409,7 @@
                   <td class="num mono">${x.a.sustentabilidade?.nota ?? '—'}</td>
                   <td class="num mono">${valido(b.razao_12m_5a) ? fmtPctSimples(b.razao_12m_5a, 0) : '—'}</td>
                   <td class="num mono ${x.fatorSetor > 1 ? 't-green' : (x.fatorSetor < 1 ? 't-yellow' : '')}">${fmtPctSimples(x.atual, 0)} → ${fmtPctSimples(x.alvo, 0)}</td>
-                  <td class="num mono">${fmtPctSimples(dpaBase(x.a) / x.a.preco, 2)}</td>
+                  <td class="num mono">${fmtPctSimples(dyReal12m(x.a), 2)}</td>
                   <td class="num mono">${q !== undefined ? (q > 0 ? `<strong>${q}</strong> ações · ${fmtReal(q * x.a.preco)}` : '<span class="t-dim">valor insuficiente</span>') : (x.acimaDoAlvo ? '<span class="t-yellow">setor acima do alvo</span>' : '<span class="t-dim">—</span>')}</td>
                 </tr>`;
             }).join('')}
@@ -535,7 +552,7 @@
     const validas = calc.filter(c => c.valido);
     const invalidas = calc.filter(c => !c.valido).map(c => c.a.ticker);
     const menorCapital = Math.min(...validas.map(c => c.capital));
-    const base = { menor: 'menor entre DPA 5a e 12m', '5a': 'DPA médio 5a', '12m': 'DPA 12 meses' }[estado.config.baseRenda];
+    const base = rotuloBase();
 
     const linhasTabela = validas.map((c, i) => {
       const b = c.a.bazin || {};
@@ -544,8 +561,9 @@
         <tr class="row" data-cart-detail="${esc(c.a.ticker)}">
           <td data-label="Ativo"><div class="asset"><span class="asset-ticker"><i class="meta-chip-cor" style="background:${cor}"></i>${esc(c.a.ticker)}${c.emQueda ? ' <span class="tag tag-mudou is-saiu" data-tip="Dividendo dos últimos 12 meses abaixo de 70% da média de 5 anos">div. em queda</span>' : ''}</span><span class="asset-sector">${esc(c.a.empresa || c.a.setor)}</span></div></td>
           <td class="num mono" data-label="Preço">${fmtReal(c.a.preco)}</td>
-          <td class="num mono" data-label="DPA usado">${fmtReal(c.dpa)}</td>
-          <td class="num mono" data-label="DY">${fmtPctSimples(c.dy, 2)}</td>
+          <td class="num mono" data-label="DY 12m">${fmtPctSimples(dyReal12m(c.a), 2)}</td>
+          <td class="num mono" data-label="DY médio 5a">${fmtPctSimples(dyMedio5a(c.a), 2)}</td>
+          <td class="num mono" data-label="DY usado na meta"><div class="cell-stack"><strong>${fmtPctSimples(c.dy, 2)}</strong><span class="cell-sub">DPA ${fmtReal(c.dpa)}</span></div></td>
           <td class="num mono" data-label="Ações necessárias"><strong>${c.acoes.toLocaleString('pt-BR')}</strong></td>
           <td class="num mono ${c.capital === menorCapital ? 't-green' : ''}" data-label="Capital">${fmtReal(c.capital)}</td>
           <td class="num mono" data-label="Cresc. div. (g)" data-tip="ROE × (1 − payout). ${c.gBruto === null ? 'Sem ROE/payout válidos: projeção com 0%.' : (c.gBruto > G_MAX_PROJECAO ? `Estimativa bruta ${fmtPctSimples(c.gBruto, 1)}, limitada a ${fmtPctSimples(G_MAX_PROJECAO, 0)} na projeção.` : '')}">${c.gBruto === null ? '—' : fmtPctSimples(c.gBruto, 1)}${c.gBruto !== null && c.gBruto > G_MAX_PROJECAO ? '*' : ''}</td>
@@ -559,12 +577,15 @@
     const frases = frasesCruzamento(validas, anos);
     return `
       <div class="meta-chips">${chips}</div>
+      <p class="d-note meta-base">Base da conta: <strong>${esc(base)}</strong>. Troque no seletor “Renda” da seção Posições (DY atual, média 5a ou cenário conservador).</p>
       <div class="table-wrap">
         <table class="vt cart-table">
           <thead><tr>
             <th>Ativo</th><th class="num">Preço</th>
-            <th class="num" data-tip="DPA por ação usado na conta (${esc(base)}${estado.config.jcpLiquido ? ', JCP líquido' : ''})">DPA usado</th>
-            <th class="num">DY</th><th class="num">Ações necessárias</th><th class="num" data-tip="Ações × preço = renda anual ÷ DY. Depende só do DY, não do preço da ação.">Capital</th>
+            <th class="num" data-tip="DY real: pago nos últimos 12 meses ÷ cotação, bruto">DY 12m</th>
+            <th class="num" data-tip="DPA médio dos últimos 60 meses ÷ cotação">DY médio 5a</th>
+            <th class="num" data-tip="O DY que entra na conta da meta: ${esc(base)}. Troque a base no seletor da seção Posições.">DY usado na meta</th>
+            <th class="num">Ações necessárias</th><th class="num" data-tip="Ações × preço = renda anual ÷ DY. Depende só do DY, não do preço da ação.">Capital</th>
             <th class="num" data-tip="Crescimento sustentável do dividendo ≈ ROE × (1 − payout)">Cresc. div. (g)</th>
             <th class="num" data-tip="Com o mesmo número de ações, se o dividendo crescer a g">Renda/mês em ${anos}a</th>
             <th class="num" data-tip="Soma dos proventos recebidos no período, com o mesmo número de ações">Acumulado ${anos}a</th>
@@ -679,7 +700,7 @@
         estado = {
           posicoes: dados.posicoes.filter(p => p && p.ticker).map(p => ({ ticker: String(p.ticker).toUpperCase(), qtd: Number(p.qtd) || 0, pm: Number(p.pm) || 0 })),
           alvos: { ...PADRAO.alvos, ...(dados.alvos || {}) },
-          config: { ...PADRAO.config, ...(dados.config || {}) },
+          config: migrarConfig({ ...PADRAO.config, ...(dados.config || {}) }),
           meta: { ...PADRAO.meta, ...(dados.meta || {}) }
         };
         gravarEstado();

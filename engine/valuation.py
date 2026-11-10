@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
+import calendar
 import statistics
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -11,6 +12,7 @@ from typing import Iterable, Optional
 
 from engine.schemas import (
     Ativo,
+    Bloco12m,
     CategoriaAtivo,
     Dividendo,
     EventoProvento,
@@ -161,40 +163,112 @@ def dpa_ultimos_12m(dividendos: Iterable[Dividendo], data_referencia: date) -> t
     return total, recorrente
 
 
-def teto_por_ano_historico(
-    dividendos: Iterable[Dividendo],
-    ano_inicial: int,
-    ano_final: int,
-) -> dict[int, float]:
-    """Teto Bazin vigente em cada ano civil, com a mesma regra do teto atual (5 anos fechados anteriores).
+def subtrair_meses(d: date, meses: int) -> date:
+    """Recua `meses` meses mantendo o dia (limitado ao último dia do mês de destino)."""
+    total = d.year * 12 + (d.month - 1) - meses
+    ano, mes0 = divmod(total, 12)
+    mes = mes0 + 1
+    return date(ano, mes, min(d.day, calendar.monthrange(ano, mes)[1]))
 
-    Anos cuja janela começa antes do primeiro provento conhecido ficam de fora (falta de histórico
+
+def blocos_12m(
+    dividendos: Iterable[Dividendo],
+    data_referencia: date,
+    quantidade: int,
+) -> list[tuple[str, float, float]]:
+    """Proventos em blocos de 12 meses corridos terminando em `data_referencia` (mais antigo primeiro).
+
+    Cada bloco é (chave 'AAAA-MM' do mês final, total pago, total sem extraordinários rotulados),
+    agrupado pela data-com.
+    """
+    lista = list(dividendos)
+    saida: list[tuple[str, float, float]] = []
+    for i in reversed(range(quantidade)):
+        fim = subtrair_meses(data_referencia, 12 * i)
+        ini = subtrair_meses(data_referencia, 12 * (i + 1))
+        total = 0.0
+        recorrente = 0.0
+        for d in lista:
+            if ini < d.data_com <= fim:
+                total += d.valor
+                if d.tipo != "extraordinario":
+                    recorrente += d.valor
+        saida.append((fim.strftime("%Y-%m"), total, recorrente))
+    return saida
+
+
+def dpa_janela_movel(
+    dividendos: Iterable[Dividendo],
+    data_referencia: date,
+    janela: int = JANELA_ANOS_DPA,
+) -> ResultadoDPA:
+    """DPA pelos últimos `janela` × 12 meses corridos até `data_referencia` (padrão: 60 meses).
+
+    Os proventos são agrupados em blocos de 12 meses (pela data-com) para a detecção de períodos
+    atípicos; o DPA é a soma dos blocos ÷ `janela`. Comparado a anos civis fechados, evita que a
+    data-com de um JCP complementar (ex.: 06/01 em vez de 30/12) mude o ano em que o provento
+    conta, e já incorpora os pagamentos do ano em curso. Com `data_referencia` = 31/12 do ano
+    anterior, o resultado é idêntico ao de 5 anos civis fechados.
+    """
+    if janela <= 0:
+        raise ValueError("A janela de anos para o DPA deve ser maior que zero.")
+    lista = list(dividendos)
+    blocos = blocos_12m(lista, data_referencia, janela)
+    por_bloco = {k: tot for k, tot, _ in blocos}
+    por_bloco_rec = {k: rec for k, _, rec in blocos}
+    tem_extraordinario = any(tot - rec > 1e-9 for _, tot, rec in blocos)
+
+    normalizado, atipicos = normalizar_anos_atipicos(por_bloco_rec)
+    if atipicos:
+        tem_extraordinario = True
+
+    return ResultadoDPA(
+        dpa=sum(por_bloco.values()) / janela,
+        dpa_sem_extra=sum(normalizado.values()) / janela,
+        tem_extraordinario=tem_extraordinario,
+        por_ano=por_bloco,
+        por_ano_sem_extra=normalizado,
+        anos_atipicos=atipicos,
+    )
+
+
+def teto_por_mes_historico(
+    dividendos: Iterable[Dividendo],
+    inicio: date,
+    fim: date,
+) -> dict[str, float]:
+    """Teto Bazin vigente em cada mês ('AAAA-MM'): DPA dos 60 meses até o fim do mês anterior ÷ 6%.
+
+    Meses cuja janela começa antes do primeiro provento conhecido ficam de fora (falta de histórico
     na fonte não pode virar teto artificialmente baixo).
     """
     lista = list(dividendos)
     if not lista:
         return {}
-    primeiro_ano = min(d.data_com.year for d in lista)
-    resultado: dict[int, float] = {}
-    for ano in range(ano_inicial, ano_final + 1):
-        if ano - JANELA_ANOS_DPA < primeiro_ano:
-            continue
-        res = dpa_retroativo(lista, ano_referencia=ano)
-        resultado[ano] = round(teto_bazin(res.dpa_sem_extra), 4)
+    primeiro = min(d.data_com for d in lista)
+    resultado: dict[str, float] = {}
+    cursor = date(inicio.year, inicio.month, 1)
+    while cursor <= fim:
+        ref = cursor - timedelta(days=1)
+        inicio_janela = subtrair_meses(ref, 12 * JANELA_ANOS_DPA) + timedelta(days=1)
+        if inicio_janela.year >= primeiro.year:
+            res = dpa_janela_movel(lista, ref)
+            resultado[cursor.strftime("%Y-%m")] = round(teto_bazin(res.dpa_sem_extra), 4)
+        cursor = date(cursor.year + (cursor.month // 12), cursor.month % 12 + 1, 1)
     return resultado
 
 
 def proporcao_abaixo_teto_dinamico(
     pontos: Iterable[tuple[str, Optional[float]]],
-    teto_por_ano: dict[int, float],
+    teto_por_mes: dict[str, float],
 ) -> Optional[float]:
-    """Proporção de cotações abaixo do teto VIGENTE na data de cada cotação (não o teto de hoje)."""
+    """Proporção de cotações abaixo do teto VIGENTE no mês de cada cotação (não o teto de hoje)."""
     total = 0
     abaixo = 0
     for dt_iso, preco in pontos:
         if preco is None or preco <= 0 or math.isnan(preco):
             continue
-        teto = teto_por_ano.get(int(dt_iso[:4]))
+        teto = teto_por_mes.get(dt_iso[:7])
         if not teto or teto <= 0:
             continue
         total += 1
@@ -293,19 +367,34 @@ def avaliar_bazin(
     usados como "checagem de realidade" do teto de 5 anos (nunca entram no veredito).
     """
     lista = list(dividendos)
-    res_dpa = dpa_retroativo(lista, ano_referencia=ano_referencia)
+    # Janela de 60 meses corridos até a data de referência. Sem data (uso legado/testes), a
+    # janela termina em 31/12 do ano anterior, o que equivale a 5 anos civis fechados.
+    ref = data_referencia if data_referencia is not None else date(ano_referencia - 1, 12, 31)
+    res_dpa = dpa_janela_movel(lista, ref)
     teto_principal = teto_bazin(res_dpa.dpa_sem_extra)
     teto_com_extra = teto_bazin(res_dpa.dpa)
     m_seguranca = margem(teto_principal, preco)
 
     dpa_12m_rec: Optional[float] = None
+    dpa_12m_tot: Optional[float] = None
     teto_12m: Optional[float] = None
     razao_12m_5a: Optional[float] = None
+    historico: list[Bloco12m] = []
     if data_referencia is not None:
-        _, dpa_12m_rec = dpa_ultimos_12m(lista, data_referencia)
+        # DY real: o que foi efetivamente declarado nos últimos 12 meses (bruto, pela data-com).
+        _, dpa_12m_tot, dpa_12m_rec = blocos_12m(lista, data_referencia, 1)[0]
         teto_12m = teto_bazin(dpa_12m_rec)
         if res_dpa.dpa_sem_extra > 0:
             razao_12m_5a = round(dpa_12m_rec / res_dpa.dpa_sem_extra, 4)
+        historico = [
+            Bloco12m(
+                fim=k,
+                total=round(tot, 4),
+                extra=round(tot - rec + float(res_dpa.anos_atipicos.get(k, 0.0)), 4),
+                na_janela=k in res_dpa.por_ano,
+            )
+            for k, tot, rec in blocos_12m(lista, data_referencia, 10)
+        ]
 
     return ResultadoBazin(
         dpa=res_dpa.dpa,
@@ -320,6 +409,8 @@ def avaliar_bazin(
         por_ano_total={str(ano): round(val, 4) for ano, val in res_dpa.por_ano.items()},
         anos_atipicos={str(ano): round(val, 4) for ano, val in res_dpa.anos_atipicos.items()},
         dpa_12m=round(dpa_12m_rec, 4) if dpa_12m_rec is not None else None,
+        dpa_12m_total=round(dpa_12m_tot, 4) if dpa_12m_tot is not None else None,
+        historico_12m=historico,
         teto_12m=round(teto_12m, 2) if teto_12m is not None else None,
         margem_12m=margem(teto_12m, preco) if teto_12m else None,
         razao_12m_5a=razao_12m_5a,
@@ -715,12 +806,16 @@ def avaliar_sustentabilidade(
             )
 
     # 4. Pilar: Tendência recente de proventos vs. Média de 5 anos
-    ultimo_ano_fechado = str(ano_referencia - 1)
-    dpa_ultimo_fechado = float(por_ano.get(ultimo_ano_fechado, 0.0) or 0.0)
-    dpa_ano_aberto = sum(
-        d.valor for d in lista_div if d.data_com.year == ano_referencia and d.tipo != "extraordinario"
-    )
-    dpa_recente_ref = max(dpa_ultimo_fechado, dpa_ano_aberto)
+    # Referência recente = proventos recorrentes dos últimos 12 meses (bloco mais novo da janela).
+    if bazin_res.dpa_12m is not None:
+        dpa_recente_ref = float(bazin_res.dpa_12m)
+    else:
+        ultimo_bloco = max(por_ano.keys()) if por_ano else None
+        dpa_ultimo_fechado = float(por_ano.get(ultimo_bloco, 0.0) or 0.0) if ultimo_bloco else 0.0
+        dpa_ano_aberto = sum(
+            d.valor for d in lista_div if d.data_com.year == ano_referencia and d.tipo != "extraordinario"
+        )
+        dpa_recente_ref = max(dpa_ultimo_fechado, dpa_ano_aberto)
     corte_severo = False
 
     if dpa_5a <= 0:

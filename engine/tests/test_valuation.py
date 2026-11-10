@@ -478,16 +478,18 @@ def test_historico_10_anos_nao_altera_calculos_5_anos_e_benchmarks() -> None:
     r5 = saida_5a.ativos[0]
     r10 = saida_10a.ativos[0]
 
-    assert r5.bazin.teto == r10.bazin.teto == 20.0
+    # Janela de 60 meses até 02/11/2026: junho de 2022 a 2025 (4 × 1,20); junho/2021 já saiu.
+    assert r5.bazin.teto == r10.bazin.teto == pytest.approx(16.0)
     assert r5.bazin.margem_seguranca == r10.bazin.margem_seguranca
-    # O tempo abaixo do teto compara cada cotação com o teto VIGENTE na sua data:
-    # sem histórico anterior a 2021 (5a), só 2026 tem janela completa -> 1 ponto (19 <= 20).
-    assert r5.pct_abaixo_teto_5a == pytest.approx(1.0)
-    # Com 10a: tetos 2022=64, 2023=12, 2024=12, 2025=16, 2026=20 (2018 atípico normalizado em 2023)
-    # pontos: 15<=64 ok, 18>12, 25>12, 19>16, 19<=20 ok -> 2/5
-    assert r10.bazin.teto_por_ano["2022"] == pytest.approx(64.0)
-    assert r10.bazin.teto_por_ano["2023"] == pytest.approx(12.0)
-    assert r10.pct_abaixo_teto_5a == pytest.approx(0.4)
+    # O tempo abaixo do teto compara cada cotação com o teto VIGENTE no seu mês:
+    # sem histórico anterior a 2021 (5a), só os meses a partir de jul/2026 têm janela completa
+    # -> 1 ponto (hoje, 19 > 16).
+    assert r5.pct_abaixo_teto_5a == pytest.approx(0.0)
+    # Com 10a: tetos jan/22=64, jan/23=12, jan/24=12, jan/25=16, nov/26=16 (2018 atípico normalizado)
+    # pontos: 15<=64 ok, 18>12, 25>12, 19>16, 19>16 -> 1/5
+    assert r10.bazin.teto_por_mes["2022-01"] == pytest.approx(64.0)
+    assert r10.bazin.teto_por_mes["2023-01"] == pytest.approx(12.0)
+    assert r10.pct_abaixo_teto_5a == pytest.approx(0.2)
     assert len(r10.historico_precos) > len(r5.historico_precos)
     assert len(r10.proventos_historico) == 7
     assert "CDI" in saida_10a.benchmarks_historico
@@ -546,12 +548,49 @@ def test_dpa_12m_e_razao_com_media_5a() -> None:
     ]
     bazin = avaliar_bazin(dividendos, preco=20.0, ano_referencia=2026, data_referencia=date(2026, 11, 6))
 
-    assert bazin.teto == pytest.approx(2.0 / 0.06)
-    assert bazin.dpa_12m == pytest.approx(0.9)  # extraordinário rotulado fica de fora
+    # Janela de 60 meses até 06/11/2026: blocos de 12m terminando em nov/22..nov/26.
+    # Recorrente: 2,0 + 2,0 + 2,0 + 2,0 + 0,9 (o extraordinário rotulado de 3,0 fica de fora).
+    dpa_5a = (2.0 * 4 + 0.9) / 5
+    assert bazin.dpa_sem_extra == pytest.approx(dpa_5a)
+    assert bazin.teto == pytest.approx(dpa_5a / 0.06)
+    assert bazin.dpa_12m == pytest.approx(0.9)  # recorrente real dos últimos 12 meses
+    assert bazin.dpa_12m_total == pytest.approx(3.9)  # tudo o que foi declarado (DY real com extra)
     assert bazin.teto_12m == pytest.approx(15.0)
-    assert bazin.razao_12m_5a == pytest.approx(0.45)
+    assert bazin.razao_12m_5a == pytest.approx(0.9 / dpa_5a, abs=1e-4)  # arredondado a 4 casas
     assert bazin.margem_12m == pytest.approx((15.0 - 20.0) / 15.0)
     assert bazin.veredito == "verde"  # o veredito continua só pelo Bazin de 5 anos
+    assert len(bazin.historico_12m) == 10
+    assert bazin.historico_12m[-1].fim == "2026-11"
+    assert bazin.historico_12m[-1].extra == pytest.approx(3.0)
+
+
+def test_janela_movel_nao_depende_do_ano_civil_da_data_com() -> None:
+    """JCP complementar com data-com em 06/01 (caso Bradesco) não 'muda de ano' na janela de 60 meses."""
+    from engine.valuation import dpa_janela_movel
+
+    # Mesmo valor anual; num ano o complementar cai em 30/12, no outro em 06/01 do ano seguinte.
+    dividendos = []
+    for ano in range(2021, 2027):
+        dividendos += [Dividendo(data_com=date(ano, m, 1), valor=0.02, tipo="jcp") for m in range(1, 13)]
+    dividendos += [Dividendo(data_com=date(2023, 1, 6), valor=0.58, tipo="jcp"),  # complementar de 2022
+                   Dividendo(data_com=date(2023, 12, 21), valor=0.49, tipo="jcp"),
+                   Dividendo(data_com=date(2024, 12, 20), valor=0.50, tipo="jcp"),
+                   Dividendo(data_com=date(2025, 12, 19), valor=0.51, tipo="jcp")]
+    res = dpa_janela_movel(dividendos, date(2026, 11, 6))
+    # 60 meses × 0,02 + os quatro complementares que caem na janela (06/01/2023 está dentro).
+    assert res.dpa_sem_extra == pytest.approx((60 * 0.02 + 0.58 + 0.49 + 0.50 + 0.51) / 5)
+    assert res.anos_atipicos == {}
+
+
+def test_janela_ate_31_12_equivale_a_anos_civis() -> None:
+    """Sem data de referência, a janela termina em 31/12 do ano anterior = 5 anos civis fechados."""
+    from engine.valuation import dpa_janela_movel
+
+    dividendos = [Dividendo(data_com=date(2021 + i, 5, 10), valor=1.0 + i, tipo="dividendo") for i in range(6)]
+    movel = dpa_janela_movel(dividendos, date(2025, 12, 31))
+    civil = dpa_retroativo(dividendos, ano_referencia=2026)
+    assert movel.dpa_sem_extra == pytest.approx(civil.dpa_sem_extra)
+    assert movel.dpa == pytest.approx(civil.dpa)
 
 
 def test_payout_calculado_pelos_proventos_12m() -> None:

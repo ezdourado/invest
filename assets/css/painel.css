@@ -4790,7 +4790,7 @@ html[data-theme="light"] .vt tbody tr.row.is-selected td.c-ticker {
 
   /* Sensibilidade ao DY: continua grade (mapa de calor), com rolagem horizontal. */
   #matriz-sensibilidade .table-wrap { overflow-x: auto !important; }
-  .vt.sens-table { display: table; min-width: 520px; }
+  .vt.sens-table { display: table; min-width: 600px; }
   .vt.sens-table thead { display: table-header-group; }
   .vt.sens-table tbody { display: table-row-group; padding: 0; }
   .vt.sens-table tbody tr { display: table-row; }
@@ -4820,3 +4820,26 @@ html[data-theme="light"] .vt tbody tr.row.is-selected td.c-ticker {
 .meta-svg .meta-ponto { stroke: none; }
 .meta-svg .meta-rotulo { font-family: var(--mono); font-size: 12px; font-weight: 600; }
 .meta-leitura { margin: 8px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.5; color: var(--text); }
+
+/* ---------- DY real e lente de extraordinários ---------- */
+.vt.hide-col-dy th.c-dy,
+.vt.hide-col-dy td.c-dy { display: none !important; }
+.lente-btn { white-space: nowrap; }
+.lente-btn.is-active { color: var(--yellow); border-color: var(--yellow); background: color-mix(in srgb, var(--yellow) 12%, transparent); }
+@media (max-width: 980px) {
+  .vt tbody tr.row {
+    grid-template-areas:
+      "ticker  verdict"
+      "preco   teto"
+      "margem  tend"
+      "dy      falta"
+      "dpa     sustent"
+      "graham  gordon"
+      "gb      alt"
+      "tec     tec"
+      "actions actions";
+  }
+  .vt tbody td.c-dy { grid-area: dy; border-right: 1px solid var(--border); }
+  .vt tbody td.c-falta { border-right: none; }
+  .lente-btn .lente-txt { display: none; }
+}
