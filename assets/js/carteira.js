@@ -41,8 +41,10 @@
 
   // Versão 2 (10/11/2026): a renda passa a usar por padrão o DY real dos últimos 12 meses, bruto.
   // Configurações antigas (padrão 'menor' + JCP líquido) são migradas uma vez.
-  function migrarConfig(cfg) {
-    if ((cfg.versao || 1) < 2) {
+  // Recebe a configuração SALVA (antes de mesclar com o padrão, que já é versão 2).
+  function migrarConfig(salva) {
+    const cfg = { ...PADRAO.config, ...(salva || {}) };
+    if ((salva?.versao || 1) < 2) {
       cfg.baseRenda = '12m';
       cfg.jcpLiquido = false;
       cfg.versao = 2;
@@ -57,7 +59,7 @@
       return {
         posicoes: Array.isArray(bruto.posicoes) ? bruto.posicoes.filter(p => p && p.ticker) : [],
         alvos: { ...PADRAO.alvos, ...(bruto.alvos || {}) },
-        config: migrarConfig({ ...PADRAO.config, ...(bruto.config || {}) }),
+        config: migrarConfig(bruto.config),
         meta: { ...PADRAO.meta, ...(bruto.meta || {}) }
       };
     } catch (_) {
@@ -700,7 +702,7 @@
         estado = {
           posicoes: dados.posicoes.filter(p => p && p.ticker).map(p => ({ ticker: String(p.ticker).toUpperCase(), qtd: Number(p.qtd) || 0, pm: Number(p.pm) || 0 })),
           alvos: { ...PADRAO.alvos, ...(dados.alvos || {}) },
-          config: migrarConfig({ ...PADRAO.config, ...(dados.config || {}) }),
+          config: migrarConfig(dados.config),
           meta: { ...PADRAO.meta, ...(dados.meta || {}) }
         };
         gravarEstado();
