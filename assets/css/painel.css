@@ -4806,3 +4806,17 @@ html[data-theme="light"] .vt tbody tr.row.is-selected td.c-ticker {
 .pt-svg .pt-ponto.is-verde { fill: var(--green); }
 .pt-svg .pt-ponto.is-amarelo { fill: var(--yellow); }
 .pt-svg .pt-ponto.is-vermelho { fill: var(--red); }
+
+/* ---------- Carteira: meta de renda ---------- */
+.meta-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.meta-chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 4px 2px 8px; border: 1px solid; border-radius: 999px; font-family: var(--mono); font-size: 13px; color: var(--text-strong); }
+.meta-chip button { border: 0; background: transparent; color: var(--muted); font-size: 15px; line-height: 1; cursor: pointer; padding: 0 4px; }
+.meta-chip button:hover { color: var(--text-strong); }
+.meta-chip-cor { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.meta-grafico { margin-top: 14px; }
+.meta-svg { display: block; height: auto; overflow: visible; }
+.meta-svg .meta-grade { stroke: var(--border); stroke-width: 1; fill: none; }
+.meta-svg .meta-linha { fill: none; stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+.meta-svg .meta-ponto { stroke: none; }
+.meta-svg .meta-rotulo { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+.meta-leitura { margin: 8px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.5; color: var(--text); }
